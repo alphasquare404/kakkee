@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–3 tersedia (React/TypeScript/Vite, snapshot schema stable v2.4.2366, dan codegen `aboutServer`); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–4 tersedia (React/TypeScript/Vite, schema stable, codegen `aboutServer`, dan resolver deployment/server URL); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -60,6 +60,8 @@ React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum 
 | Subpath terpisah | `https://reader.example.com/app/` | `https://example.com/suwayomi` | `https://example.com/suwayomi/api/graphql` |
 
 Resource `/api/v1/...` pada contoh terakhir menjadi `https://example.com/suwayomi/api/v1/...`. Menggabungkan URL secara biasa dengan slash awal bisa membuang `/suwayomi`; resolver harus secara eksplisit mempertahankan prefix. Scheme WebSocket mengikuti HTTPS→WSS atau HTTP→WS.
+
+Resolver yang diimplementasikan ada di `src/core/server/serverUrl.ts`, dengan komposisi deployment di `src/core/config/deployment.ts`. Canonical `serverBaseUrl` tidak memakai trailing slash; canonical `frontendBasePath` selalu memakai leading dan trailing slash. Resource relative selalu digabung dengan prefix server; absolute URL hanya diterima jika origin dan prefix cocok. Cross-origin, protocol-relative, traversal, dan credentials ditolak. Same-origin berarti origin sama, bukan path sama.
 
 Deteksi otomatis hanya memakai konfigurasi deployment yang dapat dipercaya. Jika prefix server tidak diketahui, minta URL melalui form koneksi. Jangan menebak dari route halaman. Reverse proxy harus mendukung history fallback frontend dan upgrade WebSocket; standalone membutuhkan CORS yang sesuai untuk HTTP/resource. Pengaturan itu didokumentasikan sebagai kebutuhan operator, tanpa memodifikasi Suwayomi-Server.
 

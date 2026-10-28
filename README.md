@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 3 selesai**. Fondasi aplikasi, quality gates, snapshot schema stable v2.4.2366, dan pipeline GraphQL Codegen untuk `aboutServer` sudah tersedia. Belum ada koneksi server dari aplikasi, autentikasi, resource loader, PWA, atau fitur domain.
+Status saat ini: **Phase 0 — Step 4 selesai**. Fondasi aplikasi, quality gates, snapshot schema stable v2.4.2366, codegen `aboutServer`, dan resolver deployment/server URL sudah tersedia. Belum ada koneksi server dari aplikasi, autentikasi, resource loader, PWA, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -21,6 +21,15 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - Generated TypeScript document node di `src/core/graphql/generated/`.
 - Script `codegen` dan `codegen:check` untuk CI.
 - Tidak ada Apollo Client, HTTP client, WebSocket client, auth, atau UI koneksi.
+
+## Lingkup Step 4
+
+- Pemisahan `frontendBasePath` dan `serverBaseUrl`.
+- Normalisasi server URL dan validasi input.
+- Helper GraphQL HTTP, GraphQL WebSocket, dan resource server.
+- Deteksi same-origin tanpa menyamakan origin dengan path.
+- Resolver resource yang menolak cross-origin, protocol-relative, dan traversal.
+- Tidak ada network request, Apollo, auth, router, atau resource fetch.
 
 ## GraphQL baseline
 
@@ -96,13 +105,19 @@ npm run preview
 │  │  ├─ App.test.tsx
 │  │  └─ app.css
 │  ├─ core/
-│  │  └─ graphql/
-│  │     ├─ aboutServer.generated.test.ts
-│  │     └─ generated/
-│  │        ├─ fragment-masking.ts
-│  │        ├─ gql.ts
-│  │        ├─ graphql.ts
-│  │        └─ index.ts
+│  │  ├─ config/
+│  │  │  ├─ deployment.ts
+│  │  │  └─ deployment.test.ts
+│  │  ├─ graphql/
+│  │  │  ├─ aboutServer.generated.test.ts
+│  │  │  └─ generated/
+│  │  │     ├─ fragment-masking.ts
+│  │  │     ├─ gql.ts
+│  │  │     ├─ graphql.ts
+│  │  │     └─ index.ts
+│  │  └─ server/
+│  │     ├─ serverUrl.ts
+│  │     └─ serverUrl.test.ts
 │  ├─ main.tsx
 │  └─ vite-env.d.ts
 ├─ codegen.ts
@@ -117,7 +132,7 @@ npm run preview
 └─ package-lock.json
 ```
 
-Folder `src/core` saat ini hanya berisi generated GraphQL dan satu test document node. `src/features`, `src/shared`, dan runtime GraphQL belum dibuat karena belum ada implementasi yang membutuhkannya.
+Folder `src/core` saat ini berisi resolver deployment/server dan generated GraphQL. `src/features`, `src/shared`, dan runtime GraphQL belum dibuat karena belum ada implementasi yang membutuhkannya.
 
 ## Keputusan dependency
 
@@ -166,6 +181,38 @@ Operasi yang dibuat hanya `aboutServer`; field `revision` yang deprecated tidak 
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
+## Deployment dan URL
+
+Dua alamat dipisahkan secara eksplisit:
+
+| Konsep | Canonical | Dipakai untuk |
+| --- | --- | --- |
+| `frontendBasePath` | `/` atau `/app/` (leading dan trailing slash) | router, asset, manifest, service worker, start URL |
+| `serverBaseUrl` | `https://example.com` atau `https://example.com/suwayomi` (tanpa trailing slash) | GraphQL HTTP, GraphQL WebSocket, resource |
+
+`serverBaseUrl` adalah **input runtime**, bukan nilai build-time yang dipaksakan. Tidak ada alamat server pribadi yang di-commit. `frontendBasePath` adalah konfigurasi deployment frontend dan tidak diturunkan dari route halaman atau dari path server.
+
+Contoh:
+
+| Frontend | Server | GraphQL HTTP | GraphQL WS |
+| --- | --- | --- | --- |
+| `https://example.com/` | `https://example.com` | `https://example.com/api/graphql` | `wss://example.com/api/graphql` |
+| `https://example.com/app/` | `https://example.com` | `https://example.com/api/graphql` | `wss://example.com/api/graphql` |
+| `https://example.com/` | `https://example.com/suwayomi` | `https://example.com/suwayomi/api/graphql` | `wss://example.com/suwayomi/api/graphql` |
+| `https://reader.example.com/app/` | `https://manga.example.com/suwayomi` | `https://manga.example.com/suwayomi/api/graphql` | `wss://manga.example.com/suwayomi/api/graphql` |
+
+Aturan keamanan resource:
+
+- Relative path seperti `/api/v1/test` dan `api/v1/test` selalu digabung dengan prefix server.
+- Absolute URL hanya diterima jika origin dan prefix sesuai `serverBaseUrl`; cross-origin ditolak.
+- Protocol-relative `//host/...`, traversal `../`, encoded traversal, backslash, dan URL dengan credentials ditolak.
+- Absolute URL di luar prefix server, termasuk `https://example.com/suwayomi2/...`, ditolak.
+- Resolver ini belum mengirim request atau token; aturan tersebut mencegah token dikirim ke origin arbitrer pada step berikutnya.
+
+Same-origin berarti **origin** sama, bukan path sama. Frontend `https://example.com/app/` dan server `https://example.com/suwayomi` adalah same-origin meskipun path-nya berbeda.
+
+Semua konsumen nanti harus memakai `createDeploymentConfig`; tidak boleh membentuk URL server sendiri di komponen atau service.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -175,7 +222,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (2 test)
+npm run test           lulus (31 test)
 npm run build          lulus
 ```
 
@@ -195,6 +242,15 @@ Validasi codegen Step 3:
 - Drift sementara pada generated output terdeteksi oleh `codegen:check` dengan status non-zero; output dipulihkan dengan `npm run codegen`.
 - Folder generated di-ignore dari ESLint, tetapi tetap diperiksa TypeScript strict.
 
+Validasi resolver Step 4:
+
+- Normalisasi server root, subpath, trailing slash, port, localhost, IPv4, dan IPv6.
+- Penolakan input invalid, credentials, query, hash, scheme non-HTTP, traversal, dan encoded traversal.
+- GraphQL HTTP/WS dan WSS untuk root/subpath/port.
+- Resource relative dan absolute same-server; penolakan cross-origin, protocol-relative, di luar prefix, dan traversal.
+- Same-origin dibedakan dari same-path.
+- Kombinasi frontend `/`, `/app/`, server root, server `/suwayomi`, dan origin berbeda.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -203,9 +259,10 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366 dan generated `aboutServer` tersedia; belum ada runtime Apollo, operasi auth, atau integrasi aplikasi.
+- Snapshot schema stable v2.4.2366, generated `aboutServer`, dan resolver deployment/server tersedia; belum ada runtime Apollo, auth, atau resource fetch.
 - Server v2.4.2366 hanya dijalankan untuk ekstraksi schema dan probe kontrak; belum ada koneksi dari aplikasi frontend.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 dan commit Step 3 dibuat terpisah.
+- Repository Git sudah diinisialisasi; baseline Step 1–2, commit Step 3, dan commit Step 4 dibuat terpisah.
 - Belum ada PWA, routing, autentikasi, resource loader, atau koneksi server dari aplikasi.
-- Pengujian browser/perangkat, CORS, subpath, dan deployment belum dilakukan.
+- Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
+- `serverBaseUrl` belum diuji terhadap server nyata pada Step 4; Step 4 hanya membuktikan resolusi URL.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.
