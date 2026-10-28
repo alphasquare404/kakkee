@@ -1,0 +1,3 @@
+# Keep the verified GraphQL snapshot byte-for-byte stable across checkouts.
+*.graphql text eol=lf
+*.json text eol=lf

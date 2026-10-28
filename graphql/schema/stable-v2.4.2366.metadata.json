@@ -1,0 +1,87 @@
+{
+  "schema": {
+    "path": "graphql/schema/stable-v2.4.2366.graphql",
+    "sha256": "c7b154383d684e69bc1947aad10fdfbc4f717008f61c755536a3857eecdff749",
+    "bytes": 72926,
+    "format": "GraphQL SDL"
+  },
+  "server": {
+    "name": "Suwayomi-Server",
+    "version": "v2.4.2366",
+    "tag": "v2.4.2366",
+    "commit": "40bc5da57820324ed0ae724cbbc020cc4673b594",
+    "buildType": "Stable",
+    "buildTimeEpochSeconds": "1790737255",
+    "releaseUrl": "https://github.com/Suwayomi/Suwayomi-Server/releases/tag/v2.4.2366",
+    "releasePublishedAt": "2026-09-30T03:11:16Z"
+  },
+  "artifact": {
+    "name": "Suwayomi-Server-v2.4.2366.jar",
+    "url": "https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.4.2366/Suwayomi-Server-v2.4.2366.jar",
+    "sha256": "af9feb20af9d7ebe9e30769e6c6ebc7fc7ab1c447388d42e0280b1da5fe07bfd",
+    "bytes": 182952426
+  },
+  "acquisition": {
+    "method": "Runtime GraphQL introspection against the official v2.4.2366 jar",
+    "endpoint": "http://127.0.0.1:4567/api/graphql",
+    "obtainedAt": "2026-10-29T00:16:05+07:00",
+    "runtime": {
+      "java": "openjdk 21.0.11 2026-04-21 LTS (Temurin 21.0.11+10-LTS)",
+      "node": "v26.4.0"
+    },
+    "tool": {
+      "name": "graphql-js",
+      "version": "16.11.0",
+      "operations": [
+        "getIntrospectionQuery",
+        "buildClientSchema",
+        "printSchema",
+        "buildSchema"
+      ]
+    },
+    "serverConfig": {
+      "authMode": "NONE",
+      "webUIEnabled": false,
+      "kcefEnabled": false,
+      "headless": true,
+      "purpose": "Schema extraction only; isolated temporary data directory; no user data"
+    }
+  },
+  "verification": {
+    "schemaParsed": true,
+    "aboutServerRuntimeVerified": true,
+    "authModeEnumVerified": true,
+    "loginAndRefreshRuntimeVerified": true,
+    "websocketSubscriptionRuntimeVerified": true,
+    "protocol": "graphql-transport-ws",
+    "previewOnlyFieldsAbsent": [
+      "UserType",
+      "UserSettingsType",
+      "MangaUserType",
+      "ChapterUserType",
+      "Query.user",
+      "Query.users",
+      "Query.userSettings",
+      "Mutation.register",
+      "Mutation.setPassword",
+      "Mutation.updateUser"
+    ]
+  },
+  "reproduction": {
+    "note": "No credentials are required. Use a throwaway data directory and default NONE auth.",
+    "script": "import fs from 'node:fs';\nimport { buildClientSchema, buildSchema, getIntrospectionQuery, printSchema } from 'graphql';\n\nconst [endpoint, outputPath] = process.argv.slice(2);\nif (!endpoint || !outputPath) throw new Error('Usage: node introspect.mjs <endpoint> <output.graphql>');\n\nconst query = getIntrospectionQuery({\n  descriptions: true,\n  specifiedByUrl: false,\n  directiveIsRepeatable: false,\n  schemaDescription: false,\n  inputValueDeprecation: false,\n});\n\nconst response = await fetch(endpoint, {\n  method: 'POST',\n  headers: { 'content-type': 'application/json' },\n  body: JSON.stringify({ query }),\n});\nif (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);\n\nconst payload = await response.json();\nif (payload.errors?.length) throw new Error(JSON.stringify(payload.errors));\nif (!payload.data?.__schema) throw new Error('Missing __schema');\n\nconst clientSchema = buildClientSchema(payload.data);\nconst sdl = `${printSchema(clientSchema)}\\n`;\nbuildSchema(sdl);\nfs.writeFileSync(outputPath, sdl, 'utf8');\nconsole.log(`WROTE=${outputPath} BYTES=${Buffer.byteLength(sdl, 'utf8')}`);",
+    "commands": [
+      "curl -L --fail --output \"$TMPDIR/Suwayomi-Server-v2.4.2366.jar\" https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.4.2366/Suwayomi-Server-v2.4.2366.jar",
+      "sha256sum \"$TMPDIR/Suwayomi-Server-v2.4.2366.jar\" # expect af9feb20af9d7ebe9e30769e6c6ebc7fc7ab1c447388d42e0280b1da5fe07bfd",
+      "mkdir -p \"$TMPDIR/suwayomi-baseline/data\"",
+      "printf 'server {\\n  ip = \"127.0.0.1\"\\n  port = 4567\\n  initialOpenInBrowserEnabled = false\\n  systemTrayEnabled = false\\n  webUIEnabled = false\\n  kcefEnabled = false\\n  authMode = NONE\\n}\\n' > \"$TMPDIR/suwayomi-baseline/data/server.conf\"",
+      "java -Djava.awt.headless=true -Dsuwayomi.tachidesk.config.server.rootDir=\"$TMPDIR/suwayomi-baseline/data\" -jar \"$TMPDIR/Suwayomi-Server-v2.4.2366.jar\" # run in a separate terminal",
+      "mkdir -p \"$TMPDIR/suwayomi-schema-tool\" && cd \"$TMPDIR/suwayomi-schema-tool\" && npm init -y && npm install --save-exact graphql@16.11.0",
+      "# Save the script from reproduction.script as \"$TMPDIR/suwayomi-schema-tool/introspect.mjs\"",
+      "cd - # return to the repository root",
+      "node \"$TMPDIR/suwayomi-schema-tool/introspect.mjs\" http://127.0.0.1:4567/api/graphql \"$PWD/graphql/schema/stable-v2.4.2366.graphql\"",
+      "sha256sum \"$PWD/graphql/schema/stable-v2.4.2366.graphql\""
+    ],
+    "cwd": "repository root"
+  }
+}

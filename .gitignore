@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build dan cache
+dist/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Environment lokal
+.env
+.env.*
+!.env.example
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Log
+*.log
+npm-debug.log*
+
+# Artefak audit/runtime lokal
+*.jar
+*.pem
+*.key
+server-data/
+suwayomi-data/
