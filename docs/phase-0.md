@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 4 selesai** — bootstrap React/TypeScript/Vite, quality gates dasar, snapshot schema stable v2.4.2366, codegen `aboutServer`, dan resolver deployment/server URL sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–4 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 5 selesai** — bootstrap React/TypeScript/Vite, quality gates dasar, snapshot schema stable v2.4.2366, codegen `aboutServer`/login/refresh, resolver deployment/server URL, dan auth session in-memory sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–5 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 

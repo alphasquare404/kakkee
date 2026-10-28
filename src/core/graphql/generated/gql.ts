@@ -15,9 +15,13 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  */
 type Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": typeof types.AboutServerDocument,
+    "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}": typeof types.LoginDocument,
+    "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": typeof types.RefreshTokenDocument,
 };
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
+    "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}": types.LoginDocument,
+    "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": types.RefreshTokenDocument,
 };
 
 /**
@@ -38,6 +42,14 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}"): (typeof documents)["query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}"): (typeof documents)["mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"): (typeof documents)["mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

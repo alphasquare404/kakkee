@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–4 tersedia (React/TypeScript/Vite, schema stable, codegen `aboutServer`, dan resolver deployment/server URL); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–5 tersedia (React/TypeScript/Vite, schema stable, codegen `aboutServer`/login/refresh, resolver deployment/server URL, dan auth session in-memory); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -70,6 +70,8 @@ Deteksi otomatis hanya memakai konfigurasi deployment yang dapat dipercaya. Jika
 Sebelum menulis operasi, ambil schema dari baseline stable yang identitas versinya terverifikasi. Snapshot dan metadata disimpan bersama proyek agar semua AI memakai kontrak yang sama. Tidak ada schema atau selection set rekaan dalam dokumen ini. Upgrade schema merupakan perubahan terpisah dengan diff dan pemeriksaan kompatibilitas.
 
 Auth service memberikan access token aktif ke HTTP, WebSocket, dan resource service. Snapshot stable dan probe runtime sudah memverifikasi login/refresh, Bearer pada HTTP, serta token mentah pada `connectionParams.Authorization`; deteksi mode, expiry, dan logout end-to-end masih perlu diuji. Detail bukti dan gap ada di [suwayomi-backend-notes.md](suwayomi-backend-notes.md). UI tidak boleh mengetahui cara menyimpan token. Default awal di memori; keputusan persistensi menunggu verifikasi kebutuhan dan keamanan. BASIC_AUTH/SIMPLE_LOGIN dikenali sebagai belum didukung jika deteksi resmi memungkinkan, bukan diperlakukan sebagai NONE.
+
+Implementasi Step 5 memisahkan `NONE` sebagai mode sesi nyata dari `UI_LOGIN` unauthenticated/authenticated, menyimpan access dan refresh token hanya di memori, membaca `exp` JWT tanpa verifikasi signature, dan memakai generation guard untuk menolak respons async dari sesi lama. Logout lokal tidak mengklaim revokasi server; refresh tidak merotasi refresh token. Fetch login/refresh belum diimplementasikan dan tetap menjadi tanggung jawab transport step berikutnya.
 
 Coordinator memiliki state konseptual: belum terhubung, menghubungkan, perlu login, terhubung, gagal, dan mode tidak didukung. Timeout/network/CORS, GraphQL error, dan kredensial ditolak ditampilkan secara berbeda sejauh bukti browser memungkinkan; kegagalan jaringan tidak otomatis berarti password salah. HTTP sukses saja belum berarti Connected: operasi aboutServer terverifikasi harus berhasil. WebSocket memiliki status sendiri; jangan mengklaim subscriptions teruji dari HTTP.
 

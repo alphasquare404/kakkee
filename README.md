@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 4 selesai**. Fondasi aplikasi, quality gates, snapshot schema stable v2.4.2366, codegen `aboutServer`, dan resolver deployment/server URL sudah tersedia. Belum ada koneksi server dari aplikasi, autentikasi, resource loader, PWA, atau fitur domain.
+Status saat ini: **Phase 0 — Step 5 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, dan auth/session in-memory untuk `NONE`/`UI_LOGIN` sudah tersedia. Belum ada koneksi server, transport GraphQL, React UI, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -30,6 +30,15 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - Deteksi same-origin tanpa menyamakan origin dengan path.
 - Resolver resource yang menolak cross-origin, protocol-relative, dan traversal.
 - Tidak ada network request, Apollo, auth, router, atau resource fetch.
+
+## Lingkup Step 5
+
+- Operasi `Login` dan `RefreshToken` tervalidasi terhadap schema stable.
+- Session model eksplisit untuk `NONE` dan `UI_LOGIN`.
+- Access dan refresh token hanya di memori.
+- JWT `exp` dibaca tanpa verifikasi signature, hanya untuk metadata.
+- Generation guard untuk menolak respons async dari sesi lama.
+- Auth service tidak bergantung pada React dan belum melakukan fetch.
 
 ## GraphQL baseline
 
@@ -98,13 +107,22 @@ npm run preview
 │  │  ├─ stable-v2.4.2366.graphql
 │  │  └─ stable-v2.4.2366.metadata.json
 │  └─ operations/
-│     └─ aboutServer.graphql
+│     ├─ aboutServer.graphql
+│     ├─ login.graphql
+│     └─ refreshToken.graphql
 ├─ src/
 │  ├─ app/
 │  │  ├─ App.tsx
 │  │  ├─ App.test.tsx
 │  │  └─ app.css
 │  ├─ core/
+│  │  ├─ auth/
+│  │  │  ├─ authError.ts
+│  │  │  ├─ authService.ts
+│  │  │  ├─ authService.test.ts
+│  │  │  ├─ session.ts
+│  │  │  ├─ token.ts
+│  │  │  └─ token.test.ts
 │  │  ├─ config/
 │  │  │  ├─ deployment.ts
 │  │  │  └─ deployment.test.ts
@@ -177,7 +195,7 @@ Scalar mapping:
 
 `Upload` dipetakan ke `File` karena input browser yang natural adalah `File` dari `<input type="file">`; Apollo Upload Client juga menerima `File`/`Blob`. Mapping ini belum dipakai oleh operasi Step 3.
 
-Operasi yang dibuat hanya `aboutServer`; field `revision` yang deprecated tidak dipakai.
+Operasi yang dibuat: `aboutServer`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`.
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
@@ -213,6 +231,31 @@ Same-origin berarti **origin** sama, bukan path sama. Frontend `https://example.
 
 Semua konsumen nanti harus memakai `createDeploymentConfig`; tidak boleh membentuk URL server sendiri di komponen atau service.
 
+## Auth dan session
+
+`AuthService` adalah satu-satunya pemilik state sesi. Model sesi membedakan:
+
+- `disconnected` — belum ada konteks server.
+- `none` — server mode NONE; tidak memiliki token. Status ini belum berarti `connected` sampai connection layer membuktikannya nanti.
+- `unauthenticated` — UI_LOGIN memerlukan login, kredensial salah, sesi expired, atau refresh gagal.
+- `authenticated` — UI_LOGIN dengan access token, refresh token, dan metadata `exp`.
+- `refreshing` — refresh sedang berjalan; access token lama tetap tersedia sampai hasil refresh diterima.
+- `failed` — kegagalan non-kredensial yang tidak secara otomatis berarti sesi valid.
+
+Kebijakan Step 5:
+
+- Access dan refresh token hanya disimpan di memori. Tidak ada `localStorage`, `sessionStorage`, cookie, atau persistence lain.
+- Logout lokal hanya membersihkan session; tidak mengklaim server mencabut token. Stable tidak memiliki mutation logout auth.
+- Refresh hanya mengganti access token. Refresh token lama dipertahankan dan tidak dirotasi.
+- JWT payload boleh dibaca untuk `exp`, tetapi tidak diverifikasi signature-nya. Token malformed dianggap invalid.
+- `isSessionAccessTokenExpired` dan `isSessionAccessTokenNearExpiry` tersedia; tidak ada refresh otomatis pada Step 5.
+- Setiap perubahan sesi atau mulai login/refresh menaikkan generation. Hasil async dengan generation lama ditolak, termasuk setelah logout atau ganti server.
+- `AuthError` tidak memuat token atau stack trace mentah server.
+
+Fetch login/refresh **ditunda ke Step 6**. `AuthService` menyediakan kontrak `AuthTransport` berbasis generated types; Step 5 hanya membuktikan state/lifecycle dan stale-response protection, bukan transport.
+
+`NONE` bukan fallback ketika mode auth tidak diketahui. Mode harus ditentukan oleh connection layer; `UI_LOGIN` yang belum terautentikasi tetap `unauthenticated`.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -222,7 +265,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (31 test)
+npm run test           lulus (55 test)
 npm run build          lulus
 ```
 
@@ -251,6 +294,16 @@ Validasi resolver Step 4:
 - Same-origin dibedakan dari same-path.
 - Kombinasi frontend `/`, `/app/`, server root, server `/suwayomi`, dan origin berbeda.
 
+Validasi auth Step 5:
+
+- NONE session tanpa token, clear/reset.
+- UI_LOGIN authenticated dengan access/refresh/expiry.
+- Refresh hanya mengganti access token dan mempertahankan refresh token.
+- JWT `exp` valid, expired, future, tanpa `exp`, dan malformed.
+- Respons lama ditolak setelah logout, reset ke NONE, atau login baru.
+- Invalid credentials, refresh failure, network failure, dan session expired dipetakan ke state berbeda.
+- Error string tidak memuat token.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -259,10 +312,11 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated `aboutServer`, dan resolver deployment/server tersedia; belum ada runtime Apollo, auth, atau resource fetch.
+- Snapshot schema stable v2.4.2366, generated `aboutServer`, resolver deployment/server, dan auth session foundation tersedia; belum ada runtime Apollo, transport fetch, atau resource fetch.
 - Server v2.4.2366 hanya dijalankan untuk ekstraksi schema dan probe kontrak; belum ada koneksi dari aplikasi frontend.
-- Repository Git sudah diinisialisasi; baseline Step 1–2, commit Step 3, dan commit Step 4 dibuat terpisah.
-- Belum ada PWA, routing, autentikasi, resource loader, atau koneksi server dari aplikasi.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–5 dibuat terpisah.
+- Belum ada PWA, routing, login UI, resource loader, atau koneksi server dari aplikasi.
 - Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
-- `serverBaseUrl` belum diuji terhadap server nyata pada Step 4; Step 4 hanya membuktikan resolusi URL.
+- `serverBaseUrl` belum diuji terhadap server nyata pada Step 4–5; Step 5 hanya membuktikan state/lifecycle auth.
+- Token persistence belum dipilih; saat ini hanya memori.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.
