@@ -1,0 +1,18 @@
+subscription DownloadStatusChanged {
+  downloadStatusChanged(input: {}) {
+    state
+    initial {
+      chapter {
+        id
+      }
+      manga {
+        id
+      }
+      state
+      progress
+    }
+    updates {
+      type
+    }
+  }
+}

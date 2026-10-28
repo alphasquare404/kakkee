@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–5 tersedia (React/TypeScript/Vite, schema stable, codegen `aboutServer`/login/refresh, resolver deployment/server URL, dan auth session in-memory); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–6 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver deployment/server URL, auth session in-memory, dan GraphQL HTTP/WS transport); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -47,7 +47,7 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 
 Ini lokasi yang diharapkan, bukan perintah membuat semua folder kosong. Modul dibuat ketika langkah implementasi membutuhkannya. Detail nama file dapat disesuaikan dengan alasan yang dicatat; batas tanggung jawab tetap berlaku.
 
-React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. GraphQL Code Generator, `graphql`, dan typed document node sudah terpasang untuk pipeline schema → operasi terverifikasi. Apollo Client, `graphql-ws`, React Router, PWA, dan UI library belum dipasang.
+React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. GraphQL Code Generator, `graphql`, Apollo Client, `graphql-ws`, dan typed document node sudah terpasang untuk pipeline schema → operasi terverifikasi dan transport. React Router, PWA, dan UI library belum dipasang.
 
 ## Dua alamat yang berbeda
 
@@ -71,7 +71,9 @@ Sebelum menulis operasi, ambil schema dari baseline stable yang identitas versin
 
 Auth service memberikan access token aktif ke HTTP, WebSocket, dan resource service. Snapshot stable dan probe runtime sudah memverifikasi login/refresh, Bearer pada HTTP, serta token mentah pada `connectionParams.Authorization`; deteksi mode, expiry, dan logout end-to-end masih perlu diuji. Detail bukti dan gap ada di [suwayomi-backend-notes.md](suwayomi-backend-notes.md). UI tidak boleh mengetahui cara menyimpan token. Default awal di memori; keputusan persistensi menunggu verifikasi kebutuhan dan keamanan. BASIC_AUTH/SIMPLE_LOGIN dikenali sebagai belum didukung jika deteksi resmi memungkinkan, bukan diperlakukan sebagai NONE.
 
-Implementasi Step 5 memisahkan `NONE` sebagai mode sesi nyata dari `UI_LOGIN` unauthenticated/authenticated, menyimpan access dan refresh token hanya di memori, membaca `exp` JWT tanpa verifikasi signature, dan memakai generation guard untuk menolak respons async dari sesi lama. Logout lokal tidak mengklaim revokasi server; refresh tidak merotasi refresh token. Fetch login/refresh belum diimplementasikan dan tetap menjadi tanggung jawab transport step berikutnya.
+Implementasi Step 5 memisahkan `NONE` sebagai mode sesi nyata dari `UI_LOGIN` unauthenticated/authenticated, menyimpan access dan refresh token hanya di memori, membaca `exp` JWT tanpa verifikasi signature, dan memakai generation guard untuk menolak respons async dari sesi lama. Logout lokal tidak mengklaim revokasi server; refresh tidak merotasi refresh token. Step 5 menyediakan session/lifecycle dan kontrak `AuthTransport`; implementasi fetch login/refresh ada di Step 6.
+
+Implementasi Step 6 menambahkan Apollo Client HTTP, auth link, error link dengan refresh single-flight, dan `graphql-ws` subscription. HTTP memakai Bearer hanya pada UI_LOGIN; WebSocket memakai token mentah di `connectionParams.Authorization`. Refresh maksimal satu kali, Forbidden/NONE tidak memicu refresh, dan hasil stale ditolak oleh generation `AuthService`. Client menyediakan `dispose()`, `clearCache()`, dan `restartWebSocket()`; restart membuat koneksi/link baru dan tidak otomatis me-resubscribe subscription yang sudah aktif.
 
 Coordinator memiliki state konseptual: belum terhubung, menghubungkan, perlu login, terhubung, gagal, dan mode tidak didukung. Timeout/network/CORS, GraphQL error, dan kredensial ditolak ditampilkan secara berbeda sejauh bukti browser memungkinkan; kegagalan jaringan tidak otomatis berarti password salah. HTTP sukses saja belum berarti Connected: operasi aboutServer terverifikasi harus berhasil. WebSocket memiliki status sendiri; jangan mengklaim subscriptions teruji dari HTTP.
 

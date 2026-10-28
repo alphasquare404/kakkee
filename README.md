@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 5 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, dan auth/session in-memory untuk `NONE`/`UI_LOGIN` sudah tersedia. Belum ada koneksi server, transport GraphQL, React UI, atau fitur domain.
+Status saat ini: **Phase 0 — Step 6 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, dan GraphQL HTTP/WebSocket transport sudah tersedia. Belum ada React UI, connection page, resource loader, PWA, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -39,6 +39,18 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - JWT `exp` dibaca tanpa verifikasi signature, hanya untuk metadata.
 - Generation guard untuk menolak respons async dari sesi lama.
 - Auth service tidak bergantung pada React dan belum melakukan fetch.
+
+## Lingkup Step 6
+
+- Apollo Client untuk HTTP query/mutation dengan generated TypedDocumentNode.
+- `graphql-ws` untuk subscription pada path yang sama.
+- Bearer hanya untuk UI_LOGIN; NONE tanpa Authorization.
+- AuthTransport login/refresh memakai generated documents.
+- Refresh single-flight, retry maksimal satu kali, tanpa loop.
+- Normalisasi error GraphQL HTTP 200, forbidden, invalid credentials, network, dan malformed response.
+- WebSocket memakai token mentah di `connectionParams.Authorization`.
+- Lifecycle dispose, cache clear, dan restart WebSocket.
+- Runtime test terhadap server stable v2.4.2366 untuk NONE dan UI_LOGIN.
 
 ## GraphQL baseline
 
@@ -108,6 +120,8 @@ npm run preview
 │  │  └─ stable-v2.4.2366.metadata.json
 │  └─ operations/
 │     ├─ aboutServer.graphql
+│     ├─ authProbe.graphql
+│     ├─ downloadStatusChanged.graphql
 │     ├─ login.graphql
 │     └─ refreshToken.graphql
 ├─ src/
@@ -127,6 +141,15 @@ npm run preview
 │  │  │  ├─ deployment.ts
 │  │  │  └─ deployment.test.ts
 │  │  ├─ graphql/
+│  │  │  ├─ authTransport.ts
+│  │  │  ├─ authTransport.test.ts
+│  │  │  ├─ createClient.ts
+│  │  │  ├─ createClient.test.ts
+│  │  │  ├─ createWsClient.ts
+│  │  │  ├─ createWsClient.test.ts
+│  │  │  ├─ errors.ts
+│  │  │  ├─ errors.test.ts
+│  │  │  ├─ runtime.integration.test.ts
 │  │  │  ├─ aboutServer.generated.test.ts
 │  │  │  └─ generated/
 │  │  │     ├─ fragment-masking.ts
@@ -150,7 +173,7 @@ npm run preview
 └─ package-lock.json
 ```
 
-Folder `src/core` saat ini berisi resolver deployment/server dan generated GraphQL. `src/features`, `src/shared`, dan runtime GraphQL belum dibuat karena belum ada implementasi yang membutuhkannya.
+Folder `src/core` saat ini berisi resolver deployment/server, auth session, dan transport GraphQL. `src/features`, `src/shared`, dan UI belum dibuat karena belum ada implementasi yang membutuhkannya.
 
 ## Keputusan dependency
 
@@ -162,7 +185,10 @@ Folder `src/core` saat ini berisi resolver deployment/server dan generated Graph
 | `typescript` | `6.0.3` | TypeScript strict; masih didukung `typescript-eslint` 8.x. |
 | `@graphql-codegen/cli` | `7.4.6` | Menjalankan codegen dan `--check` dari CLI. |
 | `@graphql-codegen/client-preset` | `6.2.3` | Menghasilkan tipe, typed document node, dan helper client modern. |
-| `graphql` | `17.0.2` | Parser/schema engine yang dibutuhkan codegen. |
+| `graphql` | `17.0.2` | Parser/schema engine; sekarang runtime dependency untuk generated document dan Apollo. |
+| `@apollo/client` | `4.3.5` | HTTP link, normalized cache, error link, dan subscription link. |
+| `graphql-ws` | `6.4.1` | Klien `graphql-transport-ws` untuk subscription. |
+| `rxjs` | `7.8.2` | Peer dependency Apollo untuk observable/error link. |
 | `graphql-sock` | `1.0.1` | Peer dependency wajib `client-preset`. |
 | `@graphql-typed-document-node/core` | `3.2.0` | Tipe `TypedDocumentNode` yang diimpor generated code. |
 | `eslint` + `@eslint/js` | `10.13.0` / `10.0.1` | Lint dasar untuk TypeScript/React. |
@@ -173,7 +199,7 @@ Folder `src/core` saat ini berisi resolver deployment/server dan generated Graph
 | `vitest` | `5.0.5` | Test runner ringan yang memakai pipeline Vite. |
 | `@types/react`, `@types/react-dom` | `19.3.0` | Tipe React. |
 
-Dependency yang belum dipasang dengan sengaja: Apollo Client, `graphql-ws`, Zustand, React Router, dan `vite-plugin-pwa`. Semuanya menunggu langkah implementasi yang membutuhkannya.
+Dependency yang belum dipasang dengan sengaja: Zustand, React Router, dan `vite-plugin-pwa`. Semuanya menunggu langkah implementasi yang membutuhkannya.
 
 ## GraphQL Codegen
 
@@ -252,9 +278,48 @@ Kebijakan Step 5:
 - Setiap perubahan sesi atau mulai login/refresh menaikkan generation. Hasil async dengan generation lama ditolak, termasuk setelah logout atau ganti server.
 - `AuthError` tidak memuat token atau stack trace mentah server.
 
-Fetch login/refresh **ditunda ke Step 6**. `AuthService` menyediakan kontrak `AuthTransport` berbasis generated types; Step 5 hanya membuktikan state/lifecycle dan stale-response protection, bukan transport.
+Fetch login/refresh diimplementasikan pada Step 6 melalui `AuthTransport` dan `createAuthTransport`. Step 5 tetap memiliki kontrak `AuthTransport` berbasis generated types; transport HTTP-nya tidak berada di layer UI.
 
 `NONE` bukan fallback ketika mode auth tidak diketahui. Mode harus ditentukan oleh connection layer; `UI_LOGIN` yang belum terautentikasi tetap `unauthenticated`.
+
+## GraphQL transport
+
+Runtime transport ada di `src/core/graphql/`:
+
+- `createClient.ts` — Apollo Client, HTTP link, auth link, error link, subscription split, refresh coordination, disposal.
+- `createWsClient.ts` — `graphql-ws` client dengan token dibaca saat koneksi.
+- `authTransport.ts` — implementasi `AuthTransport` untuk `LoginDocument`/`RefreshTokenDocument`.
+- `errors.ts` — normalisasi error GraphQL/HTTP/network.
+
+Aturan HTTP:
+
+- URL dari `graphqlHttpUrl` Step 4; POST dilakukan oleh `HttpLink`.
+- `Authorization: Bearer <accessToken>` hanya ditambahkan jika `AuthService` memiliki access token (UI_LOGIN).
+- NONE tidak menghasilkan header Authorization.
+- Login dan refresh tidak memakai bearer; refresh token dikirim sebagai variable mutation.
+- `credentials: 'omit'`; token tidak pernah masuk URL.
+
+Single-flight refresh:
+
+- Hanya satu refresh per sesi/generation.
+- Request lain menunggu promise refresh yang sama.
+- Retry maksimal satu kali; context `authRefreshRetried` mencegah loop.
+- Forbidden dan NONE tidak memicu refresh.
+- Refresh failure mengubah `AuthService`; hasil stale setelah logout/reset ditolak.
+- Setelah refresh sukses, access token diganti dan WebSocket di-restart.
+- Tidak ada proactive refresh berdasarkan `exp` pada Step 6; refresh dipicu unauthorized.
+
+WebSocket:
+
+- URL dari `graphqlWsUrl`, protokol `graphql-transport-ws`.
+- Lazy connection; retry maksimal 5 kali, exponential backoff 1s→15s.
+- NONE: `connectionParams` kosong.
+- UI_LOGIN: `connectionParams.Authorization` berisi token mentah tanpa `Bearer `.
+- Token dibaca saat koneksi, bukan di-capture saat client dibuat.
+- `restartWebSocket()` men-dispose client lama, membuat client baru, dan mengganti Apollo link. Subscription yang sedang aktif perlu di-resubscribe oleh consumer/coordinator.
+- `dispose()` menutup WebSocket, menghentikan Apollo, dan membersihkan cache.
+
+Runtime integration test memakai env `VITE_RUNTIME_NONE_URL`, `VITE_RUNTIME_UI_URL`, dan `VITE_RUNTIME_UI_PASSWORD`; tanpa env, test tersebut di-skip. Credential test tidak disimpan di Git.
 
 ## Validasi
 
@@ -265,7 +330,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (55 test)
+npm run test           lulus (78 test, termasuk 2 runtime integration)
 npm run build          lulus
 ```
 
@@ -304,6 +369,17 @@ Validasi auth Step 5:
 - Invalid credentials, refresh failure, network failure, dan session expired dipetakan ke state berbeda.
 - Error string tidak memuat token.
 
+Validasi transport Step 6:
+
+- HTTP POST memakai URL resolver; NONE tanpa Authorization; UI_LOGIN memakai Bearer.
+- Login/refresh tidak memakai bearer dan memakai generated documents.
+- GraphQL HTTP 200 unauthorized dinormalisasi.
+- Concurrent unauthorized menghasilkan satu refresh; retry maksimal satu kali.
+- Forbidden dan NONE tidak memicu refresh; refresh gagal tidak loop.
+- Stale refresh setelah reset tidak menghidupkan sesi.
+- WebSocket memakai URL resolver, protokol benar, token mentah untuk UI_LOGIN, tanpa token untuk NONE.
+- Runtime stable v2.4.2366: NONE `aboutServer` + subscription; UI_LOGIN login, protected query, refresh, dan subscription berhasil.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -312,11 +388,12 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated `aboutServer`, resolver deployment/server, dan auth session foundation tersedia; belum ada runtime Apollo, transport fetch, atau resource fetch.
-- Server v2.4.2366 hanya dijalankan untuk ekstraksi schema dan probe kontrak; belum ada koneksi dari aplikasi frontend.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–5 dibuat terpisah.
-- Belum ada PWA, routing, login UI, resource loader, atau koneksi server dari aplikasi.
+- Snapshot schema stable v2.4.2366, generated documents, resolver deployment/server, auth session, dan GraphQL HTTP/WS transport tersedia; belum ada React UI, resource fetch, atau fitur domain.
+- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport; tidak ada koneksi dari UI aplikasi.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–6 dibuat terpisah.
+- Belum ada PWA, routing, login UI, connection page, resource loader, atau fitur domain.
 - Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
-- `serverBaseUrl` belum diuji terhadap server nyata pada Step 4–5; Step 5 hanya membuktikan state/lifecycle auth.
+- `serverBaseUrl` dan transport sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS belum dilakukan.
 - Token persistence belum dipilih; saat ini hanya memori.
+- Restart WebSocket membuat koneksi/link baru; subscription aktif perlu di-resubscribe oleh consumer/coordinator.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.
