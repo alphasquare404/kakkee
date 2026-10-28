@@ -1,3 +1,6 @@
 # Keep the verified GraphQL snapshot byte-for-byte stable across checkouts.
 *.graphql text eol=lf
 *.json text eol=lf
+
+# Generated code must stay byte-stable for codegen:check.
+src/core/graphql/generated/** text eol=lf

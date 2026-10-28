@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 2 selesai** — bootstrap React/TypeScript/Vite, quality gates dasar, dan snapshot schema stable v2.4.2366 sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–2 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 3 selesai** — bootstrap React/TypeScript/Vite, quality gates dasar, snapshot schema stable v2.4.2366, dan codegen `aboutServer` sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–3 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -108,7 +108,7 @@ Setiap perubahan menjalankan pemeriksaan yang relevan; gate lengkap dijalankan p
 - Subscription `downloadStatusChanged` dan transport `graphql-transport-ws` sudah diuji pada baseline; reconnect dan perilaku setelah token diganti belum.
 - Apakah seluruh image/page memerlukan Bearer, bagaimana redirect/caching server bekerja, dan apakah resource test tersedia.
 - Konfigurasi reverse proxy, CORS, TLS, server prefix serta frontend prefix deployment pengguna belum diketahui.
-- Pilihan versi dependency/runtime, strategi persistensi sesi, kebijakan generated files, dan mekanisme update PWA belum diputuskan.
+- Strategi persistensi sesi dan mekanisme update PWA belum diputuskan; versi codegen dan kebijakan generated files sudah dicatat di README.
 - Server uji/kredensial aman dan perangkat iOS/Android belum diberikan. Jangan memakai atau mengubah server produksi untuk test tanpa izin yang sesuai.
 
 ## Stop conditions sebelum Phase 1

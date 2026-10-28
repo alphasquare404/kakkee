@@ -1,0 +1,23 @@
+query AboutServer {
+  aboutServer {
+    name
+    version
+    buildType
+    buildTime
+    platformInfo {
+      arch
+      headless
+      os {
+        name
+        version
+        build
+      }
+      jvm {
+        javaVersion
+        vmName
+        vmVersion
+        vmVendor
+      }
+    }
+  }
+}

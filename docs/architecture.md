@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–2 tersedia (React/TypeScript/Vite dan snapshot schema stable v2.4.2366); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–3 tersedia (React/TypeScript/Vite, snapshot schema stable v2.4.2366, dan codegen `aboutServer`); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -47,7 +47,7 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 
 Ini lokasi yang diharapkan, bukan perintah membuat semua folder kosong. Modul dibuat ketika langkah implementasi membutuhkannya. Detail nama file dapat disesuaikan dengan alasan yang dicatat; batas tanggung jawab tetap berlaku.
 
-React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. Apollo Client, `graphql-ws`, GraphQL Code Generator, React Router, PWA, dan UI library belum dipasang.
+React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. GraphQL Code Generator, `graphql`, dan typed document node sudah terpasang untuk pipeline schema → operasi terverifikasi. Apollo Client, `graphql-ws`, React Router, PWA, dan UI library belum dipasang.
 
 ## Dua alamat yang berbeda
 
