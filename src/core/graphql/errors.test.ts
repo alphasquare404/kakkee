@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { ServerError } from '@apollo/client';
 import { AuthError } from '../auth/authError';
 import {
   classifyGraphQLErrorMessage,
   fromGraphQLErrors,
   fromHttpStatus,
   fromNetworkError,
+  getHttpStatus,
+  hasBasicAuthChallenge,
   toAuthError,
 } from './errors';
 
@@ -55,6 +58,24 @@ describe('GraphQL failure normalization', () => {
     expect(network.kind).toBe('network');
     expect(network.diagnostic).toBe('Error');
     expect(String(network)).not.toContain('token secret');
+  });
+
+  it('detects HTTP status and Basic auth challenges', () => {
+    const basic = new ServerError('Unauthorized', {
+      response: new Response(null, {
+        status: 401,
+        headers: { 'www-authenticate': 'Basic realm="suwayomi"' },
+      }),
+      bodyText: '',
+    });
+    const other = new ServerError('Unauthorized', {
+      response: new Response(null, { status: 401 }),
+      bodyText: '',
+    });
+
+    expect(getHttpStatus(basic)).toBe(401);
+    expect(hasBasicAuthChallenge(basic)).toBe(true);
+    expect(hasBasicAuthChallenge(other)).toBe(false);
   });
 });
 

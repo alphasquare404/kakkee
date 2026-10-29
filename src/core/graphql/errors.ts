@@ -96,6 +96,20 @@ export function normalizeApolloError(error: ErrorLike): GraphQLTransportError {
   return fromNetworkError(error);
 }
 
+export function getHttpStatus(error: ErrorLike): number | null {
+  return ServerError.is(error) ? error.statusCode : null;
+}
+
+export function hasBasicAuthChallenge(error: ErrorLike): boolean {
+  if (!ServerError.is(error)) {
+    return false;
+  }
+
+  const challenge = error.response.headers.get('www-authenticate') ?? '';
+
+  return /(^|,)\s*basic\b/i.test(challenge);
+}
+
 export function isUnauthorizedFailure(failure: GraphQLTransportError): boolean {
   return failure.kind === 'unauthorized';
 }

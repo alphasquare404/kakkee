@@ -85,6 +85,12 @@ enum AuthMode {
 
 Schema stable **tidak** memuat tipe user account, `userSettings`, atau mutation manajemen user. Hal-hal itu adalah preview/master dan bukan bagian kontrak v2.4.2366.
 
+Perilaku runtime challenge:
+
+- Pada `BASIC_AUTH`, request tanpa kredensial Basic menghasilkan HTTP 401 dengan header `WWW-Authenticate: Basic`. Ini terverifikasi pada Step 8.
+- Coordinator dapat membedakan challenge tersebut dan melaporkannya sebagai mode unsupported; tidak ada form/dialog Basic Auth.
+- SIMPLE_LOGIN tidak diuji dan tidak dapat dibedakan secara aman dari protected endpoint generik tanpa probe khusus. Jangan mengklaim deteksi SIMPLE_LOGIN.
+
 ### Login dan refresh
 
 Mutation yang tersedia:
@@ -232,6 +238,8 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 | GraphQL di `/api/graphql`, HTTP POST | Terverifikasi pada stable v2.4.2366 |
 | Subscription pada path sama, `graphql-transport-ws` | Terverifikasi runtime |
 | `NONE` dan `UI_LOGIN` tersedia | Terverifikasi dari enum dan runtime |
+| Deteksi NONE/UI_LOGIN via aboutServer + protected probe | Terverifikasi runtime Step 8 |
+| BASIC_AUTH challenge `WWW-Authenticate: Basic` | Terverifikasi runtime Step 8 |
 | `UI_LOGIN` memakai JWT | Terverifikasi; access + refresh token |
 | Bearer pada HTTP | Terverifikasi dengan `settings` |
 | `connectionParams.Authorization` pada WS | Terverifikasi dengan token mentah tanpa `Bearer` |
@@ -249,7 +257,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 - Login dengan kredensial salah dan pesan error yang tepat.
 - Deteksi mode auth dari client tanpa mencoba query yang dilindungi.
 - `aboutWebUI` saat `webUIEnabled = false`; kemungkinan gagal karena tidak ada file `revision`.
-- BASIC_AUTH dan SIMPLE_LOGIN; keduanya di luar dukungan penuh awal.
+- BASIC_AUTH dan SIMPLE_LOGIN; keduanya di luar dukungan penuh awal. BASIC_AUTH challenge sudah terdeteksi, tetapi login Basic tidak diimplementasikan; SIMPLE_LOGIN belum diuji.
 - Reconnect WebSocket, expiry token saat koneksi aktif, dan perilaku subscription setelah token diganti.
 - Path thumbnail/page manga dan chapter, kebutuhan Bearer pada image tersebut, redirect, dan CORS resource.
 - Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS.

@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 7 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, GraphQL HTTP/WebSocket transport, dan resource service terautentikasi sudah tersedia. Belum ada React UI, connection page, resource component, PWA, atau fitur domain.
+Status saat ini: **Phase 0 — Step 8 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, GraphQL HTTP/WebSocket transport, resource service terautentikasi, dan ConnectionCoordinator sudah tersedia. Belum ada React UI, halaman koneksi, resource component, PWA, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -62,6 +62,17 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - AbortSignal, generation guard, disposal, dan object URL lifecycle.
 - Image helper tanpa React hook atau komponen UI.
 - Runtime test image nyata pada stable v2.4.2366.
+
+## Lingkup Step 8
+
+- `ConnectionCoordinator` sebagai owner satu koneksi server.
+- State eksplisit: disconnected, connecting, login-required, authenticating, connected, unsupported-auth, failed.
+- Deteksi NONE/UI_LOGIN melalui aboutServer + protected probe.
+- BASIC_AUTH challenge dikenali sebagai unsupported; tidak ada form Basic.
+- Login UI_LOGIN dengan AuthTransport; password tidak disimpan.
+- Version compatibility `v2.4.<revision>` dan baseline minimum.
+- Server switching, disposal, generation guard, subscription.
+- Integration test NONE, UI_LOGIN, dan BASIC_AUTH pada stable.
 
 ## GraphQL baseline
 
@@ -173,6 +184,12 @@ npm run preview
 │  │  │  ├─ resourceService.test.ts
 │  │  │  └─ resourceService.integration.test.ts
 │  │  └─ server/
+│  │     ├─ connectionCoordinator.ts
+│  │     ├─ connectionCoordinator.test.ts
+│  │     ├─ connectionCoordinator.integration.test.ts
+│  │     ├─ connectionError.ts
+│  │     ├─ versionCompatibility.ts
+│  │     ├─ versionCompatibility.test.ts
 │  │     ├─ serverUrl.ts
 │  │     └─ serverUrl.test.ts
 │  ├─ main.tsx
@@ -391,6 +408,106 @@ Lifecycle:
 
 Runtime test memakai endpoint nyata `/api/v1/track/1/thumbnail` pada stable v2.4.2366: NONE 200 `image/png`; UI_LOGIN tanpa token 401 dan dengan Bearer 200.
 
+## Connection coordinator
+
+`src/core/server/connectionCoordinator.ts` adalah application-level owner satu koneksi:
+
+```ts
+const coordinator = createConnectionCoordinator({
+  frontendUrl: window.location.href,
+  frontendBasePath: '/',
+});
+
+await coordinator.connect(serverUrl);
+await coordinator.login(username, password); // hanya saat login-required
+await coordinator.disconnect();
+await coordinator.dispose();
+```
+
+State:
+
+- `disconnected`
+- `connecting`
+- `login-required`
+- `authenticating`
+- `connected`
+- `unsupported-auth`
+- `failed`
+
+State `connected` memiliki context read-only:
+
+```ts
+{
+  config,          // DeploymentConfig canonical
+  serverInfo,      // aboutServer result
+  authMode,        // 'NONE' atau 'UI_LOGIN'
+  compatibility,   // compatible / preview / unknown
+  graphQL,         // ApolloClient
+  resources        // ResourceService
+}
+```
+
+AuthService dan token tidak diekspos ke UI. UI hanya berinteraksi dengan coordinator dan context aplikasi.
+
+Alur connect:
+
+1. Normalisasi URL melalui resolver Step 4.
+2. Naikkan generation baru dan dispose koneksi lama.
+3. Buat AuthService sementara dengan NONE untuk probe anonim.
+4. Buat GraphQL transport dan ResourceService.
+5. Jalankan `AboutServerDocument`.
+6. Periksa compatibility.
+7. Jalankan `AuthProbeDocument`.
+
+Deteksi:
+
+- Probe sukses tanpa token → NONE → connected.
+- Probe unauthorized → `login-required`, `authMode: 'UNKNOWN'`; UI_LOGIN belum diklaim pasti.
+- Login UI_LOGIN sukses lalu probe sukses → connected UI_LOGIN.
+- HTTP 401 dengan `WWW-Authenticate: Basic` → `unsupported-auth`, mode BASIC_AUTH.
+- SIMPLE_LOGIN tidak dapat dibedakan dengan aman dari login-required generik; tidak ada klaim dukungan.
+- Generic network error tidak dipakai untuk menebak mode auth.
+
+Login:
+
+- Hanya valid pada `login-required`.
+- Memakai `AuthTransport.login`; password tidak disimpan dalam state.
+- Kredensial salah → tetap `login-required` dengan error `invalid-credentials`; server info/config dipertahankan.
+- Setelah login sukses, protected probe diulang. Connected hanya setelah probe berhasil.
+- Login untuk server lama tidak boleh mengubah server baru; generation guard menolak hasil stale.
+
+Compatibility:
+
+- Format versi Suwayomi `v2.4.<revision>` diparse tanpa semver library.
+- Di bawah `v2.4.2366` → `failed` dengan `incompatible-server`.
+- Baseline atau Stable yang lebih baru → `compatible`.
+- Build non-Stable yang lebih baru → `preview` dengan warning; hanya operasi baseline yang berhasil yang dipakai.
+- Versi tidak dapat diparse → `unknown` dengan warning, tanpa crash; tidak ada klaim capability tambahan.
+
+Lifecycle:
+
+- `disconnect()`/`connect()` server baru men-dispose GraphQL transport, WebSocket, Apollo cache, ResourceService, dan AuthService.
+- `dispose()` menghentikan coordinator dan menghapus listener.
+- Request/response dari generation lama diabaikan.
+- Coordinator tidak memakai global singleton.
+
+Error model `ConnectionError`:
+
+- `invalid-server-url`
+- `unreachable`
+- `incompatible-server`
+- `authentication-required`
+- `invalid-credentials`
+- `unsupported-auth`
+- `server-error`
+- `stale`/`cancelled` untuk guard internal
+- `invalid-state`
+- `disposed`
+
+Error tidak memuat password, token, Java stack trace, atau raw exception.
+
+Runtime integration test memakai env `VITE_RUNTIME_NONE_URL`, `VITE_RUNTIME_UI_URL`, `VITE_RUNTIME_BASIC_URL`, dan `VITE_RUNTIME_UI_PASSWORD`; test di-skip tanpa env.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -400,7 +517,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (100 test, termasuk 4 runtime integration)
+npm run test           lulus (122 test, termasuk 7 runtime integration)
 npm run build          lulus
 ```
 
@@ -462,6 +579,19 @@ Validasi resource Step 7:
 - Service disposal membatalkan request aktif dan mencabut semua handle.
 - Runtime stable v2.4.2366: tracker thumbnail NONE 200 `image/png`; UI_LOGIN tanpa token 401, invalid Bearer 401, valid Bearer 200.
 
+Validasi coordinator Step 8:
+
+- NONE: aboutServer sukses, protected probe sukses, AuthService NONE, state connected, tanpa Authorization.
+- UI_LOGIN: aboutServer sukses, probe unauthorized, login-required, kredensial salah tetap login-required, login benar, probe ulang, connected UI_LOGIN.
+- Invalid URL, unreachable network, malformed aboutServer, dan versi di bawah baseline menghasilkan state failed yang sesuai.
+- BASIC_AUTH 401 + `WWW-Authenticate: Basic` menghasilkan unsupported-auth tanpa form Basic.
+- Connect A lalu B: hasil A yang terlambat diabaikan.
+- Disconnect saat connect: hasil lama diabaikan.
+- Login server A yang terlambat tidak mengubah server B.
+- Disconnect men-dispose GraphQL, WebSocket, ResourceService, dan AuthService.
+- Subscribe/unsubscribe mempublikasikan transisi berurutan; listener error tidak memutus coordinator.
+- State/error tidak memuat token atau password.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -470,15 +600,18 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, dan resource service tersedia; belum ada React UI, resource component/hook, atau fitur domain.
-- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource; tidak ada koneksi dari UI aplikasi.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–7 dibuat terpisah.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, dan ConnectionCoordinator tersedia; belum ada React UI, connection page, resource component/hook, atau fitur domain.
+- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator; tidak ada koneksi dari UI aplikasi.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–8 dibuat terpisah.
 - Belum ada PWA, routing, login UI, connection page, manga/library UI, reader, atau fitur domain.
 - Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
-- `serverBaseUrl`, transport, dan resource service sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS di browser belum dilakukan.
+- `serverBaseUrl`, transport, resource, dan coordinator sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS di browser belum dilakukan.
 - Token persistence belum dipilih; saat ini hanya memori.
 - Restart WebSocket membuat koneksi/link baru; subscription aktif perlu di-resubscribe oleh consumer/coordinator.
 - Resource redirect ditolak, bukan diikuti; server yang mengandalkan redirect resource perlu keputusan tambahan.
 - Object URL harus di-dispose oleh pemilik handle; service hanya menjamin cleanup saat `dispose()` dipanggil.
 - Tidak ada cache persisten atau deduplikasi request resource pada Step 7.
+- SIMPLE_LOGIN tidak dapat dibedakan secara aman dari login-required generik dan tidak didukung.
+- BASIC_AUTH hanya dideteksi sebagai unsupported; tidak ada dukungan login Basic.
+- Versi server yang tidak dapat diparse dianggap compatibility unknown dan tetap boleh connected hanya untuk operasi baseline yang berhasil.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.

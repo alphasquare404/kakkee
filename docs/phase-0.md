@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 7 selesai** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WebSocket transport, dan resource service terautentikasi sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–7 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 8 selesai (ConnectionCoordinator)** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WebSocket transport, resource service terautentikasi, dan ConnectionCoordinator sudah tersedia. Rencana router/ConnectionPage pada bagian 8 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–8 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -104,7 +104,8 @@ Setiap perubahan menjalankan pemeriksaan yang relevan; gate lengkap dijalankan p
 ## Known unknowns
 
 - Snapshot stable v2.4.2366 sudah tersedia di `graphql/schema/`; gap bukti yang tersisa dirangkum di [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
-- Deteksi mode, expiry token aktual, logout end-to-end, dan refresh setelah expiry belum diuji; refresh berdasarkan unauthorized sudah diuji.
+- Deteksi NONE/UI_LOGIN melalui protected probe sudah diuji; BASIC_AUTH dikenali dari challenge. SIMPLE_LOGIN belum dapat dibedakan dan tidak didukung.
+- Expiry token aktual, logout end-to-end, dan refresh setelah expiry belum diuji; refresh berdasarkan unauthorized sudah diuji.
 - Subscription `downloadStatusChanged` dan transport `graphql-transport-ws` sudah diuji pada baseline; restart/resubscribe subscription aktif setelah token diganti belum.
 - Path thumbnail/page manga dan chapter belum diuji; tracker thumbnail `/api/v1/track/{trackerId}/thumbnail` sudah diuji pada stable (NONE 200, UI_LOGIN tanpa token 401, Bearer 200).
 - Perilaku redirect resource, CORS, dan content-type sumber gambar lain belum diuji di browser.

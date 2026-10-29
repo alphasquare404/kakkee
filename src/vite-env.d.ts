@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_RUNTIME_NONE_URL?: string;
   readonly VITE_RUNTIME_UI_URL?: string;
+  readonly VITE_RUNTIME_BASIC_URL?: string;
   readonly VITE_RUNTIME_UI_PASSWORD?: string;
 }
 
