@@ -4,7 +4,7 @@ import {
   getServerResourceUrl,
   isSameOrigin,
   normalizeServerBaseUrl,
-} from '../server/serverUrl';
+} from '../server/serverUrl.ts';
 
 export { isSameOrigin };
 

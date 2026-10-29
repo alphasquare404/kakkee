@@ -1,9 +1,17 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { FakeConnectionCoordinator } from '../test/fakeConnectionCoordinator';
+
+vi.mock('./pwaUpdate', () => ({
+  usePwaUpdate: () => ({
+    needRefresh: [false, vi.fn()],
+    offlineReady: [false, vi.fn()],
+    updateServiceWorker: vi.fn(),
+  }),
+}));
 
 afterEach(() => {
   cleanup();

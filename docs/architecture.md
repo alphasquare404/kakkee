@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–9 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WS transport, resource service terautentikasi, ConnectionCoordinator, dan UI koneksi/login minimal); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–10 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal); fitur Phase 0 lanjutan/validasi akhir belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -47,7 +47,7 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 
 Ini lokasi yang diharapkan, bukan perintah membuat semua folder kosong. Modul dibuat ketika langkah implementasi membutuhkannya. Detail nama file dapat disesuaikan dengan alasan yang dicatat; batas tanggung jawab tetap berlaku.
 
-React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. GraphQL Code Generator, `graphql`, Apollo Client, `graphql-ws`, `react-router-dom`, dan typed document node sudah terpasang untuk pipeline schema → operasi terverifikasi, transport, dan UI koneksi. PWA dan UI library belum dipasang.
+React state cukup untuk input/form. Apollo menyimpan data server. Zustand belum dibutuhkan sampai terbukti ada state lokal bersama yang sulit dikelola. Versi dependency dan runtime tercatat di `package.json` dan README. GraphQL Code Generator, `graphql`, Apollo Client, `graphql-ws`, `react-router-dom`, `vite-plugin-pwa`, dan typed document node sudah terpasang. UI library belum dipasang.
 
 ## Dua alamat yang berbeda
 
@@ -80,6 +80,8 @@ Implementasi Step 7 menambahkan `ResourceService` untuk resource REST non-GraphQ
 Implementasi Step 8 menambahkan `ConnectionCoordinator` sebagai owner satu koneksi. Coordinator memegang deployment config, AuthService internal, GraphQL transport, WebSocket/Apollo lifecycle, dan ResourceService; UI hanya menerima context read-only. Alur connect menjalankan `aboutServer`, compatibility gate, lalu protected `AuthProbe`. Probe sukses menjadi NONE; unauthorized menjadi login-required; Basic challenge menjadi unsupported-auth. Login UI_LOGIN memakai `AuthTransport` dan hanya menjadi connected setelah probe ulang berhasil. Generation coordinator menolak hasil connect/login lama setelah switch/disconnect. `dispose()` menutup seluruh service. Versi `v2.4.<revision>` di bawah baseline ditolak; preview/unknown hanya berjalan dengan warning dan operasi baseline yang berhasil.
 
 Implementasi Step 9 menambahkan React boundary `ConnectionProvider`/`useConnection`. Provider membuat satu coordinator per deployment, subscribe ke state, dan men-dispose setelah benar-benar unmount. UI hanya menerima state dan aksi connect/login/disconnect; AuthService, Apollo, WebSocket, ResourceService, dan token tidak diekspos. Router memakai `react-router-dom` dengan basename dari `frontendBasePath` (`VITE_FRONTEND_BASE_PATH`), satu route koneksi, dan fallback. Layar menangani disconnected, connecting, login-required, authenticating, connected, unsupported-auth, dan failed dengan form native, `aria-live`, dan pesan error manusiawi. Server URL dan password hanya React state; tidak ada persistensi.
+
+Implementasi Step 10 menambahkan PWA shell dengan `vite-plugin-pwa`. Manifest memakai `frontendBasePath` untuk `start_url`/`scope`/icon, `display: standalone`, dan icon netral sementara (192/512/maskable). `generateSW` hanya mem-precache `index.html`, JS/CSS shell, icon, dan manifest; `runtimeCaching` kosong dan `/api` dikecualikan dari navigation fallback. Update memakai `registerType: 'prompt'` dan `PwaUpdatePrompt`; SW menangani `SKIP_WAITING`. `skipWaiting`/`clientsClaim` false sehingga update tidak mencampur versi secara otomatis. Viewport/Apple meta/safe-area disiapkan; offline hanya membuka shell, bukan data server. CacheStorage diperiksa setelah connect/login.
 
 Coordinator memiliki state konseptual: belum terhubung, menghubungkan, perlu login, terhubung, gagal, dan mode tidak didukung. Timeout/network/CORS, GraphQL error, dan kredensial ditolak ditampilkan secara berbeda sejauh bukti browser memungkinkan; kegagalan jaringan tidak otomatis berarti password salah. HTTP sukses saja belum berarti Connected: operasi aboutServer terverifikasi harus berhasil. WebSocket memiliki status sendiri; jangan mengklaim subscriptions teruji dari HTTP.
 

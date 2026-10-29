@@ -339,6 +339,32 @@ h2 {
   margin: 0;
 }
 
+.pwa-update {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: max(1rem, env(safe-area-inset-left));
+  z-index: 20;
+  display: grid;
+  gap: 0.55rem;
+  width: min(34rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.pwa-update p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.pwa-update .actions {
+  margin-top: 0;
+}
+
 @media (max-width: 720px) {
   .info-grid {
     grid-template-columns: 1fr;
@@ -346,6 +372,10 @@ h2 {
 
   .button {
     width: 100%;
+  }
+
+  .pwa-update {
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom));
   }
 }
 

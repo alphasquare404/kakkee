@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 9 selesai**. Fondasi aplikasi, schema stable, codegen, resolver deployment/server URL, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, dan UI koneksi/login minimal sudah tersedia. Belum ada PWA, library, manga, reader, atau fitur domain.
+Status saat ini: **Phase 0 — Step 10 selesai (PWA shell)**. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tersedia. Belum ada library/manga/reader, offline reading, atau final branding.
 
 ## Lingkup Step 1
 
@@ -83,6 +83,16 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - Form native dengan label, keyboard submit, `aria-live`, dan pesan error manusiawi.
 - CSS responsif tanpa UI framework.
 - Unit test RTL/jsdom dan browser smoke headless Chrome.
+
+## Lingkup Step 10
+
+- `vite-plugin-pwa` dengan manifest standalone dan icon netral sementara.
+- Root `/` dan frontend subpath `/app/`.
+- Precaching hanya app shell/static assets; tanpa runtime caching API.
+- Update prompt memakai `virtual:pwa-register/react`.
+- iOS viewport/safe-area, Apple touch icon, dan meta web app.
+- Offline shell hanya UI; tidak ada data server atau offline reading.
+- CacheStorage diperiksa setelah connect/login.
 
 ## GraphQL baseline
 
@@ -165,6 +175,11 @@ npm run preview
 │  │  ├─ ConnectionProvider.test.tsx
 │  │  ├─ useConnection.ts
 │  │  ├─ deploymentSettings.ts
+│  │  ├─ PwaUpdatePrompt.tsx
+│  │  ├─ PwaUpdatePrompt.test.tsx
+│  │  ├─ pwaConfig.ts
+│  │  ├─ pwaConfig.test.ts
+│  │  ├─ pwaUpdate.ts
 │  │  └─ app.css
 │  ├─ core/
 │  │  ├─ auth/
@@ -213,6 +228,14 @@ npm run preview
 │  ├─ test/fakeConnectionCoordinator.ts
 │  ├─ main.tsx
 │  └─ vite-env.d.ts
+├─ public/
+│  └─ icons/
+│     ├─ apple-touch-icon.png
+│     ├─ favicon-32.png
+│     ├─ icon-192.png
+│     ├─ icon-512.png
+│     └─ icon-512-maskable.png
+├─ .env.example
 ├─ codegen.ts
 ├─ index.html
 ├─ eslint.config.js
@@ -246,6 +269,7 @@ Folder `src/core` berisi resolver deployment/server, auth session, transport Gra
 | `@testing-library/dom` | `10.4.1` | Peer dependency Testing Library. |
 | `@testing-library/user-event` | `14.6.8` | Interaksi form yang menyerupai browser. |
 | `jsdom` | `30.1.3` | Environment DOM untuk test UI; test non-UI tetap memakai Node. |
+| `vite-plugin-pwa` | `2.0.0` | Manifest, generateSW precache shell, dan virtual update prompt. |
 | `graphql-sock` | `1.0.1` | Peer dependency wajib `client-preset`. |
 | `@graphql-typed-document-node/core` | `3.2.0` | Tipe `TypedDocumentNode` yang diimpor generated code. |
 | `eslint` + `@eslint/js` | `10.13.0` / `10.0.1` | Lint dasar untuk TypeScript/React. |
@@ -256,7 +280,7 @@ Folder `src/core` berisi resolver deployment/server, auth session, transport Gra
 | `vitest` | `5.0.5` | Test runner ringan yang memakai pipeline Vite. |
 | `@types/react`, `@types/react-dom` | `19.3.0` | Tipe React. |
 
-Dependency yang belum dipasang dengan sengaja: Zustand, `vite-plugin-pwa`, UI library, form framework, validation framework, dan CSS framework.
+Dependency yang belum dipasang dengan sengaja: Zustand, UI library, form framework, validation framework, CSS framework, `@vite-pwa/assets-generator`, Playwright, dan library PWA lain.
 
 ## GraphQL Codegen
 
@@ -576,6 +600,60 @@ Test UI:
 - Test provider memastikan factory dipanggil sekali, subscription dibersihkan, dan coordinator di-dispose saat unmount.
 - Browser smoke headless Chrome untuk NONE, UI_LOGIN, BASIC_AUTH, mobile viewport, dan cross-origin CORS.
 
+## PWA shell
+
+Konfigurasi ada di `vite.config.ts`, `src/app/pwaConfig.ts`, dan `src/app/pwaUpdate.ts`.
+
+Manifest:
+
+- `name`: `Suwayomi Frontend (Unofficial)`
+- `short_name`: `Suwayomi UI`
+- `start_url` dan `scope`: mengikuti `frontendBasePath`
+- `id`: `frontendBasePath`
+- `display`: `standalone`
+- `theme_color`: `#0b1020`
+- `background_color`: `#080b12`
+- `lang`: `id`
+- icon 192/512 any dan 512 maskable
+
+Nama/icon bersifat sementara dan menyatakan frontend tidak resmi. Icon netral dibuat khusus untuk proyek; tidak memakai artwork Suwayomi.
+
+Base/subpath:
+
+- `VITE_FRONTEND_BASE_PATH=/` menghasilkan `base=/`, `start_url=/`, `scope=/`, icon `/icons/...`.
+- `VITE_FRONTEND_BASE_PATH=/app/` menghasilkan `base=/app/`, `start_url=/app/`, `scope=/app/`, icon `/app/icons/...`, SW `/app/sw.js`.
+- Router dan manifest memakai base yang sama; serverBaseUrl tidak dipakai sebagai frontend base.
+
+Service worker/cache:
+
+- Strategi `generateSW` dengan precache hanya `index.html`, JS/CSS shell, icon, dan manifest.
+- `runtimeCaching: []`; tidak ada route runtime API/image.
+- `navigateFallback` `/index.html` atau `/app/index.html`.
+- `navigateFallbackDenylist` menolak `/api` sebagai fallback navigasi.
+- `skipWaiting: false`, `clientsClaim: false`.
+- Tidak ada precache GraphQL, tracker/manga/chapter resource, auth response, token, Apollo cache, atau data server.
+
+Update lifecycle:
+
+- `registerType: 'prompt'`.
+- `useRegisterSW` mendeteksi `needRefresh`/`offlineReady`.
+- `PwaUpdatePrompt` menawarkan “Update dan reload” atau “Tutup”.
+- SW generated menangani pesan `SKIP_WAITING`; reload memakai shell baru.
+- Tidak ada background sync, push notification, atau service worker custom framework.
+
+iOS/Android:
+
+- `viewport-fit=cover`, Apple mobile web app capable/title/status bar, Apple touch icon.
+- CSS memakai `env(safe-area-inset-top/bottom/left/right)` pada shell dan prompt.
+- Manifest/display standalone/icon memenuhi installability Chrome pada build yang diuji.
+- Belum diuji pada perangkat iOS/Android nyata.
+
+Offline:
+
+- App shell dapat dibuka dari precache.
+- Data server tetap network-only; bila offline, connection UI menunjukkan “Server tidak dapat dijangkau”.
+- Tidak ada data lama yang ditampilkan sebagai live dan tidak ada offline manga/chapter.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -585,7 +663,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (135 test, termasuk 7 runtime integration)
+npm run test           lulus (143 test, termasuk 7 runtime integration)
 npm run build          lulus
 ```
 
@@ -674,6 +752,19 @@ Validasi UI Step 9:
 - Provider tidak membuat coordinator ulang saat rerender; subscription dibersihkan dan coordinator di-dispose saat unmount.
 - App root, basename `/app/`, dan deep-link fallback diuji.
 
+Validasi PWA Step 10:
+
+- Root build: manifest `start_url=/`, `scope=/`, icon `/icons/...`, `sw.js` scope `/`.
+- `/app/` build: manifest `start_url=/app/`, `scope=/app/`, icon `/app/icons/...`, `sw.js` scope `/app/`.
+- Chrome `Page.getAppManifest` tanpa error; `Page.getInstallabilityErrors` kosong.
+- Service worker aktif pada scope yang benar.
+- CacheStorage hanya berisi precache shell: `index.html`, JS/CSS, icon, `manifest.webmanifest`; tidak ada `/api`, GraphQL, tracker/image, auth, atau token.
+- Root cache diperiksa setelah connect/login UI_LOGIN; subpath cache diperiksa setelah connect NONE.
+- Offline shell: reload saat offline tetap membuka form; connect offline menghasilkan “Server tidak dapat dijangkau”, bukan data stale.
+- Update prompt diuji dengan mengubah `dist/sw.js` sementara: prompt “Versi baru aplikasi tersedia” muncul; Update dan reload memuat shell baru dan tetap controlled.
+- Mobile viewport `/app/` 390×844 berhasil.
+- iOS/Android nyata, Safari/Firefox, dan install dari store/TWA belum diuji.
+
 Validasi browser Step 9 (headless Chrome, production `dist`, 29 Oktober 2026):
 
 - NONE: form URL → Connect → Connected, version `v2.4.2366`, auth mode NONE.
@@ -692,19 +783,25 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, dan connection UI tersedia; belum ada PWA, library/manga/reader, atau resource component.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, dan PWA shell tersedia; belum ada library/manga/reader atau resource component.
 - Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator/UI; tidak ada koneksi ke server produksi pengguna.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–9 dibuat terpisah.
-- Belum ada PWA, offline, service worker, library/manga UI, reader, source/extension/download UI, atau authenticated image component.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–10 dibuat terpisah.
+- Belum ada offline reading, library/manga UI, reader, source/extension/download UI, authenticated image component, push notification, atau background sync.
 - Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
-- `serverBaseUrl`, transport, resource, coordinator, dan connection UI sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.
+- `serverBaseUrl`, transport, resource, coordinator, connection UI, dan PWA sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.
 - Token dan server URL belum dipersistenkan; reload menghilangkan session dan input server.
 - Restart WebSocket membuat koneksi/link baru; subscription aktif perlu di-resubscribe oleh consumer/coordinator.
 - Resource redirect ditolak, bukan diikuti; server yang mengandalkan redirect resource perlu keputusan tambahan.
 - Object URL harus di-dispose oleh pemilik handle; service hanya menjamin cleanup saat `dispose()` dipanggil.
-- Tidak ada cache persisten, deduplikasi request resource, atau offline cache.
+- Tidak ada cache persisten data server, deduplikasi request resource, atau offline cache.
 - SIMPLE_LOGIN tidak dapat dibedakan secara aman dari login-required generik dan tidak didukung.
 - BASIC_AUTH hanya dideteksi sebagai unsupported; tidak ada dukungan login Basic.
 - Versi server yang tidak dapat diparse dianggap compatibility unknown dan tetap boleh connected hanya untuk operasi baseline yang berhasil.
 - `VITE_FRONTEND_BASE_PATH` harus diset untuk deployment subpath; nilai invalid jatuh ke `/` tanpa menebak route.
+- Icon PWA masih placeholder netral; bukan branding final.
+- `skipWaiting`/`clientsClaim` false: halaman pertama belum dikontrol SW sampai reload; update memakai prompt.
+- Update prompt diuji dengan mutasi sementara `dist/sw.js`; update deployment nyata/HTTP cache/CDN belum diuji.
+- Installability diperiksa di Chrome headless (`installabilityErrors` kosong); install Android/iOS nyata belum diuji.
+- iOS safe-area CSS dan meta disiapkan, tetapi notch/home indicator belum diuji di perangkat.
+- Cache inspection memakai Chrome headless pada root dan `/app/`; browser lain belum diuji.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.

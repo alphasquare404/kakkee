@@ -2,6 +2,7 @@ import type { ConnectionCoordinator } from '../core/server/connectionCoordinator
 import { ConnectionProvider } from './ConnectionProvider';
 import { getFrontendBasePath, getRouterBasename } from './deploymentSettings';
 import { AppRouter } from './AppRouter';
+import { PwaUpdatePrompt } from './PwaUpdatePrompt';
 
 export interface AppProps {
   readonly createCoordinator?: () => ConnectionCoordinator;
@@ -17,6 +18,7 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
       createCoordinator={createCoordinator}
     >
       <AppRouter basename={getRouterBasename(basePath)} />
+      <PwaUpdatePrompt />
     </ConnectionProvider>
   );
 }

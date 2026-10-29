@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 9 selesai (Connection UI)** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, dan UI koneksi/login minimal sudah tersedia. Rencana PWA shell pada bagian 9 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–9 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 10 selesai (PWA shell)** — bootstrap React/TypeScript/Vite, quality gates, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell sudah tersedia. Validasi akhir dan serah terima pada bagian 10 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–10 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -106,12 +106,13 @@ Setiap perubahan menjalankan pemeriksaan yang relevan; gate lengkap dijalankan p
 - Snapshot stable v2.4.2366 sudah tersedia di `graphql/schema/`; gap bukti yang tersisa dirangkum di [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 - Deteksi NONE/UI_LOGIN melalui protected probe sudah diuji; BASIC_AUTH dikenali dari challenge. SIMPLE_LOGIN belum dapat dibedakan dan tidak didukung.
 - UI NONE/UI_LOGIN/BASIC_AUTH, mobile viewport, subpath, deep-link fallback, dan CORS localhost sudah diuji dengan headless Chrome; perangkat iOS/Android, Safari/Firefox, dan deployment produksi belum.
+- PWA root dan `/app/`, manifest/scope, service worker, CacheStorage shell-only, offline shell, dan prompt update sudah diuji di headless Chrome; install Android/iOS nyata, safe-area notch, dan update lewat CDN/proxy belum.
 - Expiry token aktual, logout end-to-end, dan refresh setelah expiry belum diuji; refresh berdasarkan unauthorized sudah diuji.
 - Subscription `downloadStatusChanged` dan transport `graphql-transport-ws` sudah diuji pada baseline; restart/resubscribe subscription aktif setelah token diganti belum.
 - Path thumbnail/page manga dan chapter belum diuji; tracker thumbnail `/api/v1/track/{trackerId}/thumbnail` sudah diuji pada stable (NONE 200, UI_LOGIN tanpa token 401, Bearer 200).
 - Perilaku redirect resource, CORS, dan content-type sumber gambar lain belum diuji di browser.
 - Konfigurasi reverse proxy, CORS, TLS, server prefix serta frontend prefix deployment pengguna belum diketahui. CORS localhost dan subpath router diuji, tetapi deployment nyata belum.
-- Strategi persistensi sesi dan mekanisme update PWA belum diputuskan; versi codegen dan kebijakan generated files sudah dicatat di README.
+- Strategi persistensi sesi belum diputuskan; versi codegen dan kebijakan generated files sudah dicatat di README. Prompt update PWA sudah diimplementasikan, tetapi update deployment nyata belum diuji.
 - Credential test lokal tersedia hanya di luar repository dan tidak boleh di-commit; perangkat iOS/Android nyata belum diuji.
 
 ## Stop conditions sebelum Phase 1

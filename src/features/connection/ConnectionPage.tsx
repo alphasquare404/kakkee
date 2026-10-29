@@ -163,7 +163,7 @@ export function ConnectionPage() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <p className="eyebrow">Phase 0 · Step 9</p>
+        <p className="eyebrow">Phase 0 · Step 10</p>
         <h1>Suwayomi Frontend</h1>
         <p className="lede">
           Hubungkan frontend ini ke Suwayomi Server. Library dan reader belum termasuk
@@ -370,7 +370,7 @@ export function ConnectionPage() {
       </main>
 
       <footer className="app-footer">
-        <p>Phase 0 · connection foundation · belum ada library/reader</p>
+        <p>Phase 0 · connection foundation · PWA shell · belum ada library/reader</p>
       </footer>
     </div>
   );

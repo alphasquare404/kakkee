@@ -263,7 +263,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 - Reconnect WebSocket, expiry token saat koneksi aktif, dan perilaku subscription setelah token diganti.
 - Path thumbnail/page manga dan chapter, kebutuhan Bearer pada image tersebut, redirect, dan CORS resource.
 - Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS. CORS localhost sudah diuji; deployment dengan proxy/TLS/kebijakan origin lain belum.
-- PWA scope, service worker, dan perilaku perangkat iOS/Android.
+- PWA scope, service worker, dan cache shell sudah diuji di Chrome headless pada root dan `/app/`; install/perilaku perangkat iOS/Android nyata belum.
 - Perilaku multi-user/preview; bukan target baseline.
 
 ## Prosedur pembaruan bukti
