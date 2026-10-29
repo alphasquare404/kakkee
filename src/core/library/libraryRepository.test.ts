@@ -2,7 +2,9 @@ import type { ApolloClient } from '@apollo/client';
 import { print } from 'graphql';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  LibraryCategoriesDocument,
   LibraryMangasDocument,
+  type LibraryCategoriesQuery,
   type LibraryMangasQuery,
   type LibraryMangasQueryVariables,
 } from '../graphql/generated/graphql';
@@ -65,8 +67,38 @@ function fakeClient(data: LibraryMangasQuery = libraryData()) {
   };
 }
 
-function queryOptions(query: ReturnType<typeof fakeClient>['query'], index = 0): QueryOptions {
+function queryOptions(
+  query: { mock: { calls: unknown[][] } },
+  index = 0,
+): QueryOptions {
   return query.mock.calls[index][0] as QueryOptions;
+}
+
+function categoryData(
+  nodes: LibraryCategoriesQuery['categories']['nodes'] = [
+    { __typename: 'CategoryType', id: 0, name: 'Default', order: 0 },
+    { __typename: 'CategoryType', id: 3, name: 'Action', order: 3 },
+  ],
+): LibraryCategoriesQuery {
+  return {
+    __typename: 'Query',
+    categories: {
+      __typename: 'CategoryNodeList',
+      nodes,
+    },
+  };
+}
+
+function fakeCategoryClient(data: LibraryCategoriesQuery = categoryData()) {
+  const query = vi.fn(async (_options: QueryOptions) => {
+    void _options;
+    return { data };
+  });
+
+  return {
+    client: { query } as unknown as ApolloClient,
+    query,
+  };
 }
 
 describe('createLibraryRepository request mapping', () => {
@@ -247,6 +279,61 @@ describe('createLibraryRepository response mapping', () => {
     await expect(repository.getPage()).rejects.toThrow(
       'Respons Library tidak memiliki data mangas.',
     );
+  });
+});
+
+describe('createLibraryRepository categories', () => {
+  it('uses the generated category document and preserves backend order', async () => {
+    const { client, query } = fakeCategoryClient();
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    const categories = await repository.getCategories();
+
+    const options = queryOptions(query);
+    expect(options.query).toBe(LibraryCategoriesDocument);
+    expect(options.fetchPolicy).toBe('network-only');
+    expect(categories.map((category) => category.id)).toEqual([0, 3]);
+    expect(categories.map((category) => category.order)).toEqual([0, 3]);
+    expect(print(LibraryCategoriesDocument)).toContain(
+      'order: [{ by: ORDER, byType: ASC }]',
+    );
+  });
+
+  it('returns an empty array for no categories', async () => {
+    const { client } = fakeCategoryClient(categoryData([]));
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await expect(repository.getCategories()).resolves.toEqual([]);
+  });
+
+  it('propagates category errors instead of returning empty categories', async () => {
+    const error = new Error('category query failed');
+    const query = vi.fn(async () => {
+      throw error;
+    });
+    const client = { query } as unknown as ApolloClient;
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await expect(repository.getCategories()).rejects.toBe(error);
+  });
+
+  it('uses the current client for each category request', async () => {
+    const first = fakeCategoryClient();
+    const second = fakeCategoryClient(
+      categoryData([{ __typename: 'CategoryType', id: 9, name: 'Later', order: 9 }]),
+    );
+    let current = first.client;
+    const getClient = vi.fn(() => current);
+    const repository = createLibraryRepository({ getClient });
+
+    await repository.getCategories();
+    current = second.client;
+    const categories = await repository.getCategories();
+
+    expect(getClient).toHaveBeenCalledTimes(2);
+    expect(first.query).toHaveBeenCalledTimes(1);
+    expect(second.query).toHaveBeenCalledTimes(1);
+    expect(categories.map((category) => category.id)).toEqual([9]);
   });
 });
 

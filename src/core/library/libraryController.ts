@@ -13,11 +13,15 @@ export interface LibraryPaginationState {
   readonly hasNextPage: boolean;
 }
 
+export type LibraryFilterCriteria = Omit<LibraryFilter, 'categoryId'>;
+
 export interface LibraryState {
   readonly items: readonly LibraryManga[];
   readonly totalCount: number;
   readonly pageInfo: LibraryPaginationState;
-  readonly filter: LibraryFilter;
+  readonly filter: LibraryFilterCriteria;
+  /** null means the synthetic All view; no category refinement is sent. */
+  readonly categoryId: number | null;
   readonly sort: LibrarySort;
   readonly isInitialLoading: boolean;
   readonly isLoadingMore: boolean;
@@ -37,7 +41,7 @@ export class LibraryPaginationError extends Error {
 export interface LibraryControllerOptions {
   readonly repository: LibraryRepository;
   readonly pageSize?: number;
-  readonly initialFilter?: LibraryFilter;
+  readonly initialFilter?: LibraryFilterCriteria;
   readonly initialSort?: LibrarySort;
 }
 
@@ -47,8 +51,9 @@ export interface LibraryController {
   load(): Promise<void>;
   loadMore(): Promise<void>;
   setSearch(search: string): Promise<void>;
-  setFilter(filter: LibraryFilter): Promise<void>;
+  setFilter(filter: LibraryFilterCriteria): Promise<void>;
   setSort(sort: LibrarySort): Promise<void>;
+  setCategory(categoryId: number | null): Promise<void>;
 }
 
 function initialState(options: LibraryControllerOptions): LibraryState {
@@ -60,6 +65,7 @@ function initialState(options: LibraryControllerOptions): LibraryState {
       hasNextPage: false,
     },
     filter: { ...(options.initialFilter ?? {}) },
+    categoryId: null,
     sort: options.initialSort ?? DEFAULT_LIBRARY_SORT,
     isInitialLoading: false,
     isLoadingMore: false,
@@ -89,6 +95,13 @@ function appendUnique(
 
 function isInconsistent(page: LibraryPage): boolean {
   return page.pageInfo.hasNextPage && page.pageInfo.endCursor === null;
+}
+
+function repositoryFilter(
+  filter: LibraryFilterCriteria,
+  categoryId: number | null,
+): LibraryFilter {
+  return categoryId === null ? filter : { ...filter, categoryId };
 }
 
 export function createLibraryController(
@@ -133,7 +146,11 @@ export function createLibraryController(
     });
   }
 
-  async function loadFirstPage(filter: LibraryFilter, sort: LibrarySort): Promise<void> {
+  async function loadFirstPage(
+    filter: LibraryFilterCriteria,
+    sort: LibrarySort,
+    categoryId: number | null,
+  ): Promise<void> {
     const requestGeneration = ++generation;
 
     setState({
@@ -145,6 +162,7 @@ export function createLibraryController(
         hasNextPage: false,
       },
       filter,
+      categoryId,
       sort,
       isInitialLoading: true,
       isLoadingMore: false,
@@ -155,7 +173,7 @@ export function createLibraryController(
     try {
       const page = await options.repository.getPage({
         first: pageSize,
-        filter,
+        filter: repositoryFilter(filter, categoryId),
         sort,
       });
 
@@ -185,7 +203,7 @@ export function createLibraryController(
   }
 
   function load(): Promise<void> {
-    return loadFirstPage(state.filter, state.sort);
+    return loadFirstPage(state.filter, state.sort, state.categoryId);
   }
 
   function loadMore(): Promise<void> {
@@ -215,7 +233,7 @@ export function createLibraryController(
         const page = await options.repository.getPage({
           first: pageSize,
           after,
-          filter: state.filter,
+          filter: repositoryFilter(state.filter, state.categoryId),
           sort: state.sort,
         });
 
@@ -238,15 +256,19 @@ export function createLibraryController(
   }
 
   function setSearch(search: string): Promise<void> {
-    return loadFirstPage({ ...state.filter, search }, state.sort);
+    return loadFirstPage({ ...state.filter, search }, state.sort, state.categoryId);
   }
 
-  function setFilter(filter: LibraryFilter): Promise<void> {
-    return loadFirstPage(filter, state.sort);
+  function setFilter(filter: LibraryFilterCriteria): Promise<void> {
+    return loadFirstPage(filter, state.sort, state.categoryId);
   }
 
   function setSort(sort: LibrarySort): Promise<void> {
-    return loadFirstPage(state.filter, sort);
+    return loadFirstPage(state.filter, sort, state.categoryId);
+  }
+
+  function setCategory(categoryId: number | null): Promise<void> {
+    return loadFirstPage(state.filter, state.sort, categoryId);
   }
 
   return {
@@ -263,5 +285,6 @@ export function createLibraryController(
     setSearch,
     setFilter,
     setSort,
+    setCategory,
   };
 }

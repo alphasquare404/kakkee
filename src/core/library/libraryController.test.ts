@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createLibraryController,
   LibraryPaginationError,
+  type LibraryFilterCriteria,
   type LibraryState,
 } from './libraryController';
 import {
@@ -9,6 +10,7 @@ import {
   type LibraryManga,
   type LibraryPage,
   type LibraryRepository,
+  type LibrarySort,
 } from './libraryRepository';
 
 function manga(id: number, title = `Manga ${id}`): LibraryManga {
@@ -49,10 +51,14 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-function setup() {
+function setup(options: {
+  initialFilter?: LibraryFilterCriteria;
+  initialSort?: LibrarySort;
+  pageSize?: number;
+} = {}) {
   const getPage = vi.fn();
   const repository = { getPage } as unknown as LibraryRepository;
-  const controller = createLibraryController({ repository });
+  const controller = createLibraryController({ repository, ...options });
   return { controller, getPage };
 }
 
@@ -69,6 +75,7 @@ describe('createLibraryController initial load', () => {
     expect(initial.totalCount).toBe(0);
     expect(initial.pageInfo).toEqual({ endCursor: null, hasNextPage: false });
     expect(initial.filter).toEqual({});
+    expect(initial.categoryId).toBeNull();
     expect(initial.sort).toEqual(DEFAULT_LIBRARY_SORT);
     expect(initial.isInitialLoading).toBe(false);
     expect(initial.isLoadingMore).toBe(false);
@@ -265,14 +272,14 @@ describe('createLibraryController criteria changes', () => {
     await controller.load();
     getPage.mockResolvedValueOnce(page([manga(2)]));
 
-    await controller.setFilter({ status: 'ONGOING', categoryId: 3 });
+    await controller.setFilter({ status: 'ONGOING' });
 
     expect(getPage).toHaveBeenLastCalledWith({
       first: 40,
-      filter: { status: 'ONGOING', categoryId: 3 },
+      filter: { status: 'ONGOING' },
       sort: DEFAULT_LIBRARY_SORT,
     });
-    expect(state(controller).filter).toEqual({ status: 'ONGOING', categoryId: 3 });
+    expect(state(controller).filter).toEqual({ status: 'ONGOING' });
   });
 
   it('resets when sort changes and preserves the new sort', async () => {
@@ -289,6 +296,104 @@ describe('createLibraryController criteria changes', () => {
       sort: { field: 'title', direction: 'asc' },
     });
     expect(state(controller).sort).toEqual({ field: 'title', direction: 'asc' });
+  });
+
+  it('selects a category while preserving search, status, source, and sort', async () => {
+    const { controller, getPage } = setup({
+      initialFilter: { status: 'ONGOING', sourceId: '123' },
+      initialSort: { field: 'title', direction: 'asc' },
+    });
+    getPage.mockResolvedValue(page([manga(2)]));
+
+    await controller.setSearch('nar');
+    await controller.setCategory(3);
+
+    expect(getPage).toHaveBeenLastCalledWith({
+      first: 40,
+      filter: {
+        search: 'nar',
+        status: 'ONGOING',
+        sourceId: '123',
+        categoryId: 3,
+      },
+      sort: { field: 'title', direction: 'asc' },
+    });
+    expect(state(controller).filter).toEqual({
+      search: 'nar',
+      status: 'ONGOING',
+      sourceId: '123',
+    });
+    expect(state(controller).categoryId).toBe(3);
+  });
+
+  it('returns to All by removing category refinement while keeping other criteria', async () => {
+    const { controller, getPage } = setup({
+      initialFilter: { status: 'ONGOING' },
+    });
+    getPage.mockResolvedValue(page([manga(1)]));
+
+    await controller.setCategory(3);
+    await controller.setCategory(null);
+
+    expect(getPage).toHaveBeenLastCalledWith({
+      first: 40,
+      filter: { status: 'ONGOING' },
+      sort: DEFAULT_LIBRARY_SORT,
+    });
+    expect(state(controller).filter).toEqual({ status: 'ONGOING' });
+    expect(state(controller).categoryId).toBeNull();
+  });
+
+  it('treats category id 0 as the backend Default category, not All', async () => {
+    const { controller, getPage } = setup();
+    getPage.mockResolvedValue(page([manga(1)]));
+
+    await controller.setCategory(0);
+
+    expect(getPage).toHaveBeenLastCalledWith({
+      first: 40,
+      filter: { categoryId: 0 },
+      sort: DEFAULT_LIBRARY_SORT,
+    });
+    expect(state(controller).categoryId).toBe(0);
+  });
+
+  it('resets pagination immediately and ignores stale category responses', async () => {
+    const oldCategory = deferred<LibraryPage>();
+    const newCategory = deferred<LibraryPage>();
+    const { controller, getPage } = setup();
+    getPage.mockReturnValueOnce(oldCategory.promise).mockReturnValueOnce(newCategory.promise);
+
+    const oldLoad = controller.setCategory(null);
+    const newLoad = controller.setCategory(3);
+
+    expect(state(controller).items).toEqual([]);
+    expect(state(controller).isInitialLoading).toBe(true);
+    expect(state(controller).categoryId).toBe(3);
+
+    newCategory.resolve(page([manga(3)]));
+    await newLoad;
+    oldCategory.resolve(page([manga(1)]));
+    await oldLoad;
+
+    expect(state(controller).categoryId).toBe(3);
+    expect(state(controller).items.map((item) => item.id)).toEqual([3]);
+  });
+
+  it('includes the selected category in load-more requests', async () => {
+    const { controller, getPage } = setup();
+    getPage.mockResolvedValueOnce(page([manga(1)], { hasNextPage: true }));
+    await controller.setCategory(7);
+    getPage.mockResolvedValueOnce(page([manga(2)]));
+
+    await controller.loadMore();
+
+    expect(getPage).toHaveBeenLastCalledWith({
+      first: 40,
+      after: 'cursor-1',
+      filter: { categoryId: 7 },
+      sort: DEFAULT_LIBRARY_SORT,
+    });
   });
 
   it('ignores a stale initial response after a newer search starts', async () => {

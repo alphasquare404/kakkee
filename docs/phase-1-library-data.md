@@ -45,7 +45,11 @@ const page = await repository.getPage({
   filter: { search: 'alpha' },
   sort: { field: 'title', direction: 'asc' },
 });
+
+const categories = await repository.getCategories();
 ```
+
+`getCategories()` memakai generated `LibraryCategoriesDocument`, urutan backend (`ORDER ASC`), dan `network-only`; detail category ada di [phase-1-library-categories.md](phase-1-library-categories.md).
 
 Output:
 

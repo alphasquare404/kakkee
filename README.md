@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), dan Step 3 (Library pagination/filter/state model) selesai; belum ada Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
+Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), Step 3 (state controller), dan Step 3.5 (category support) selesai; belum ada Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md). Category: [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md).
 
 ## Kemampuan saat ini
 
@@ -17,6 +17,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Resource REST terautentikasi melalui service terpusat (belum ada komponen image).
 - Library data layer terpusat dengan pagination/filter/sort stable (belum ada UI).
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
+- Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
 - PWA installable dengan shell-only cache dan update prompt.
 
 Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Tidak ada library, manga, chapter, reader, source, extension, download, tracking, atau offline reading pada Phase 0.
@@ -184,6 +185,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ phase-1-library-contract.md
 │  ├─ phase-1-library-data.md
 │  ├─ phase-1-library-state.md
+│  ├─ phase-1-library-categories.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -193,6 +195,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │     ├─ aboutServer.graphql
 │     ├─ authProbe.graphql
 │     ├─ downloadStatusChanged.graphql
+│     ├─ libraryCategories.graphql
 │     ├─ libraryMangas.graphql
 │     ├─ login.graphql
 │     └─ refreshToken.graphql
@@ -239,6 +242,8 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  │  │     ├─ graphql.ts
 │  │  │     └─ index.ts
 │  │  ├─ library/
+│  │  │  ├─ libraryCategoryController.ts
+│  │  │  ├─ libraryCategoryController.test.ts
 │  │  │  ├─ libraryController.ts
 │  │  │  ├─ libraryController.test.ts
 │  │  │  ├─ libraryRepository.ts
@@ -337,7 +342,7 @@ Scalar mapping:
 
 `Upload` dipetakan ke `File` karena input browser yang natural adalah `File` dari `<input type="file">`; Apollo Upload Client juga menerima `File`/`Blob`. Mapping ini belum dipakai oleh operasi Step 3.
 
-Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `LibraryMangas`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`; kandidat Library memakai generated `LibraryMangasDocument`.
+Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `LibraryCategories`, `LibraryMangas`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`; kandidat Library memakai generated `LibraryMangasDocument` dan category navigation memakai `LibraryCategoriesDocument`.
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
@@ -700,7 +705,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (182 test; 7 runtime integration memerlukan env)
+npm run test           lulus (198 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

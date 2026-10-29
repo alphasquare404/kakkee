@@ -31,7 +31,8 @@ interface LibraryState {
     endCursor: string | null;
     hasNextPage: boolean;
   };
-  filter: LibraryFilter;
+  filter: Omit<LibraryFilter, 'categoryId'>;
+  categoryId: number | null; // null = synthetic All
   sort: LibrarySort;
   isInitialLoading: boolean;
   isLoadingMore: boolean;
@@ -60,14 +61,19 @@ await controller.loadMore();
 await controller.setSearch('alpha');
 await controller.setFilter({ status: 'ONGOING' });
 await controller.setSort({ field: 'title', direction: 'asc' });
+await controller.setCategory(3);    // category 3
+await controller.setCategory(0);    // backend Default, not All
+await controller.setCategory(null); // synthetic All
 ```
 
 - `load()` mengambil first page dengan criteria saat ini. Jika data lama ada, data langsung dikosongkan dan diganti.
 - Tidak ada API `refresh()` terpisah; `load()` adalah explicit reload/first-page load.
 - Semua method mengembalikan Promise dan menyimpan error ke state, bukan melempar error ke UI.
-- `setSearch()` mempertahankan filter lain.
-- `setFilter()` mengganti filter domain; caller harus menggabungkan field sendiri jika perlu.
-- `setSort()` mengganti sort.
+- `setSearch()` mempertahankan filter lain dan category.
+- `setFilter()` mengganti filter domain; category dipertahankan.
+- `setSort()` mengganti sort; category dipertahankan.
+- `setCategory()` mengubah navigation category; `null` = All, `0` = backend Default.
+- Filter publik controller tidak menerima `categoryId`; category adalah state navigasi first-class. Detail: [phase-1-library-categories.md](phase-1-library-categories.md).
 
 ## Loading semantics
 
@@ -108,7 +114,7 @@ Dedupe by `id` dipilih karena deterministic dan kecil. Cursor pagination normal 
 
 ## Criteria changes dan reset
 
-`search`, `filter`, atau `sort` yang berubah:
+`search`, `filter`, `sort`, atau `category` yang berubah:
 
 1. menaikkan generation;
 2. mengosongkan `items`, `totalCount`, dan pageInfo lama;
@@ -118,13 +124,15 @@ Dedupe by `id` dipilih karena deterministic dan kecil. Cursor pagination normal 
 
 Pilihan ini sengaja **langsung mengosongkan data lama** agar UI tidak menampilkan hasil filter lama seolah-olah cocok dengan filter baru. Konsekuensinya ada loading state singkat; ini sederhana dan konsisten.
 
+Category change mempertahankan search/status/source/sort, tetapi tetap mereset pagination.
+
 ## Stale request protection
 
 Setiap first-page load memiliki request generation. Setiap load-more menangkap generation saat dimulai.
 
 Respons diabaikan jika generation sudah berubah karena:
 
-- search/filter/sort baru;
+- search/filter/sort/category baru;
 - `load()` baru.
 
 Tidak ada AbortController di controller karena repository/Apollo contract tidak menjamin cancel semantics. Request lama mungkin tetap berjalan, tetapi **tidak boleh mengubah state baru**. Ini bukan auth/session generation; auth/session tetap milik Phase 0.
@@ -137,14 +145,14 @@ Test mencakup:
 
 ## Search/filter normalization
 
-`LibraryFilter` adalah domain filter yang sama dengan repository:
+`LibraryFilterCriteria` adalah domain filter repository tanpa `categoryId`:
 
 - `search`: disimpan sebagai input; repository melakukan trim dan menghilangkan empty title filter;
 - `status`: diteruskan ke repository;
 - `sourceId`: diteruskan;
-- `categoryId`: single category.
+- `categoryId`: bukan bagian filter publik; dipilih lewat `categoryId`/`setCategory`.
 
-Controller tidak mengulang mapping ke `MangaFilterInput`, karena itu milik repository.
+Controller tidak mengulang mapping ke `MangaFilterInput`, karena itu milik repository. Saat category dipilih, controller menggabungkan `categoryId` ke filter repository secara internal.
 
 ## Sorting
 
@@ -168,6 +176,16 @@ Tidak ada unread/download/bookmark/chapter/tracker/random sorting.
 - `LibraryPaginationError` hanya untuk inconsistency pagination.
 - Error tidak diubah menjadi Library kosong palsu.
 
+## Category list
+
+Category list memakai controller terpisah:
+
+```ts
+createLibraryCategoryController({ repository })
+```
+
+State categories/isLoading/error terpisah dari page state. Synthetic All tidak ada di category controller; All adalah `categoryId: null` di `LibraryController`. Detail lengkap ada di [phase-1-library-categories.md](phase-1-library-categories.md).
+
 ## React integration (future)
 
 Step 3 tidak membuat hook atau visual UI. Future hook cukup:
@@ -184,7 +202,7 @@ UI harus membuat controller dari repository yang memakai current connected Apoll
 npm run codegen:check  PASS
 npm run lint           PASS
 npm run typecheck      PASS
-npm run test           PASS — 182 total, 175 pass, 7 skipped
+npm run test           PASS — 198 total, 191 pass, 7 skipped
 npm run build          PASS
 ```
 
@@ -193,6 +211,8 @@ npm run build          PASS
 ## Limitations
 
 - Belum ada UI, grid, MangaCard, toolbar, CSS.
+- Belum ada category tabs/chips; category list controller tersedia, UI belum.
+- Belum ada category manga count.
 - Belum ada thumbnail Blob; controller hanya membawa `thumbnailUrl`.
 - Belum ada multi-category filter.
 - Belum ada multi-column sorting.

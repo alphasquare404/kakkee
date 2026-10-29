@@ -306,7 +306,7 @@ type CategoryType {
 }
 ```
 
-- Categories belum diperlukan untuk Library MVP awal.
+- Categories sekarang first-class navigation; detail stable contract, runtime Default ID 0, synthetic All, dan repository/state ada di [phase-1-library-categories.md](phase-1-library-categories.md).
 - Jika ditambahkan nanti, `condition.categoryIds` dapat memfilter multi-category.
 - `filter.categoryId` hanya satu kategori.
 - Jangan membuat UI Categories pada audit ini.

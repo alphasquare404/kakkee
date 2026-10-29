@@ -1,6 +1,8 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  LibraryCategoriesDocument,
   LibraryMangasDocument,
+  type LibraryCategoriesQuery,
   type LibraryMangasQuery,
   type LibraryMangasQueryVariables,
   type MangaFilterInput,
@@ -12,6 +14,7 @@ export const DEFAULT_LIBRARY_PAGE_SIZE = 40;
 export const MAX_LIBRARY_PAGE_SIZE = 50;
 
 export type LibraryManga = LibraryMangasQuery['mangas']['nodes'][number];
+export type LibraryCategory = LibraryCategoriesQuery['categories']['nodes'][number];
 
 export interface LibraryPageInfo {
   readonly endCursor: string | null;
@@ -65,6 +68,7 @@ export class LibraryInputError extends Error {
 
 export interface LibraryRepository {
   getPage(input?: LibraryPageInput): Promise<LibraryPage>;
+  getCategories(): Promise<readonly LibraryCategory[]>;
 }
 
 export interface LibraryRepositoryOptions {
@@ -199,6 +203,18 @@ export function createLibraryRepository(
           hasNextPage: mangas.pageInfo.hasNextPage,
         },
       };
+    },
+    async getCategories() {
+      const result = await options.getClient().query({
+        query: LibraryCategoriesDocument,
+        fetchPolicy: 'network-only',
+      });
+
+      if (!result.data?.categories) {
+        throw new Error('Respons Library tidak memiliki data categories.');
+      }
+
+      return result.data.categories.nodes;
     },
   };
 }
