@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal). Phase 1 belum dimulai. Target minimum: stable v2.4.2366. Bukti akhir ada di [phase-0-validation.md](phase-0-validation.md); aturan wajib di [AGENTS.md](../AGENTS.md) dan rencana di [phase-0.md](phase-0.md).
+Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal). Phase 1 Step 2 Library data layer tersedia; Library UI belum dibuat. Target minimum: stable v2.4.2366. Bukti akhir ada di [phase-0-validation.md](phase-0-validation.md); audit Library di [phase-1-library-contract.md](phase-1-library-contract.md) dan [phase-1-library-data.md](phase-1-library-data.md).
 
 ## Tujuan
 
@@ -40,6 +40,7 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 | `src/core/auth/` | Sesi, adapter NONE/UI_LOGIN, perubahan sesi |
 | `src/core/graphql/` | Apollo HTTP, graphql-ws, error transport, generated types |
 | `src/core/resources/` | Resource terautentikasi, Blob/object URL, lifecycle |
+| `src/core/library/` | Repository data Library, pagination/filter/sort mapping |
 | `src/features/connection/` | Form koneksi/login, status dan aboutServer |
 | `src/shared/` | Komponen/utilitas umum yang benar-benar dipakai |
 | `graphql/` | Snapshot stable, metadata, operasi yang diverifikasi |

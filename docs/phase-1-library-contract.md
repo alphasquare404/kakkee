@@ -7,7 +7,7 @@ Baseline: **Suwayomi Server stable v2.4.2366**
 Schema: `graphql/schema/stable-v2.4.2366.graphql`
 SHA-256: `c7b154383d684e69bc1947aad10fdfbc4f717008f61c755536a3857eecdff749`
 
-Status audit: **COMPLETE**. Dokumen ini hanya audit kontrak dan operation kandidat; belum ada data layer atau Library UI.
+Status audit: **COMPLETE**. Dokumen ini audit kontrak dan operation kandidat; implementation data layer ada di [phase-1-library-data.md](phase-1-library-data.md).
 
 ## 1. Entry point Library
 
@@ -84,7 +84,7 @@ Alasan:
 - Cursor opaque dikembalikan server tanpa client-side decoding.
 - `totalCount` memberi jumlah total untuk metadata UI; jangan menjadikannya dasar pagination.
 
-Batas `first` belum ditentukan schema. Data layer Step 2 harus menetapkan cap aplikasi (misalnya 20–50) dan menguji server dengan library nyata.
+Batas `first` belum ditentukan schema. Data layer Step 2 menetapkan cap aplikasi 50 dan default 40; lihat [phase-1-library-data.md](phase-1-library-data.md).
 
 ## 4. Sorting
 
@@ -120,7 +120,7 @@ Supported sorting:
 
 Tidak ada sort enum untuk unread count, download count, bookmark count, chapter count, last read, atau latest chapter. Jangan membuat enum tersebut.
 
-`byType` nullable di schema; data layer sebaiknya selalu mengirim `ASC`/`DESC` eksplisit agar urutan tidak bergantung default server.
+`byType` nullable di schema; data layer selalu mengirim `ASC`/`DESC` eksplisit agar urutan tidak bergantung default server.
 
 ## 5. Filtering/search
 
@@ -411,4 +411,4 @@ Validasi tambahan: `src/core/graphql/libraryMangas.generated.test.ts` memverifik
 - `docs/phase-1-library-contract.md` — audit ini.
 - `README.md` — operation list/tree.
 
-Tidak ada data layer, repository, Library UI, Manga Detail, Chapter, Reader, Downloads, atau Offline yang dibuat.
+Pada audit Step 1 tidak ada data layer/repository/UI. Step 2 kemudian menambahkan data layer di [phase-1-library-data.md](phase-1-library-data.md); Library UI, Manga Detail, Chapter, Reader, Downloads, dan Offline tetap belum dibuat.
