@@ -6,7 +6,7 @@ Dokumen ini berlaku untuk DeepSeek, ChatGPT Work, Codex, Claude, dan semua kontr
 
 Frontend React baru untuk Suwayomi Server, mendukung browser desktop/mobile dan PWA iOS/Android. Ini implementasi baru, bukan fork Suwayomi-WebUI. WebUI resmi hanya referensi. Target minimum yang disepakati adalah stable **v2.4.2366**, bukan klaim tentang rilis stable terbaru.
 
-Tugas saat ini hanya dokumentasi. Jangan membuat aplikasi, UI, memasang dependency, atau menginisialisasi Git sebagai bagian tugas dokumentasi ini. Implementasi Phase 0 dimulai ketika pengguna menugaskannya. Rencana ada di [docs/phase-0.md](docs/phase-0.md); arsitektur di [docs/architecture.md](docs/architecture.md).
+**Phase 0 selesai dan tervalidasi.** Phase 1 belum dimulai. Jangan menganggap roadmap fitur berikutnya sudah disetujui; mulai pekerjaan baru hanya setelah pengguna menugaskannya. Bukti akhir Phase 0 ada di [docs/phase-0-validation.md](docs/phase-0-validation.md); rencana ada di [docs/phase-0.md](docs/phase-0.md); arsitektur di [docs/architecture.md](docs/architecture.md).
 
 Phase 0 hanya fondasi, koneksi, autentikasi NONE/UI_LOGIN, informasi aboutServer, dan PWA shell minimal. Library, daftar/detail manga, chapter, reader, sources, extensions, download UI, tracking, serta offline reading di luar scope.
 

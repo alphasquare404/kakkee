@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 10 selesai (PWA shell)** — bootstrap React/TypeScript/Vite, quality gates, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell sudah tersedia. Validasi akhir dan serah terima pada bagian 10 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–10 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Phase 0 COMPLETE** — Step 1–10 dan validasi akhir selesai. Bootstrap React/TypeScript/Vite, quality gates, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell sudah tervalidasi. Phase 1 belum dimulai. Bukti akhir: [phase-0-validation.md](phase-0-validation.md). Ringkasan hasil ada di [README.md](../README.md); aturan bersama di [AGENTS.md](../AGENTS.md); pembagian modul di [architecture.md](architecture.md); bukti backend di [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -83,6 +83,8 @@ Expected files: konfigurasi PWA di Vite, ikon di `public/`, manifest yang dihasi
 Acceptance: production build menyediakan manifest/ikon; instalasi diuji di Android dan Add to Home Screen iOS jika perangkat tersedia. Asset/router/scope benar pada `/` dan `/app/`. Inspeksi service worker memastikan GraphQL/auth/resource pribadi tidak dicache. Tidak ada offline reading; keadaan jaringan putus ditampilkan dengan jujur. Perangkat yang tidak tersedia dicatat sebagai belum diuji.
 
 ### 10. Validasi akhir dan serah terima
+
+Status: **selesai** — lihat [phase-0-validation.md](phase-0-validation.md).
 
 Expected files: README penggunaan dan deployment, `docs/phase-0-validation.md` berisi versi lingkungan/server, matriks hasil, tanggal, batas pengujian, dan langkah reproduksi tanpa secret. Selaraskan dokumen arsitektur dengan keputusan implementasi.
 

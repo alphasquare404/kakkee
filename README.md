@@ -2,7 +2,22 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 10 selesai (PWA shell)**. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tersedia. Belum ada library/manga/reader, offline reading, atau final branding.
+Status saat ini: **Phase 0 COMPLETE**. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Phase 1 belum dimulai; belum ada library/manga/reader, offline reading, atau final branding.
+
+Laporan bukti akhir: [docs/phase-0-validation.md](docs/phase-0-validation.md).
+
+## Kemampuan saat ini
+
+- Membuka connection screen; memasukkan URL Suwayomi; connect.
+- NONE langsung Connected setelah `aboutServer` + protected probe.
+- UI_LOGIN menampilkan login, menolak kredensial salah, dan Connected setelah login/probe berhasil.
+- BASIC_AUTH dan SIMPLE_LOGIN ditampilkan sebagai tidak didukung, bukan fallback ke NONE.
+- Menampilkan nama/version/build/platform/architecture/server URL/auth mode/compatibility.
+- Disconnect/ganti server dengan generation guard.
+- Resource REST terautentikasi melalui service terpusat (belum ada komponen image).
+- PWA installable dengan shell-only cache dan update prompt.
+
+Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Tidak ada library, manga, chapter, reader, source, extension, download, tracking, atau offline reading pada Phase 0.
 
 ## Lingkup Step 1
 
@@ -134,6 +149,14 @@ npm run build
 npm run preview
 ```
 
+Deployment subpath:
+
+```bash
+VITE_FRONTEND_BASE_PATH=/app/ npm run build
+```
+
+PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser) dan hosting SPA fallback untuk `/` atau `/app/`.
+
 ## Scripts
 
 | Script | Fungsi |
@@ -155,6 +178,7 @@ npm run preview
 ├─ docs/
 │  ├─ architecture.md
 │  ├─ phase-0.md
+│  ├─ phase-0-validation.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -302,7 +326,7 @@ Scalar mapping:
 
 `Upload` dipetakan ke `File` karena input browser yang natural adalah `File` dari `<input type="file">`; Apollo Upload Client juga menerima `File`/`Blob`. Mapping ini belum dipakai oleh operasi Step 3.
 
-Operasi yang dibuat: `aboutServer`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`.
+Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`.
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
@@ -629,7 +653,7 @@ Service worker/cache:
 - Strategi `generateSW` dengan precache hanya `index.html`, JS/CSS shell, icon, dan manifest.
 - `runtimeCaching: []`; tidak ada route runtime API/image.
 - `navigateFallback` `/index.html` atau `/app/index.html`.
-- `navigateFallbackDenylist` menolak `/api` sebagai fallback navigasi.
+- `navigateFallbackDenylist` menolak `/api` (dan `/app/api` jika server berada di bawah base frontend) sebagai fallback navigasi.
 - `skipWaiting: false`, `clientsClaim: false`.
 - Tidak ada precache GraphQL, tracker/manga/chapter resource, auth response, token, Apollo cache, atau data server.
 
@@ -655,6 +679,8 @@ Offline:
 - Tidak ada data lama yang ditampilkan sebagai live dan tidak ada offline manga/chapter.
 
 ## Validasi
+
+Validasi akhir Phase 0 dan matriks lengkap ada di [phase-0-validation.md](docs/phase-0-validation.md).
 
 Dijalankan pada 29 Oktober 2026:
 
@@ -783,9 +809,9 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, dan PWA shell tersedia; belum ada library/manga/reader atau resource component.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, dan PWA shell tersedia; Phase 0 berstatus COMPLETE dan Phase 1 belum dimulai.
 - Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator/UI; tidak ada koneksi ke server produksi pengguna.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–10 dibuat terpisah.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–10 dan final validation dibuat terpisah.
 - Belum ada offline reading, library/manga UI, reader, source/extension/download UI, authenticated image component, push notification, atau background sync.
 - Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
 - `serverBaseUrl`, transport, resource, coordinator, connection UI, dan PWA sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.

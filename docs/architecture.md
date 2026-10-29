@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–10 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal); fitur Phase 0 lanjutan/validasi akhir belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal). Phase 1 belum dimulai. Target minimum: stable v2.4.2366. Bukti akhir ada di [phase-0-validation.md](phase-0-validation.md); aturan wajib di [AGENTS.md](../AGENTS.md) dan rencana di [phase-0.md](phase-0.md).
 
 ## Tujuan
 

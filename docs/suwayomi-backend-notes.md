@@ -245,7 +245,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 | `UI_LOGIN` memakai JWT | Terverifikasi; access + refresh token |
 | Bearer pada HTTP | Terverifikasi dengan `settings` |
 | `connectionParams.Authorization` pada WS | Terverifikasi dengan token mentah tanpa `Bearer` |
-| `aboutServer` untuk connection test | Field dan respons terverifikasi; alur UI belum diuji |
+| `aboutServer` untuk connection test | Field, respons, dan UI connection flow terverifikasi |
 | Thumbnail/page berupa relative path | Field schema ada; nilai path aktual belum diuji pada baseline ini |
 | Image terautentikasi perlu fetch + Blob | Terverifikasi untuk tracker thumbnail; manga/page belum |
 | Tracker thumbnail REST | Terverifikasi NONE 200 dan UI_LOGIN 401 tanpa token / 200 dengan Bearer |
