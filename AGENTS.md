@@ -6,7 +6,7 @@ Dokumen ini berlaku untuk DeepSeek, ChatGPT Work, Codex, Claude, dan semua kontr
 
 Frontend React baru untuk Suwayomi Server, mendukung browser desktop/mobile dan PWA iOS/Android. Ini implementasi baru, bukan fork Suwayomi-WebUI. WebUI resmi hanya referensi. Target minimum yang disepakati adalah stable **v2.4.2366**, bukan klaim tentang rilis stable terbaru.
 
-**Phase 0 selesai dan tervalidasi.** Phase 1 Step 1 (audit kontrak Library) dan Step 2 (Library data layer) selesai; belum ada Library UI. Mulai implementasi fitur berikutnya hanya setelah pengguna menugaskannya. Bukti akhir Phase 0 ada di [docs/phase-0-validation.md](docs/phase-0-validation.md); kontrak Library di [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md); data layer di [docs/phase-1-library-data.md](docs/phase-1-library-data.md); arsitektur di [docs/architecture.md](docs/architecture.md).
+**Phase 0 selesai dan tervalidasi.** Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), dan Step 3 (Library pagination/filter/state model) selesai; belum ada Library UI. Mulai implementasi fitur berikutnya hanya setelah pengguna menugaskannya. Bukti akhir Phase 0 ada di [docs/phase-0-validation.md](docs/phase-0-validation.md); kontrak Library di [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md); data layer di [docs/phase-1-library-data.md](docs/phase-1-library-data.md); state model di [docs/phase-1-library-state.md](docs/phase-1-library-state.md); arsitektur di [docs/architecture.md](docs/architecture.md).
 
 Phase 0 hanya fondasi, koneksi, autentikasi NONE/UI_LOGIN, informasi aboutServer, dan PWA shell minimal. Library, daftar/detail manga, chapter, reader, sources, extensions, download UI, tracking, serta offline reading di luar scope.
 

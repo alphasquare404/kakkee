@@ -82,7 +82,7 @@ const SORT_FIELD_MAP: Record<LibrarySortField, MangaOrderBy> = {
   id: 'ID',
 };
 
-const DEFAULT_SORT: LibrarySort = {
+export const DEFAULT_LIBRARY_SORT: LibrarySort = {
   field: 'dateAdded',
   direction: 'desc',
 };
@@ -140,7 +140,7 @@ function filterInput(filter: LibraryFilter | undefined): MangaFilterInput | unde
 }
 
 function orderInput(sort: LibrarySort | undefined): MangaOrderBy[] {
-  const selected = sort ?? DEFAULT_SORT;
+  const selected = sort ?? DEFAULT_LIBRARY_SORT;
   const by = SORT_FIELD_MAP[selected.field];
 
   if (!by) {
@@ -155,7 +155,7 @@ function buildVariables(input: LibraryPageInput): LibraryMangasQueryVariables {
     first: pageSize(input.first),
     order: orderInput(input.sort).map((by) => ({
       by,
-      byType: (input.sort ?? DEFAULT_SORT).direction === 'desc' ? 'DESC' : 'ASC',
+      byType: (input.sort ?? DEFAULT_LIBRARY_SORT).direction === 'desc' ? 'DESC' : 'ASC',
     })),
   };
   const after = cursor(input.after);

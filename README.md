@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library) dan Step 2 (Library data layer) selesai; belum ada Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
+Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), dan Step 3 (Library pagination/filter/state model) selesai; belum ada Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer Library: [docs/phase-1-library-data.md](docs/phase-1-library-data.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md).
 
 ## Kemampuan saat ini
 
@@ -16,6 +16,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Disconnect/ganti server dengan generation guard.
 - Resource REST terautentikasi melalui service terpusat (belum ada komponen image).
 - Library data layer terpusat dengan pagination/filter/sort stable (belum ada UI).
+- Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - PWA installable dengan shell-only cache dan update prompt.
 
 Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Tidak ada library, manga, chapter, reader, source, extension, download, tracking, atau offline reading pada Phase 0.
@@ -182,6 +183,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ phase-0-validation.md
 │  ├─ phase-1-library-contract.md
 │  ├─ phase-1-library-data.md
+│  ├─ phase-1-library-state.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -237,6 +239,8 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  │  │     ├─ graphql.ts
 │  │  │     └─ index.ts
 │  │  ├─ library/
+│  │  │  ├─ libraryController.ts
+│  │  │  ├─ libraryController.test.ts
 │  │  │  ├─ libraryRepository.ts
 │  │  │  └─ libraryRepository.test.ts
 │  │  ├─ resources/
@@ -696,7 +700,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (166 test; 7 runtime integration memerlukan env)
+npm run test           lulus (182 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

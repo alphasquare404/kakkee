@@ -1,0 +1,267 @@
+import {
+  DEFAULT_LIBRARY_PAGE_SIZE,
+  DEFAULT_LIBRARY_SORT,
+  type LibraryFilter,
+  type LibraryManga,
+  type LibraryPage,
+  type LibraryRepository,
+  type LibrarySort,
+} from './libraryRepository';
+
+export interface LibraryPaginationState {
+  readonly endCursor: string | null;
+  readonly hasNextPage: boolean;
+}
+
+export interface LibraryState {
+  readonly items: readonly LibraryManga[];
+  readonly totalCount: number;
+  readonly pageInfo: LibraryPaginationState;
+  readonly filter: LibraryFilter;
+  readonly sort: LibrarySort;
+  readonly isInitialLoading: boolean;
+  readonly isLoadingMore: boolean;
+  readonly initialError: unknown | null;
+  readonly loadMoreError: unknown | null;
+}
+
+export class LibraryPaginationError extends Error {
+  public readonly code = 'INCONSISTENT_PAGINATION';
+
+  constructor() {
+    super('Server mengembalikan hasNextPage=true tanpa endCursor.');
+    this.name = 'LibraryPaginationError';
+  }
+}
+
+export interface LibraryControllerOptions {
+  readonly repository: LibraryRepository;
+  readonly pageSize?: number;
+  readonly initialFilter?: LibraryFilter;
+  readonly initialSort?: LibrarySort;
+}
+
+export interface LibraryController {
+  getState(): LibraryState;
+  subscribe(listener: (state: LibraryState) => void): () => void;
+  load(): Promise<void>;
+  loadMore(): Promise<void>;
+  setSearch(search: string): Promise<void>;
+  setFilter(filter: LibraryFilter): Promise<void>;
+  setSort(sort: LibrarySort): Promise<void>;
+}
+
+function initialState(options: LibraryControllerOptions): LibraryState {
+  return {
+    items: [],
+    totalCount: 0,
+    pageInfo: {
+      endCursor: null,
+      hasNextPage: false,
+    },
+    filter: { ...(options.initialFilter ?? {}) },
+    sort: options.initialSort ?? DEFAULT_LIBRARY_SORT,
+    isInitialLoading: false,
+    isLoadingMore: false,
+    initialError: null,
+    loadMoreError: null,
+  };
+}
+
+function appendUnique(
+  existing: readonly LibraryManga[],
+  incoming: readonly LibraryManga[],
+): LibraryManga[] {
+  const seen = new Set(existing.map((item) => item.id));
+  const appended: LibraryManga[] = [];
+
+  for (const item of incoming) {
+    if (seen.has(item.id)) {
+      continue;
+    }
+
+    seen.add(item.id);
+    appended.push(item);
+  }
+
+  return [...existing, ...appended];
+}
+
+function isInconsistent(page: LibraryPage): boolean {
+  return page.pageInfo.hasNextPage && page.pageInfo.endCursor === null;
+}
+
+export function createLibraryController(
+  options: LibraryControllerOptions,
+): LibraryController {
+  const pageSize = options.pageSize ?? DEFAULT_LIBRARY_PAGE_SIZE;
+  let state = initialState(options);
+  let generation = 0;
+  const listeners = new Set<(state: LibraryState) => void>();
+
+  function setState(next: LibraryState): void {
+    state = next;
+
+    for (const listener of [...listeners]) {
+      listener(state);
+    }
+  }
+
+  function patch(next: Partial<LibraryState>): void {
+    setState({ ...state, ...next });
+  }
+
+  function applyFirstPage(page: LibraryPage): void {
+    patch({
+      items: page.items,
+      totalCount: page.totalCount,
+      pageInfo: page.pageInfo,
+      isInitialLoading: false,
+      isLoadingMore: false,
+      initialError: null,
+      loadMoreError: isInconsistent(page) ? new LibraryPaginationError() : null,
+    });
+  }
+
+  function applyNextPage(page: LibraryPage): void {
+    patch({
+      items: appendUnique(state.items, page.items),
+      totalCount: page.totalCount,
+      pageInfo: page.pageInfo,
+      isLoadingMore: false,
+      loadMoreError: isInconsistent(page) ? new LibraryPaginationError() : null,
+    });
+  }
+
+  async function loadFirstPage(filter: LibraryFilter, sort: LibrarySort): Promise<void> {
+    const requestGeneration = ++generation;
+
+    setState({
+      ...state,
+      items: [],
+      totalCount: 0,
+      pageInfo: {
+        endCursor: null,
+        hasNextPage: false,
+      },
+      filter,
+      sort,
+      isInitialLoading: true,
+      isLoadingMore: false,
+      initialError: null,
+      loadMoreError: null,
+    });
+
+    try {
+      const page = await options.repository.getPage({
+        first: pageSize,
+        filter,
+        sort,
+      });
+
+      if (requestGeneration !== generation) {
+        return;
+      }
+
+      applyFirstPage(page);
+    } catch (error) {
+      if (requestGeneration !== generation) {
+        return;
+      }
+
+      patch({
+        items: [],
+        totalCount: 0,
+        pageInfo: {
+          endCursor: null,
+          hasNextPage: false,
+        },
+        isInitialLoading: false,
+        isLoadingMore: false,
+        initialError: error,
+        loadMoreError: null,
+      });
+    }
+  }
+
+  function load(): Promise<void> {
+    return loadFirstPage(state.filter, state.sort);
+  }
+
+  function loadMore(): Promise<void> {
+    if (state.isInitialLoading || state.isLoadingMore) {
+      return Promise.resolve();
+    }
+
+    if (!state.pageInfo.hasNextPage) {
+      return Promise.resolve();
+    }
+
+    if (!state.pageInfo.endCursor) {
+      patch({ loadMoreError: new LibraryPaginationError() });
+      return Promise.resolve();
+    }
+
+    const requestGeneration = generation;
+    const after = state.pageInfo.endCursor;
+
+    patch({
+      isLoadingMore: true,
+      loadMoreError: null,
+    });
+
+    return (async () => {
+      try {
+        const page = await options.repository.getPage({
+          first: pageSize,
+          after,
+          filter: state.filter,
+          sort: state.sort,
+        });
+
+        if (requestGeneration !== generation) {
+          return;
+        }
+
+        applyNextPage(page);
+      } catch (error) {
+        if (requestGeneration !== generation) {
+          return;
+        }
+
+        patch({
+          isLoadingMore: false,
+          loadMoreError: error,
+        });
+      }
+    })();
+  }
+
+  function setSearch(search: string): Promise<void> {
+    return loadFirstPage({ ...state.filter, search }, state.sort);
+  }
+
+  function setFilter(filter: LibraryFilter): Promise<void> {
+    return loadFirstPage(filter, state.sort);
+  }
+
+  function setSort(sort: LibrarySort): Promise<void> {
+    return loadFirstPage(state.filter, sort);
+  }
+
+  return {
+    getState: () => state,
+    subscribe: (listener) => {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    load,
+    loadMore,
+    setSearch,
+    setFilter,
+    setSort,
+  };
+}
