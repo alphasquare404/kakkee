@@ -34,6 +34,7 @@ Server dijalankan dengan data directory sementara, `authMode = NONE`, `webUIEnab
 - Respons GraphQL dapat berupa HTTP 200 walaupun berisi `errors`. Contoh: query yang dilindungi `@requireAuth` tanpa sesi mengembalikan HTTP 200 dengan error `UnauthorizedException`, bukan HTTP 401.
 - Error GraphQL pada build stable dapat memuat stack trace Java lengkap di dalam `message`. UI tidak boleh menampilkan pesan mentah tersebut.
 - Schema memiliki directive `@requireAuth`. Directive `@requirePermissions` tidak muncul di snapshot stable; yang ada adalah `@requireAuth`.
+- CORS preflight pada server test: `OPTIONS /api/graphql` dengan `Origin: http://127.0.0.1:8080` mengembalikan HTTP 200, `Access-Control-Allow-Origin` yang mencerminkan origin tersebut, `Access-Control-Allow-Methods: POST`, `Access-Control-Allow-Headers: content-type`, `Access-Control-Allow-Credentials: true`, dan `Vary: Origin`. Cross-origin browser smoke ke server test berhasil. Ini belum membuktikan semua konfigurasi deployment/proxy.
 
 ### `aboutServer`
 
@@ -240,6 +241,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 | `NONE` dan `UI_LOGIN` tersedia | Terverifikasi dari enum dan runtime |
 | Deteksi NONE/UI_LOGIN via aboutServer + protected probe | Terverifikasi runtime Step 8 |
 | BASIC_AUTH challenge `WWW-Authenticate: Basic` | Terverifikasi runtime Step 8 |
+| CORS preflight origin UI → server test | Terverifikasi runtime Step 9; deployment lain belum |
 | `UI_LOGIN` memakai JWT | Terverifikasi; access + refresh token |
 | Bearer pada HTTP | Terverifikasi dengan `settings` |
 | `connectionParams.Authorization` pada WS | Terverifikasi dengan token mentah tanpa `Bearer` |
@@ -260,7 +262,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 - BASIC_AUTH dan SIMPLE_LOGIN; keduanya di luar dukungan penuh awal. BASIC_AUTH challenge sudah terdeteksi, tetapi login Basic tidak diimplementasikan; SIMPLE_LOGIN belum diuji.
 - Reconnect WebSocket, expiry token saat koneksi aktif, dan perilaku subscription setelah token diganti.
 - Path thumbnail/page manga dan chapter, kebutuhan Bearer pada image tersebut, redirect, dan CORS resource.
-- Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS.
+- Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS. CORS localhost sudah diuji; deployment dengan proxy/TLS/kebijakan origin lain belum.
 - PWA scope, service worker, dan perilaku perangkat iOS/Android.
 - Perilaku multi-user/preview; bukan target baseline.
 

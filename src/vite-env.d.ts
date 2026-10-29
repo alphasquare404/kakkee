@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_FRONTEND_BASE_PATH?: string;
   readonly VITE_RUNTIME_NONE_URL?: string;
   readonly VITE_RUNTIME_UI_URL?: string;
   readonly VITE_RUNTIME_BASIC_URL?: string;

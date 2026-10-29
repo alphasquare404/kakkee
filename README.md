@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 8 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, GraphQL HTTP/WebSocket transport, resource service terautentikasi, dan ConnectionCoordinator sudah tersedia. Belum ada React UI, halaman koneksi, resource component, PWA, atau fitur domain.
+Status saat ini: **Phase 0 — Step 9 selesai**. Fondasi aplikasi, schema stable, codegen, resolver deployment/server URL, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, dan UI koneksi/login minimal sudah tersedia. Belum ada PWA, library, manga, reader, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -73,6 +73,16 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - Version compatibility `v2.4.<revision>` dan baseline minimum.
 - Server switching, disposal, generation guard, subscription.
 - Integration test NONE, UI_LOGIN, dan BASIC_AUTH pada stable.
+
+## Lingkup Step 9
+
+- React Router dengan basename dari `frontendBasePath`.
+- `ConnectionProvider` dan `useConnection` sebagai satu-satunya boundary UI ke coordinator.
+- Layar koneksi, login-required, authenticating, connected, unsupported-auth, dan failed.
+- Server URL hanya di React state; belum ada persistensi.
+- Form native dengan label, keyboard submit, `aria-live`, dan pesan error manusiawi.
+- CSS responsif tanpa UI framework.
+- Unit test RTL/jsdom dan browser smoke headless Chrome.
 
 ## GraphQL baseline
 
@@ -150,6 +160,11 @@ npm run preview
 │  ├─ app/
 │  │  ├─ App.tsx
 │  │  ├─ App.test.tsx
+│  │  ├─ AppRouter.tsx
+│  │  ├─ ConnectionProvider.tsx
+│  │  ├─ ConnectionProvider.test.tsx
+│  │  ├─ useConnection.ts
+│  │  ├─ deploymentSettings.ts
 │  │  └─ app.css
 │  ├─ core/
 │  │  ├─ auth/
@@ -192,6 +207,10 @@ npm run preview
 │  │     ├─ versionCompatibility.test.ts
 │  │     ├─ serverUrl.ts
 │  │     └─ serverUrl.test.ts
+│  ├─ features/connection/
+│  │  ├─ ConnectionPage.tsx
+│  │  └─ ConnectionPage.test.tsx
+│  ├─ test/fakeConnectionCoordinator.ts
 │  ├─ main.tsx
 │  └─ vite-env.d.ts
 ├─ codegen.ts
@@ -206,7 +225,7 @@ npm run preview
 └─ package-lock.json
 ```
 
-Folder `src/core` saat ini berisi resolver deployment/server, auth session, dan transport GraphQL. `src/features`, `src/shared`, dan UI belum dibuat karena belum ada implementasi yang membutuhkannya.
+Folder `src/core` berisi resolver deployment/server, auth session, transport GraphQL, resource service, dan ConnectionCoordinator. `src/features/connection` berisi layar koneksi; `src/app` berisi provider/router. Belum ada library/manga/reader UI atau resource component.
 
 ## Keputusan dependency
 
@@ -222,6 +241,11 @@ Folder `src/core` saat ini berisi resolver deployment/server, auth session, dan 
 | `@apollo/client` | `4.3.5` | HTTP link, normalized cache, error link, dan subscription link. |
 | `graphql-ws` | `6.4.1` | Klien `graphql-transport-ws` untuk subscription. |
 | `rxjs` | `7.8.2` | Peer dependency Apollo untuk observable/error link. |
+| `react-router-dom` | `7.18.5` | Router minimal dengan basename deployment; satu route koneksi dan fallback. |
+| `@testing-library/react` | `16.3.3` | Render dan query komponen React dalam test DOM. |
+| `@testing-library/dom` | `10.4.1` | Peer dependency Testing Library. |
+| `@testing-library/user-event` | `14.6.8` | Interaksi form yang menyerupai browser. |
+| `jsdom` | `30.1.3` | Environment DOM untuk test UI; test non-UI tetap memakai Node. |
 | `graphql-sock` | `1.0.1` | Peer dependency wajib `client-preset`. |
 | `@graphql-typed-document-node/core` | `3.2.0` | Tipe `TypedDocumentNode` yang diimpor generated code. |
 | `eslint` + `@eslint/js` | `10.13.0` / `10.0.1` | Lint dasar untuk TypeScript/React. |
@@ -232,7 +256,7 @@ Folder `src/core` saat ini berisi resolver deployment/server, auth session, dan 
 | `vitest` | `5.0.5` | Test runner ringan yang memakai pipeline Vite. |
 | `@types/react`, `@types/react-dom` | `19.3.0` | Tipe React. |
 
-Dependency yang belum dipasang dengan sengaja: Zustand, React Router, dan `vite-plugin-pwa`. Semuanya menunggu langkah implementasi yang membutuhkannya.
+Dependency yang belum dipasang dengan sengaja: Zustand, `vite-plugin-pwa`, UI library, form framework, validation framework, dan CSS framework.
 
 ## GraphQL Codegen
 
@@ -267,7 +291,7 @@ Dua alamat dipisahkan secara eksplisit:
 | `frontendBasePath` | `/` atau `/app/` (leading dan trailing slash) | router, asset, manifest, service worker, start URL |
 | `serverBaseUrl` | `https://example.com` atau `https://example.com/suwayomi` (tanpa trailing slash) | GraphQL HTTP, GraphQL WebSocket, resource |
 
-`serverBaseUrl` adalah **input runtime**, bukan nilai build-time yang dipaksakan. Tidak ada alamat server pribadi yang di-commit. `frontendBasePath` adalah konfigurasi deployment frontend dan tidak diturunkan dari route halaman atau dari path server.
+`serverBaseUrl` adalah **input runtime**, bukan nilai build-time yang dipaksakan. Tidak ada alamat server pribadi yang di-commit. `frontendBasePath` adalah konfigurasi deployment frontend dan tidak diturunkan dari route halaman atau dari path server. Untuk build subpath, set `VITE_FRONTEND_BASE_PATH` (contoh `/app/`); lihat `.env.example`. Nilai invalid jatuh ke `/`.
 
 Contoh:
 
@@ -508,6 +532,50 @@ Error tidak memuat password, token, Java stack trace, atau raw exception.
 
 Runtime integration test memakai env `VITE_RUNTIME_NONE_URL`, `VITE_RUNTIME_UI_URL`, `VITE_RUNTIME_BASIC_URL`, dan `VITE_RUNTIME_UI_PASSWORD`; test di-skip tanpa env.
 
+## Connection UI
+
+React boundary:
+
+- `ConnectionProvider` membuat satu `ConnectionCoordinator` untuk deployment dan subscribe ke state.
+- `useConnection()` mengekspos `state`, `connect`, `login`, dan `disconnect`.
+- UI tidak menerima AuthService, Apollo Client, WebSocket client, ResourceService, atau token.
+- Coordinator tidak dibuat ulang pada rerender; disposal dilakukan setelah provider benar-benar unmount. Cleanup ditunda satu tick untuk aman terhadap mount/cleanup/mount StrictMode.
+- Tidak ada singleton global.
+
+Routing:
+
+- `react-router-dom` `BrowserRouter` dengan `basename` dari `frontendBasePath`.
+- `VITE_FRONTEND_BASE_PATH` menentukan deployment base; default `/` untuk build root. Nilai tidak valid jatuh ke `/` dan tidak ditebak dari route.
+- Hanya route `/` (connection screen) dan fallback ke `/`. Tidak ada route manga/library fiktif.
+- Deep link dan subpath diuji di jsdom.
+
+State UI:
+
+| State | Tampilan |
+|---|---|
+| `disconnected` | Form server URL + Connect. |
+| `connecting` | Status koneksi, tombol batal, tanpa form submit ganda. |
+| `login-required` | Server yang dituju, username, password, Login, Ganti server; error invalid credentials. |
+| `authenticating` | Status verifikasi; form login tidak tersedia. |
+| `connected` | Connected, server URL, name, version, build type, OS, architecture, auth mode, compatibility/warning, Disconnect. |
+| `unsupported-auth` | Pesan jujur; BASIC_AUTH dijelaskan tanpa form Basic. |
+| `failed` | Pesan manusiawi berdasarkan `ConnectionError`; detail mentah tidak ditampilkan. |
+
+Perilaku form:
+
+- Server URL, username, dan password adalah React state; tidak ada localStorage/sessionStorage.
+- Password dikosongkan segera setelah submit dan setelah kegagalan; username dipertahankan.
+- Network error tidak pernah dipetakan menjadi "password salah".
+- Compatibility unknown/preview tampil sebagai warning, bukan failed.
+- Setelah Connected, fokus dipindahkan ke heading server; error memakai `role="alert"`; status memakai `aria-live`.
+- CSS responsif tanpa design system; target tombol minimal ~2.85rem.
+
+Test UI:
+
+- RTL + `user-event` + jsdom untuk state/form/error.
+- Test provider memastikan factory dipanggil sekali, subscription dibersihkan, dan coordinator di-dispose saat unmount.
+- Browser smoke headless Chrome untuk NONE, UI_LOGIN, BASIC_AUTH, mobile viewport, dan cross-origin CORS.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -517,7 +585,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (122 test, termasuk 7 runtime integration)
+npm run test           lulus (135 test, termasuk 7 runtime integration)
 npm run build          lulus
 ```
 
@@ -592,6 +660,30 @@ Validasi coordinator Step 8:
 - Subscribe/unsubscribe mempublikasikan transisi berurutan; listener error tidak memutus coordinator.
 - State/error tidak memuat token atau password.
 
+Validasi UI Step 9:
+
+- Form disconnected menampilkan label server dan memanggil `connect` dengan URL yang diketik.
+- State connecting tidak menampilkan form submit ganda.
+- Login-required menampilkan username/password; submit memanggil `login`.
+- Kredensial salah tetap di login-required, username dipertahankan, password dikosongkan, dan pesan error tampil.
+- Authenticating menyembunyikan form login.
+- Connected menampilkan URL, name, version, build type, OS, architecture, auth mode, compatibility, dan Disconnect.
+- Compatibility unknown/preview tampil sebagai warning.
+- BASIC_AUTH menampilkan pesan unsupported tanpa form Basic.
+- Failed memetakan error ke teks manusiawi dan tidak menampilkan detail mentah.
+- Provider tidak membuat coordinator ulang saat rerender; subscription dibersihkan dan coordinator di-dispose saat unmount.
+- App root, basename `/app/`, dan deep-link fallback diuji.
+
+Validasi browser Step 9 (headless Chrome, production `dist`, 29 Oktober 2026):
+
+- NONE: form URL → Connect → Connected, version `v2.4.2366`, auth mode NONE.
+- UI_LOGIN: login-required muncul; password salah menampilkan error; password benar → Connected UI_LOGIN.
+- BASIC_AUTH: unsupported-auth muncul, tanpa form Basic.
+- Mobile viewport 390×844: layout satu kolom, tidak ada overflow horizontal.
+- Cross-origin UI `http://127.0.0.1:8080` → server `http://127.0.0.1:4567`: Connected berhasil.
+- CORS preflight server: `OPTIONS 200`; `Access-Control-Allow-Origin` mencerminkan origin UI; `Access-Control-Allow-Methods: POST`; `Access-Control-Allow-Headers: content-type`; `Access-Control-Allow-Credentials: true`; `Vary: Origin`.
+- Tidak ada perubahan pada Suwayomi Server saat smoke test.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -600,18 +692,19 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, dan ConnectionCoordinator tersedia; belum ada React UI, connection page, resource component/hook, atau fitur domain.
-- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator; tidak ada koneksi dari UI aplikasi.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–8 dibuat terpisah.
-- Belum ada PWA, routing, login UI, connection page, manga/library UI, reader, atau fitur domain.
-- Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
-- `serverBaseUrl`, transport, resource, dan coordinator sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS di browser belum dilakukan.
-- Token persistence belum dipilih; saat ini hanya memori.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, dan connection UI tersedia; belum ada PWA, library/manga/reader, atau resource component.
+- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator/UI; tidak ada koneksi ke server produksi pengguna.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–9 dibuat terpisah.
+- Belum ada PWA, offline, service worker, library/manga UI, reader, source/extension/download UI, atau authenticated image component.
+- Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
+- `serverBaseUrl`, transport, resource, coordinator, dan connection UI sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.
+- Token dan server URL belum dipersistenkan; reload menghilangkan session dan input server.
 - Restart WebSocket membuat koneksi/link baru; subscription aktif perlu di-resubscribe oleh consumer/coordinator.
 - Resource redirect ditolak, bukan diikuti; server yang mengandalkan redirect resource perlu keputusan tambahan.
 - Object URL harus di-dispose oleh pemilik handle; service hanya menjamin cleanup saat `dispose()` dipanggil.
-- Tidak ada cache persisten atau deduplikasi request resource pada Step 7.
+- Tidak ada cache persisten, deduplikasi request resource, atau offline cache.
 - SIMPLE_LOGIN tidak dapat dibedakan secara aman dari login-required generik dan tidak didukung.
 - BASIC_AUTH hanya dideteksi sebagai unsupported; tidak ada dukungan login Basic.
 - Versi server yang tidak dapat diparse dianggap compatibility unknown dan tetap boleh connected hanya untuk operasi baseline yang berhasil.
+- `VITE_FRONTEND_BASE_PATH` harus diset untuk deployment subpath; nilai invalid jatuh ke `/` tanpa menebak route.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.

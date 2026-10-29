@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 8 selesai (ConnectionCoordinator)** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WebSocket transport, resource service terautentikasi, dan ConnectionCoordinator sudah tersedia. Rencana router/ConnectionPage pada bagian 8 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–8 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 9 selesai (Connection UI)** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, dan UI koneksi/login minimal sudah tersedia. Rencana PWA shell pada bagian 9 belum dikerjakan; langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–9 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -105,13 +105,14 @@ Setiap perubahan menjalankan pemeriksaan yang relevan; gate lengkap dijalankan p
 
 - Snapshot stable v2.4.2366 sudah tersedia di `graphql/schema/`; gap bukti yang tersisa dirangkum di [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 - Deteksi NONE/UI_LOGIN melalui protected probe sudah diuji; BASIC_AUTH dikenali dari challenge. SIMPLE_LOGIN belum dapat dibedakan dan tidak didukung.
+- UI NONE/UI_LOGIN/BASIC_AUTH, mobile viewport, subpath, deep-link fallback, dan CORS localhost sudah diuji dengan headless Chrome; perangkat iOS/Android, Safari/Firefox, dan deployment produksi belum.
 - Expiry token aktual, logout end-to-end, dan refresh setelah expiry belum diuji; refresh berdasarkan unauthorized sudah diuji.
 - Subscription `downloadStatusChanged` dan transport `graphql-transport-ws` sudah diuji pada baseline; restart/resubscribe subscription aktif setelah token diganti belum.
 - Path thumbnail/page manga dan chapter belum diuji; tracker thumbnail `/api/v1/track/{trackerId}/thumbnail` sudah diuji pada stable (NONE 200, UI_LOGIN tanpa token 401, Bearer 200).
 - Perilaku redirect resource, CORS, dan content-type sumber gambar lain belum diuji di browser.
-- Konfigurasi reverse proxy, CORS, TLS, server prefix serta frontend prefix deployment pengguna belum diketahui.
+- Konfigurasi reverse proxy, CORS, TLS, server prefix serta frontend prefix deployment pengguna belum diketahui. CORS localhost dan subpath router diuji, tetapi deployment nyata belum.
 - Strategi persistensi sesi dan mekanisme update PWA belum diputuskan; versi codegen dan kebijakan generated files sudah dicatat di README.
-- Server uji/kredensial aman dan perangkat iOS/Android belum diberikan. Jangan memakai atau mengubah server produksi untuk test tanpa izin yang sesuai.
+- Credential test lokal tersedia hanya di luar repository dan tidak boleh di-commit; perangkat iOS/Android nyata belum diuji.
 
 ## Stop conditions sebelum Phase 1
 
