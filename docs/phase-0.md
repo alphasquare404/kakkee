@@ -1,6 +1,6 @@
 # Rencana implementasi Phase 0
 
-Status: **Step 6 selesai** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver deployment/server URL, auth session in-memory, dan GraphQL HTTP/WebSocket transport sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–6 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
+Status: **Step 7 selesai** — bootstrap React/TypeScript/Vite, quality gates, snapshot schema stable v2.4.2366, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WebSocket transport, dan resource service terautentikasi sudah tersedia. Langkah berikutnya belum dimulai. Dokumen ini tetap menjadi rencana; ringkasan hasil Step 1–7 ada di [README.md](../README.md). Aturan bersama: [AGENTS.md](../AGENTS.md). Pembagian modul: [architecture.md](architecture.md). Bukti backend dan ketidakpastiannya: [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 
 ## Objectives dan non-goals
 
@@ -106,7 +106,8 @@ Setiap perubahan menjalankan pemeriksaan yang relevan; gate lengkap dijalankan p
 - Snapshot stable v2.4.2366 sudah tersedia di `graphql/schema/`; gap bukti yang tersisa dirangkum di [suwayomi-backend-notes.md](suwayomi-backend-notes.md).
 - Deteksi mode, expiry token aktual, logout end-to-end, dan refresh setelah expiry belum diuji; refresh berdasarkan unauthorized sudah diuji.
 - Subscription `downloadStatusChanged` dan transport `graphql-transport-ws` sudah diuji pada baseline; restart/resubscribe subscription aktif setelah token diganti belum.
-- Apakah seluruh image/page memerlukan Bearer, bagaimana redirect/caching server bekerja, dan apakah resource test tersedia.
+- Path thumbnail/page manga dan chapter belum diuji; tracker thumbnail `/api/v1/track/{trackerId}/thumbnail` sudah diuji pada stable (NONE 200, UI_LOGIN tanpa token 401, Bearer 200).
+- Perilaku redirect resource, CORS, dan content-type sumber gambar lain belum diuji di browser.
 - Konfigurasi reverse proxy, CORS, TLS, server prefix serta frontend prefix deployment pengguna belum diketahui.
 - Strategi persistensi sesi dan mekanisme update PWA belum diputuskan; versi codegen dan kebijakan generated files sudah dicatat di README.
 - Server uji/kredensial aman dan perangkat iOS/Android belum diberikan. Jangan memakai atau mengubah server produksi untuk test tanpa izin yang sesuai.

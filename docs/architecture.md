@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: fondasi Step 1–6 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver deployment/server URL, auth session in-memory, dan GraphQL HTTP/WS transport); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
+Status: fondasi Step 1–7 tersedia (React/TypeScript/Vite, schema stable, codegen, resolver deployment/server URL, auth session in-memory, GraphQL HTTP/WS transport, dan resource service terautentikasi); fitur Phase 0 lanjutan belum diimplementasikan. Target minimum: stable v2.4.2366. Dokumen ini menjelaskan pembagian tanggung jawab; [AGENTS.md](../AGENTS.md) memuat aturan wajib dan [phase-0.md](phase-0.md) urutan implementasi.
 
 ## Tujuan
 
@@ -74,6 +74,8 @@ Auth service memberikan access token aktif ke HTTP, WebSocket, dan resource serv
 Implementasi Step 5 memisahkan `NONE` sebagai mode sesi nyata dari `UI_LOGIN` unauthenticated/authenticated, menyimpan access dan refresh token hanya di memori, membaca `exp` JWT tanpa verifikasi signature, dan memakai generation guard untuk menolak respons async dari sesi lama. Logout lokal tidak mengklaim revokasi server; refresh tidak merotasi refresh token. Step 5 menyediakan session/lifecycle dan kontrak `AuthTransport`; implementasi fetch login/refresh ada di Step 6.
 
 Implementasi Step 6 menambahkan Apollo Client HTTP, auth link, error link dengan refresh single-flight, dan `graphql-ws` subscription. HTTP memakai Bearer hanya pada UI_LOGIN; WebSocket memakai token mentah di `connectionParams.Authorization`. Refresh maksimal satu kali, Forbidden/NONE tidak memicu refresh, dan hasil stale ditolak oleh generation `AuthService`. Client menyediakan `dispose()`, `clearCache()`, dan `restartWebSocket()`; restart membuat koneksi/link baru dan tidak otomatis me-resubscribe subscription yang sudah aktif.
+
+Implementasi Step 7 menambahkan `ResourceService` untuk resource REST non-GraphQL. Path melalui `DeploymentConfig.resolveResource`; NONE tanpa Authorization, UI_LOGIN memakai Bearer. Fetch memakai `redirect: 'manual'`, `credentials: 'omit'`, validasi origin/prefix pada `response.url`, dan menolak redirect. `AbortSignal` didukung; generation diambil saat request mulai dan dicek sebelum object URL dibuat, sehingga logout/reset tidak menghasilkan handle aktif. `LoadedResource.dispose()` merevoke object URL; `ResourceService.dispose()` membatalkan request dan mencabut semua handle. Tidak ada cache persisten atau deduplikasi.
 
 Coordinator memiliki state konseptual: belum terhubung, menghubungkan, perlu login, terhubung, gagal, dan mode tidak didukung. Timeout/network/CORS, GraphQL error, dan kredensial ditolak ditampilkan secara berbeda sejauh bukti browser memungkinkan; kegagalan jaringan tidak otomatis berarti password salah. HTTP sukses saja belum berarti Connected: operasi aboutServer terverifikasi harus berhasil. WebSocket memiliki status sendiri; jangan mengklaim subscriptions teruji dari HTTP.
 

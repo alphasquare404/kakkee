@@ -185,6 +185,22 @@ Transport yang terverifikasi runtime:
 
 `graphql-transport-ws` bukan REST dan bukan `subscriptions-transport-ws` lama. Endpoint subscription tidak terpisah dari endpoint HTTP.
 
+### Resource REST
+
+Endpoint resource yang dipakai untuk verifikasi Step 7:
+
+```text
+GET /api/v1/track/{trackerId}/thumbnail
+```
+
+- Route memanggil `requireUser()`; pada `UI_LOGIN` tanpa token hasilnya HTTP 401.
+- Pada `NONE`, endpoint mengembalikan HTTP 200 dengan `content-type: image/png`.
+- Pada `UI_LOGIN` dengan Bearer valid, endpoint mengembalikan HTTP 200 `image/png`.
+- Tracker ID 1–5 tersedia pada server test dan mengembalikan PNG; ini bukan data pengguna.
+- Endpoint ini dipakai hanya untuk menguji resource transport, bukan fitur tracking UI.
+
+Path manga/chapter thumbnail dan page belum diverifikasi dengan data manga nyata. Jangan mengklaim semua image endpoint memiliki perilaku auth yang sama hanya dari tracker thumbnail.
+
 ### Scalar custom
 
 Schema stable memuat scalar:
@@ -221,7 +237,8 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 | `connectionParams.Authorization` pada WS | Terverifikasi dengan token mentah tanpa `Bearer` |
 | `aboutServer` untuk connection test | Field dan respons terverifikasi; alur UI belum diuji |
 | Thumbnail/page berupa relative path | Field schema ada; nilai path aktual belum diuji pada baseline ini |
-| Image terautentikasi perlu fetch + Blob | Belum diuji runtime |
+| Image terautentikasi perlu fetch + Blob | Terverifikasi untuk tracker thumbnail; manga/page belum |
+| Tracker thumbnail REST | Terverifikasi NONE 200 dan UI_LOGIN 401 tanpa token / 200 dengan Bearer |
 | `webUISubpath` | Ada sebagai config server; tidak ada di `SettingsType` stable |
 
 ## Belum diverifikasi / masih unknown
@@ -234,7 +251,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 - `aboutWebUI` saat `webUIEnabled = false`; kemungkinan gagal karena tidak ada file `revision`.
 - BASIC_AUTH dan SIMPLE_LOGIN; keduanya di luar dukungan penuh awal.
 - Reconnect WebSocket, expiry token saat koneksi aktif, dan perilaku subscription setelah token diganti.
-- Path thumbnail/page aktual, kebutuhan Bearer pada image, redirect, dan CORS resource.
+- Path thumbnail/page manga dan chapter, kebutuhan Bearer pada image tersebut, redirect, dan CORS resource.
 - Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS.
 - PWA scope, service worker, dan perilaku perangkat iOS/Android.
 - Perilaku multi-user/preview; bukan target baseline.

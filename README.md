@@ -2,7 +2,7 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 — Step 6 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, dan GraphQL HTTP/WebSocket transport sudah tersedia. Belum ada React UI, connection page, resource loader, PWA, atau fitur domain.
+Status saat ini: **Phase 0 — Step 7 selesai**. Fondasi aplikasi, quality gates, schema stable, codegen, resolver deployment/server URL, auth/session in-memory, GraphQL HTTP/WebSocket transport, dan resource service terautentikasi sudah tersedia. Belum ada React UI, connection page, resource component, PWA, atau fitur domain.
 
 ## Lingkup Step 1
 
@@ -51,6 +51,17 @@ Di luar scope Step 1: GraphQL, Apollo Client, `graphql-ws`, autentikasi, `aboutS
 - WebSocket memakai token mentah di `connectionParams.Authorization`.
 - Lifecycle dispose, cache clear, dan restart WebSocket.
 - Runtime test terhadap server stable v2.4.2366 untuk NONE dan UI_LOGIN.
+
+## Lingkup Step 7
+
+- Satu resource service untuk resource REST non-GraphQL.
+- URL selalu melalui resolver Step 4; subpath dipertahankan.
+- NONE tanpa Authorization; UI_LOGIN memakai Bearer dari `AuthService`.
+- Fetch native dengan `credentials: 'omit'` dan `redirect: 'manual'`.
+- Redirect dan final URL di luar server ditolak.
+- AbortSignal, generation guard, disposal, dan object URL lifecycle.
+- Image helper tanpa React hook atau komponen UI.
+- Runtime test image nyata pada stable v2.4.2366.
 
 ## GraphQL baseline
 
@@ -156,6 +167,11 @@ npm run preview
 │  │  │     ├─ gql.ts
 │  │  │     ├─ graphql.ts
 │  │  │     └─ index.ts
+│  │  ├─ resources/
+│  │  │  ├─ resourceError.ts
+│  │  │  ├─ resourceService.ts
+│  │  │  ├─ resourceService.test.ts
+│  │  │  └─ resourceService.integration.test.ts
 │  │  └─ server/
 │  │     ├─ serverUrl.ts
 │  │     └─ serverUrl.test.ts
@@ -321,6 +337,60 @@ WebSocket:
 
 Runtime integration test memakai env `VITE_RUNTIME_NONE_URL`, `VITE_RUNTIME_UI_URL`, dan `VITE_RUNTIME_UI_PASSWORD`; tanpa env, test tersebut di-skip. Credential test tidak disimpan di Git.
 
+## Resource service
+
+Resource service terpusat ada di `src/core/resources/`:
+
+- `resourceService.ts` — fetch resource, auth header, Blob/object URL, abort, stale guard, disposal.
+- `resourceError.ts` — `ResourceError` dengan kategori terstruktur.
+
+API:
+
+```ts
+const service = createResourceService({ config, authService });
+
+const image = await service.loadImageResource('/api/v1/track/1/thumbnail', { signal });
+// image.blob, image.objectUrl, image.contentType
+image.dispose();
+
+service.dispose();
+```
+
+Aturan URL dan auth:
+
+- Path selalu melalui `config.resolveResource()` dari resolver Step 4. UI tidak membentuk URL server.
+- Subpath server dipertahankan; resource absolut hanya diterima bila origin dan prefix cocok.
+- Cross-origin, protocol-relative, traversal, dan path di luar prefix ditolak sebelum fetch.
+- NONE: tanpa Authorization.
+- UI_LOGIN authenticated/refreshing: `Authorization: Bearer <accessToken>`.
+- UI_LOGIN unauthenticated/failed/disconnected: `ResourceError('unauthorized')` tanpa fetch diam-diam.
+- Token tidak pernah masuk URL.
+
+Redirect dan security:
+
+- Fetch memakai `redirect: 'manual'` dan `credentials: 'omit'`.
+- Response 3xx, opaque redirect, atau `response.redirected` ditolak sebagai `unsafe-resource`.
+- Final `response.url` divalidasi terhadap origin dan prefix server.
+- Karena redirect tidak diikuti, token tidak dikirim ke origin redirect. Ini adalah proteksi yang dapat dijamin oleh implementasi; browser tetap dapat menolak request karena CORS.
+- ResourceService tidak mengklaim melindungi dari service worker atau ekstensi browser yang memodifikasi request.
+
+Response dan error:
+
+- Non-2xx ditolak.
+- 401 → `unauthorized`, 403 → `forbidden`, 404 → `not-found`, status lain → `http`.
+- Network failure → `network`; abort → `aborted`; bukan error user-facing biasa.
+- `loadImageResource` menolak `text/*` yang jelas bukan image; content-type kosong dan `application/octet-stream` tetap diterima agar tidak terlalu strict. `loadResource` tidak membatasi MIME image.
+
+Lifecycle:
+
+- Setiap hasil memiliki `objectUrl` dan `dispose()`; `dispose()` memanggil `URL.revokeObjectURL` secara idempotent.
+- `ResourceService.dispose()` membatalkan request aktif dan mencabut semua object URL yang masih dilacak.
+- `AbortSignal` caller didukung; abort sebelum fetch tidak melakukan request.
+- Generation `AuthService` diambil saat request dimulai. Bila logout/reset/ganti mode terjadi sebelum blob selesai, hasil menjadi `stale-session` dan object URL tidak dibuat.
+- Tidak ada cache persisten, cache resource, atau deduplikasi request pada Step 7.
+
+Runtime test memakai endpoint nyata `/api/v1/track/1/thumbnail` pada stable v2.4.2366: NONE 200 `image/png`; UI_LOGIN tanpa token 401 dan dengan Bearer 200.
+
 ## Validasi
 
 Dijalankan pada 29 Oktober 2026:
@@ -330,7 +400,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (78 test, termasuk 2 runtime integration)
+npm run test           lulus (100 test, termasuk 4 runtime integration)
 npm run build          lulus
 ```
 
@@ -380,6 +450,18 @@ Validasi transport Step 6:
 - WebSocket memakai URL resolver, protokol benar, token mentah untuk UI_LOGIN, tanpa token untuk NONE.
 - Runtime stable v2.4.2366: NONE `aboutServer` + subscription; UI_LOGIN login, protected query, refresh, dan subscription berhasil.
 
+Validasi resource Step 7:
+
+- Subpath server dipertahankan; cross-origin, protocol-relative, traversal, outside-prefix, dan final URL luar server ditolak.
+- NONE tidak mengirim Authorization; UI_LOGIN mengirim Bearer dan membaca token terbaru.
+- UI_LOGIN unauthenticated/disconnected tidak melakukan fetch diam-diam.
+- Redirect 3xx/opaque ditolak; final URL divalidasi.
+- 401/403/404/500, network, dan abort dinormalisasi terpisah.
+- AbortSignal membatalkan fetch; object URL selalu tersedia dengan `dispose()` dan direvoke.
+- Logout, reset, dan switch ke NONE membuat respons lama menjadi `stale-session` tanpa object URL.
+- Service disposal membatalkan request aktif dan mencabut semua handle.
+- Runtime stable v2.4.2366: tracker thumbnail NONE 200 `image/png`; UI_LOGIN tanpa token 401, invalid Bearer 401, valid Bearer 200.
+
 Smoke test build produksi:
 
 - `GET /` menghasilkan HTTP 200.
@@ -388,12 +470,15 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver deployment/server, auth session, dan GraphQL HTTP/WS transport tersedia; belum ada React UI, resource fetch, atau fitur domain.
-- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport; tidak ada koneksi dari UI aplikasi.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–6 dibuat terpisah.
-- Belum ada PWA, routing, login UI, connection page, resource loader, atau fitur domain.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, dan resource service tersedia; belum ada React UI, resource component/hook, atau fitur domain.
+- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource; tidak ada koneksi dari UI aplikasi.
+- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–7 dibuat terpisah.
+- Belum ada PWA, routing, login UI, connection page, manga/library UI, reader, atau fitur domain.
 - Pengujian browser/perangkat, CORS, subpath runtime, dan deployment belum dilakukan.
-- `serverBaseUrl` dan transport sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS belum dilakukan.
+- `serverBaseUrl`, transport, dan resource service sudah diuji terhadap runtime lokal; pengujian lintas origin/CORS di browser belum dilakukan.
 - Token persistence belum dipilih; saat ini hanya memori.
 - Restart WebSocket membuat koneksi/link baru; subscription aktif perlu di-resubscribe oleh consumer/coordinator.
+- Resource redirect ditolak, bukan diikuti; server yang mengandalkan redirect resource perlu keputusan tambahan.
+- Object URL harus di-dispose oleh pemilik handle; service hanya menjamin cleanup saat `dispose()` dipanggil.
+- Tidak ada cache persisten atau deduplikasi request resource pada Step 7.
 - `package-lock.json` adalah satu-satunya lockfile; jangan menambahkan lockfile lain tanpa keputusan eksplisit.
