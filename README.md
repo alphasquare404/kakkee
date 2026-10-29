@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Phase 1 belum dimulai; belum ada library/manga/reader, offline reading, atau final branding.
+Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library) selesai; belum ada data layer atau Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
 
-Laporan bukti akhir: [docs/phase-0-validation.md](docs/phase-0-validation.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1 Step 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md).
 
 ## Kemampuan saat ini
 
@@ -179,6 +179,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ architecture.md
 │  ├─ phase-0.md
 │  ├─ phase-0-validation.md
+│  ├─ phase-1-library-contract.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -188,6 +189,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │     ├─ aboutServer.graphql
 │     ├─ authProbe.graphql
 │     ├─ downloadStatusChanged.graphql
+│     ├─ libraryMangas.graphql
 │     ├─ login.graphql
 │     └─ refreshToken.graphql
 ├─ src/
@@ -326,7 +328,7 @@ Scalar mapping:
 
 `Upload` dipetakan ke `File` karena input browser yang natural adalah `File` dari `<input type="file">`; Apollo Upload Client juga menerima `File`/`Blob`. Mapping ini belum dipakai oleh operasi Step 3.
 
-Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`.
+Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `LibraryMangas`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`; kandidat Library memakai generated `LibraryMangasDocument`.
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
@@ -689,7 +691,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (143 test, termasuk 7 runtime integration)
+npm run test           lulus (144 test saat audit Library; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

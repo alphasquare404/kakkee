@@ -1,0 +1,26 @@
+query LibraryMangas(
+  $first: Int!
+  $after: Cursor
+  $filter: MangaFilterInput
+  $order: [MangaOrderInput!]
+) {
+  mangas(
+    condition: { inLibrary: true }
+    first: $first
+    after: $after
+    filter: $filter
+    order: $order
+  ) {
+    nodes {
+      id
+      title
+      thumbnailUrl
+      thumbnailUrlLastFetched
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    totalCount
+  }
+}
