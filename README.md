@@ -26,6 +26,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
 - Extensions: installed/available extension catalog, language filter, store list, install/uninstall/update, and update checking.
+- Settings extras: hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
 - Sync settings: start sync, sync result, Yomi status, and data-selection toggles.
 - Tracking settings: real tracker services, login links, token/expiry state, private/reading-date support, and logout.
 - Backup: create backup with selectable data categories and automatic-backup summary.
@@ -793,7 +794,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (333 test; 7 runtime integration memerlukan env)
+npm run test           lulus (337 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

@@ -21,6 +21,7 @@ export interface ActivityPageProps {
   readonly groupByDay?: boolean;
   readonly dedupeByManga?: boolean;
   readonly rowTo?: (chapter: FeedChapter) => string;
+  readonly itemFilter?: (chapter: FeedChapter) => boolean;
 }
 
 export function ActivityPage(props: ActivityPageProps) {
@@ -46,6 +47,7 @@ function ActivityContent({
   groupByDay = false,
   dedupeByManga = false,
   rowTo,
+  itemFilter,
 }: ActivityPageProps & { readonly context: ConnectedContext }) {
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
@@ -61,7 +63,9 @@ function ActivityContent({
     void controller.load();
   }, [controller]);
 
-  const items = feed.data?.items ?? [];
+  const items = (feed.data?.items ?? []).filter((chapter) =>
+    itemFilter ? itemFilter(chapter) : true,
+  );
   const seenManga = new Set<number>();
   const displayItems = dedupeByManga
     ? items.filter((chapter) => {

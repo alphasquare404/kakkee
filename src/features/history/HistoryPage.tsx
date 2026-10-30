@@ -1,6 +1,7 @@
 import { ActivityPage } from '../activity/ActivityPage';
 import type { FeedInput } from '../../core/catalog/catalogRepository';
 import { formatRelativeTime } from '../../shared/feedTime';
+import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 
 const HISTORY_FEED: FeedInput = {
   filter: { lastReadAt: { greaterThan: '0' } },
@@ -8,6 +9,8 @@ const HISTORY_FEED: FeedInput = {
 };
 
 export function HistoryPage() {
+  const preferences = useHistoryPreferences();
+
   return (
     <ActivityPage
       title="History"
@@ -27,6 +30,7 @@ export function HistoryPage() {
       stateLabel={(chapter) => (chapter.isRead ? 'Read' : 'In progress')}
       groupByDay
       dedupeByManga
+      itemFilter={(chapter) => !preferences.hideRead || !chapter.isRead}
       rowTo={(chapter) => {
         const page =
           chapter.lastPageRead > 0 ? `?page=${chapter.lastPageRead + 1}` : '';

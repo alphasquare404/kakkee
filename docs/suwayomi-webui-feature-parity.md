@@ -161,7 +161,7 @@ frontend.
 | History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
 | History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
-| History | Hide history setting | `Missing` | Metadata | |
+| History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
 | Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
 | Downloads | Pause/resume, retry, cancel, delete | `Partial` | Yes | Pause/resume, cancel, and delete are implemented; retry-all-failed is absent |
 | Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Progress and per-row actions; no grouping/bulk/speed |
@@ -215,11 +215,11 @@ frontend.
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
 | Settings | Browse/source/extension-store settings | `Missing` | Yes | |
-| Settings | History preferences | `Missing` | Metadata | |
+| Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | `/settings/server` reads and writes safe update/download/system settings; auth/database/OPDS/KOReader editing absent |
 | Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
-| Settings | Device management | `Missing` | Metadata | |
+| Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
 | Global search | Search all sources, global source filter, library counts | `Missing` | Yes | |
 | Global search | Search history/suggestions | `Missing` | Client metadata | |
 | Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |

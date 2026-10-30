@@ -27,6 +27,7 @@ import {
 import { FakeConnectionCoordinator, makeConnectedState } from '../../test/fakeConnectionCoordinator';
 import { resetReaderSettings } from '../../core/preferences/readerSettings';
 import { resetAppPreferences } from '../../core/preferences/appPreferences';
+import { resetHistoryPreferences } from '../../core/preferences/historyPreferences';
 
 vi.mock('../../app/pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -41,6 +42,7 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
   resetReaderSettings();
   resetAppPreferences();
+  resetHistoryPreferences();
 });
 
 function resources(): ResourceService {
@@ -170,6 +172,29 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('toggles hide-read history preference', async () => {
+    const query = vi.fn(async () => ({ data: {} }));
+    renderPage('/settings/history', query);
+
+    expect(
+      await screen.findByRole('heading', { name: 'History settings' }),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByLabelText('Hide read entries'));
+
+    expect(
+      window.localStorage.getItem('suwayomi.history-preferences.v1'),
+    ).toContain('"hideRead":true');
+  });
+
+  it('renders device capability information', async () => {
+    const query = vi.fn(async () => ({ data: {} }));
+    renderPage('/settings/device', query);
+
+    expect(await screen.findByRole('heading', { name: 'Device' })).toBeTruthy();
+    expect(screen.getByText('Service worker')).toBeTruthy();
+    expect(screen.getByText('Web Share')).toBeTruthy();
+  });
+
   it('starts sync from sync settings', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === SyncSettingsDocument) {

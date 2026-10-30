@@ -77,6 +77,12 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
               <Link className="button button-secondary" to="/settings/sync">
                 Sync settings
               </Link>
+              <Link className="button button-secondary" to="/settings/history">
+                History settings
+              </Link>
+              <Link className="button button-secondary" to="/settings/device">
+                Device info
+              </Link>
               <button
                 className="button button-secondary"
                 type="button"
