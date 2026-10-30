@@ -201,11 +201,14 @@ describe('parity pages', () => {
     fireEvent.change(screen.getByLabelText('Reading mode'), {
       target: { value: 'single' },
     });
+    fireEvent.change(screen.getByLabelText('Image filter'), {
+      target: { value: 'grayscale' },
+    });
     expect(
       JSON.parse(
         window.localStorage.getItem('suwayomi.reader-settings.v1') ?? '{}',
       ),
-    ).toMatchObject({ mode: 'single' });
+    ).toMatchObject({ mode: 'single', filter: 'grayscale' });
   });
 
   it('applies the appearance theme to the document root', async () => {

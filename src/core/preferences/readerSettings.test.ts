@@ -25,6 +25,7 @@ describe('reader settings', () => {
       gapPx: 8,
       background: '#000000',
       mode: 'single',
+      filter: 'grayscale',
     });
 
     expect(getReaderSettings()).toEqual({
@@ -32,6 +33,7 @@ describe('reader settings', () => {
       gapPx: 8,
       background: '#000000',
       mode: 'single',
+      filter: 'grayscale',
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(
       '"widthRem":72',

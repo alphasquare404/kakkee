@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import {
+  READER_FILTER_CSS,
   resetReaderSettings,
   updateReaderSettings,
+  type ReaderFilter,
   type ReaderSettings,
 } from '../../core/preferences/readerSettings';
 import { useReaderSettings } from '../../shared/useReaderSettings';
@@ -125,6 +127,29 @@ export function ReaderSettingsPage() {
                 </div>
               </dd>
             </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-filter">Image filter</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-filter"
+                  className="settings-select"
+                  value={settings.filter}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      filter: event.target.value as ReaderFilter,
+                    })
+                  }
+                >
+                  <option value="original">Original</option>
+                  <option value="grayscale">Grayscale</option>
+                  <option value="sepia">Sepia</option>
+                  <option value="invert">Invert</option>
+                  <option value="contrast">High contrast</option>
+                </select>
+              </dd>
+            </div>
           </dl>
         </section>
 
@@ -146,6 +171,7 @@ export function ReaderSettingsPage() {
                 '--preview-bg': settings.background,
                 '--preview-width': `${settings.widthRem}%`,
                 '--preview-gap': `${settings.gapPx}px`,
+                '--preview-filter': READER_FILTER_CSS[settings.filter],
               } as CSSProperties
             }
           >

@@ -5,11 +5,27 @@ export type ReaderMode =
   | 'double'
   | 'horizontal';
 
+export type ReaderFilter =
+  | 'original'
+  | 'grayscale'
+  | 'sepia'
+  | 'invert'
+  | 'contrast';
+
+export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
+  original: 'none',
+  grayscale: 'grayscale(1)',
+  sepia: 'sepia(0.8)',
+  invert: 'invert(1)',
+  contrast: 'contrast(1.35)',
+};
+
 export interface ReaderSettings {
   readonly widthRem: number;
   readonly gapPx: number;
   readonly background: string;
   readonly mode: ReaderMode;
+  readonly filter: ReaderFilter;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -17,6 +33,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   gapPx: 2,
   background: '#05070c',
   mode: 'vertical',
+  filter: 'original',
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -43,6 +60,9 @@ function load(): ReaderSettings {
           ? parsed.background
           : DEFAULT_READER_SETTINGS.background,
       mode: isReaderMode(parsed.mode) ? parsed.mode : DEFAULT_READER_SETTINGS.mode,
+      filter: isReaderFilter(parsed.filter)
+        ? parsed.filter
+        : DEFAULT_READER_SETTINGS.filter,
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
@@ -67,6 +87,16 @@ function isReaderMode(value: unknown): value is ReaderMode {
     value === 'single' ||
     value === 'double' ||
     value === 'horizontal'
+  );
+}
+
+function isReaderFilter(value: unknown): value is ReaderFilter {
+  return (
+    value === 'original' ||
+    value === 'grayscale' ||
+    value === 'sepia' ||
+    value === 'invert' ||
+    value === 'contrast'
   );
 }
 
@@ -113,6 +143,7 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
         ? patch.background
         : state.background,
     mode: isReaderMode(patch.mode) ? patch.mode : state.mode,
+    filter: isReaderFilter(patch.filter) ? patch.filter : state.filter,
   };
   persist(state);
   notify();

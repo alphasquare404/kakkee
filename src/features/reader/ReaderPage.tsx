@@ -14,6 +14,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
+import { READER_FILTER_CSS } from '../../core/preferences/readerSettings';
 import type { CSSProperties } from 'react';
 
 export function ReaderPage() {
@@ -65,6 +66,7 @@ function ConnectedReader({
   );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
   const readerSettings = useReaderSettings();
+  const imageFilter = READER_FILTER_CSS[readerSettings.filter];
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();
@@ -342,6 +344,7 @@ function ConnectedReader({
                 path={path}
                 pageNumber={index + 1}
                 eager={isPaged || index + 1 === requestedPage}
+                filter={imageFilter}
                 onVisible={isPaged ? noopVisible : handlePageVisible}
               />
             ) : null;
@@ -389,12 +392,14 @@ function ReaderPageImage({
   path,
   pageNumber,
   eager = false,
+  filter = 'none',
   onVisible,
 }: {
   readonly resources: ResourceService;
   readonly path: string;
   readonly pageNumber: number;
   readonly eager?: boolean;
+  readonly filter?: string;
   readonly onVisible: (pageNumber: number) => void;
 }) {
   const figure = useRef<HTMLElement>(null);
@@ -467,6 +472,7 @@ function ReaderPageImage({
           alt={`Page ${pageNumber}`}
           loading="lazy"
           decoding="async"
+          style={{ filter }}
         />
       ) : image.status === 'error' ? (
         <div className="reader-page-error" role="group" aria-label={`Page ${pageNumber}`}>
