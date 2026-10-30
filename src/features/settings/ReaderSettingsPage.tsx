@@ -103,6 +103,29 @@ export function ReaderSettingsPage() {
               </dd>
             </div>
             <div>
+              <dt>
+                <label htmlFor="reader-offset">First-page offset</label>
+              </dt>
+              <dd>
+                <div className="settings-range">
+                  <input
+                    id="reader-offset"
+                    type="range"
+                    min={0}
+                    max={200}
+                    step={4}
+                    value={settings.firstPageOffset}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        firstPageOffset: Number(event.target.value),
+                      })
+                    }
+                  />
+                  <output>{settings.firstPageOffset} px</output>
+                </div>
+              </dd>
+            </div>
+            <div>
               <dt>Background</dt>
               <dd>
                 <div className="settings-options">

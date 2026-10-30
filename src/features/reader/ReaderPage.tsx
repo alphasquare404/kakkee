@@ -345,6 +345,7 @@ function ConnectedReader({
           '--reader-width': `${readerSettings.widthRem}rem`,
           '--reader-gap': `${readerSettings.gapPx}px`,
           '--reader-bg': readerSettings.background,
+          '--reader-first-offset': `${readerSettings.firstPageOffset}px`,
         } as CSSProperties
       }
     >
@@ -516,7 +517,7 @@ function ConnectedReader({
                 resources={context.resources}
                 path={path}
                 pageNumber={index + 1}
-                eager={isPaged || index + 1 === requestedPage}
+                eager={isPaged || Math.abs(index + 1 - safeCurrentPage) <= 1}
                 filter={imageFilter}
                 onVisible={isPaged ? noopVisible : handlePageVisible}
               />

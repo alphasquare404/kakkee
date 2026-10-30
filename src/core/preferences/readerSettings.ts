@@ -32,6 +32,7 @@ export interface ReaderSettings {
   readonly scale: ReaderScale;
   readonly direction: ReaderDirection;
   readonly keepScreenOn: boolean;
+  readonly firstPageOffset: number;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -43,6 +44,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   scale: 'fit-width',
   direction: 'ltr',
   keepScreenOn: false,
+  firstPageOffset: 0,
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -78,6 +80,12 @@ function load(): ReaderSettings {
       direction:
         parsed.direction === 'rtl' ? 'rtl' : 'ltr',
       keepScreenOn: parsed.keepScreenOn === true,
+      firstPageOffset: clampNumber(
+        parsed.firstPageOffset,
+        0,
+        200,
+        DEFAULT_READER_SETTINGS.firstPageOffset,
+      ),
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
@@ -173,6 +181,12 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       typeof patch.keepScreenOn === 'boolean'
         ? patch.keepScreenOn
         : state.keepScreenOn,
+    firstPageOffset: clampNumber(
+      patch.firstPageOffset ?? state.firstPageOffset,
+      0,
+      200,
+      state.firstPageOffset,
+    ),
   };
   persist(state);
   notify();

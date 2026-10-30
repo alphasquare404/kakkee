@@ -129,7 +129,7 @@ frontend.
 | Reader | Reading direction (LTR/RTL) | `Partial` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Partial` | Client-side | Fit width, fit height, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
-| Reader | Page gap, first-page offset, safe-area inset | `Missing` | Client-side | |
+| Reader | Page gap, first-page offset, safe-area inset | `Partial` | Client-side | Gap, first-page offset slider, and safe-area padding implemented; per-mode defaults absent |
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
 | Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
 | Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
@@ -137,7 +137,7 @@ frontend.
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Missing` | Client-side | |
 | Reader | Skip duplicate chapters | `Missing` | Client-side | |
-| Reader | Preload pages and next chapter | `Partial` | Client-side | Near-viewport page loading only |
+| Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter not preloaded |
 | Reader | Image filters (brightness/contrast/etc.) | `Partial` | Client-side | Grayscale, sepia, invert, and high-contrast presets; per-channel sliders absent |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
 | Reader | Auto-scroll and custom scroll amount | `Partial` | Client-side | Auto-scroll toggle with wheel/touch stop; speed control absent |

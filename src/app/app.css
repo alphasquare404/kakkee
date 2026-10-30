@@ -1705,7 +1705,12 @@ h2 {
   width: min(100%, 68rem);
   gap: var(--sp-3);
   padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: env(safe-area-inset-bottom);
   padding-left: max(0.75rem, env(safe-area-inset-left));
+}
+
+.reader-page:first-child {
+  margin-top: var(--reader-first-offset, 0);
 }
 
 .reader-header {
