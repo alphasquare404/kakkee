@@ -97,4 +97,40 @@ describe('createMangaRepository', () => {
       'Respons manga tidak lengkap.',
     );
   });
+
+  it('writes read state through UpdateChapter', async () => {
+    const mutate = vi.fn(async () => ({
+      data: {
+        updateChapter: {
+          chapter: { id: 2, isRead: true, lastPageRead: 0 },
+        },
+      },
+    }));
+    const client = { mutate, query: vi.fn() } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.setChapterRead(2, true);
+
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { id: 2, patch: { isRead: true } } },
+      }),
+    );
+  });
+
+  it('writes the library flag through UpdateManga', async () => {
+    const mutate = vi.fn(async () => ({
+      data: { updateManga: { manga: { id: 1114, inLibrary: false } } },
+    }));
+    const client = { mutate, query: vi.fn() } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.setInLibrary(1114, false);
+
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { input: { id: 1114, patch: { inLibrary: false } } },
+      }),
+    );
+  });
 });

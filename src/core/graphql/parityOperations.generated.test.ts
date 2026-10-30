@@ -4,6 +4,7 @@ import {
   ChapterFeedDocument,
   SourceCatalogDocument,
   UpdateChapterProgressDocument,
+  UpdateMangaLibraryDocument,
 } from './generated/graphql';
 
 describe('parity GraphQL operations', () => {
@@ -30,6 +31,14 @@ describe('parity GraphQL operations', () => {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { value: 'UpdateChapterProgress' },
+    });
+  });
+
+  it('defines the manga library mutation', () => {
+    expect(UpdateMangaLibraryDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'UpdateMangaLibrary' },
     });
   });
 });

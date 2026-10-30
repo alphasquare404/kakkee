@@ -27,6 +27,8 @@ export interface MangaDetailController {
   load(): Promise<void>;
   loadMore(): Promise<void>;
   setOrder(order: MangaChapterOrder): Promise<void>;
+  setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
+  setInLibrary(inLibrary: boolean): Promise<void>;
 }
 
 export interface MangaDetailControllerOptions {
@@ -134,8 +136,7 @@ export function createMangaDetailController(
     return loadFirstPage(order);
   }
 
-  function loadMore(): Promise<void> {
-    if (state.isLoading || state.isLoadingMore || !state.pageInfo.hasNextPage) {
+  function loadMore(): Promise<void> {    if (state.isLoading || state.isLoadingMore || !state.pageInfo.hasNextPage) {
       return Promise.resolve();
     }
 
@@ -182,6 +183,39 @@ export function createMangaDetailController(
     })();
   }
 
+  async function setChapterRead(
+    chapterId: number,
+    isRead: boolean,
+  ): Promise<void> {
+    const requestGeneration = generation;
+
+    await options.repository.setChapterRead(chapterId, isRead);
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        chapter.id === chapterId ? { ...chapter, isRead } : chapter,
+      ),
+    });
+  }
+
+  async function setInLibrary(inLibrary: boolean): Promise<void> {
+    const requestGeneration = generation;
+
+    await options.repository.setInLibrary(options.mangaId, inLibrary);
+
+    if (requestGeneration !== generation || !state.manga) {
+      return;
+    }
+
+    patch({
+      manga: { ...state.manga, inLibrary },
+    });
+  }
+
   return {
     getState: () => state,
     subscribe: (listener) => {
@@ -194,5 +228,7 @@ export function createMangaDetailController(
     load,
     loadMore,
     setOrder,
+    setChapterRead,
+    setInLibrary,
   };
 }

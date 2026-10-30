@@ -1487,6 +1487,47 @@ h2 {
   color: var(--success);
 }
 
+.chapter-item {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.chapter-item .chapter-row {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  border-bottom: 0;
+}
+
+.chapter-read-toggle {
+  flex: 0 0 auto;
+  min-height: 1.85rem;
+  padding: 0.15rem 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.chapter-read-toggle:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chapter-read-toggle.is-read {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 28%, var(--border));
+  background: var(--success-soft);
+}
+
+.chapter-read-toggle:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 .chapter-load-more {
   display: flex;
   justify-content: center;
@@ -1946,6 +1987,12 @@ h2 {
 .button-secondary:hover:not(:disabled) {
   border-color: var(--border-strong);
   background: var(--surface-elevated);
+}
+
+.button-secondary.is-library {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 28%, var(--border));
+  background: var(--success-soft);
 }
 
 .library-state {

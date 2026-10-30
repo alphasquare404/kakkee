@@ -26,7 +26,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - History: server-provided last-read chapters and page state.
 - Downloads: downloaded chapters and page totals.
 - Settings: real server/version/auth/compatibility/platform information and disconnect.
-- Manga Detail: metadata, cover, chapter list, chapter order, load more, and reader navigation.
+- Manga Detail: metadata, cover, chapter list, chapter order, single-chapter read toggle, in-library toggle, load more, and reader navigation.
 - Vertical Reader: authenticated pages, lazy page loading, page retry, previous/next chapter, keyboard navigation, and object URL cleanup.
 - PWA installable dengan shell-only cache dan update prompt.
 

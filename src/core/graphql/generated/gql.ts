@@ -29,6 +29,7 @@ type Documents = {
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": typeof types.RefreshTokenDocument,
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      lastPageRead\n    }\n  }\n}": typeof types.UpdateChapterProgressDocument,
+    "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangaLibraryDocument,
 };
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
@@ -46,6 +47,7 @@ const documents: Documents = {
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": types.RefreshTokenDocument,
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      lastPageRead\n    }\n  }\n}": types.UpdateChapterProgressDocument,
+    "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangaLibraryDocument,
 };
 
 /**
@@ -122,6 +124,10 @@ export function graphql(source: "query SourceCatalog($first: Int!) {\n  sources(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      lastPageRead\n    }\n  }\n}"): (typeof documents)["mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      lastPageRead\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}"): (typeof documents)["mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

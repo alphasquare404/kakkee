@@ -76,7 +76,7 @@ frontend.
 | Library | Bulk download, delete downloads, mark read/unread | `Missing` | Yes | |
 | Library | Bulk category assignment | `Missing` | Yes | |
 | Library | Bulk migrate | `Missing` | Yes | |
-| Library | Remove from library (single/bulk) | `Missing` | Yes | |
+| Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle is on Manga Detail; library bulk action absent |
 | Library | Library duplicate detection/overview | `Missing` | Client-side | |
 | Library | Sync button | `Missing` | StartSync mutation | |
 | Library | Show unread/download badges | `Missing` | Yes | |
@@ -87,7 +87,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Manga | Cover, title, author/artist, status, source, genres, description | `Implemented` | Yes | Ambient hero from real cover |
-| Manga | Library add/remove and category picker | `Missing` | Yes | |
+| Manga | Library add/remove and category picker | `Partial` | Yes | Detail has an in-library toggle; category picker and bulk actions absent |
 | Manga | Continue reading from last page | `Partial` | Reading progress | Detail selects the in-progress chapter; exact page resume is not applied yet |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Missing` | Manga meta mutations | |
@@ -109,7 +109,7 @@ frontend.
 | Chapters | Chapter pagination / load more | `Implemented` | Yes | |
 | Chapters | Select single/multiple/range chapters | `Missing` | Client concern | |
 | Chapters | Bookmark/unbookmark | `Missing` | Yes | |
-| Chapters | Mark read/unread and mark previous read | `Missing` | Yes | |
+| Chapters | Mark read/unread and mark previous read | `Partial` | Yes | Single chapter toggle on Manga Detail; mark-previous/bulk absent |
 | Chapters | Download/delete download | `Missing` | Yes | |
 | Chapters | Bulk chapter actions | `Missing` | Yes | |
 | Chapters | Scanlator filter and duplicate handling | `Missing` | Yes | |

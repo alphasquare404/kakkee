@@ -41,9 +41,11 @@ function page(items = [chapter(2)]): MangaDetailPage {
 
 function setup() {
   const getDetail = vi.fn();
-  const repository = { getDetail } as unknown as MangaRepository;
+  const setChapterRead = vi.fn();
+  const setInLibrary = vi.fn();
+  const repository = { getDetail, setChapterRead, setInLibrary } as unknown as MangaRepository;
   const controller = createMangaDetailController({ repository, mangaId: 1 });
-  return { controller, getDetail };
+  return { controller, getDetail, setChapterRead, setInLibrary };
 }
 
 describe('createMangaDetailController', () => {
@@ -98,5 +100,30 @@ describe('createMangaDetailController', () => {
 
     expect(controller.getState().error).toBe(error);
     expect(controller.getState().isLoading).toBe(false);
+  });
+
+  it('updates one chapter read state without reloading the page', async () => {
+    const { controller, getDetail, setChapterRead } = setup();
+    getDetail.mockResolvedValue(page([chapter(2)]));
+    setChapterRead.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.setChapterRead(2, true);
+
+    expect(setChapterRead).toHaveBeenCalledWith(2, true);
+    expect(controller.getState().chapters[0]?.isRead).toBe(true);
+    expect(getDetail).toHaveBeenCalledTimes(1);
+  });
+
+  it('updates the in-library flag after the mutation succeeds', async () => {
+    const { controller, getDetail, setInLibrary } = setup();
+    getDetail.mockResolvedValue(page());
+    setInLibrary.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.setInLibrary(false);
+
+    expect(setInLibrary).toHaveBeenCalledWith(1, false);
+    expect(controller.getState().manga?.inLibrary).toBe(false);
   });
 });

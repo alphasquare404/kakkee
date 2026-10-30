@@ -1,6 +1,8 @@
 import type { ApolloClient } from '@apollo/client';
 import {
   MangaDetailDocument,
+  UpdateChapterProgressDocument,
+  UpdateMangaLibraryDocument,
   type ChapterOrderInput,
   type MangaDetailQuery,
 } from '../graphql/generated/graphql';
@@ -30,6 +32,8 @@ export interface MangaDetailInput {
 
 export interface MangaRepository {
   getDetail(input: MangaDetailInput): Promise<MangaDetailPage>;
+  setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
+  setInLibrary(mangaId: number, inLibrary: boolean): Promise<void>;
 }
 
 export interface MangaRepositoryOptions {
@@ -74,6 +78,36 @@ export function createMangaRepository(
           hasNextPage: result.data.chapters.pageInfo.hasNextPage,
         },
       };
+    },
+    async setChapterRead(chapterId, isRead) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateChapterProgressDocument,
+        variables: {
+          input: {
+            id: chapterId,
+            patch: { isRead },
+          },
+        },
+      });
+
+      if (!result.data?.updateChapter) {
+        throw new Error('Status chapter tidak dapat disimpan.');
+      }
+    },
+    async setInLibrary(mangaId, inLibrary) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateMangaLibraryDocument,
+        variables: {
+          input: {
+            id: mangaId,
+            patch: { inLibrary },
+          },
+        },
+      });
+
+      if (!result.data?.updateManga) {
+        throw new Error('Status library manga tidak dapat disimpan.');
+      }
     },
   };
 }

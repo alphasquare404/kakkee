@@ -80,6 +80,10 @@ function ConnectedMangaDetail({
   const loaded = useRef<MangaDetailController | null>(null);
   const [section, setSection] = useState<'overview' | 'chapters'>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [chapterActionError, setChapterActionError] = useState(false);
+  const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
+  const [libraryPending, setLibraryPending] = useState(false);
+  const [libraryActionError, setLibraryActionError] = useState(false);
   const cover = useImageResource(
     context.resources,
     detail.manga?.thumbnailUrl ?? null,
@@ -181,10 +185,33 @@ function ConnectedMangaDetail({
                       : 'Read latest chapter'}
                 </Link>
               ) : null}
+              <button
+                className={`button button-secondary${manga.inLibrary ? ' is-library' : ''}`}
+                type="button"
+                aria-pressed={manga.inLibrary}
+                disabled={libraryPending}
+                title={manga.inLibrary ? 'Remove from library' : 'Add to library'}
+                onClick={() => {
+                  setLibraryActionError(false);
+                  setLibraryPending(true);
+                  void controller
+                    .setInLibrary(!manga.inLibrary)
+                    .catch(() => setLibraryActionError(true))
+                    .finally(() => setLibraryPending(false));
+                }}
+              >
+                {manga.inLibrary ? 'In library' : 'Add to library'}
+              </button>
               <Link className="button button-secondary" to="/library">
                 Back to library
               </Link>
             </div>
+
+            {libraryActionError ? (
+              <p className="alert alert-error" role="alert">
+                Couldn&apos;t update the library state.
+              </p>
+            ) : null}
 
             {manga.description ? (
               <>
@@ -273,7 +300,7 @@ function ConnectedMangaDetail({
                 const uploaded = formatDate(chapter.uploadDate);
 
                 return (
-                  <li key={chapter.id}>
+                  <li className="chapter-item" key={chapter.id}>
                     <Link
                       className="chapter-row"
                       to={`/manga/${manga.id}/chapter/${chapter.id}`}
@@ -293,17 +320,38 @@ function ConnectedMangaDetail({
                             .join(' · ')}
                         </span>
                       </span>
-                      <span
-                        className={`chapter-state${chapter.isRead ? ' is-read' : ''}`}
-                      >
-                        {chapter.isRead ? 'Read' : 'Unread'}
-                      </span>
                     </Link>
+                    <button
+                      className={`chapter-read-toggle${
+                        chapter.isRead ? ' is-read' : ''
+                      }`}
+                      type="button"
+                      disabled={pendingChapterId === chapter.id}
+                      aria-label={`Mark ${chapter.name} as ${
+                        chapter.isRead ? 'unread' : 'read'
+                      }`}
+                      onClick={() => {
+                        setChapterActionError(false);
+                        setPendingChapterId(chapter.id);
+                        void controller
+                          .setChapterRead(chapter.id, !chapter.isRead)
+                          .catch(() => setChapterActionError(true))
+                          .finally(() => setPendingChapterId(null));
+                      }}
+                    >
+                      {chapter.isRead ? 'Read' : 'Unread'}
+                    </button>
                   </li>
                 );
               })}
             </ol>
           )}
+
+          {chapterActionError ? (
+            <p className="alert alert-error" role="alert">
+              Couldn&apos;t update the chapter state.
+            </p>
+          ) : null}
 
           {detail.loadMoreError ? (
             <p className="alert alert-error" role="alert">
