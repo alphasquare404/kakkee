@@ -1,0 +1,12 @@
+mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {
+  setSettings(input: { settings: $settings }) {
+    settings {
+      syncDataCategories
+      syncDataChapters
+      syncDataHistory
+      syncDataManga
+      syncDataTracking
+      syncYomiEnabled
+    }
+  }
+}

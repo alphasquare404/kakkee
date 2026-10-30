@@ -1,0 +1,12 @@
+query SyncSettings {
+  settings {
+    syncInterval
+    syncDataCategories
+    syncDataChapters
+    syncDataHistory
+    syncDataManga
+    syncDataTracking
+    syncYomiEnabled
+    syncYomiHost
+  }
+}

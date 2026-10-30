@@ -1,0 +1,5 @@
+mutation StartSync {
+  startSync(input: {}) {
+    result
+  }
+}

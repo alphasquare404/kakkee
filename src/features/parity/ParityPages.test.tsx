@@ -17,6 +17,7 @@ import {
   ServerSettingsDocument,
   SourceCatalogDocument,
   SourceInfoDocument,
+  SyncSettingsDocument,
   TrackingServicesDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
@@ -169,6 +170,40 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('starts sync from sync settings', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === SyncSettingsDocument) {
+        return {
+          data: {
+            settings: {
+              __typename: 'SettingsType',
+              syncInterval: 'P1D',
+              syncDataCategories: true,
+              syncDataChapters: true,
+              syncDataHistory: true,
+              syncDataManga: true,
+              syncDataTracking: false,
+              syncYomiEnabled: true,
+              syncYomiHost: 'https://yomi.example',
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    const mutate = vi.fn(async () => ({
+      data: { startSync: { result: 'SUCCESS' } },
+    }));
+    renderPage('/settings/sync', query, mutate);
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole('heading', { name: 'Sync' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Start sync' }));
+
+    expect(await screen.findByText('Sync started')).toBeTruthy();
+  });
+
   it('renders tracking services and logs out', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === TrackingServicesDocument) {

@@ -74,6 +74,11 @@ const TrackingSettingsPage = lazy(() =>
     default: module.TrackingSettingsPage,
   })),
 );
+const SyncSettingsPage = lazy(() =>
+  import('../features/settings/SyncSettingsPage').then((module) => ({
+    default: module.SyncSettingsPage,
+  })),
+);
 
 const MangaDetailPage = lazy(() =>
   import('../features/manga/MangaDetailPage').then((module) => ({
@@ -131,6 +136,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/settings/server" element={<ServerSettingsPage />} />
             <Route path="/settings/backup" element={<BackupSettingsPage />} />
             <Route path="/settings/tracking" element={<TrackingSettingsPage />} />
+            <Route path="/settings/sync" element={<SyncSettingsPage />} />
             <Route path="/manga/:mangaId" element={<MangaDetailPage />} />
             <Route
               path="/manga/:mangaId/chapter/:chapterId"

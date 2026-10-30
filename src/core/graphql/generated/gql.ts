@@ -47,7 +47,9 @@ type Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": typeof types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StartDownloaderDocument,
+    "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": typeof types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
+    "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": typeof types.SyncSettingsDocument,
     "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}": typeof types.TrackingServicesDocument,
     "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.UpdateCategoryDocument,
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": typeof types.UpdateCategoryOrderDocument,
@@ -58,6 +60,7 @@ type Documents = {
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": typeof types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangasLibraryDocument,
     "mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      updateMangas\n      autoDownloadNewChapters\n      autoDownloadNewChaptersLimit\n      downloadAsCbz\n      maxSourcesInParallel\n      globalUpdateInterval\n      excludeCompleted\n      excludeNotStarted\n      excludeUnreadChapters\n      excludeEntryWithUnreadChapters\n      debugLogsEnabled\n    }\n  }\n}": typeof types.UpdateServerSettingsDocument,
+    "mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}": typeof types.UpdateSyncSettingsDocument,
 };
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
@@ -93,7 +96,9 @@ const documents: Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StartDownloaderDocument,
+    "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
+    "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": types.SyncSettingsDocument,
     "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}": types.TrackingServicesDocument,
     "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.UpdateCategoryDocument,
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": types.UpdateCategoryOrderDocument,
@@ -104,6 +109,7 @@ const documents: Documents = {
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangasLibraryDocument,
     "mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      updateMangas\n      autoDownloadNewChapters\n      autoDownloadNewChaptersLimit\n      downloadAsCbz\n      maxSourcesInParallel\n      globalUpdateInterval\n      excludeCompleted\n      excludeNotStarted\n      excludeUnreadChapters\n      excludeEntryWithUnreadChapters\n      debugLogsEnabled\n    }\n  }\n}": types.UpdateServerSettingsDocument,
+    "mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}": types.UpdateSyncSettingsDocument,
 };
 
 /**
@@ -255,7 +261,15 @@ export function graphql(source: "mutation StartDownloader {\n  startDownloader(i
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}"): (typeof documents)["mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}"): (typeof documents)["query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -296,6 +310,10 @@ export function graphql(source: "mutation UpdateMangasLibrary($input: UpdateMang
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      updateMangas\n      autoDownloadNewChapters\n      autoDownloadNewChaptersLimit\n      downloadAsCbz\n      maxSourcesInParallel\n      globalUpdateInterval\n      excludeCompleted\n      excludeNotStarted\n      excludeUnreadChapters\n      excludeEntryWithUnreadChapters\n      debugLogsEnabled\n    }\n  }\n}"): (typeof documents)["mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      updateMangas\n      autoDownloadNewChapters\n      autoDownloadNewChaptersLimit\n      downloadAsCbz\n      maxSourcesInParallel\n      globalUpdateInterval\n      excludeCompleted\n      excludeNotStarted\n      excludeUnreadChapters\n      excludeEntryWithUnreadChapters\n      debugLogsEnabled\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}"): (typeof documents)["mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

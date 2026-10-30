@@ -207,8 +207,8 @@ frontend.
 | Backup | Create backup and select data | `Partial` | Yes | Create backup with include flags and returned URL; restore absent |
 | Backup | Restore/validate backup | `Missing` | Yes | Upload/restore UI absent |
 | Backup | Automatic backup settings | `Partial` | Yes | Auto-backup summary shown; editing remains in Server settings |
-| Sync | Sync button and sync status | `Missing` | Yes | |
-| Sync | Sync settings (Yomi, intervals, data selection) | `Missing` | Yes | |
+| Sync | Sync button and sync status | `Partial` | Yes | Start sync and result state; live progress/subscription absent |
+| Sync | Sync settings (Yomi, intervals, data selection) | `Partial` | Yes | Data toggles, Yomi enablement/host, and interval shown; API key editing absent |
 | Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
