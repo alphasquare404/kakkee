@@ -1,0 +1,18 @@
+query SearchTracker($input: SearchTrackerInput!) {
+  searchTracker(input: $input) {
+    trackSearches {
+      id
+      remoteId
+      trackerId
+      title
+      coverUrl
+      summary
+      totalChapters
+      publishingStatus
+      publishingType
+      score
+      displayScore
+      status
+    }
+  }
+}

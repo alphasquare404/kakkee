@@ -1,7 +1,10 @@
 import type { ApolloClient } from '@apollo/client';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  BindTrackDocument,
   MangaTrackingDocument,
+  SearchTrackerDocument,
+  TrackingServicesDocument,
   UnbindTrackDocument,
   UpdateTrackDocument,
 } from '../graphql/generated/graphql';
@@ -85,6 +88,80 @@ describe('createMangaTrackingRepository', () => {
     expect(mutate).toHaveBeenNthCalledWith(2, {
       mutation: UnbindTrackDocument,
       variables: { input: { recordId: 9 } },
+    });
+  });
+
+  it('loads trackers, searches, and binds a record', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === TrackingServicesDocument) {
+        return {
+          data: {
+            trackers: {
+              __typename: 'TrackerNodeList',
+              nodes: [
+                {
+                  __typename: 'TrackerType',
+                  id: 1,
+                  name: 'MAL',
+                  icon: 'mal',
+                  isLoggedIn: true,
+                  isTokenExpired: false,
+                  authUrl: null,
+                  supportsPrivateTracking: true,
+                  supportsReadingDates: true,
+                  supportsTrackDeletion: true,
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      if (document === SearchTrackerDocument) {
+        return {
+          data: {
+            searchTracker: {
+              trackSearches: [
+                {
+                  __typename: 'TrackSearchType',
+                  id: 3,
+                  remoteId: 'remote-1',
+                  trackerId: 1,
+                  title: 'One Piece',
+                  coverUrl: '',
+                  summary: '',
+                  totalChapters: 100,
+                  publishingStatus: 'Publishing',
+                  publishingType: 'Manga',
+                  score: 0,
+                  displayScore: '',
+                  status: 1,
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      throw new Error('unexpected query');
+    });
+    const mutate = vi.fn(async () => ({
+      data: { bindTrack: { trackRecord: record } },
+    }));
+    const client = { query, mutate } as unknown as ApolloClient;
+    const repository = createMangaTrackingRepository({ getClient: () => client });
+
+    await expect(repository.getTrackers()).resolves.toHaveLength(1);
+    await expect(repository.search(1, 'One Piece')).resolves.toHaveLength(1);
+    await expect(
+      repository.bind({ mangaId: 1, trackerId: 1, remoteId: 'remote-1' }),
+    ).resolves.toMatchObject({ id: 9 });
+
+    expect(mutate).toHaveBeenCalledWith({
+      mutation: BindTrackDocument,
+      variables: {
+        input: { mangaId: 1, trackerId: 1, remoteId: 'remote-1' },
+      },
     });
   });
 });

@@ -2,6 +2,8 @@ import type { UpdateTrackInput } from '../graphql/generated/graphql';
 import type {
   MangaTrackingRepository,
   TrackRecord,
+  TrackSearch,
+  Tracker,
 } from './mangaTrackingRepository';
 
 export type MangaTrackingStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -9,6 +11,9 @@ export type MangaTrackingStatus = 'idle' | 'loading' | 'ready' | 'error';
 export interface MangaTrackingState {
   readonly status: MangaTrackingStatus;
   readonly records: readonly TrackRecord[];
+  readonly trackers: readonly Tracker[];
+  readonly searchResults: readonly TrackSearch[];
+  readonly searching: boolean;
   readonly busyId: number | null;
   readonly error: boolean;
 }
@@ -17,6 +22,12 @@ export interface MangaTrackingController {
   getState(): MangaTrackingState;
   subscribe(listener: () => void): () => void;
   load(mangaId: number): Promise<void>;
+  search(trackerId: number, query: string): Promise<void>;
+  bind(
+    trackerId: number,
+    remoteId: string,
+    isPrivate: boolean,
+  ): Promise<void>;
   unbind(recordId: number): Promise<void>;
   update(
     recordId: number,
@@ -30,9 +41,13 @@ export function createMangaTrackingController(
   let state: MangaTrackingState = {
     status: 'idle',
     records: [],
+    trackers: [],
+    searchResults: [],
+    searching: false,
     busyId: null,
     error: false,
   };
+  let activeMangaId = 0;
   const listeners = new Set<() => void>();
 
   const patch = (next: Partial<MangaTrackingState>) => {
@@ -47,13 +62,60 @@ export function createMangaTrackingController(
   };
 
   async function load(nextMangaId: number): Promise<void> {
+    activeMangaId = nextMangaId;
     patch({ status: 'loading', error: false });
 
     try {
-      const records = await repository.getRecords(nextMangaId);
-      patch({ status: 'ready', records });
+      const [records, trackers] = await Promise.all([
+        repository.getRecords(nextMangaId),
+        repository.getTrackers(),
+      ]);
+      patch({ status: 'ready', records, trackers });
     } catch {
       patch({ status: 'error', error: true });
+    }
+  }
+
+  async function search(trackerId: number, query: string): Promise<void> {
+    patch({ searching: true, error: false, searchResults: [] });
+
+    try {
+      const searchResults = await repository.search(trackerId, query);
+      patch({ searching: false, searchResults });
+    } catch {
+      patch({ searching: false, error: true });
+    }
+  }
+
+  async function bind(
+    trackerId: number,
+    remoteId: string,
+    isPrivate: boolean,
+  ): Promise<void> {
+    if (!activeMangaId) {
+      return;
+    }
+
+    patch({ busyId: trackerId, error: false });
+
+    try {
+      const record = await repository.bind({
+        mangaId: activeMangaId,
+        trackerId,
+        remoteId,
+        ...(isPrivate ? { private: true } : {}),
+      });
+
+      patch({
+        records: [
+          ...state.records.filter((item) => item.trackerId !== trackerId),
+          record,
+        ],
+        searchResults: [],
+        busyId: null,
+      });
+    } catch {
+      patch({ busyId: null, error: true });
     }
   }
 
@@ -97,6 +159,8 @@ export function createMangaTrackingController(
       return () => listeners.delete(listener);
     },
     load,
+    search,
+    bind,
     unbind,
     update,
   };

@@ -9,9 +9,11 @@ import {
 export function MangaTrackingSection({
   context,
   mangaId,
+  mangaTitle,
 }: {
   readonly context: ConnectedContext;
   readonly mangaId: number;
+  readonly mangaTitle: string;
 }) {
   const controller = useMemo(
     () =>
@@ -26,10 +28,21 @@ export function MangaTrackingSection({
     controller.subscribe,
     controller.getState,
   );
+  const [trackerId, setTrackerId] = useState<number | null>(null);
+  const [query, setQuery] = useState(mangaTitle);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   useEffect(() => {
     void controller.load(mangaId);
   }, [controller, mangaId]);
+
+  const linkedTrackerIds = new Set(tracking.records.map((record) => record.trackerId));
+  const availableTrackers = tracking.trackers.filter(
+    (tracker) => tracker.isLoggedIn && !linkedTrackerIds.has(tracker.id),
+  );
+  const selectedTracker =
+    availableTrackers.find((tracker) => tracker.id === trackerId) ??
+    availableTrackers[0];
 
   return (
     <section className="manga-tracking" aria-labelledby="manga-tracking-heading">
@@ -69,6 +82,90 @@ export function MangaTrackingSection({
             />
           ))}
         </div>
+      ) : null}
+
+      {availableTrackers.length > 0 ? (
+        <form
+          className="manga-track-bind"
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            if (selectedTracker) {
+              void controller.search(selectedTracker.id, query);
+            }
+          }}
+        >
+          <label>
+            <span>Tracker</span>
+            <select
+              value={selectedTracker?.id ?? ''}
+              onChange={(event) => setTrackerId(Number(event.target.value))}
+            >
+              {availableTrackers.map((tracker) => (
+                <option key={tracker.id} value={tracker.id}>
+                  {tracker.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="manga-track-search">
+            <span>Search title</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
+          <button
+            className="library-action"
+            type="submit"
+            disabled={tracking.searching || !query.trim()}
+          >
+            {tracking.searching ? 'Searching…' : 'Search tracker'}
+          </button>
+          {selectedTracker?.supportsPrivateTracking ? (
+            <label className="manga-track-private">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(event) => setIsPrivate(event.target.checked)}
+              />
+              Private
+            </label>
+          ) : null}
+        </form>
+      ) : (
+        <p className="settings-save-state">
+          Log in to a tracker in Settings to link this manga.
+        </p>
+      )}
+
+      {tracking.searchResults.length > 0 ? (
+        <ul className="manga-track-results">
+          {tracking.searchResults.map((result) => (
+            <li key={`${result.trackerId}-${result.remoteId}`}>
+              <div>
+                <strong>{result.title}</strong>
+                <span>
+                  {result.publishingStatus} · {result.totalChapters} chapters
+                </span>
+              </div>
+              <button
+                className="library-action"
+                type="button"
+                disabled={tracking.busyId !== null}
+                onClick={() =>
+                  void controller.bind(
+                    result.trackerId,
+                    result.remoteId,
+                    isPrivate,
+                  )
+                }
+              >
+                Bind
+              </button>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </section>
   );

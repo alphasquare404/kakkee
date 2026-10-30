@@ -1,0 +1,23 @@
+mutation BindTrack($input: BindTrackInput!) {
+  bindTrack(input: $input) {
+    trackRecord {
+      id
+      trackerId
+      title
+      status
+      score
+      displayScore
+      private
+      remoteUrl
+      tracker {
+        id
+        name
+        scores
+        statuses {
+          name
+          value
+        }
+      }
+    }
+  }
+}

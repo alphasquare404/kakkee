@@ -392,7 +392,11 @@ function ConnectedMangaDetail({
           </div>
         </header>
 
-        <MangaTrackingSection context={context} mangaId={manga.id} />
+        <MangaTrackingSection
+          context={context}
+          mangaId={manga.id}
+          mangaTitle={manga.title}
+        />
 
         <nav className="detail-tabs" aria-label="Manga sections">
           <button
