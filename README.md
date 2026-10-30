@@ -25,6 +25,17 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 
 Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia; source/extension/download UI, tracking, progress write, dan offline reading belum termasuk.
 
+Route utama:
+
+```text
+/                                  connection / server management
+/library                           library grid
+/manga/:mangaId                    manga detail + chapter list
+/manga/:mangaId/chapter/:chapterId vertical reader
+```
+
+`/library`, detail, dan reader memerlukan koneksi aktif; membukanya tanpa koneksi akan mengarah ke `/`.
+
 ## Lingkup Step 1
 
 - Bootstrap React + TypeScript + Vite.

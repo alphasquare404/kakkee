@@ -849,16 +849,6 @@ h2 {
   letter-spacing: -0.03em;
 }
 
-.manga-card-note {
-  color: var(--muted);
-  font-size: 0.625rem;
-  font-weight: 600;
-  line-height: 1;
-  text-align: center;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 /* Cards are links to Manga Detail. */
 @media (hover: hover) {
   .manga-card-link:hover .manga-card-cover {
