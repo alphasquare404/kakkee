@@ -1,0 +1,498 @@
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
+import { Navigate } from 'react-router-dom';
+import type { ConnectedContext } from '../../core/server/connectionCoordinator';
+import {
+  createLibraryController,
+  type LibraryFilterCriteria,
+  type LibraryController,
+} from '../../core/library/libraryController';
+import {
+  createLibraryCategoryController,
+  type LibraryCategoryController,
+} from '../../core/library/libraryCategoryController';
+import {
+  createLibraryRepository,
+  type LibraryCategory,
+  type LibraryFilter,
+  type LibrarySortDirection,
+  type LibrarySortField,
+} from '../../core/library/libraryRepository';
+import { useConnection } from '../../app/useConnection';
+import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
+import { MangaCard, MangaCardSkeleton } from './MangaCard';
+import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
+
+type LibraryStatus = NonNullable<LibraryFilter['status']>;
+type OpenPanel = 'filter' | 'sort';
+
+const SEARCH_FORM_ID = 'library-search-form';
+const FILTER_MENU_ID = 'library-filter-menu';
+const SORT_MENU_ID = 'library-sort-menu';
+
+/** Empty value is the "no status refinement" choice; it is never sent to the server. */
+const STATUS_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: '', label: 'All statuses' },
+  { value: 'ONGOING', label: 'Ongoing' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'LICENSED', label: 'Licensed' },
+  { value: 'PUBLISHING_FINISHED', label: 'Publishing finished' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+  { value: 'ON_HIATUS', label: 'On hiatus' },
+  { value: 'UNKNOWN', label: 'Unknown' },
+];
+
+const SORT_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: 'title', label: 'Title' },
+  { value: 'dateAdded', label: 'Date added' },
+  { value: 'lastFetched', label: 'Last fetched' },
+  { value: 'id', label: 'ID' },
+];
+
+const DIRECTION_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: 'asc', label: 'Ascending' },
+  { value: 'desc', label: 'Descending' },
+];
+
+function statusFilter(
+  filter: LibraryFilterCriteria,
+  status: LibraryStatus | null,
+): LibraryFilterCriteria {
+  return {
+    ...(filter.search !== undefined ? { search: filter.search } : {}),
+    ...(status !== null ? { status } : {}),
+    ...(filter.sourceId !== undefined ? { sourceId: filter.sourceId } : {}),
+  };
+}
+
+function hasNarrowingCriteria(
+  filter: LibraryFilterCriteria,
+  categoryId: number | null,
+): boolean {
+  return Boolean(filter.search?.trim() || filter.status || categoryId !== null);
+}
+
+function countLabel(totalCount: number, loading: boolean): string {
+  if (loading) {
+    return 'Loading…';
+  }
+
+  return `${totalCount.toLocaleString('en-US')} manga`;
+}
+
+export function LibraryPage() {
+  const { state } = useConnection();
+
+  if (state.status !== 'connected') {
+    return <Navigate to="/" replace />;
+  }
+
+  return <ConnectedLibrary context={state.context} />;
+}
+
+function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
+  const repository = useMemo(
+    () => createLibraryRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
+  const controller = useMemo(
+    () => createLibraryController({ repository }),
+    [repository],
+  );
+  const categoryController = useMemo(
+    () => createLibraryCategoryController({ repository }),
+    [repository],
+  );
+  const library = useSyncExternalStore(controller.subscribe, controller.getState);
+  const categories = useSyncExternalStore(
+    categoryController.subscribe,
+    categoryController.getState,
+  );
+  const loadedLibrary = useRef<LibraryController | null>(null);
+  const loadedCategories = useRef<LibraryCategoryController | null>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const filterButton = useRef<HTMLButtonElement>(null);
+  const sortButton = useRef<HTMLButtonElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const searchToggle = useRef<HTMLButtonElement>(null);
+  const [search, setSearch] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
+
+  useEffect(() => {
+    if (loadedLibrary.current !== controller) {
+      loadedLibrary.current = controller;
+      void controller.load();
+    }
+
+    if (loadedCategories.current !== categoryController) {
+      loadedCategories.current = categoryController;
+      void categoryController.load();
+    }
+  }, [controller, categoryController]);
+
+  useEffect(() => {
+    if (!searchOpen) {
+      return;
+    }
+
+    searchInput.current?.focus();
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!openPanel) {
+      return;
+    }
+
+    const handlePointer = (event: PointerEvent) => {
+      if (!actionsRef.current?.contains(event.target as Node)) {
+        setOpenPanel(null);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointer);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointer);
+    };
+  }, [openPanel]);
+
+  const closePanel = () => {
+    const trigger = openPanel === 'sort' ? sortButton.current : filterButton.current;
+
+    setOpenPanel(null);
+    trigger?.focus({ preventScroll: true });
+  };
+
+  const togglePanel = (panel: OpenPanel) => {
+    setOpenPanel((current) => (current === panel ? null : panel));
+  };
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void controller.setSearch(search.trim());
+  };
+
+  const clearSearch = () => {
+    setSearch('');
+    void controller.setSearch('');
+  };
+
+  const handleSearchKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Escape' && searchOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      setSearchOpen(false);
+      searchToggle.current?.focus({ preventScroll: true });
+    }
+  };
+
+  const handleStatus = (value: string) => {
+    const status = value === '' ? null : (value as LibraryStatus);
+
+    void controller.setFilter(statusFilter(library.filter, status));
+  };
+
+  const handleSortField = (value: string) => {
+    void controller.setSort({ ...library.sort, field: value as LibrarySortField });
+  };
+
+  const handleSortDirection = (value: string) => {
+    void controller.setSort({
+      ...library.sort,
+      direction: value as LibrarySortDirection,
+    });
+  };
+
+  const handleCategory = (category: LibraryCategory | null) => {
+    void controller.setCategory(category?.id ?? null);
+  };
+
+  const isNarrowed = hasNarrowingCriteria(library.filter, library.categoryId);
+  const filterActive = Boolean(library.filter.status);
+  const searchActive = Boolean(library.filter.search?.trim());
+  const sortActive =
+    library.sort.field !== 'dateAdded' || library.sort.direction !== 'desc';
+  const showInitialLoading = library.isInitialLoading && library.items.length === 0;
+  const showInitialError = Boolean(library.initialError) && library.items.length === 0;
+
+  const filterGroups: readonly LibraryMenuGroup[] = [
+    {
+      key: 'status',
+      label: 'Status',
+      value: library.filter.status ?? '',
+      options: STATUS_OPTIONS,
+      onSelect: (value) => {
+        handleStatus(value);
+        closePanel();
+      },
+    },
+  ];
+
+  const sortGroups: readonly LibraryMenuGroup[] = [
+    {
+      key: 'field',
+      label: 'Sort by',
+      value: library.sort.field,
+      options: SORT_OPTIONS,
+      onSelect: (value) => {
+        handleSortField(value);
+        closePanel();
+      },
+    },
+    {
+      key: 'direction',
+      label: 'Direction',
+      value: library.sort.direction,
+      options: DIRECTION_OPTIONS,
+      onSelect: (value) => {
+        handleSortDirection(value);
+        closePanel();
+      },
+    },
+  ];
+
+  return (
+    <div className="app-shell library-shell">
+      <header className="library-header">
+        <div className="library-title">
+          <h1>Library</h1>
+          <p className="library-count" aria-live="polite">
+            {countLabel(library.totalCount, library.isInitialLoading)}
+          </p>
+        </div>
+
+        <form
+          className={`library-search${searchOpen ? ' is-open' : ''}`}
+          id={SEARCH_FORM_ID}
+          role="search"
+          onSubmit={handleSearch}
+        >
+          <IconSearch className="library-search-icon" />
+          <label className="sr-only" htmlFor="library-search">
+            Search library
+          </label>
+          <input
+            ref={searchInput}
+            id="library-search"
+            name="search"
+            type="search"
+            placeholder="Search library"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            autoComplete="off"
+            enterKeyHint="search"
+          />
+          {search.length > 0 ? (
+            <button
+              className="library-search-clear"
+              type="button"
+              aria-label="Clear search"
+              onClick={clearSearch}
+            >
+              <IconClose />
+            </button>
+          ) : null}
+        </form>
+
+        <div className="library-controls">
+          <button
+            ref={searchToggle}
+            className={`library-icon-button library-search-toggle${searchActive ? ' is-active' : ''}`}
+            type="button"
+            aria-label={
+              searchOpen ? 'Close search' : searchActive ? 'Search, active' : 'Search'
+            }
+            aria-expanded={searchOpen}
+            aria-controls={SEARCH_FORM_ID}
+            onClick={() => {
+              if (searchOpen) {
+                setSearchOpen(false);
+                searchToggle.current?.focus({ preventScroll: true });
+              } else {
+                setSearchOpen(true);
+              }
+            }}
+          >
+            <IconSearch />
+            {searchActive && !searchOpen ? (
+              <span className="library-action-dot" aria-hidden="true" />
+            ) : null}
+          </button>
+
+          <div className="library-actions" ref={actionsRef}>
+            <button
+              ref={filterButton}
+              className={`library-action${filterActive ? ' is-active' : ''}`}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={openPanel === 'filter'}
+              aria-controls={FILTER_MENU_ID}
+              onClick={() => togglePanel('filter')}
+            >
+              <IconFilter />
+              <span>Filter</span>
+              {filterActive ? (
+                <span className="library-action-dot" aria-hidden="true" />
+              ) : null}
+              {filterActive ? <span className="sr-only">, active</span> : null}
+            </button>
+
+            <button
+              ref={sortButton}
+              className={`library-action${sortActive ? ' is-active' : ''}`}
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded={openPanel === 'sort'}
+              aria-controls={SORT_MENU_ID}
+              onClick={() => togglePanel('sort')}
+            >
+              <IconSort />
+              <span>Sort</span>
+              {sortActive ? (
+                <span className="library-action-dot" aria-hidden="true" />
+              ) : null}
+              {sortActive ? <span className="sr-only">, active</span> : null}
+            </button>
+
+            <LibraryMenu
+              id={FILTER_MENU_ID}
+              label="Status filter"
+              open={openPanel === 'filter'}
+              groups={filterGroups}
+              onClose={closePanel}
+            />
+
+            <LibraryMenu
+              id={SORT_MENU_ID}
+              label="Sort options"
+              open={openPanel === 'sort'}
+              groups={sortGroups}
+              onClose={closePanel}
+            />
+          </div>
+        </div>
+      </header>
+
+      <nav className="category-nav" aria-label="Library categories">
+        <div className="category-tabs">
+          <button
+            className="category-tab"
+            type="button"
+            aria-pressed={library.categoryId === null}
+            onClick={() => handleCategory(null)}
+          >
+            All
+          </button>
+          {categories.categories.map((category) => (
+            <button
+              className="category-tab"
+              key={category.id}
+              type="button"
+              aria-pressed={library.categoryId === category.id}
+              onClick={() => handleCategory(category)}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+
+        {categories.isLoading && categories.categories.length === 0 ? (
+          <p className="library-note" role="status">
+            Loading categories…
+          </p>
+        ) : null}
+
+        {categories.error ? (
+          <p className="library-note library-note-warning" role="status">
+            Categories unavailable. The All view still works.
+          </p>
+        ) : null}
+
+        {!categories.isLoading &&
+        !categories.error &&
+        categories.categories.length === 0 ? (
+          <p className="library-note">No server categories.</p>
+        ) : null}
+      </nav>
+
+      <main className="library-main">
+        <section
+          className="library-results"
+          aria-busy={library.isInitialLoading || library.isLoadingMore}
+          aria-label="Manga library"
+        >
+          {showInitialLoading ? (
+            <div className="manga-grid" aria-hidden="true">
+              {Array.from({ length: 12 }, (_, index) => (
+                <MangaCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : null}
+
+          {showInitialError ? (
+            <div className="library-state" role="alert">
+              <h2>Couldn&apos;t load library</h2>
+              <p>The request to your server failed. Try again.</p>
+              <button
+                className="button"
+                type="button"
+                onClick={() => void controller.load()}
+                disabled={library.isInitialLoading}
+              >
+                Retry
+              </button>
+            </div>
+          ) : null}
+
+          {!showInitialLoading &&
+          !showInitialError &&
+          library.items.length === 0 ? (
+            <div className="library-state">
+              <h2>{isNarrowed ? 'No manga found' : 'Your library is empty'}</h2>
+              <p>
+                {isNarrowed
+                  ? 'Try a different search, category, or status.'
+                  : 'Manga you add in Suwayomi will appear here.'}
+              </p>
+            </div>
+          ) : null}
+
+          {library.items.length > 0 ? (
+            <div className="manga-grid">
+              {library.items.map((manga) => (
+                <MangaCard key={manga.id} manga={manga} />
+              ))}
+            </div>
+          ) : null}
+        </section>
+
+        {library.items.length > 0 && library.pageInfo.hasNextPage ? (
+          <section className="library-load-more" aria-label="Load more results">
+            {library.loadMoreError ? (
+              <p className="alert alert-error" role="alert">
+                Couldn&apos;t load more manga.
+              </p>
+            ) : null}
+            <button
+              className="button button-secondary"
+              type="button"
+              disabled={library.isLoadingMore}
+              onClick={() => void controller.loadMore()}
+            >
+              {library.isLoadingMore ? 'Loading…' : 'Load more'}
+            </button>
+          </section>
+        ) : null}
+      </main>
+    </div>
+  );
+}

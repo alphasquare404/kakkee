@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), Step 3 (state controller), dan Step 3.5 (category support) selesai; belum ada Library UI. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal sudah tervalidasi. Belum ada library/manga/reader, offline reading, atau final branding.
+Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), Step 3 (state controller), Step 3.5 (category support), dan Step 4 (React Library UI) selesai. Step 5 authenticated thumbnails dan Step 6 final polish belum dimulai. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, PWA shell, dan Library screen dengan placeholder cover tersedia.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md). Category: [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md). Category: [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md). UI: [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md).
 
 ## Kemampuan saat ini
 
@@ -15,12 +15,13 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Menampilkan nama/version/build/platform/architecture/server URL/auth mode/compatibility.
 - Disconnect/ganti server dengan generation guard.
 - Resource REST terautentikasi melalui service terpusat (belum ada komponen image).
-- Library data layer terpusat dengan pagination/filter/sort stable (belum ada UI).
+- Library data layer terpusat dengan pagination/filter/sort stable.
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
+- Library screen: search, category tabs, status filter, sort, responsive grid, placeholder cover, empty/error/load-more states.
 - PWA installable dengan shell-only cache dan update prompt.
 
-Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Tidak ada library, manga, chapter, reader, source, extension, download, tracking, atau offline reading pada Phase 0.
+Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Library screen Step 4 sudah tersedia dengan placeholder cover. Manga detail, chapter, reader, source/extension/download UI, tracking, authenticated thumbnail, dan offline reading belum termasuk.
 
 ## Lingkup Step 1
 
@@ -186,6 +187,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ phase-1-library-data.md
 │  ├─ phase-1-library-state.md
 │  ├─ phase-1-library-categories.md
+│  ├─ phase-1-library-ui.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -265,6 +267,12 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ features/connection/
 │  │  ├─ ConnectionPage.tsx
 │  │  └─ ConnectionPage.test.tsx
+│  ├─ features/library/
+│  │  ├─ LibraryPage.tsx
+│  │  ├─ LibraryPage.test.tsx
+│  │  ├─ LibraryMenu.tsx
+│  │  ├─ MangaCard.tsx
+│  │  └─ icons.tsx
 │  ├─ test/fakeConnectionCoordinator.ts
 │  ├─ main.tsx
 │  └─ vite-env.d.ts
@@ -705,7 +713,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (198 test; 7 runtime integration memerlukan env)
+npm run test           lulus (219 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

@@ -1,6 +1,6 @@
 # Arsitektur frontend Suwayomi
 
-Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal). Phase 1 Step 2 Library data layer, Step 3 state controller, dan Step 3.5 category navigation tersedia; Library UI belum dibuat. Target minimum: stable v2.4.2366. Bukti akhir ada di [phase-0-validation.md](phase-0-validation.md); audit/state Library di [phase-1-library-contract.md](phase-1-library-contract.md), [phase-1-library-data.md](phase-1-library-data.md), [phase-1-library-state.md](phase-1-library-state.md), dan [phase-1-library-categories.md](phase-1-library-categories.md).
+Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi (React/TypeScript/Vite, schema stable, codegen, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, UI koneksi/login, dan PWA shell minimal). Phase 1 Step 2 Library data layer, Step 3 state controller, Step 3.5 category navigation, dan Step 4 Library screen (placeholder cover) tersedia; Step 5 thumbnail dan Step 6 polish belum. Target minimum: stable v2.4.2366. Bukti ada di [phase-0-validation.md](phase-0-validation.md), [phase-1-library-contract.md](phase-1-library-contract.md), [phase-1-library-data.md](phase-1-library-data.md), [phase-1-library-state.md](phase-1-library-state.md), [phase-1-library-categories.md](phase-1-library-categories.md), dan [phase-1-library-ui.md](phase-1-library-ui.md).
 
 ## Tujuan
 
@@ -42,6 +42,7 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 | `src/core/resources/` | Resource terautentikasi, Blob/object URL, lifecycle |
 | `src/core/library/` | Repository/controller Library, pagination/filter/state, category navigation |
 | `src/features/connection/` | Form koneksi/login, status dan aboutServer |
+| `src/features/library/` | Library screen, category/search/filter/sort, grid placeholder |
 | `src/shared/` | Komponen/utilitas umum yang benar-benar dipakai |
 | `graphql/` | Snapshot stable, metadata, operasi yang diverifikasi |
 | `tests/` | Integrasi lintas modul dan skenario deployment |

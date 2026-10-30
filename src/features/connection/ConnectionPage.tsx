@@ -4,6 +4,7 @@ import {
   useState,
   type FormEvent,
 } from 'react';
+import { Link } from 'react-router-dom';
 import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
@@ -293,8 +294,8 @@ export function ConnectionPage() {
             </div>
 
             <p className="panel-copy">
-              Koneksi ke Suwayomi Server sudah aktif. Belum ada library atau reader pada
-              Phase 0.
+              Koneksi ke Suwayomi Server sudah aktif. Library tersedia; reader belum
+              termasuk pada tahap ini.
             </p>
 
             {state.context.compatibility.status !== 'compatible' ? (
@@ -340,6 +341,9 @@ export function ConnectionPage() {
             </dl>
 
             <div className="actions">
+              <Link className="button" to="/library">
+                Open library
+              </Link>
               <button className="button button-secondary" type="button" onClick={handleDisconnect}>
                 Disconnect
               </button>
@@ -370,7 +374,7 @@ export function ConnectionPage() {
       </main>
 
       <footer className="app-footer">
-        <p>Phase 0 · connection foundation · PWA shell · belum ada library/reader</p>
+        <p>Library · Suwayomi Server · reader belum tersedia</p>
       </footer>
     </div>
   );
