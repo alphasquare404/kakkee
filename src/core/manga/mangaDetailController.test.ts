@@ -48,6 +48,8 @@ function setup() {
   const setChaptersRead = vi.fn();
   const setChaptersBookmark = vi.fn();
   const enqueueDownload = vi.fn();
+  const enqueueDownloads = vi.fn();
+  const deleteDownloads = vi.fn();
   const deleteDownload = vi.fn();
   const setInLibrary = vi.fn();
   const repository = {
@@ -57,6 +59,8 @@ function setup() {
     setChaptersRead,
     setChaptersBookmark,
     enqueueDownload,
+    enqueueDownloads,
+    deleteDownloads,
     deleteDownload,
     setInLibrary,
   } as unknown as MangaRepository;
@@ -69,6 +73,8 @@ function setup() {
     setChaptersRead,
     setChaptersBookmark,
     enqueueDownload,
+    enqueueDownloads,
+    deleteDownloads,
     deleteDownload,
     setInLibrary,
   };
@@ -155,6 +161,21 @@ describe('createMangaDetailController', () => {
     expect(setChaptersBookmark).toHaveBeenCalledWith([1, 2], true);
     expect(controller.getState().chapters[0]?.isBookmarked).toBe(true);
     expect(controller.getState().chapters[0]?.isRead).toBe(true);
+  });
+
+  it('queues and deletes bulk chapter downloads', async () => {
+    const { controller, getDetail, enqueueDownloads, deleteDownloads } = setup();
+    getDetail.mockResolvedValue(page([chapter(2)]));
+    enqueueDownloads.mockResolvedValue(undefined);
+    deleteDownloads.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.enqueueChapterDownloads([2]);
+    await controller.deleteChapterDownloads([2]);
+
+    expect(enqueueDownloads).toHaveBeenCalledWith([2]);
+    expect(deleteDownloads).toHaveBeenCalledWith([2]);
+    expect(controller.getState().chapters[0]?.isDownloaded).toBe(false);
   });
 
   it('updates bookmark and download state', async () => {    const {

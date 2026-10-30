@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
+  DeleteDownloadedChaptersDocument,
+  EnqueueChapterDownloadsDocument,
   EnqueueDownloadDocument,
   SourceCatalogDocument,
   UpdateChapterProgressDocument,
@@ -63,6 +65,19 @@ describe('parity GraphQL operations', () => {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { value: 'EnqueueDownload' },
+    });
+  });
+
+  it('defines bulk download enqueue and delete mutations', () => {
+    expect(EnqueueChapterDownloadsDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'EnqueueChapterDownloads' },
+    });
+    expect(DeleteDownloadedChaptersDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'DeleteDownloadedChapters' },
     });
   });
 });

@@ -504,6 +504,36 @@ function ConnectedMangaDetail({
               <button
                 className="library-action"
                 type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() => {
+                  const ids = [...selectedChapterIds];
+                  setQueuedChapters((current) => {
+                    const next = new Set(current);
+                    ids.forEach((id) => next.add(id));
+                    return next;
+                  });
+                  void runChapterBulkAction((selected) =>
+                    controller.enqueueChapterDownloads(selected),
+                  );
+                }}
+              >
+                Download
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() =>
+                  void runChapterBulkAction((ids) =>
+                    controller.deleteChapterDownloads(ids),
+                  )
+                }
+              >
+                Delete download
+              </button>
+              <button
+                className="library-action"
+                type="button"
                 onClick={() => setSelectedChapterIds(new Set())}
               >
                 Clear

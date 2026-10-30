@@ -1,0 +1,7 @@
+mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {
+  enqueueChapterDownloads(input: $input) {
+    downloadStatus {
+      state
+    }
+  }
+}

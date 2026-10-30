@@ -19,9 +19,11 @@ type Documents = {
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": typeof types.ChapterFeedDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": typeof types.DeleteDownloadedChapterDocument,
+    "mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": typeof types.DeleteDownloadedChaptersDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.DequeueDownloadDocument,
     "query DownloadQueue {\n  downloadStatus {\n    state\n    queue {\n      position\n      progress\n      state\n      tries\n      chapter {\n        id\n        name\n        pageCount\n      }\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n  }\n}": typeof types.DownloadQueueDocument,
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": typeof types.DownloadStatusChangedDocument,
+    "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueDownloadDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": typeof types.FetchChapterPagesDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n    }\n  }\n}": typeof types.LibraryCategoriesDocument,
@@ -46,9 +48,11 @@ const documents: Documents = {
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": types.ChapterFeedDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": types.DeleteDownloadedChapterDocument,
+    "mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": types.DeleteDownloadedChaptersDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.DequeueDownloadDocument,
     "query DownloadQueue {\n  downloadStatus {\n    state\n    queue {\n      position\n      progress\n      state\n      tries\n      chapter {\n        id\n        name\n        pageCount\n      }\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n  }\n}": types.DownloadQueueDocument,
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": types.DownloadStatusChangedDocument,
+    "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueDownloadDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": types.FetchChapterPagesDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n    }\n  }\n}": types.LibraryCategoriesDocument,
@@ -105,6 +109,10 @@ export function graphql(source: "mutation DeleteDownloadedChapter($input: Delete
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}"): (typeof documents)["mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -114,6 +122,10 @@ export function graphql(source: "query DownloadQueue {\n  downloadStatus {\n    
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}"): (typeof documents)["subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

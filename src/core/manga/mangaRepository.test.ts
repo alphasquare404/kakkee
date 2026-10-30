@@ -2,6 +2,8 @@ import type { ApolloClient } from '@apollo/client';
 import { describe, expect, it, vi } from 'vitest';
 import {
   DeleteDownloadedChapterDocument,
+  DeleteDownloadedChaptersDocument,
+  EnqueueChapterDownloadsDocument,
   EnqueueDownloadDocument,
   UpdateChaptersStateDocument,
   type MangaDetailQuery,
@@ -195,6 +197,38 @@ describe('createMangaRepository', () => {
       expect.objectContaining({
         mutation: UpdateChaptersStateDocument,
         variables: { input: { ids: [2], patch: { isBookmarked: true } } },
+      }),
+    );
+  });
+
+  it('queues and deletes chapter downloads in bulk', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === EnqueueChapterDownloadsDocument) {
+        return { data: { enqueueChapterDownloads: { downloadStatus: {} } } };
+      }
+      if (mutation === DeleteDownloadedChaptersDocument) {
+        return { data: { deleteDownloadedChapters: { chapters: [] } } };
+      }
+      throw new Error('unexpected mutation');
+    });
+    const client = { mutate, query: vi.fn() } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.enqueueDownloads([2, 3]);
+    await repository.deleteDownloads([2, 3]);
+
+    expect(mutate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        mutation: EnqueueChapterDownloadsDocument,
+        variables: { input: { ids: [2, 3] } },
+      }),
+    );
+    expect(mutate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        mutation: DeleteDownloadedChaptersDocument,
+        variables: { input: { ids: [2, 3] } },
       }),
     );
   });

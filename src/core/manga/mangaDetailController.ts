@@ -34,6 +34,8 @@ export interface MangaDetailController {
     ids: readonly number[],
     isBookmarked: boolean,
   ): Promise<void>;
+  enqueueChapterDownloads(ids: readonly number[]): Promise<void>;
+  deleteChapterDownloads(ids: readonly number[]): Promise<void>;
   setChapterDownloaded(
     chapterId: number,
     isDownloaded: boolean,
@@ -295,6 +297,29 @@ export function createMangaDetailController(
     });
   }
 
+  async function enqueueChapterDownloads(
+    ids: readonly number[],
+  ): Promise<void> {
+    await options.repository.enqueueDownloads(ids);
+  }
+
+  async function deleteChapterDownloads(ids: readonly number[]): Promise<void> {
+    const requestGeneration = generation;
+
+    await options.repository.deleteDownloads(ids);
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    const selected = new Set(ids);
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        selected.has(chapter.id) ? { ...chapter, isDownloaded: false } : chapter,
+      ),
+    });
+  }
+
   async function setInLibrary(inLibrary: boolean): Promise<void> {    const requestGeneration = generation;
 
     await options.repository.setInLibrary(options.mangaId, inLibrary);
@@ -324,6 +349,8 @@ export function createMangaDetailController(
     setChapterBookmark,
     setChaptersRead,
     setChaptersBookmark,
+    enqueueChapterDownloads,
+    deleteChapterDownloads,
     setChapterDownloaded,
     setInLibrary,
   };

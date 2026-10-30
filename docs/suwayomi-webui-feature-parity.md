@@ -111,7 +111,7 @@ frontend.
 | Chapters | Bookmark/unbookmark | `Partial` | Yes | Per-chapter toggle on Manga Detail; bulk/bookmark filters absent |
 | Chapters | Mark read/unread and mark previous read | `Partial` | Yes | Single chapter toggle on Manga Detail; mark-previous/bulk absent |
 | Chapters | Download/delete download | `Partial` | Yes | Enqueue/delete per chapter on Detail; queue is in Downloads |
-| Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread and bookmark; bulk download/delete absent |
+| Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread, bookmark, download, and delete-download; range selection absent |
 | Chapters | Scanlator filter and duplicate handling | `Missing` | Yes | |
 | Chapters | Missing-chapter separators | `Missing` | Client-side | |
 | Chapters | Saved sort/filter preferences | `Missing` | Metadata/settings | |
