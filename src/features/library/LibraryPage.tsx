@@ -552,9 +552,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             className="category-tab"
             type="button"
             aria-pressed={library.categoryId === null}
+            aria-label="All"
             onClick={() => handleCategory(null)}
           >
             All
+            <span className="category-tab-count">
+              {library.totalCount.toLocaleString('en-US')}
+            </span>
           </button>
           {categories.categories.map((category) => (
             <button
@@ -562,9 +566,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               key={category.id}
               type="button"
               aria-pressed={library.categoryId === category.id}
+              aria-label={category.name}
               onClick={() => handleCategory(category)}
             >
               {category.name}
+              <span className="category-tab-count">
+                {category.mangas.totalCount.toLocaleString('en-US')}
+              </span>
             </button>
           ))}
         </div>

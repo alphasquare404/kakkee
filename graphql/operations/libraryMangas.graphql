@@ -16,6 +16,8 @@ query LibraryMangas(
       title
       thumbnailUrl
       thumbnailUrlLastFetched
+      unreadCount
+      downloadCount
     }
     pageInfo {
       endCursor

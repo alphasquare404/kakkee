@@ -17,7 +17,8 @@ describe('LibraryCategoriesDocument', () => {
     expect(source).toContain('id');
     expect(source).toContain('name');
     expect(source).toContain('order');
-    expect(source).not.toContain('mangas');
+    expect(source).toContain('mangas');
+    expect(source).toContain('totalCount');
     expect(source).not.toContain('preview');
   });
 });

@@ -4,6 +4,9 @@ query LibraryCategories {
       id
       name
       order
+      mangas {
+        totalCount
+      }
     }
   }
 }

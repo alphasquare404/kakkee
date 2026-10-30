@@ -66,6 +66,28 @@ export function MangaCard({
             {selected ? '✓' : ''}
           </span>
         ) : null}
+        {manga.unreadCount > 0 || manga.downloadCount > 0 ? (
+          <div className="manga-card-badges">
+            {manga.unreadCount > 0 ? (
+              <span
+                className="manga-card-badge is-unread"
+                title={`${manga.unreadCount} unread chapters`}
+              >
+                {manga.unreadCount > 99 ? '99+' : manga.unreadCount}
+                <span className="sr-only"> unread chapters</span>
+              </span>
+            ) : null}
+            {manga.downloadCount > 0 ? (
+              <span
+                className="manga-card-badge is-downloaded"
+                title={`${manga.downloadCount} downloaded chapters`}
+              >
+                ↓{manga.downloadCount > 99 ? '99+' : manga.downloadCount}
+                <span className="sr-only"> downloaded chapters</span>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
       <h2 className="manga-card-title" title={manga.title}>
         {manga.title}

@@ -79,8 +79,8 @@ frontend.
 | Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Missing` | Client-side | |
 | Library | Sync button | `Missing` | StartSync mutation | |
-| Library | Show unread/download badges | `Missing` | Yes | |
-| Library | Tab item counts | `Missing` | Yes | |
+| Library | Show unread/download badges | `Implemented` | Yes | Unread and downloaded chapter counts from `MangaType` |
+| Library | Tab item counts | `Implemented` | Yes | All total plus per-category manga counts |
 
 ### Manga Detail
 

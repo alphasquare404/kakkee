@@ -1027,6 +1027,14 @@ h2 {
   font-weight: var(--weight-semibold);
 }
 
+.category-tab-count {
+  margin-left: 0.35rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
 .category-tab[aria-pressed="true"]::after {
   opacity: 1;
   transform: scaleX(1);
@@ -1105,6 +1113,43 @@ h2 {
   line-height: 1;
   text-align: center;
   letter-spacing: -0.03em;
+}
+
+.manga-card-badges {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  left: 0.35rem;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.manga-card-badge {
+  display: inline-flex;
+  gap: 0.12rem;
+  align-items: center;
+  min-height: 1.15rem;
+  padding: 0 0.32rem;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 999px;
+  background: rgba(8, 12, 22, 0.82);
+  backdrop-filter: blur(5px);
+}
+
+.manga-card-badge.is-unread {
+  background: color-mix(in srgb, var(--accent) 82%, #000);
+}
+
+.manga-card-badge.is-downloaded {
+  margin-left: auto;
+  background: rgba(10, 34, 26, 0.9);
+  color: #a7f3d0;
 }
 
 /* Cards are links to Manga Detail. */

@@ -31,6 +31,8 @@ function libraryData(overrides: Partial<LibraryMangasQuery['mangas']> = {}): Lib
           title: 'Alpha',
           thumbnailUrl: '/api/v1/manga/1/thumbnail',
           thumbnailUrlLastFetched: '100',
+          unreadCount: 3,
+          downloadCount: 1,
         },
         {
           __typename: 'MangaType',
@@ -38,6 +40,8 @@ function libraryData(overrides: Partial<LibraryMangasQuery['mangas']> = {}): Lib
           title: 'Beta',
           thumbnailUrl: null,
           thumbnailUrlLastFetched: null,
+          unreadCount: 0,
+          downloadCount: 0,
         },
       ],
       pageInfo: {
@@ -78,8 +82,8 @@ function queryOptions(
 
 function categoryData(
   nodes: LibraryCategoriesQuery['categories']['nodes'] = [
-    { __typename: 'CategoryType', id: 0, name: 'Default', order: 0 },
-    { __typename: 'CategoryType', id: 3, name: 'Action', order: 3 },
+    { __typename: 'CategoryType', id: 0, name: 'Default', order: 0, mangas: { __typename: 'MangaNodeList', totalCount: 0 } },
+    { __typename: 'CategoryType', id: 3, name: 'Action', order: 3, mangas: { __typename: 'MangaNodeList', totalCount: 2 } },
   ],
 ): LibraryCategoriesQuery {
   return {
@@ -322,7 +326,7 @@ describe('createLibraryRepository categories', () => {
   it('uses the current client for each category request', async () => {
     const first = fakeCategoryClient();
     const second = fakeCategoryClient(
-      categoryData([{ __typename: 'CategoryType', id: 9, name: 'Later', order: 9 }]),
+      categoryData([{ __typename: 'CategoryType', id: 9, name: 'Later', order: 9, mangas: { __typename: 'MangaNodeList', totalCount: 1 } }]),
     );
     let current = first.client;
     const getClient = vi.fn(() => current);

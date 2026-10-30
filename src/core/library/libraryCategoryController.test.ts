@@ -3,7 +3,13 @@ import { createLibraryCategoryController } from './libraryCategoryController';
 import type { LibraryCategory } from './libraryRepository';
 
 function category(id: number, name = `Category ${id}`, order = id): LibraryCategory {
-  return { __typename: 'CategoryType', id, name, order };
+  return {
+    __typename: 'CategoryType',
+    id,
+    name,
+    order,
+    mangas: { __typename: 'MangaNodeList', totalCount: id },
+  };
 }
 
 function deferred<T>() {

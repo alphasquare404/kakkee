@@ -20,6 +20,8 @@ function manga(id: number, title = `Manga ${id}`): LibraryManga {
     title,
     thumbnailUrl: null,
     thumbnailUrlLastFetched: null,
+    unreadCount: 0,
+    downloadCount: 0,
   };
 }
 

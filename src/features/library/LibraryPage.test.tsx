@@ -32,13 +32,20 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
 });
 
-function manga(id: number, title: string): LibraryManga {
+function manga(
+  id: number,
+  title: string,
+  unreadCount = 0,
+  downloadCount = 0,
+): LibraryManga {
   return {
     __typename: 'MangaType',
     id,
     title,
     thumbnailUrl: `/api/v1/manga/${id}/thumbnail`,
     thumbnailUrlLastFetched: null,
+    unreadCount,
+    downloadCount,
   };
 }
 
@@ -62,8 +69,8 @@ function categoryData(): LibraryCategoriesQuery['categories'] {
   return {
     __typename: 'CategoryNodeList',
     nodes: [
-      { __typename: 'CategoryType', id: 0, name: 'Default', order: 0 },
-      { __typename: 'CategoryType', id: 3, name: 'Action', order: 3 },
+      { __typename: 'CategoryType', id: 0, name: 'Default', order: 0, mangas: { __typename: 'MangaNodeList', totalCount: 0 } },
+      { __typename: 'CategoryType', id: 3, name: 'Action', order: 3, mangas: { __typename: 'MangaNodeList', totalCount: 5 } },
     ],
   };
 }
@@ -221,6 +228,23 @@ describe('LibraryPage initial states', () => {
     expect(
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();
+  });
+
+  it('shows unread/download badges and category counts', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha', 3, 2)]));
+    });
+    renderLibrary(query);
+
+    expect(await screen.findByTitle('3 unread chapters')).toBeTruthy();
+    expect(screen.getByTitle('2 downloaded chapters')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: /Action/ }).textContent,
+    ).toContain('5');
   });
 
   it('keeps refine controls collapsed so the grid leads the page', async () => {
