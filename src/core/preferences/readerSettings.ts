@@ -1,13 +1,22 @@
+export type ReaderMode =
+  | 'vertical'
+  | 'webtoon'
+  | 'single'
+  | 'double'
+  | 'horizontal';
+
 export interface ReaderSettings {
   readonly widthRem: number;
   readonly gapPx: number;
   readonly background: string;
+  readonly mode: ReaderMode;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   widthRem: 62,
   gapPx: 2,
   background: '#05070c',
+  mode: 'vertical',
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -33,6 +42,7 @@ function load(): ReaderSettings {
         /^#[0-9a-f]{6}$/i.test(parsed.background)
           ? parsed.background
           : DEFAULT_READER_SETTINGS.background,
+      mode: isReaderMode(parsed.mode) ? parsed.mode : DEFAULT_READER_SETTINGS.mode,
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
@@ -48,6 +58,16 @@ function clampNumber(
   return typeof value === 'number' && Number.isFinite(value)
     ? Math.min(max, Math.max(min, value))
     : fallback;
+}
+
+function isReaderMode(value: unknown): value is ReaderMode {
+  return (
+    value === 'vertical' ||
+    value === 'webtoon' ||
+    value === 'single' ||
+    value === 'double' ||
+    value === 'horizontal'
+  );
 }
 
 function persist(next: ReaderSettings): void {
@@ -92,6 +112,7 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       /^#[0-9a-f]{6}$/i.test(patch.background)
         ? patch.background
         : state.background,
+    mode: isReaderMode(patch.mode) ? patch.mode : state.mode,
   };
   persist(state);
   notify();

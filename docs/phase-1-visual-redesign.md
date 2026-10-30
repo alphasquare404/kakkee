@@ -94,7 +94,8 @@ Top-level routes:
 - No app navigation on reader routes.
 - Full-width dark canvas, 62rem page column, glass top controls.
 - Real page count, previous/next chapter, per-page retry.
-- Vertical architecture preserved; no invented paged modes.
+- Reader settings: width, gap, background, and mode (vertical, webtoon,
+  single, double, horizontal).
 
 ### Updates / History / Downloads
 

@@ -122,10 +122,10 @@ frontend.
 |---|---|---|---|---|
 | Reader | Vertical continuous reader | `Implemented` | Yes | Current reader |
 | Reader | Desktop/mobile chrome | `Partial` | Client concern | Distraction-free shell, previous/next, page count; no chapter rail |
-| Reader | Single page mode | `Missing` | Client-side | |
-| Reader | Double page mode | `Missing` | Client-side | |
-| Reader | Horizontal continuous mode | `Missing` | Client-side | |
-| Reader | Webtoon mode + auto detection | `Missing` | Client-side | |
+| Reader | Single page mode | `Partial` | Client-side | Single-page layout and page controls; no double-spread pairing logic |
+| Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
+| Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
+| Reader | Webtoon mode + auto detection | `Partial` | Client-side | Webtoon layout exists; auto detection absent |
 | Reader | Reading direction (LTR/RTL) | `Missing` | Client-side | |
 | Reader | Page scale modes (width/height/screen/original) | `Missing` | Client-side | |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |

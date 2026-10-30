@@ -92,6 +92,18 @@ function ConnectedReader({
       ? explicitPage
       : (activeChapter?.lastPageRead ?? 0) + 1,
   );
+  const readingMode = readerSettings.mode;
+  const isPaged = readingMode === 'single' || readingMode === 'double';
+  const safeCurrentPage = Math.min(
+    Math.max(1, currentPage),
+    Math.max(1, reader.pages.length),
+  );
+  const pageIndices = isPaged
+    ? readingMode === 'single'
+      ? [safeCurrentPage - 1]
+      : [safeCurrentPage - 1, safeCurrentPage]
+    : reader.pages.map((_, index) => index);
+  const noopVisible = useCallback(() => undefined, []);
 
   progressRef.current = {
     chapterId: activeChapter?.id ?? 0,
@@ -205,7 +217,7 @@ function ConnectedReader({
           <h1>{activeChapter?.name ?? 'Loading chapter…'}</h1>
           {activeChapter && reader.pages.length > 0 ? (
             <span className="reader-page-total">
-              {currentPage} / {reader.pages.length}
+              {safeCurrentPage} / {reader.pages.length}
             </span>
           ) : null}
         </div>
@@ -226,6 +238,42 @@ function ConnectedReader({
             <span aria-disabled="true">Next</span>
           )}
         </nav>
+
+        {isPaged && activeChapter && reader.pages.length > 0 ? (
+          <nav className="reader-page-nav" aria-label="Page navigation">
+            <button
+              type="button"
+              disabled={safeCurrentPage <= 1}
+              onClick={() =>
+                setCurrentPage(
+                  Math.max(1, safeCurrentPage - (readingMode === 'double' ? 2 : 1)),
+                )
+              }
+            >
+              Previous page
+            </button>
+            <span>
+              Page {safeCurrentPage} of {reader.pages.length}
+            </span>
+            <button
+              type="button"
+              disabled={
+                safeCurrentPage >=
+                reader.pages.length - (readingMode === 'double' ? 1 : 0)
+              }
+              onClick={() =>
+                setCurrentPage(
+                  Math.min(
+                    reader.pages.length,
+                    safeCurrentPage + (readingMode === 'double' ? 2 : 1),
+                  ),
+                )
+              }
+            >
+              Next page
+            </button>
+          </nav>
+        ) : null}
       </header>
 
       {!activeChapter && !reader.error ? (
@@ -280,17 +328,24 @@ function ConnectedReader({
       ) : null}
 
       {activeChapter && reader.pages.length > 0 ? (
-        <main className="reader-pages" aria-label={`${activeChapter.name} pages`}>
-          {reader.pages.map((path, index) => (
-            <ReaderPageImage
-              key={path}
-              resources={context.resources}
-              path={path}
-              pageNumber={index + 1}
-              eager={index + 1 === requestedPage}
-              onVisible={handlePageVisible}
-            />
-          ))}
+        <main
+          className={`reader-pages mode-${readingMode}`}
+          aria-label={`${activeChapter.name} pages`}
+        >
+          {pageIndices.map((index) => {
+            const path = reader.pages[index];
+
+            return path ? (
+              <ReaderPageImage
+                key={path}
+                resources={context.resources}
+                path={path}
+                pageNumber={index + 1}
+                eager={isPaged || index + 1 === requestedPage}
+                onVisible={isPaged ? noopVisible : handlePageVisible}
+              />
+            ) : null;
+          })}
         </main>
       ) : null}
 

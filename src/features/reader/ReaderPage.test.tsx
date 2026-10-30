@@ -12,6 +12,10 @@ import {
 } from '../../core/graphql/generated/graphql';
 import type { ResourceService } from '../../core/resources/resourceService';
 import {
+  resetReaderSettings,
+  updateReaderSettings,
+} from '../../core/preferences/readerSettings';
+import {
   FakeConnectionCoordinator,
   makeConnectedState,
 } from '../../test/fakeConnectionCoordinator';
@@ -29,11 +33,14 @@ configure({ asyncUtilTimeout: 5000 });
 beforeEach(() => {
   window.scrollTo = vi.fn();
   Element.prototype.scrollIntoView = vi.fn();
+  window.localStorage.clear();
+  resetReaderSettings();
 });
 
 afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
+  resetReaderSettings();
 });
 
 function chapter(id: number, lastPageRead = 0) {
@@ -240,5 +247,16 @@ describe('ReaderPage', () => {
     await waitFor(() =>
       expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
     );
+  });
+
+  it('renders a single-page mode with page controls', async () => {
+    updateReaderSettings({ mode: 'single' });
+    renderReader();
+
+    expect(await screen.findByText('Page 1 of 2')).toBeTruthy();
+    expect(screen.getAllByRole('img', { name: /Page/ })).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: 'Next page' }),
+    ).toBeTruthy();
   });
 });

@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import {
   resetReaderSettings,
   updateReaderSettings,
+  type ReaderSettings,
 } from '../../core/preferences/readerSettings';
 import { useReaderSettings } from '../../shared/useReaderSettings';
 import { PageHeader } from '../../shared/PageHeader';
@@ -30,6 +31,29 @@ export function ReaderSettingsPage() {
             <h2 id="reader-layout-heading">Layout</h2>
           </div>
           <dl className="settings-rows">
+            <div>
+              <dt>
+                <label htmlFor="reader-mode">Reading mode</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-mode"
+                  className="settings-select"
+                  value={settings.mode}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      mode: event.target.value as ReaderSettings['mode'],
+                    })
+                  }
+                >
+                  <option value="vertical">Continuous vertical</option>
+                  <option value="webtoon">Webtoon</option>
+                  <option value="single">Single page</option>
+                  <option value="double">Double page</option>
+                  <option value="horizontal">Continuous horizontal</option>
+                </select>
+              </dd>
+            </div>
             <div>
               <dt>
                 <label htmlFor="reader-width">Reader width</label>

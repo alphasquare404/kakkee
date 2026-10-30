@@ -20,12 +20,18 @@ afterEach(() => {
 
 describe('reader settings', () => {
   it('updates and persists the selected layout', () => {
-    updateReaderSettings({ widthRem: 72, gapPx: 8, background: '#000000' });
+    updateReaderSettings({
+      widthRem: 72,
+      gapPx: 8,
+      background: '#000000',
+      mode: 'single',
+    });
 
     expect(getReaderSettings()).toEqual({
       widthRem: 72,
       gapPx: 8,
       background: '#000000',
+      mode: 'single',
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(
       '"widthRem":72',

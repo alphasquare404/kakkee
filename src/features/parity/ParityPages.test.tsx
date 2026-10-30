@@ -197,6 +197,15 @@ describe('parity pages', () => {
 
     expect(width.value).toBe('70');
     expect(screen.getByText('70 rem')).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Reading mode'), {
+      target: { value: 'single' },
+    });
+    expect(
+      JSON.parse(
+        window.localStorage.getItem('suwayomi.reader-settings.v1') ?? '{}',
+      ),
+    ).toMatchObject({ mode: 'single' });
   });
 
   it('applies the appearance theme to the document root', async () => {

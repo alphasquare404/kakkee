@@ -2399,6 +2399,61 @@ button.manga-card-link {
   padding-top: 0.25rem;
 }
 
+.reader-pages.mode-horizontal {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.reader-pages.mode-horizontal .reader-page {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
+.reader-pages.mode-single {
+  max-width: var(--reader-width, 62rem);
+}
+
+.reader-pages.mode-double {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: var(--reader-width, 62rem);
+}
+
+.reader-pages.mode-webtoon {
+  width: 100%;
+  max-width: none;
+  gap: 0;
+}
+
+.reader-page-nav {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border-top: 1px solid var(--border);
+}
+
+.reader-page-nav button {
+  min-height: 2rem;
+  padding: 0 0.65rem;
+  color: var(--text);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+}
+
+.reader-page-nav button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
 .reader-page {
   min-height: 8rem;
   border-radius: 0;
@@ -3186,6 +3241,16 @@ button.manga-card-link {
   display: flex;
   gap: var(--sp-3);
   align-items: center;
+}
+
+.settings-select {
+  min-height: 2.15rem;
+  padding: 0 1.8rem 0 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
 }
 
 .settings-range input {
