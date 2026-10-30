@@ -1,5 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  DeleteDownloadedChapterDocument,
+  EnqueueDownloadDocument,
   MangaDetailDocument,
   UpdateChapterProgressDocument,
   UpdateMangaLibraryDocument,
@@ -33,6 +35,9 @@ export interface MangaDetailInput {
 export interface MangaRepository {
   getDetail(input: MangaDetailInput): Promise<MangaDetailPage>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
+  setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
+  enqueueDownload(chapterId: number): Promise<void>;
+  deleteDownload(chapterId: number): Promise<void>;
   setInLibrary(mangaId: number, inLibrary: boolean): Promise<void>;
 }
 
@@ -92,6 +97,41 @@ export function createMangaRepository(
 
       if (!result.data?.updateChapter) {
         throw new Error('Status chapter tidak dapat disimpan.');
+      }
+    },
+    async setChapterBookmark(chapterId, isBookmarked) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateChapterProgressDocument,
+        variables: {
+          input: {
+            id: chapterId,
+            patch: { isBookmarked },
+          },
+        },
+      });
+
+      if (!result.data?.updateChapter) {
+        throw new Error('Bookmark chapter tidak dapat disimpan.');
+      }
+    },
+    async enqueueDownload(chapterId) {
+      const result = await options.getClient().mutate({
+        mutation: EnqueueDownloadDocument,
+        variables: { input: { id: chapterId } },
+      });
+
+      if (!result.data?.enqueueChapterDownload) {
+        throw new Error('Chapter tidak dapat dimasukkan ke antrean download.');
+      }
+    },
+    async deleteDownload(chapterId) {
+      const result = await options.getClient().mutate({
+        mutation: DeleteDownloadedChapterDocument,
+        variables: { input: { id: chapterId } },
+      });
+
+      if (!result.data?.deleteDownloadedChapter) {
+        throw new Error('Download chapter tidak dapat dihapus.');
       }
     },
     async setInLibrary(mangaId, inLibrary) {

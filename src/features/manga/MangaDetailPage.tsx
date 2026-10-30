@@ -82,6 +82,9 @@ function ConnectedMangaDetail({
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
+  const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
   const [libraryPending, setLibraryPending] = useState(false);
   const [libraryActionError, setLibraryActionError] = useState(false);
   const cover = useImageResource(
@@ -321,26 +324,89 @@ function ConnectedMangaDetail({
                         </span>
                       </span>
                     </Link>
-                    <button
-                      className={`chapter-read-toggle${
-                        chapter.isRead ? ' is-read' : ''
-                      }`}
-                      type="button"
-                      disabled={pendingChapterId === chapter.id}
-                      aria-label={`Mark ${chapter.name} as ${
-                        chapter.isRead ? 'unread' : 'read'
-                      }`}
-                      onClick={() => {
-                        setChapterActionError(false);
-                        setPendingChapterId(chapter.id);
-                        void controller
-                          .setChapterRead(chapter.id, !chapter.isRead)
-                          .catch(() => setChapterActionError(true))
-                          .finally(() => setPendingChapterId(null));
-                      }}
-                    >
-                      {chapter.isRead ? 'Read' : 'Unread'}
-                    </button>
+                    <div className="chapter-actions">
+                      <button
+                        className="chapter-icon-button"
+                        type="button"
+                        disabled={pendingChapterId === chapter.id}
+                        aria-label={`${
+                          chapter.isBookmarked ? 'Remove bookmark' : 'Bookmark'
+                        } ${chapter.name}`}
+                        aria-pressed={chapter.isBookmarked}
+                        onClick={() => {
+                          setChapterActionError(false);
+                          setPendingChapterId(chapter.id);
+                          void controller
+                            .setChapterBookmark(
+                              chapter.id,
+                              !chapter.isBookmarked,
+                            )
+                            .catch(() => setChapterActionError(true))
+                            .finally(() => setPendingChapterId(null));
+                        }}
+                      >
+                        {chapter.isBookmarked ? '★' : '☆'}
+                      </button>
+                      <button
+                        className="chapter-icon-button"
+                        type="button"
+                        disabled={pendingChapterId === chapter.id}
+                        aria-label={`${
+                          chapter.isDownloaded
+                            ? 'Delete download for'
+                            : queuedChapters.has(chapter.id)
+                              ? 'Queued download for'
+                              : 'Download'
+                        } ${chapter.name}`}
+                        aria-pressed={chapter.isDownloaded}
+                        onClick={() => {
+                          setChapterActionError(false);
+                          setPendingChapterId(chapter.id);
+                          void controller
+                            .setChapterDownloaded(
+                              chapter.id,
+                              chapter.isDownloaded,
+                            )
+                            .then(() => {
+                              if (!chapter.isDownloaded) {
+                                setQueuedChapters((current) => {
+                                  const next = new Set(current);
+                                  next.add(chapter.id);
+                                  return next;
+                                });
+                              }
+                            })
+                            .catch(() => setChapterActionError(true))
+                            .finally(() => setPendingChapterId(null));
+                        }}
+                      >
+                        {chapter.isDownloaded
+                          ? '×'
+                          : queuedChapters.has(chapter.id)
+                            ? '✓'
+                            : '↓'}
+                      </button>
+                      <button
+                        className={`chapter-read-toggle${
+                          chapter.isRead ? ' is-read' : ''
+                        }`}
+                        type="button"
+                        disabled={pendingChapterId === chapter.id}
+                        aria-label={`Mark ${chapter.name} as ${
+                          chapter.isRead ? 'unread' : 'read'
+                        }`}
+                        onClick={() => {
+                          setChapterActionError(false);
+                          setPendingChapterId(chapter.id);
+                          void controller
+                            .setChapterRead(chapter.id, !chapter.isRead)
+                            .catch(() => setChapterActionError(true))
+                            .finally(() => setPendingChapterId(null));
+                        }}
+                      >
+                        {chapter.isRead ? 'Read' : 'Unread'}
+                      </button>
+                    </div>
                   </li>
                 );
               })}

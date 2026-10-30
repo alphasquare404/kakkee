@@ -32,6 +32,8 @@ query MangaDetail(
       chapterNumber
       pageCount
       isRead
+      isBookmarked
+      isDownloaded
       lastPageRead
       scanlator
       uploadDate

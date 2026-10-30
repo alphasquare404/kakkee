@@ -1,6 +1,10 @@
 import type { ApolloClient } from '@apollo/client';
 import { describe, expect, it, vi } from 'vitest';
-import type { MangaDetailQuery } from '../graphql/generated/graphql';
+import {
+  DeleteDownloadedChapterDocument,
+  EnqueueDownloadDocument,
+  type MangaDetailQuery,
+} from '../graphql/generated/graphql';
 import { createMangaRepository } from './mangaRepository';
 
 function detailData(): MangaDetailQuery {
@@ -31,6 +35,8 @@ function detailData(): MangaDetailQuery {
           chapterNumber: 2,
           pageCount: 10,
           isRead: false,
+          isBookmarked: false,
+          isDownloaded: false,
           lastPageRead: 0,
           scanlator: null,
           uploadDate: '1',
@@ -130,6 +136,38 @@ describe('createMangaRepository', () => {
     expect(mutate).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { id: 1114, patch: { inLibrary: false } } },
+      }),
+    );
+  });
+
+  it('queues and deletes chapter downloads', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === EnqueueDownloadDocument) {
+        return { data: { enqueueChapterDownload: { downloadStatus: {} } } };
+      }
+      if (mutation === DeleteDownloadedChapterDocument) {
+        return { data: { deleteDownloadedChapter: { chapters: [] } } };
+      }
+      throw new Error('unexpected mutation');
+    });
+    const client = { mutate, query: vi.fn() } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.enqueueDownload(2);
+    await repository.deleteDownload(2);
+
+    expect(mutate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        mutation: EnqueueDownloadDocument,
+        variables: { input: { id: 2 } },
+      }),
+    );
+    expect(mutate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        mutation: DeleteDownloadedChapterDocument,
+        variables: { input: { id: 2 } },
       }),
     );
   });

@@ -10,6 +10,8 @@ function chapter(id: number) {
     chapterNumber: id,
     pageCount: 10,
     isRead: false,
+    isBookmarked: false,
+    isDownloaded: false,
     lastPageRead: 0,
     scanlator: null,
     uploadDate: '1',
@@ -42,10 +44,28 @@ function page(items = [chapter(2)]): MangaDetailPage {
 function setup() {
   const getDetail = vi.fn();
   const setChapterRead = vi.fn();
+  const setChapterBookmark = vi.fn();
+  const enqueueDownload = vi.fn();
+  const deleteDownload = vi.fn();
   const setInLibrary = vi.fn();
-  const repository = { getDetail, setChapterRead, setInLibrary } as unknown as MangaRepository;
+  const repository = {
+    getDetail,
+    setChapterRead,
+    setChapterBookmark,
+    enqueueDownload,
+    deleteDownload,
+    setInLibrary,
+  } as unknown as MangaRepository;
   const controller = createMangaDetailController({ repository, mangaId: 1 });
-  return { controller, getDetail, setChapterRead, setInLibrary };
+  return {
+    controller,
+    getDetail,
+    setChapterRead,
+    setChapterBookmark,
+    enqueueDownload,
+    deleteDownload,
+    setInLibrary,
+  };
 }
 
 describe('createMangaDetailController', () => {
@@ -115,8 +135,32 @@ describe('createMangaDetailController', () => {
     expect(getDetail).toHaveBeenCalledTimes(1);
   });
 
-  it('updates the in-library flag after the mutation succeeds', async () => {
-    const { controller, getDetail, setInLibrary } = setup();
+  it('updates bookmark and download state', async () => {
+    const {
+      controller,
+      getDetail,
+      setChapterBookmark,
+      enqueueDownload,
+      deleteDownload,
+    } = setup();
+    getDetail.mockResolvedValue(page([chapter(2)]));
+    setChapterBookmark.mockResolvedValue(undefined);
+    enqueueDownload.mockResolvedValue(undefined);
+    deleteDownload.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.setChapterBookmark(2, true);
+    await controller.setChapterDownloaded(2, false);
+    await controller.setChapterDownloaded(2, true);
+
+    expect(setChapterBookmark).toHaveBeenCalledWith(2, true);
+    expect(enqueueDownload).toHaveBeenCalledWith(2);
+    expect(deleteDownload).toHaveBeenCalledWith(2);
+    expect(controller.getState().chapters[0]?.isBookmarked).toBe(true);
+    expect(controller.getState().chapters[0]?.isDownloaded).toBe(false);
+  });
+
+  it('updates the in-library flag after the mutation succeeds', async () => {    const { controller, getDetail, setInLibrary } = setup();
     getDetail.mockResolvedValue(page());
     setInLibrary.mockResolvedValue(undefined);
     await controller.load();

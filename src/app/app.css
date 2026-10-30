@@ -1512,6 +1512,33 @@ h2 {
   background: transparent;
 }
 
+.chapter-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.chapter-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+}
+
+.chapter-icon-button:hover:not(:disabled),
+.chapter-icon-button[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: var(--accent-soft);
+}
+
 .chapter-read-toggle:hover:not(:disabled) {
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);

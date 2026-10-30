@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
+  EnqueueDownloadDocument,
   SourceCatalogDocument,
   UpdateChapterProgressDocument,
   UpdateMangaLibraryDocument,
@@ -54,6 +55,14 @@ describe('parity GraphQL operations', () => {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { value: 'UpdateMangasCategories' },
+    });
+  });
+
+  it('defines the enqueue download mutation', () => {
+    expect(EnqueueDownloadDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'EnqueueDownload' },
     });
   });
 });

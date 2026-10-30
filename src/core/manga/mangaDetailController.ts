@@ -28,6 +28,11 @@ export interface MangaDetailController {
   loadMore(): Promise<void>;
   setOrder(order: MangaChapterOrder): Promise<void>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
+  setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
+  setChapterDownloaded(
+    chapterId: number,
+    isDownloaded: boolean,
+  ): Promise<void>;
   setInLibrary(inLibrary: boolean): Promise<void>;
 }
 
@@ -202,8 +207,50 @@ export function createMangaDetailController(
     });
   }
 
-  async function setInLibrary(inLibrary: boolean): Promise<void> {
+  async function setChapterBookmark(
+    chapterId: number,
+    isBookmarked: boolean,
+  ): Promise<void> {
     const requestGeneration = generation;
+
+    await options.repository.setChapterBookmark(chapterId, isBookmarked);
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        chapter.id === chapterId ? { ...chapter, isBookmarked } : chapter,
+      ),
+    });
+  }
+
+  async function setChapterDownloaded(
+    chapterId: number,
+    isDownloaded: boolean,
+  ): Promise<void> {
+    const requestGeneration = generation;
+
+    if (isDownloaded) {
+      await options.repository.deleteDownload(chapterId);
+    } else {
+      await options.repository.enqueueDownload(chapterId);
+      return;
+    }
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        chapter.id === chapterId ? { ...chapter, isDownloaded: false } : chapter,
+      ),
+    });
+  }
+
+  async function setInLibrary(inLibrary: boolean): Promise<void> {    const requestGeneration = generation;
 
     await options.repository.setInLibrary(options.mangaId, inLibrary);
 
@@ -229,6 +276,8 @@ export function createMangaDetailController(
     loadMore,
     setOrder,
     setChapterRead,
+    setChapterBookmark,
+    setChapterDownloaded,
     setInLibrary,
   };
 }

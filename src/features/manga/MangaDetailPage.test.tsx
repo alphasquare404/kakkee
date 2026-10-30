@@ -35,6 +35,8 @@ function chapter(id: number, name = `Chapter ${id}`) {
     chapterNumber: id,
     pageCount: 17,
     isRead: false,
+    isBookmarked: false,
+    isDownloaded: false,
     lastPageRead: 0,
     scanlator: 'Scan',
     uploadDate: '1700000000000',
