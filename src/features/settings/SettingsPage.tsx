@@ -65,6 +65,9 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
               </div>
             </dl>
             <div className="settings-actions">
+              <Link className="button button-secondary" to="/settings/server">
+                Server settings
+              </Link>
               <button
                 className="button button-secondary"
                 type="button"

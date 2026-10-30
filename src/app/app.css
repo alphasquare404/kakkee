@@ -3156,6 +3156,75 @@ button.manga-card-link {
   background: var(--success-soft);
 }
 
+.settings-save-state {
+  margin: 0 0 var(--sp-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.settings-inline-error {
+  margin: 0 0 var(--sp-2);
+  padding: 0.55rem 0.7rem;
+  color: var(--danger);
+  font-size: var(--text-sm);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 9%, transparent);
+}
+
+.settings-toggle-list {
+  display: grid;
+  gap: 0.15rem;
+  margin-bottom: var(--sp-2);
+}
+
+.settings-toggle {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  padding: 0.35rem 0;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-toggle:last-child {
+  border-bottom: 0;
+}
+
+.settings-toggle input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent);
+}
+
+.settings-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.settings-number {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.settings-number input {
+  width: 100%;
+  min-height: 2.15rem;
+  padding: 0 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
 .settings-rows {
   display: grid;
   gap: 0;

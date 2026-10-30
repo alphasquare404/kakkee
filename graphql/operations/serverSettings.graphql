@@ -1,0 +1,23 @@
+query ServerSettings {
+  settings {
+    authMode
+    databaseType
+    updateMangas
+    autoDownloadNewChapters
+    autoDownloadNewChaptersLimit
+    downloadAsCbz
+    downloadsPath
+    maxSourcesInParallel
+    globalUpdateInterval
+    excludeCompleted
+    excludeNotStarted
+    excludeUnreadChapters
+    excludeEntryWithUnreadChapters
+    debugLogsEnabled
+    backupPath
+    backupInterval
+    webUIChannel
+    webUIFlavor
+    webUIInterface
+  }
+}

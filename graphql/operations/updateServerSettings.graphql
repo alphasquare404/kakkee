@@ -1,0 +1,17 @@
+mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {
+  setSettings(input: { settings: $settings }) {
+    settings {
+      updateMangas
+      autoDownloadNewChapters
+      autoDownloadNewChaptersLimit
+      downloadAsCbz
+      maxSourcesInParallel
+      globalUpdateInterval
+      excludeCompleted
+      excludeNotStarted
+      excludeUnreadChapters
+      excludeEntryWithUnreadChapters
+      debugLogsEnabled
+    }
+  }
+}

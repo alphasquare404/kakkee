@@ -65,6 +65,7 @@ Top-level routes:
 /settings                          Server/application information
 /settings/appearance               Theme selection
 /settings/library                  Grid density
+/settings/server                   Server behavior settings
 /settings/reader                   Reader layout preferences
 /manga/:mangaId                    Manga Detail
 /manga/:mangaId/chapter/:chapterId Reader

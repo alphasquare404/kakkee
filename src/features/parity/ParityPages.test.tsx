@@ -9,9 +9,11 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   DownloadQueueDocument,
+  ServerSettingsDocument,
   SourceCatalogDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
+  type ServerSettingsQuery,
   type SourceCatalogQuery,
 } from '../../core/graphql/generated/graphql';
 import { FakeConnectionCoordinator, makeConnectedState } from '../../test/fakeConnectionCoordinator';
@@ -73,6 +75,34 @@ function chapterFeed(): ChapterFeedQuery {
           },
         },
       ],
+    },
+  };
+}
+
+function serverSettings(): ServerSettingsQuery {
+  return {
+    __typename: 'Query',
+    settings: {
+      __typename: 'SettingsType',
+      authMode: 'NONE',
+      databaseType: 'H2',
+      updateMangas: true,
+      autoDownloadNewChapters: false,
+      autoDownloadNewChaptersLimit: 5,
+      downloadAsCbz: true,
+      downloadsPath: '/downloads',
+      maxSourcesInParallel: 3,
+      globalUpdateInterval: 24,
+      excludeCompleted: false,
+      excludeNotStarted: true,
+      excludeUnreadChapters: false,
+      excludeEntryWithUnreadChapters: false,
+      debugLogsEnabled: false,
+      backupPath: '/backups',
+      backupInterval: 24,
+      webUIChannel: 'STABLE',
+      webUIFlavor: 'WEBUI',
+      webUIInterface: 'BROWSER',
     },
   };
 }
@@ -184,6 +214,27 @@ describe('parity pages', () => {
     expect(screen.getByText('v2.4.2366 · Stable')).toBeTruthy();
     expect(screen.getByText('https://server.example/suwayomi')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Disconnect server' })).toBeTruthy();
+  });
+
+  it('renders server settings returned by the server', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ServerSettingsDocument) {
+        return { data: serverSettings() };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/settings/server', query);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Server settings' }),
+    ).toBeTruthy();
+    expect(screen.getByText('/downloads')).toBeTruthy();
+    expect(
+      (screen.getByRole('checkbox', {
+        name: 'Update library automatically',
+      }) as HTMLInputElement).checked,
+    ).toBe(true);
   });
 
   it('updates reader layout preferences from the Settings subpage', async () => {

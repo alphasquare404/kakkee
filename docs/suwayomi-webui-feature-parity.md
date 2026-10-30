@@ -213,12 +213,12 @@ frontend.
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
-| Settings | Download preferences and image processing | `Missing` | Yes | |
+| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
 | Settings | Browse/source/extension-store settings | `Missing` | Yes | |
 | Settings | History preferences | `Missing` | Metadata | |
 | Settings | Tracking settings | `Missing` | Yes | |
-| Settings | Server settings, authentication, database, OPDS/KOReader | `Missing` | Yes | |
-| Settings | WebUI channel/flavor/update settings | `Missing` | Yes | |
+| Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | `/settings/server` reads and writes safe update/download/system settings; auth/database/OPDS/KOReader editing absent |
+| Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
 | Settings | Device management | `Missing` | Metadata | |
 | Global search | Search all sources, global source filter, library counts | `Missing` | Yes | |
 | Global search | Search history/suggestions | `Missing` | Client metadata | |
