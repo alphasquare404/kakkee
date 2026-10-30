@@ -469,7 +469,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           {library.items.length > 0 ? (
             <div className="manga-grid">
               {library.items.map((manga) => (
-                <MangaCard key={manga.id} manga={manga} />
+                <MangaCard
+                  key={manga.id}
+                  manga={manga}
+                  resources={context.resources}
+                />
               ))}
             </div>
           ) : null}

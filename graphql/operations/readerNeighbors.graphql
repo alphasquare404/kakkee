@@ -1,0 +1,26 @@
+query ReaderNeighbors($mangaId: Int!, $chapterNumber: Float!) {
+  previous: chapters(
+    condition: { mangaId: $mangaId }
+    filter: { chapterNumber: { lessThan: $chapterNumber } }
+    first: 1
+    order: [{ by: CHAPTER_NUMBER, byType: DESC }]
+  ) {
+    nodes {
+      id
+      name
+      chapterNumber
+    }
+  }
+  next: chapters(
+    condition: { mangaId: $mangaId }
+    filter: { chapterNumber: { greaterThan: $chapterNumber } }
+    first: 1
+    order: [{ by: CHAPTER_NUMBER, byType: ASC }]
+  ) {
+    nodes {
+      id
+      name
+      chapterNumber
+    }
+  }
+}

@@ -173,7 +173,7 @@ Perilaku tidak berubah, hanya presentasi:
 
 ## Placeholder thumbnail
 
-Step 4 tetap tidak memakai `thumbnailUrl` sebagai `<img src>`, tidak fetch Blob, tidak membuat object URL, dan tidak menambahkan Authorization. Container `.manga-card-cover` siap menerima hasil ResourceService pada Step 5 tanpa redesign grid/card.
+Step 4 awalnya memakai placeholder. Step 5 menggantinya dengan thumbnail authenticated melalui `ResourceService`/`useImageResource`; placeholder initial tetap menjadi fallback jika thumbnail tidak tersedia. Detail ada di [phase-1-manga-reader.md](phase-1-manga-reader.md).
 
 ## Taste pass
 

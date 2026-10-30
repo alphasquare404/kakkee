@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), Step 3 (state controller), Step 3.5 (category support), dan Step 4 (React Library UI) selesai. Step 5 authenticated thumbnails dan Step 6 final polish belum dimulai. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, PWA shell, dan Library screen dengan placeholder cover tersedia.
+Status saat ini: **Phase 0 COMPLETE**. Phase 1 core reader journey tersedia: koneksi, Library dengan authenticated thumbnails, category/search/filter/sort, Manga Detail, chapter list, dan vertical reader dengan Previous/Next. Download/offline, source/extension UI, tracking, category management, dan progress write belum termasuk. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, PWA shell, dan Library/Detail/Reader screen tersedia.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Audit kontrak Phase 1: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md). Data layer: [docs/phase-1-library-data.md](docs/phase-1-library-data.md). State model: [docs/phase-1-library-state.md](docs/phase-1-library-state.md). Category: [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md). UI: [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Kontrak/data/state/category/UI Library: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md). Manga detail/reader: [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md).
 
 ## Kemampuan saat ini
 
@@ -14,14 +14,16 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - BASIC_AUTH dan SIMPLE_LOGIN ditampilkan sebagai tidak didukung, bukan fallback ke NONE.
 - Menampilkan nama/version/build/platform/architecture/server URL/auth mode/compatibility.
 - Disconnect/ganti server dengan generation guard.
-- Resource REST terautentikasi melalui service terpusat (belum ada komponen image).
+- Resource REST terautentikasi melalui service terpusat untuk thumbnail dan page reader.
 - Library data layer terpusat dengan pagination/filter/sort stable.
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
-- Library screen: search, category tabs, status filter, sort, responsive grid, placeholder cover, empty/error/load-more states.
+- Library screen: search, category tabs, status filter, sort, responsive grid, real thumbnails, empty/error/load-more states.
+- Manga Detail: metadata, cover, chapter list, chapter order, load more, and reader navigation.
+- Vertical Reader: authenticated pages, lazy page loading, page retry, previous/next chapter, keyboard navigation, and object URL cleanup.
 - PWA installable dengan shell-only cache dan update prompt.
 
-Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Library screen Step 4 sudah tersedia dengan placeholder cover. Manga detail, chapter, reader, source/extension/download UI, tracking, authenticated thumbnail, dan offline reading belum termasuk.
+Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia; source/extension/download UI, tracking, progress write, dan offline reading belum termasuk.
 
 ## Lingkup Step 1
 
@@ -188,6 +190,7 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ phase-1-library-state.md
 │  ├─ phase-1-library-categories.md
 │  ├─ phase-1-library-ui.md
+│  ├─ phase-1-manga-reader.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -197,9 +200,13 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │     ├─ aboutServer.graphql
 │     ├─ authProbe.graphql
 │     ├─ downloadStatusChanged.graphql
+│     ├─ fetchChapterPages.graphql
 │     ├─ libraryCategories.graphql
 │     ├─ libraryMangas.graphql
 │     ├─ login.graphql
+│     ├─ mangaDetail.graphql
+│     ├─ readerChapter.graphql
+│     ├─ readerNeighbors.graphql
 │     └─ refreshToken.graphql
 ├─ src/
 │  ├─ app/
@@ -250,6 +257,16 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  │  │  ├─ libraryController.test.ts
 │  │  │  ├─ libraryRepository.ts
 │  │  │  └─ libraryRepository.test.ts
+│  │  ├─ manga/
+│  │  │  ├─ mangaDetailController.ts
+│  │  │  ├─ mangaDetailController.test.ts
+│  │  │  ├─ mangaRepository.ts
+│  │  │  └─ mangaRepository.test.ts
+│  │  ├─ reader/
+│  │  │  ├─ readerController.ts
+│  │  │  ├─ readerController.test.ts
+│  │  │  ├─ readerRepository.ts
+│  │  │  └─ readerRepository.test.ts
 │  │  ├─ resources/
 │  │  │  ├─ resourceError.ts
 │  │  │  ├─ resourceService.ts
@@ -273,6 +290,15 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  │  ├─ LibraryMenu.tsx
 │  │  ├─ MangaCard.tsx
 │  │  └─ icons.tsx
+│  ├─ features/manga/
+│  │  ├─ MangaDetailPage.tsx
+│  │  └─ MangaDetailPage.test.tsx
+│  ├─ features/reader/
+│  │  ├─ ReaderPage.tsx
+│  │  └─ ReaderPage.test.tsx
+│  ├─ shared/
+│  │  ├─ useImageResource.ts
+│  │  └─ useImageResource.test.tsx
 │  ├─ test/fakeConnectionCoordinator.ts
 │  ├─ main.tsx
 │  └─ vite-env.d.ts
@@ -350,7 +376,7 @@ Scalar mapping:
 
 `Upload` dipetakan ke `File` karena input browser yang natural adalah `File` dari `<input type="file">`; Apollo Upload Client juga menerima `File`/`Blob`. Mapping ini belum dipakai oleh operasi Step 3.
 
-Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `LibraryCategories`, `LibraryMangas`, `Login`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`; kandidat Library memakai generated `LibraryMangasDocument` dan category navigation memakai `LibraryCategoriesDocument`.
+Operasi yang dibuat: `AboutServer`, `AuthProbe`, `DownloadStatusChanged`, `FetchChapterPages`, `LibraryCategories`, `LibraryMangas`, `Login`, `MangaDetail`, `ReaderChapter`, `ReaderNeighbors`, dan `RefreshToken`; field `revision` yang deprecated tidak dipakai. Operasi auth memakai generated `LoginMutation` dan `RefreshTokenMutation`; Library/detail/reader memakai generated documents masing-masing.
 
 `codegen:check` memakai mode `--check` bawaan GraphQL Code Generator. Mode ini melakukan generate secara dry-run dan keluar dengan status non-zero jika ada file stale, tanpa menulis ulang output. Ini sudah diverifikasi dengan injeksi drift sementara.
 
@@ -462,12 +488,14 @@ API:
 ```ts
 const service = createResourceService({ config, authService });
 
-const image = await service.loadImageResource('/api/v1/track/1/thumbnail', { signal });
+const image = await service.loadImageResource('/api/v1/manga/1114/thumbnail', { signal });
 // image.blob, image.objectUrl, image.contentType
 image.dispose();
 
 service.dispose();
 ```
+
+React consumers memakai `src/shared/useImageResource.ts`; hook ini memuat resource, membuat/mencabut object URL, membatalkan request saat path berubah/unmount, dan menyediakan retry. Dipakai untuk thumbnail Library, cover detail, dan page reader. Tidak ada `<img src={thumbnailUrl}>`, fetch manual, atau Authorization di UI.
 
 Aturan URL dan auth:
 
@@ -502,7 +530,7 @@ Lifecycle:
 - Generation `AuthService` diambil saat request dimulai. Bila logout/reset/ganti mode terjadi sebelum blob selesai, hasil menjadi `stale-session` dan object URL tidak dibuat.
 - Tidak ada cache persisten, cache resource, atau deduplikasi request pada Step 7.
 
-Runtime test memakai endpoint nyata `/api/v1/track/1/thumbnail` pada stable v2.4.2366: NONE 200 `image/png`; UI_LOGIN tanpa token 401 dan dengan Bearer 200.
+Runtime test memakai endpoint nyata `/api/v1/track/1/thumbnail` pada stable v2.4.2366: NONE 200 `image/png`; UI_LOGIN tanpa token 401 dan dengan Bearer 200. Runtime fitur juga memuat `/api/v1/manga/1114/thumbnail` dan `/api/v1/manga/1114/chapter/1185/page/0` (NONE 200, image/webp dan image/jpeg).
 
 ## Connection coordinator
 
@@ -713,7 +741,7 @@ npm run codegen        lulus
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (219 test; 7 runtime integration memerlukan env)
+npm run test           lulus (243 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 
@@ -833,10 +861,10 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, dan PWA shell tersedia; Phase 0 berstatus COMPLETE dan Phase 1 belum dimulai.
-- Server v2.4.2366 dijalankan untuk ekstraksi schema dan runtime probe transport/resource/coordinator/UI; tidak ada koneksi ke server produksi pengguna.
-- Repository Git sudah diinisialisasi; baseline Step 1–2 serta commit Step 3–10 dan final validation dibuat terpisah.
-- Belum ada offline reading, library/manga UI, reader, source/extension/download UI, authenticated image component, push notification, atau background sync.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, PWA shell, Library, Manga Detail, dan vertical Reader tersedia. Core reading journey sudah dapat dipakai; download/offline/source/extension/tracking belum.
+- Runtime browser menggunakan server pengguna `https://suwayomi.alphasquare.my.id` (NONE) untuk validasi read-only; tidak ada mutasi library.
+- Repository Git sudah diinisialisasi; commit Phase 0, library contract/data/state/category/UI, dan manga/reader dibuat terpisah.
+- Belum ada progress write/mark-read, continue reading, download/offline reading, source/extension/download UI, category management, push notification, atau background sync.
 - Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
 - `serverBaseUrl`, transport, resource, coordinator, connection UI, dan PWA sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.
 - Token dan server URL belum dipersistenkan; reload menghilangkan session dan input server.

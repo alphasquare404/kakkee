@@ -5,6 +5,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
+import type { ResourceService } from '../../core/resources/resourceService';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
@@ -90,11 +91,23 @@ function queryClient(
 
 function renderLibrary(query: ReturnType<typeof queryClient>) {
   const connected = makeConnectedState();
+  const resources = {
+    loadImageResource: vi.fn(async () => ({
+      blob: new Blob(),
+      objectUrl: 'blob:library-thumbnail',
+      contentType: 'image/png',
+      dispose: vi.fn(),
+    })),
+    loadResource: vi.fn(),
+    dispose: vi.fn(),
+    isDisposed: () => false,
+  } as unknown as ResourceService;
   const state = {
     ...connected,
     context: {
       ...connected.context,
       graphQL: { query } as unknown as ApolloClient,
+      resources,
     },
   };
   window.history.replaceState({}, '', '/library');
@@ -102,7 +115,7 @@ function renderLibrary(query: ReturnType<typeof queryClient>) {
   const coordinator = new FakeConnectionCoordinator(state);
   render(<App createCoordinator={() => coordinator} />);
 
-  return { coordinator, state };
+  return { coordinator, state, resources };
 }
 
 function libraryRegion() {
@@ -153,6 +166,12 @@ describe('LibraryPage initial states', () => {
     expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
     expect(screen.getByText('2 manga')).toBeTruthy();
     expect(screen.queryByRole('link', { name: 'Connection' })).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Alpha, manga details' }).getAttribute('href'),
+    ).toBe('/manga/1');
+    await waitFor(() => {
+      expect(document.querySelectorAll('img.manga-card-image')).toHaveLength(2);
+    });
   });
 
   it('keeps refine controls collapsed so the grid leads the page', async () => {

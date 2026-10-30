@@ -6,9 +6,9 @@ Dokumen ini berlaku untuk DeepSeek, ChatGPT Work, Codex, Claude, dan semua kontr
 
 Frontend React baru untuk Suwayomi Server, mendukung browser desktop/mobile dan PWA iOS/Android. Ini implementasi baru, bukan fork Suwayomi-WebUI. WebUI resmi hanya referensi. Target minimum yang disepakati adalah stable **v2.4.2366**, bukan klaim tentang rilis stable terbaru.
 
-**Phase 0 selesai dan tervalidasi.** Phase 1 Step 1 (audit kontrak Library), Step 2 (Library data layer), Step 3 (pagination/filter/state model), Step 3.5 (category support), dan Step 4 (React Library UI dengan placeholder cover) selesai. Step 5 authenticated thumbnail dan Step 6 final polish belum dimulai; mulai hanya setelah pengguna menugaskan. Bukti akhir Phase 0 ada di [docs/phase-0-validation.md](docs/phase-0-validation.md); kontrak/data/state/category/UI Library ada di [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), dan [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md).
+**Phase 0 selesai dan tervalidasi.** Phase 1 core reader journey tersedia: connection, Library dengan authenticated thumbnails/category/search/filter/sort, Manga Detail, chapter list, dan vertical Reader. Progress write, download/offline, source/extension/category management, dan tracking belum dimulai; mulai hanya setelah pengguna menugaskan. Bukti ada di [docs/phase-0-validation.md](docs/phase-0-validation.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md), dan [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md).
 
-Phase 0 hanya fondasi, koneksi, autentikasi NONE/UI_LOGIN, informasi aboutServer, dan PWA shell minimal. Library, daftar/detail manga, chapter, reader, sources, extensions, download UI, tracking, serta offline reading di luar scope.
+Phase 0 hanya fondasi. Phase 1 menambahkan Library, Manga Detail, chapter list, dan vertical Reader. Download/offline reading, source/extension/category management, tracking, dan progress write tetap di luar scope sampai ditugaskan.
 
 ## Baseline dan sumber API
 

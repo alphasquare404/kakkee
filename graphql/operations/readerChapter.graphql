@@ -1,0 +1,16 @@
+query ReaderChapter($chapterId: Int!) {
+  chapter(id: $chapterId) {
+    id
+    name
+    pageCount
+    chapterNumber
+    sourceOrder
+    isRead
+    lastPageRead
+    manga {
+      id
+      title
+      thumbnailUrl
+    }
+  }
+}

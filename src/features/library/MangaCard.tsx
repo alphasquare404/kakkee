@@ -1,22 +1,43 @@
+import { Link } from 'react-router-dom';
 import type { LibraryManga } from '../../core/library/libraryRepository';
+import type { ResourceService } from '../../core/resources/resourceService';
+import { useImageResource } from '../../shared/useImageResource';
 
 export interface MangaCardProps {
   readonly manga: LibraryManga;
+  readonly resources: ResourceService;
 }
 
-export function MangaCard({ manga }: MangaCardProps) {
-  const initial = manga.title.trim().charAt(0).toUpperCase();
+export function MangaCard({ manga, resources }: MangaCardProps) {
+  const thumbnail = useImageResource(resources, manga.thumbnailUrl);
 
   return (
-    <article className="manga-card">
-      <div className="manga-card-cover" aria-hidden="true">
-        <span className="manga-card-initial">{initial || '·'}</span>
-        <span className="manga-card-note">No cover</span>
-      </div>
-      <h2 className="manga-card-title" title={manga.title}>
-        {manga.title}
-      </h2>
-    </article>
+    <Link
+      className="manga-card-link"
+      to={`/manga/${manga.id}`}
+      aria-label={`${manga.title}, manga details`}
+    >
+      <article className="manga-card">
+        <div className="manga-card-cover">
+          {thumbnail.objectUrl ? (
+            <img
+              className="manga-card-image"
+              src={thumbnail.objectUrl}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <span className="manga-card-initial" aria-hidden="true">
+              {manga.title.trim().charAt(0).toUpperCase() || '·'}
+            </span>
+          )}
+        </div>
+        <h2 className="manga-card-title" title={manga.title}>
+          {manga.title}
+        </h2>
+      </article>
+    </Link>
   );
 }
 

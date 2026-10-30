@@ -1,0 +1,46 @@
+query MangaDetail(
+  $mangaId: Int!
+  $first: Int!
+  $after: Cursor
+  $order: [ChapterOrderInput!]
+) {
+  manga(id: $mangaId) {
+    id
+    title
+    author
+    artist
+    description
+    status
+    thumbnailUrl
+    thumbnailUrlLastFetched
+    genre
+    inLibrary
+    source {
+      id
+      name
+    }
+  }
+  chapters(
+    condition: { mangaId: $mangaId }
+    first: $first
+    after: $after
+    order: $order
+  ) {
+    nodes {
+      id
+      name
+      chapterNumber
+      pageCount
+      isRead
+      lastPageRead
+      scanlator
+      uploadDate
+      sourceOrder
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    totalCount
+  }
+}

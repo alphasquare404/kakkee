@@ -1,0 +1,183 @@
+// @vitest-environment jsdom
+
+import type { ApolloClient } from '@apollo/client';
+import { cleanup, configure, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { App } from '../../app/App';
+import type { ResourceService } from '../../core/resources/resourceService';
+import type { MangaDetailQuery } from '../../core/graphql/generated/graphql';
+import {
+  FakeConnectionCoordinator,
+  makeConnectedState,
+} from '../../test/fakeConnectionCoordinator';
+
+vi.mock('../../app/pwaUpdate', () => ({
+  usePwaUpdate: () => ({
+    needRefresh: [false, vi.fn()],
+    offlineReady: [false, vi.fn()],
+    updateServiceWorker: vi.fn(),
+  }),
+}));
+
+configure({ asyncUtilTimeout: 5000 });
+
+afterEach(() => {
+  cleanup();
+  window.history.replaceState({}, '', '/');
+});
+
+function chapter(id: number, name = `Chapter ${id}`) {
+  return {
+    __typename: 'ChapterType' as const,
+    id,
+    name,
+    chapterNumber: id,
+    pageCount: 17,
+    isRead: false,
+    lastPageRead: 0,
+    scanlator: 'Scan',
+    uploadDate: '1700000000000',
+    sourceOrder: id,
+  };
+}
+
+function detailData(overrides: Partial<MangaDetailQuery['chapters']> = {}): MangaDetailQuery {
+  return {
+    __typename: 'Query',
+    manga: {
+      __typename: 'MangaType',
+      id: 1114,
+      title: 'One Piece',
+      author: 'ODA Eiichiro',
+      artist: null,
+      description: 'A pirate adventure.',
+      status: 'ONGOING',
+      thumbnailUrl: '/api/v1/manga/1114/thumbnail',
+      thumbnailUrlLastFetched: '1',
+      genre: ['Action', 'Adventure'],
+      inLibrary: true,
+      source: { __typename: 'SourceType', id: '1', name: 'Weeb Central' },
+    },
+    chapters: {
+      __typename: 'ChapterNodeList',
+      totalCount: 2,
+      nodes: [chapter(1186)],
+      pageInfo: {
+        __typename: 'PageInfo',
+        endCursor: 'cursor-1186',
+        hasNextPage: true,
+      },
+      ...overrides,
+    },
+  };
+}
+
+function fakeResources(): ResourceService {
+  return {
+    loadImageResource: vi.fn(async (path: string) => ({
+      blob: new Blob(),
+      objectUrl: `blob:${path}`,
+      contentType: 'image/png',
+      dispose: vi.fn(),
+    })),
+    loadResource: vi.fn(),
+    dispose: vi.fn(),
+    isDisposed: () => false,
+  } as unknown as ResourceService;
+}
+
+function renderDetail(query: ReturnType<typeof vi.fn>) {
+  const connected = makeConnectedState();
+  const state = {
+    ...connected,
+    context: {
+      ...connected.context,
+      graphQL: { query } as unknown as ApolloClient,
+      resources: fakeResources(),
+    },
+  };
+  window.history.replaceState({}, '', '/manga/1114');
+  const coordinator = new FakeConnectionCoordinator(state);
+  render(<App createCoordinator={() => coordinator} />);
+}
+
+describe('MangaDetailPage', () => {
+  it('renders manga metadata, chapters, and a link to the reader', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    renderDetail(query);
+
+    expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
+    expect(screen.getByText('A pirate adventure.')).toBeTruthy();
+    expect(screen.getByText(/Weeb Central/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Chapter 1186/ }).getAttribute('href')).toBe(
+      '/manga/1114/chapter/1186',
+    );
+    expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(
+      '/library',
+    );
+  });
+
+  it('changes chapter order and requests the stable GraphQL order', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    const user = userEvent.setup();
+    renderDetail(query);
+    await screen.findByRole('heading', { name: 'One Piece' });
+
+    await user.selectOptions(screen.getByLabelText('Chapter order'), 'oldest');
+
+    await waitFor(() =>
+      expect(query).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: expect.objectContaining({
+            order: [{ by: 'SOURCE_ORDER', byType: 'ASC' }],
+          }),
+        }),
+      ),
+    );
+  });
+
+  it('loads more chapters without discarding the first page', async () => {
+    let call = 0;
+    const query = vi.fn(async () => {
+      call += 1;
+      return {
+        data:
+          call === 1
+            ? detailData()
+            : detailData({
+                nodes: [chapter(1185)],
+                pageInfo: {
+                  __typename: 'PageInfo',
+                  endCursor: null,
+                  hasNextPage: false,
+                },
+              }),
+      };
+    });
+    const user = userEvent.setup();
+    renderDetail(query);
+
+    await screen.findByRole('link', { name: /Chapter 1186/ });
+    await user.click(screen.getByRole('button', { name: 'Load more chapters' }));
+
+    expect(await screen.findByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Chapter 1186/ })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Load more chapters' })).toBeNull();
+  });
+
+  it('shows a retryable error without raw error details', async () => {
+    const query = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('internal stack details'))
+      .mockResolvedValueOnce({ data: detailData() });
+    const user = userEvent.setup();
+    renderDetail(query);
+
+    expect(await screen.findByRole('heading', { name: "Couldn't load manga" })).toBeTruthy();
+    expect(screen.queryByText(/internal stack/)).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
+  });
+});
