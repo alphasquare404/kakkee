@@ -164,6 +164,22 @@ describe('MangaDetailPage', () => {
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
   });
 
+  it('selects chapters for bulk actions', async () => {
+    const query = vi.fn(async () => ({
+      data: detailData({ nodes: [chapter(1186), chapter(1185)] }),
+    }));
+    const user = userEvent.setup();
+    renderDetail(query);
+    await screen.findByRole('link', { name: /Chapter 1186/ });
+
+    await user.click(screen.getByRole('button', { name: 'Select' }));
+    await user.click(screen.getByRole('button', { name: 'Select Chapter 1186' }));
+    await user.click(screen.getByRole('button', { name: 'Select Chapter 1185' }));
+
+    expect(screen.getByText('2 selected')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();
+  });
+
   it('loads more chapters without discarding the first page', async () => {    let call = 0;
     const query = vi.fn(async () => {
       call += 1;

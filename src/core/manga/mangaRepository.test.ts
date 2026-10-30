@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   DeleteDownloadedChapterDocument,
   EnqueueDownloadDocument,
+  UpdateChaptersStateDocument,
   type MangaDetailQuery,
 } from '../graphql/generated/graphql';
 import { createMangaRepository } from './mangaRepository';
@@ -168,6 +169,32 @@ describe('createMangaRepository', () => {
       expect.objectContaining({
         mutation: DeleteDownloadedChapterDocument,
         variables: { input: { id: 2 } },
+      }),
+    );
+  });
+
+  it('writes bulk chapter patches through UpdateChapters', async () => {
+    const mutate = vi.fn(async () => ({
+      data: { updateChapters: { chapters: [] } },
+    }));
+    const client = { mutate, query: vi.fn() } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.setChaptersRead([2, 3], true);
+    await repository.setChaptersBookmark([2], true);
+
+    expect(mutate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        mutation: UpdateChaptersStateDocument,
+        variables: { input: { ids: [2, 3], patch: { isRead: true } } },
+      }),
+    );
+    expect(mutate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        mutation: UpdateChaptersStateDocument,
+        variables: { input: { ids: [2], patch: { isBookmarked: true } } },
       }),
     );
   });

@@ -1,0 +1,10 @@
+mutation UpdateChaptersState($input: UpdateChaptersInput!) {
+  updateChapters(input: $input) {
+    chapters {
+      id
+      isRead
+      isBookmarked
+      isDownloaded
+    }
+  }
+}

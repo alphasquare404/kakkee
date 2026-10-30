@@ -35,6 +35,7 @@ type Documents = {
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": typeof types.UpdateChapterProgressDocument,
+    "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": typeof types.UpdateChaptersStateDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangaLibraryDocument,
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": typeof types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangasLibraryDocument,
@@ -61,6 +62,7 @@ const documents: Documents = {
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": types.UpdateChapterProgressDocument,
+    "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": types.UpdateChaptersStateDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangaLibraryDocument,
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangasLibraryDocument,
@@ -164,6 +166,10 @@ export function graphql(source: "mutation StopDownloader {\n  stopDownloader(inp
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}"): (typeof documents)["mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}"): (typeof documents)["mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

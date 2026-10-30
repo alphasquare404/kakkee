@@ -4,6 +4,7 @@ import {
   EnqueueDownloadDocument,
   MangaDetailDocument,
   UpdateChapterProgressDocument,
+  UpdateChaptersStateDocument,
   UpdateMangaLibraryDocument,
   type ChapterOrderInput,
   type MangaDetailQuery,
@@ -36,6 +37,11 @@ export interface MangaRepository {
   getDetail(input: MangaDetailInput): Promise<MangaDetailPage>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
   setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
+  setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
+  setChaptersBookmark(
+    ids: readonly number[],
+    isBookmarked: boolean,
+  ): Promise<void>;
   enqueueDownload(chapterId: number): Promise<void>;
   deleteDownload(chapterId: number): Promise<void>;
   setInLibrary(mangaId: number, inLibrary: boolean): Promise<void>;
@@ -52,6 +58,25 @@ export function chapterOrderInput(order: MangaChapterOrder): ChapterOrderInput[]
       byType: order === 'oldest' ? 'ASC' : 'DESC',
     },
   ];
+}
+
+async function updateChaptersPatch(
+  options: MangaRepositoryOptions,
+  ids: readonly number[],
+  patch: { readonly isRead?: boolean; readonly isBookmarked?: boolean },
+): Promise<void> {
+  if (ids.length === 0) {
+    return;
+  }
+
+  const result = await options.getClient().mutate({
+    mutation: UpdateChaptersStateDocument,
+    variables: { input: { ids: [...ids], patch } },
+  });
+
+  if (!result.data?.updateChapters) {
+    throw new Error('Status chapter tidak dapat disimpan.');
+  }
 }
 
 export function createMangaRepository(
@@ -123,6 +148,12 @@ export function createMangaRepository(
       if (!result.data?.enqueueChapterDownload) {
         throw new Error('Chapter tidak dapat dimasukkan ke antrean download.');
       }
+    },
+    async setChaptersRead(ids, isRead) {
+      await updateChaptersPatch(options, ids, { isRead });
+    },
+    async setChaptersBookmark(ids, isBookmarked) {
+      await updateChaptersPatch(options, ids, { isBookmarked });
     },
     async deleteDownload(chapterId) {
       const result = await options.getClient().mutate({

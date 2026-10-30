@@ -1539,6 +1539,46 @@ h2 {
   align-items: center;
 }
 
+.chapter-bulk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  align-items: center;
+  margin-bottom: var(--sp-2);
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  border-radius: 8px;
+  background: rgba(20, 29, 48, 0.78);
+}
+
+.chapter-bulk-bar strong {
+  margin-right: var(--sp-2);
+  font-size: var(--text-sm);
+}
+
+.chapter-bulk-bar .library-action {
+  border: 1px solid var(--border);
+}
+
+.chapter-select-check {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  color: #fff;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: transparent;
+}
+
+.chapter-select-check.is-selected {
+  border-color: transparent;
+  background: var(--accent);
+}
+
 .chapter-icon-button {
   display: inline-grid;
   place-items: center;

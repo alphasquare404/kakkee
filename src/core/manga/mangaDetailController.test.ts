@@ -45,6 +45,8 @@ function setup() {
   const getDetail = vi.fn();
   const setChapterRead = vi.fn();
   const setChapterBookmark = vi.fn();
+  const setChaptersRead = vi.fn();
+  const setChaptersBookmark = vi.fn();
   const enqueueDownload = vi.fn();
   const deleteDownload = vi.fn();
   const setInLibrary = vi.fn();
@@ -52,6 +54,8 @@ function setup() {
     getDetail,
     setChapterRead,
     setChapterBookmark,
+    setChaptersRead,
+    setChaptersBookmark,
     enqueueDownload,
     deleteDownload,
     setInLibrary,
@@ -62,6 +66,8 @@ function setup() {
     getDetail,
     setChapterRead,
     setChapterBookmark,
+    setChaptersRead,
+    setChaptersBookmark,
     enqueueDownload,
     deleteDownload,
     setInLibrary,
@@ -135,8 +141,23 @@ describe('createMangaDetailController', () => {
     expect(getDetail).toHaveBeenCalledTimes(1);
   });
 
-  it('updates bookmark and download state', async () => {
-    const {
+  it('applies bulk read and bookmark patches to the chapter page', async () => {
+    const { controller, getDetail, setChaptersRead, setChaptersBookmark } = setup();
+    getDetail.mockResolvedValue(page([chapter(2), chapter(1)]));
+    setChaptersRead.mockResolvedValue(undefined);
+    setChaptersBookmark.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.setChaptersRead([2], true);
+    await controller.setChaptersBookmark([1, 2], true);
+
+    expect(setChaptersRead).toHaveBeenCalledWith([2], true);
+    expect(setChaptersBookmark).toHaveBeenCalledWith([1, 2], true);
+    expect(controller.getState().chapters[0]?.isBookmarked).toBe(true);
+    expect(controller.getState().chapters[0]?.isRead).toBe(true);
+  });
+
+  it('updates bookmark and download state', async () => {    const {
       controller,
       getDetail,
       setChapterBookmark,

@@ -107,11 +107,11 @@ frontend.
 |---|---|---|---|---|
 | Chapters | Chapter list with state, date, page count | `Implemented` | Yes | |
 | Chapters | Chapter pagination / load more | `Implemented` | Yes | |
-| Chapters | Select single/multiple/range chapters | `Missing` | Client concern | |
+| Chapters | Select single/multiple/range chapters | `Partial` | Client concern | Explicit selection mode and multi-select; chapter range selection absent |
 | Chapters | Bookmark/unbookmark | `Partial` | Yes | Per-chapter toggle on Manga Detail; bulk/bookmark filters absent |
 | Chapters | Mark read/unread and mark previous read | `Partial` | Yes | Single chapter toggle on Manga Detail; mark-previous/bulk absent |
 | Chapters | Download/delete download | `Partial` | Yes | Enqueue/delete per chapter on Detail; queue is in Downloads |
-| Chapters | Bulk chapter actions | `Missing` | Yes | |
+| Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread and bookmark; bulk download/delete absent |
 | Chapters | Scanlator filter and duplicate handling | `Missing` | Yes | |
 | Chapters | Missing-chapter separators | `Missing` | Client-side | |
 | Chapters | Saved sort/filter preferences | `Missing` | Metadata/settings | |

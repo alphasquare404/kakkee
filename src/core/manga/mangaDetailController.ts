@@ -29,6 +29,11 @@ export interface MangaDetailController {
   setOrder(order: MangaChapterOrder): Promise<void>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
   setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
+  setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
+  setChaptersBookmark(
+    ids: readonly number[],
+    isBookmarked: boolean,
+  ): Promise<void>;
   setChapterDownloaded(
     chapterId: number,
     isDownloaded: boolean,
@@ -250,6 +255,46 @@ export function createMangaDetailController(
     });
   }
 
+  async function setChaptersRead(
+    ids: readonly number[],
+    isRead: boolean,
+  ): Promise<void> {
+    const requestGeneration = generation;
+
+    await options.repository.setChaptersRead(ids, isRead);
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    const selected = new Set(ids);
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        selected.has(chapter.id) ? { ...chapter, isRead } : chapter,
+      ),
+    });
+  }
+
+  async function setChaptersBookmark(
+    ids: readonly number[],
+    isBookmarked: boolean,
+  ): Promise<void> {
+    const requestGeneration = generation;
+
+    await options.repository.setChaptersBookmark(ids, isBookmarked);
+
+    if (requestGeneration !== generation) {
+      return;
+    }
+
+    const selected = new Set(ids);
+    patch({
+      chapters: state.chapters.map((chapter) =>
+        selected.has(chapter.id) ? { ...chapter, isBookmarked } : chapter,
+      ),
+    });
+  }
+
   async function setInLibrary(inLibrary: boolean): Promise<void> {    const requestGeneration = generation;
 
     await options.repository.setInLibrary(options.mangaId, inLibrary);
@@ -277,6 +322,8 @@ export function createMangaDetailController(
     setOrder,
     setChapterRead,
     setChapterBookmark,
+    setChaptersRead,
+    setChaptersBookmark,
     setChapterDownloaded,
     setInLibrary,
   };

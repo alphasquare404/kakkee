@@ -85,6 +85,11 @@ function ConnectedMangaDetail({
     'all' | 'unread' | 'read' | 'downloaded' | 'bookmarked'
   >('all');
   const [scanlator, setScanlator] = useState('all');
+  const [chapterSelectionMode, setChapterSelectionMode] = useState(false);
+  const [selectedChapterIds, setSelectedChapterIds] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
+  const [chapterBulkBusy, setChapterBulkBusy] = useState(false);
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
   const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
@@ -184,6 +189,41 @@ function ConnectedMangaDetail({
       .toLowerCase()
       .includes(query);
   });
+
+  const toggleChapterSelected = (chapterId: number) => {
+    setSelectedChapterIds((current) => {
+      const next = new Set(current);
+
+      if (next.has(chapterId)) {
+        next.delete(chapterId);
+      } else {
+        next.add(chapterId);
+      }
+
+      return next;
+    });
+  };
+
+  const runChapterBulkAction = async (
+    action: (ids: readonly number[]) => Promise<void>,
+  ) => {
+    if (selectedChapterIds.size === 0) {
+      return;
+    }
+
+    setChapterBulkBusy(true);
+    setChapterActionError(false);
+
+    try {
+      await action([...selectedChapterIds]);
+      setSelectedChapterIds(new Set());
+      setChapterSelectionMode(false);
+    } catch {
+      setChapterActionError(true);
+    } finally {
+      setChapterBulkBusy(false);
+    }
+  };
 
   return (
     <div className="app-shell detail-shell">
@@ -343,6 +383,20 @@ function ConnectedMangaDetail({
           </div>
 
           <div className="chapter-toolbar">
+            <button
+              className={`library-action${chapterSelectionMode ? ' is-active' : ''}`}
+              type="button"
+              aria-pressed={chapterSelectionMode}
+              onClick={() => {
+                if (chapterSelectionMode) {
+                  setSelectedChapterIds(new Set());
+                }
+                setChapterSelectionMode((value) => !value);
+              }}
+            >
+              {chapterSelectionMode ? 'Done' : 'Select'}
+            </button>
+
             <label className="chapter-search">
               <span className="sr-only">Search chapters</span>
               <input
@@ -396,6 +450,67 @@ function ConnectedMangaDetail({
             ) : null}
           </div>
 
+          {chapterSelectionMode ? (
+            <div className="chapter-bulk-bar" role="toolbar" aria-label="Bulk chapter actions">
+              <strong>{selectedChapterIds.size} selected</strong>
+              <button
+                className="library-action"
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() =>
+                  void runChapterBulkAction((ids) =>
+                    controller.setChaptersRead(ids, true),
+                  )
+                }
+              >
+                Mark read
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() =>
+                  void runChapterBulkAction((ids) =>
+                    controller.setChaptersRead(ids, false),
+                  )
+                }
+              >
+                Mark unread
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() =>
+                  void runChapterBulkAction((ids) =>
+                    controller.setChaptersBookmark(ids, true),
+                  )
+                }
+              >
+                Bookmark
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() =>
+                  void runChapterBulkAction((ids) =>
+                    controller.setChaptersBookmark(ids, false),
+                  )
+                }
+              >
+                Remove bookmark
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                onClick={() => setSelectedChapterIds(new Set())}
+              >
+                Clear
+              </button>
+            </div>
+          ) : null}
+
           {detail.chapters.length === 0 ? (
             <p className="chapter-empty">No chapters available.</p>
           ) : visibleChapters.length === 0 ? (
@@ -407,6 +522,19 @@ function ConnectedMangaDetail({
 
                 return (
                   <li className="chapter-item" key={chapter.id}>
+                    {chapterSelectionMode ? (
+                      <button
+                        className={`chapter-select-check${
+                          selectedChapterIds.has(chapter.id) ? ' is-selected' : ''
+                        }`}
+                        type="button"
+                        aria-pressed={selectedChapterIds.has(chapter.id)}
+                        aria-label={`Select ${chapter.name}`}
+                        onClick={() => toggleChapterSelected(chapter.id)}
+                      >
+                        {selectedChapterIds.has(chapter.id) ? '✓' : ''}
+                      </button>
+                    ) : null}
                     <Link
                       className="chapter-row"
                       to={`/manga/${manga.id}/chapter/${chapter.id}`}
