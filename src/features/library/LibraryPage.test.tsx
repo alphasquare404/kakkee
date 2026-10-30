@@ -261,6 +261,11 @@ describe('LibraryPage initial states', () => {
     expect(
       screen.getByRole('link', { name: 'Alpha, manga details' }).getAttribute('title'),
     ).toBe('Continue reading Chapter 10 — page 5');
+    expect(
+      screen
+        .getByRole('link', { name: 'Continue reading Chapter 10 — page 5' })
+        .getAttribute('href'),
+    ).toBe('/manga/1/chapter/10?page=5');
   });
 
   it('shows unread/download badges and category counts', async () => {

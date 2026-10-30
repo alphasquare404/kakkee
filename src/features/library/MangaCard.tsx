@@ -126,7 +126,7 @@ export function MangaCard({
     );
   }
 
-  return (
+  const card = (
     <Link
       className="manga-card-link"
       to={`/manga/${manga.id}`}
@@ -147,6 +147,25 @@ export function MangaCard({
     >
       {content}
     </Link>
+  );
+
+  if (!progress) {
+    return card;
+  }
+
+  return (
+    <div className="manga-card-frame">
+      {card}
+      <Link
+        className="manga-card-continue"
+        to={`/manga/${manga.id}/chapter/${progress.id}${
+          progress.lastPageRead > 0 ? `?page=${progress.lastPageRead + 1}` : ''
+        }`}
+        aria-label={`Continue reading ${progressLabel}`}
+      >
+        Continue reading
+      </Link>
+    </div>
   );
 }
 

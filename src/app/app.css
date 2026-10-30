@@ -1145,6 +1145,28 @@ h2 {
   backdrop-filter: blur(5px);
 }
 
+.manga-card-frame {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.manga-card-continue {
+  display: block;
+  overflow: hidden;
+  padding: 0.24rem 0.4rem;
+  color: var(--accent);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 5px;
+  background: var(--accent-soft);
+}
+
 .manga-card-badge {
   display: inline-flex;
   gap: 0.12rem;
