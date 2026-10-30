@@ -8,6 +8,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
+  DownloadQueueDocument,
   SourceCatalogDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
@@ -179,5 +180,39 @@ describe('parity pages', () => {
     expect(screen.getByText('v2.4.2366 · Stable')).toBeTruthy();
     expect(screen.getByText('https://server.example/suwayomi')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Disconnect server' })).toBeTruthy();
+  });
+
+  it('renders the real download queue and downloaded feed states', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === DownloadQueueDocument) {
+        return {
+          data: {
+            downloadStatus: {
+              state: 'STOPPED',
+              queue: [],
+            },
+          },
+        };
+      }
+
+      if (document === ChapterFeedDocument) {
+        return {
+          data: {
+            chapters: {
+              nodes: [],
+              totalCount: 0,
+            },
+          },
+        };
+      }
+
+      throw new Error('unexpected query');
+    });
+    renderPage('/downloads', query);
+
+    expect(await screen.findByRole('heading', { name: 'Downloads' })).toBeTruthy();
+    expect(await screen.findByText('The download queue is empty.')).toBeTruthy();
+    expect(screen.getByText('No downloaded chapters on this server.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Resume downloads' })).toBeTruthy();
   });
 });

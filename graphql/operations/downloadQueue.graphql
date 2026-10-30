@@ -1,0 +1,21 @@
+query DownloadQueue {
+  downloadStatus {
+    state
+    queue {
+      position
+      progress
+      state
+      tries
+      chapter {
+        id
+        name
+        pageCount
+      }
+      manga {
+        id
+        title
+        thumbnailUrl
+      }
+    }
+  }
+}

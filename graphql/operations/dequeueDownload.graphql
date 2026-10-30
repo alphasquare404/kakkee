@@ -1,0 +1,7 @@
+mutation DequeueDownload($input: DequeueChapterDownloadInput!) {
+  dequeueChapterDownload(input: $input) {
+    downloadStatus {
+      state
+    }
+  }
+}

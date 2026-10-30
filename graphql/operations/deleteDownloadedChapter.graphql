@@ -1,0 +1,8 @@
+mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {
+  deleteDownloadedChapter(input: $input) {
+    chapters {
+      id
+      isDownloaded
+    }
+  }
+}

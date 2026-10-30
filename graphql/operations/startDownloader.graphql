@@ -1,0 +1,7 @@
+mutation StartDownloader {
+  startDownloader(input: {}) {
+    downloadStatus {
+      state
+    }
+  }
+}

@@ -1,0 +1,7 @@
+mutation StopDownloader {
+  stopDownloader(input: {}) {
+    downloadStatus {
+      state
+    }
+  }
+}

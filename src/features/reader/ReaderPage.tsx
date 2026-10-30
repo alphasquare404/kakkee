@@ -318,7 +318,7 @@ function ReaderPageImage({
           onVisible(pageNumber);
         }
       },
-      { threshold: 0.55 },
+      { threshold: 0.2 },
     );
 
     observer.observe(element);

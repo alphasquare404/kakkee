@@ -132,7 +132,7 @@ frontend.
 | Reader | Page gap, first-page offset, safe-area inset | `Missing` | Client-side | |
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
 | Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
-| Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead` and marks read on final page; live mutation not yet exercised on the audit server |
+| Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
 | Reader | Resume at last page | `Missing` | Reading progress | |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Missing` | Client-side | |
@@ -162,9 +162,9 @@ frontend.
 | History | Last chapter per manga / per day | `Missing` | Client-side | |
 | History | Resume / clear / remove history | `Missing` | Yes | |
 | History | Hide history setting | `Missing` | Metadata | |
-| Downloads | Download queue, active/queued/failed states | `Missing` | DownloadStatus + subscriptions | |
-| Downloads | Pause/resume, retry, cancel, delete | `Missing` | Yes | |
-| Downloads | Grouping, bulk series actions, progress/speed | `Missing` | Yes | |
+| Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
+| Downloads | Pause/resume, retry, cancel, delete | `Partial` | Yes | Pause/resume, cancel, and delete are implemented; retry-all-failed is absent |
+| Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Progress and per-row actions; no grouping/bulk/speed |
 | Downloads | List downloaded chapters | `Partial` | Yes | Real `isDownloaded` feed |
 | Downloads | Download/conversion/image settings | `Missing` | Yes | |
 

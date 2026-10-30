@@ -61,7 +61,7 @@ Top-level routes:
 /browse                            Source catalog
 /categories                        Categories and manga counts
 /history                           Server-provided reading history
-/downloads                         Downloaded chapters
+/downloads                         Download queue + downloaded chapters
 /settings                          Real server/application information
 /manga/:mangaId                    Manga Detail
 /manga/:mangaId/chapter/:chapterId Reader
@@ -97,9 +97,10 @@ Top-level routes:
 
 - Real chapter feeds from supported chapter filters.
 - Date groups, unread/read state, scanlator/page metadata, cover resources.
-- Honest partial-state labels (“Latest 40 of …”) because cursor pagination for
-  these feeds is not implemented yet.
-- No fake download progress or queue controls.
+- Downloads now shows the real server queue state/progress/tries, pause/resume,
+  cancel, and delete actions, plus the real downloaded-chapter feed.
+- Honest partial-state labels (“Latest 40 of …” / “100 of 2762”) because cursor
+  pagination for these feeds is not implemented yet.
 
 ### Browse / Categories
 

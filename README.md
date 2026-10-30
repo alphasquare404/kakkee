@@ -24,7 +24,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Browse: installed sources with language/NSFW/latest metadata.
 - Categories: server categories with real manga counts.
 - History: server-provided last-read chapters and page state.
-- Downloads: downloaded chapters and page totals.
+- Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
 - Settings: real server/version/auth/compatibility/platform information and disconnect.
 - Manga Detail: metadata, cover, chapter list, chapter order, single-chapter read toggle, in-library toggle, load more, and reader navigation.
 - Vertical Reader: authenticated pages, lazy page loading, page retry, previous/next chapter, keyboard navigation, and object URL cleanup.
@@ -230,6 +230,14 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │     ├─ chapterFeed.graphql
 │     ├─ sourceCatalog.graphql
 │     ├─ categoryCatalog.graphql
+│     ├─ chapterFeed.graphql
+│     ├─ downloadQueue.graphql
+│     ├─ startDownloader.graphql
+│     ├─ stopDownloader.graphql
+│     ├─ dequeueDownload.graphql
+│     ├─ deleteDownloadedChapter.graphql
+│     ├─ updateChapterProgress.graphql
+│     ├─ updateMangaLibrary.graphql
 │     ├─ libraryCategories.graphql
 │     ├─ libraryMangas.graphql
 │     ├─ login.graphql
@@ -780,7 +788,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (265 test; 7 runtime integration memerlukan env)
+npm run test           lulus (270 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 
@@ -901,7 +909,7 @@ Smoke test build produksi:
 ## Batasan dan unknown
 
 - Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, PWA shell, Library, Updates, Browse, Categories, History, Downloads, Settings, Manga Detail, dan vertical Reader tersedia. Progress baca ditulis melalui `UpdateChapter`; exact page resume, download/offline, source/extension browsing, tracking, migration, dan full Settings parity belum.
-- Runtime browser menggunakan server pengguna `https://suwayomi.alphasquare.my.id` (NONE) untuk validasi read-only; progress mutation belum dijalankan terhadap server nyata pada audit ini.
+- Runtime browser menggunakan server pengguna `https://suwayomi.alphasquare.my.id` (NONE) untuk validasi read-only, kecuali satu progress update `UpdateChapter` pada chapter 2820 yang diverifikasi round-trip; tidak ada mutasi library.
 - Repository Git sudah diinisialisasi; commit Phase 0, library contract/data/state/category/UI, manga/reader, visual shell, dan parity baseline dibuat terpisah.
 - Belum ada exact page resume, library continue-reading, download/offline reading, source/extension/download UI, category management, tracking, migration, sync, backup, push notification, atau background sync.
 - Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
