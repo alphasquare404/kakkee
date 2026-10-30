@@ -3471,6 +3471,68 @@ button.manga-card-link {
   text-decoration: none;
 }
 
+.manga-tracking {
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.manga-tracking-list {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.manga-track-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: end;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(17, 24, 39, 0.48);
+}
+
+.manga-track-main {
+  display: grid;
+  flex: 1 1 12rem;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.manga-track-main strong {
+  font-size: var(--text-sm);
+}
+
+.manga-track-main span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manga-track-field {
+  display: grid;
+  gap: 0.15rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.manga-track-field select,
+.manga-track-field input {
+  min-height: 2rem;
+  padding: 0 0.4rem;
+  color: var(--text);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-sunken);
+}
+
+.manga-track-field input {
+  width: 4.5rem;
+}
+
 .source-mark,
 .category-mark {
   display: inline-grid;

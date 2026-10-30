@@ -1,0 +1,26 @@
+query MangaTracking($mangaId: Int!) {
+  manga(id: $mangaId) {
+    id
+    trackRecords {
+      nodes {
+        id
+        trackerId
+        title
+        status
+        score
+        displayScore
+        private
+        remoteUrl
+        tracker {
+          id
+          name
+          scores
+          statuses {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+}

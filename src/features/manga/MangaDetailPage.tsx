@@ -12,6 +12,7 @@ import {
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
+import { MangaTrackingSection } from './MangaTrackingSection';
 
 const STATUS_LABEL: Record<string, string> = {
   UNKNOWN: 'Unknown',
@@ -390,6 +391,8 @@ function ConnectedMangaDetail({
             )}
           </div>
         </header>
+
+        <MangaTrackingSection context={context} mangaId={manga.id} />
 
         <nav className="detail-tabs" aria-label="Manga sections">
           <button

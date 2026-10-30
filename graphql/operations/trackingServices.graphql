@@ -10,6 +10,11 @@ query TrackingServices {
       supportsPrivateTracking
       supportsReadingDates
       supportsTrackDeletion
+      scores
+      statuses {
+        name
+        value
+      }
     }
   }
 }

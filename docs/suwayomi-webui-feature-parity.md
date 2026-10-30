@@ -94,7 +94,7 @@ frontend.
 | Manga | Share | `Missing` | Client concern | |
 | Manga | Refresh metadata/chapters from source | `Missing` | Yes | |
 | Manga | Migration entry point | `Missing` | Yes | |
-| Manga | Tracker binding/score/status | `Missing` | Yes | |
+| Manga | Tracker binding/score/status | `Partial` | Yes | Linked records, status/score editing, and unlink; search/bind absent |
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
 | Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
@@ -193,8 +193,8 @@ frontend.
 | Migration | Resume/abort via Web Locks | `Missing` | Platform/secure context | |
 | Migration | Client data migration options | `Missing` | Yes | |
 | Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
-| Tracking | Manga search, bind/unbind, private binding | `Missing` | Yes | |
-| Tracking | Score/progress/status and sync behavior | `Missing` | Yes | |
+| Tracking | Manga search, bind/unbind, private binding | `Partial` | Yes | Unbind and record editing implemented; search/bind/private binding absent |
+| Tracking | Score/progress/status and sync behavior | `Partial` | Yes | Score and status editing; progress sync mutation absent |
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
 | Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
 | Categories | Assignment and default-category behavior | `Missing` | Yes | |

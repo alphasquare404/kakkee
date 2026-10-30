@@ -1,0 +1,11 @@
+mutation UpdateTrack($input: UpdateTrackInput!) {
+  updateTrack(input: $input) {
+    trackRecord {
+      id
+      status
+      score
+      displayScore
+      trackerId
+    }
+  }
+}
