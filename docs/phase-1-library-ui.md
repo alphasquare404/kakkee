@@ -1,7 +1,7 @@
 # Phase 1 — Library React UI
 
 Tanggal: **29 Oktober 2026**
-Status: **Step 4 implemented** (desain dirombak pada Step 4 polish, lalu dirapikan pada Taste pass); Step 5 authenticated thumbnails belum dimulai.
+Status: **Step 4 implemented** (desain dirombak pada Step 4 polish, lalu dirapikan pada Taste pass); Step 5 authenticated thumbnails, Manga Detail, dan Reader menggantikan placeholder/navigasi terbatas — lihat [phase-1-manga-reader.md](phase-1-manga-reader.md).
 
 ## Arah desain
 
@@ -141,11 +141,11 @@ Source filter **tidak dibuat**. Foundation belum punya source list/name boundary
 
 ## Manga grid dan card
 
-- Grid `repeat(auto-fill, minmax(clamp(8.25rem, 11vw, 9.75rem), 1fr))`; ±10 kolom pada 1920, 7 kolom pada 1280, 2 kolom pada 390.
-- Card hanya berisi placeholder cover (rasio 2:3) dan judul; belum ada navigasi ke Manga Detail.
-- Placeholder cover: bidang netral `--surface-sunken`, inisial judul, dan label kecil `No cover`. Tidak ada gradient atau efek dekoratif.
-- Judul: 0.8125 rem, weight 600, clamp dua baris, `title` attribute untuk teks penuh, `overflow-wrap: anywhere`.
-- Hover (hanya pada perangkat `hover: hover`): cover terangkat 2 px dengan border dan shadow lebih tegas.
+- Grid `repeat(auto-fill, minmax(clamp(8.25rem, 11vw, 9.75rem), 1fr))`; sekitar 10 kolom pada 1920, 7–8 pada 1280, 2 pada 390.
+- Step 5 mengganti placeholder dengan authenticated thumbnail; card sekarang adalah Link ke `/manga/:id`.
+- Fallback cover (thumbnail tidak tersedia/gagal): bidang netral `--surface-sunken` dan inisial judul.
+- Judul: 0.8125 rem, weight 550–600, clamp dua baris, `title` attribute untuk teks penuh, `overflow-wrap: anywhere`.
+- Hover (hanya pada perangkat `hover: hover`): border cover menguat; tidak ada lift/shadow berlebihan.
 - Tanpa animasi masuk: kartu tampil langsung (stagger dan fade dihapus pada Taste pass).
 - Skeleton 12 kartu statis tanpa pulse; status loading ditandai count “Loading…” dan `aria-busy`.
 
