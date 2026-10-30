@@ -1931,6 +1931,91 @@ h2 {
   transition: transform var(--dur-base) var(--ease-out);
 }
 
+button.manga-card-link {
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.manga-card-link.is-selected .manga-card-cover {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--accent) 58%, transparent),
+    var(--shadow-card);
+}
+
+.manga-card-select {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.45rem;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(7, 10, 18, 0.62);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.manga-card-link.is-selected .manga-card-select {
+  border-color: transparent;
+  background: var(--accent);
+}
+
+.library-selection-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  border-radius: 9px;
+  background: rgba(20, 29, 48, 0.82);
+}
+
+.library-selection-bar strong {
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.library-selection-bar .library-action {
+  border: 1px solid var(--border);
+}
+
+.library-action.is-danger {
+  color: var(--danger);
+}
+
+.library-bulk-category select {
+  min-height: 2.25rem;
+  padding: 0 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
+.library-selection-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.library-selection-error {
+  color: var(--danger);
+  font-size: var(--text-xs);
+}
+
 .manga-card-cover {
   border-color: var(--border);
   border-radius: var(--radius-cover);

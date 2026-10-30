@@ -72,11 +72,11 @@ frontend.
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
 | Library | Random manga / random sort | `Missing` | Client concern | |
 | Library | Continue-reading button / tooltip | `Missing` | Reading progress | No progress writer |
-| Library | Manga selection, shift-click, long-press | `Missing` | Client concern | |
+| Library | Manga selection, shift-click, long-press | `Partial` | Client concern | Explicit selection mode + shift-click range; long-press not yet |
 | Library | Bulk download, delete downloads, mark read/unread | `Missing` | Yes | |
-| Library | Bulk category assignment | `Missing` | Yes | |
+| Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
 | Library | Bulk migrate | `Missing` | Yes | |
-| Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle is on Manga Detail; library bulk action absent |
+| Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Missing` | Client-side | |
 | Library | Sync button | `Missing` | StartSync mutation | |
 | Library | Show unread/download badges | `Missing` | Yes | |

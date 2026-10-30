@@ -5,6 +5,8 @@ import {
   SourceCatalogDocument,
   UpdateChapterProgressDocument,
   UpdateMangaLibraryDocument,
+  UpdateMangasCategoriesDocument,
+  UpdateMangasLibraryDocument,
 } from './generated/graphql';
 
 describe('parity GraphQL operations', () => {
@@ -39,6 +41,19 @@ describe('parity GraphQL operations', () => {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { value: 'UpdateMangaLibrary' },
+    });
+  });
+
+  it('defines bulk library and category mutations', () => {
+    expect(UpdateMangasLibraryDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'UpdateMangasLibrary' },
+    });
+    expect(UpdateMangasCategoriesDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'UpdateMangasCategories' },
     });
   });
 });

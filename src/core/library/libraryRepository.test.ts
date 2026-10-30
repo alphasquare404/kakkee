@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
+  UpdateMangasCategoriesDocument,
+  UpdateMangasLibraryDocument,
   type LibraryCategoriesQuery,
   type LibraryMangasQuery,
   type LibraryMangasQueryVariables,
@@ -376,5 +378,37 @@ describe('LibraryInputError', () => {
 
     expect(queryOptions(query).variables).not.toHaveProperty('condition');
     expect(queryOptions(query).variables?.filter).toBeUndefined();
+  });
+
+  it('writes bulk library and category mutations through generated operations', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === UpdateMangasCategoriesDocument) {
+        return { data: { updateMangasCategories: { mangas: [] } } };
+      }
+
+      return { data: { updateMangas: { mangas: [] } } };
+    });
+    const client = { mutate } as unknown as ApolloClient;
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await repository.setLibrary([1, 2], false);
+    await repository.addToCategory([1], 7);
+
+    expect(mutate).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        mutation: UpdateMangasLibraryDocument,
+        variables: { input: { ids: [1, 2], patch: { inLibrary: false } } },
+      }),
+    );
+    expect(mutate).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        mutation: UpdateMangasCategoriesDocument,
+        variables: {
+          input: { ids: [1], patch: { addToCategories: [7] } },
+        },
+      }),
+    );
   });
 });

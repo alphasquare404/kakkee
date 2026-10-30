@@ -57,17 +57,22 @@ function setup(options: {
   pageSize?: number;
 } = {}) {
   const getPage = vi.fn();
-  const repository = { getPage } as unknown as LibraryRepository;
+  const setLibrary = vi.fn();
+  const addToCategory = vi.fn();
+  const repository = {
+    getPage,
+    setLibrary,
+    addToCategory,
+  } as unknown as LibraryRepository;
   const controller = createLibraryController({ repository, ...options });
-  return { controller, getPage };
+  return { controller, getPage, setLibrary, addToCategory };
 }
 
 function state(controller: ReturnType<typeof setup>['controller']): LibraryState {
   return controller.getState();
 }
 
-describe('createLibraryController initial load', () => {
-  it('starts with a deterministic empty Library state and default criteria', () => {
+describe('createLibraryController initial load', () => {  it('starts with a deterministic empty Library state and default criteria', () => {
     const { controller } = setup();
     const initial = state(controller);
 
@@ -432,6 +437,33 @@ describe('createLibraryController criteria changes', () => {
 
     expect(state(controller).items.map((item) => item.id)).toEqual([2]);
     expect(state(controller).filter.search).toBe('new search');
+  });
+});
+
+describe('createLibraryController bulk actions', () => {
+  it('removes selected manga from the current page after the mutation succeeds', async () => {
+    const { controller, getPage, setLibrary } = setup();
+    getPage.mockResolvedValue(page([manga(1), manga(2)], { totalCount: 2 }));
+    setLibrary.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.removeFromLibrary([1]);
+
+    expect(setLibrary).toHaveBeenCalledWith([1], false);
+    expect(state(controller).items.map((item) => item.id)).toEqual([2]);
+    expect(state(controller).totalCount).toBe(1);
+  });
+
+  it('adds selected manga to a category without replacing the page', async () => {
+    const { controller, getPage, addToCategory } = setup();
+    getPage.mockResolvedValue(page([manga(1)]));
+    addToCategory.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.addToCategory([1], 7);
+
+    expect(addToCategory).toHaveBeenCalledWith([1], 7);
+    expect(getPage).toHaveBeenCalledTimes(1);
   });
 });
 

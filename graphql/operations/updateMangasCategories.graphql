@@ -1,0 +1,7 @@
+mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {
+  updateMangasCategories(input: $input) {
+    mangas {
+      id
+    }
+  }
+}

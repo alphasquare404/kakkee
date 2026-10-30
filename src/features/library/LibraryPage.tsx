@@ -131,6 +131,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [search, setSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [categoryChoice, setCategoryChoice] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkError, setBulkError] = useState(false);
 
   useEffect(() => {
     if (loadedLibrary.current !== controller) {
@@ -219,6 +226,78 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const handleCategory = (category: LibraryCategory | null) => {
     void controller.setCategory(category?.id ?? null);
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setLastSelectedIndex(null);
+    setConfirmRemove(false);
+    setCategoryChoice('');
+    setBulkError(false);
+  };
+
+  const toggleSelected = (index: number, mangaId: number, shiftKey: boolean) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+
+      if (shiftKey && lastSelectedIndex !== null) {
+        const start = Math.min(lastSelectedIndex, index);
+        const end = Math.max(lastSelectedIndex, index);
+
+        for (let position = start; position <= end; position += 1) {
+          const item = library.items[position];
+
+          if (item) {
+            next.add(item.id);
+          }
+        }
+      } else if (next.has(mangaId)) {
+        next.delete(mangaId);
+      } else {
+        next.add(mangaId);
+      }
+
+      return next;
+    });
+    setLastSelectedIndex(index);
+  };
+
+  const applyCategory = async () => {
+    if (!categoryChoice || selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.addToCategory([...selectedIds], Number(categoryChoice));
+      clearSelection();
+      setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const removeSelected = async () => {
+    if (selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.removeFromLibrary([...selectedIds]);
+      clearSelection();
+      setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
   };
 
   const isNarrowed = hasNarrowingCriteria(library.filter, library.categoryId);
@@ -337,6 +416,20 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
           <div className="library-actions" ref={actionsRef}>
             <button
+              className={`library-action${selectionMode ? ' is-active' : ''}`}
+              type="button"
+              aria-pressed={selectionMode}
+              onClick={() => {
+                if (selectionMode) {
+                  clearSelection();
+                }
+                setSelectionMode((value) => !value);
+              }}
+            >
+              {selectionMode ? 'Done' : 'Select'}
+            </button>
+
+            <button
               ref={filterButton}
               className={`library-action${filterActive ? ' is-active' : ''}`}
               type="button"
@@ -431,6 +524,79 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         ) : null}
       </nav>
 
+      {selectionMode ? (
+        <div className="library-selection-bar" role="toolbar" aria-label="Bulk manga actions">
+          <strong>{selectedIds.size} selected</strong>
+
+          {confirmRemove ? (
+            <div className="library-selection-confirm">
+              <span>Remove {selectedIds.size} manga from library?</span>
+              <button
+                className="library-action is-danger"
+                type="button"
+                disabled={bulkBusy}
+                onClick={() => void removeSelected()}
+              >
+                Confirm
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                onClick={() => setConfirmRemove(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <>
+              <label className="library-bulk-category">
+                <span className="sr-only">Add selected manga to category</span>
+                <select
+                  value={categoryChoice}
+                  onChange={(event) => setCategoryChoice(event.target.value)}
+                >
+                  <option value="">Add to category…</option>
+                  {categories.categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                className="library-action"
+                type="button"
+                disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
+                onClick={() => void applyCategory()}
+              >
+                Apply category
+              </button>
+              <button
+                className="library-action is-danger"
+                type="button"
+                disabled={bulkBusy || selectedIds.size === 0}
+                onClick={() => setConfirmRemove(true)}
+              >
+                Remove from library
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                onClick={clearSelection}
+              >
+                Clear
+              </button>
+            </>
+          )}
+
+          {bulkError ? (
+            <span className="library-selection-error" role="alert">
+              Bulk action failed.
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
       <main className="library-main">
         <section
           className="library-results"
@@ -475,11 +641,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
           {library.items.length > 0 ? (
             <div className="manga-grid">
-              {library.items.map((manga) => (
+              {library.items.map((manga, index) => (
                 <MangaCard
                   key={manga.id}
                   manga={manga}
                   resources={context.resources}
+                  selectable={selectionMode}
+                  selected={selectedIds.has(manga.id)}
+                  onToggle={(shiftKey) =>
+                    toggleSelected(index, manga.id, shiftKey)
+                  }
                 />
               ))}
             </div>

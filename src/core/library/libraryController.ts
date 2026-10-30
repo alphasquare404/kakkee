@@ -54,6 +54,8 @@ export interface LibraryController {
   setFilter(filter: LibraryFilterCriteria): Promise<void>;
   setSort(sort: LibrarySort): Promise<void>;
   setCategory(categoryId: number | null): Promise<void>;
+  removeFromLibrary(ids: readonly number[]): Promise<void>;
+  addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
 }
 
 function initialState(options: LibraryControllerOptions): LibraryState {
@@ -271,6 +273,31 @@ export function createLibraryController(
     return loadFirstPage(state.filter, state.sort, categoryId);
   }
 
+  async function removeFromLibrary(ids: readonly number[]): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    await options.repository.setLibrary(ids, false);
+
+    const removed = new Set(ids);
+    patch({
+      items: state.items.filter((item) => !removed.has(item.id)),
+      totalCount: Math.max(0, state.totalCount - ids.length),
+    });
+  }
+
+  async function addToCategory(
+    ids: readonly number[],
+    categoryId: number,
+  ): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    await options.repository.addToCategory(ids, categoryId);
+  }
+
   return {
     getState: () => state,
     subscribe: (listener) => {
@@ -286,5 +313,7 @@ export function createLibraryController(
     setFilter,
     setSort,
     setCategory,
+    removeFromLibrary,
+    addToCategory,
   };
 }

@@ -174,6 +174,29 @@ describe('LibraryPage initial states', () => {
     });
   });
 
+  it('enters selection mode and selects a manga card', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha'), manga(2, 'Beta')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    await user.click(screen.getByRole('button', { name: 'Select' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Alpha, not selected' }),
+    );
+
+    expect(screen.getByText('1 selected')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Alpha, selected' }),
+    ).toBeTruthy();
+  });
+
   it('keeps refine controls collapsed so the grid leads the page', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {

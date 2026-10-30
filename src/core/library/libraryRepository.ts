@@ -2,6 +2,8 @@ import type { ApolloClient } from '@apollo/client';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
+  UpdateMangasCategoriesDocument,
+  UpdateMangasLibraryDocument,
   type LibraryCategoriesQuery,
   type LibraryMangasQuery,
   type LibraryMangasQueryVariables,
@@ -69,6 +71,8 @@ export class LibraryInputError extends Error {
 export interface LibraryRepository {
   getPage(input?: LibraryPageInput): Promise<LibraryPage>;
   getCategories(): Promise<readonly LibraryCategory[]>;
+  setLibrary(ids: readonly number[], inLibrary: boolean): Promise<void>;
+  addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
 }
 
 export interface LibraryRepositoryOptions {
@@ -215,6 +219,36 @@ export function createLibraryRepository(
       }
 
       return result.data.categories.nodes;
+    },
+    async setLibrary(ids, inLibrary) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateMangasLibraryDocument,
+        variables: {
+          input: {
+            ids: [...ids],
+            patch: { inLibrary },
+          },
+        },
+      });
+
+      if (!result.data?.updateMangas) {
+        throw new Error('Status library manga tidak dapat disimpan.');
+      }
+    },
+    async addToCategory(ids, categoryId) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateMangasCategoriesDocument,
+        variables: {
+          input: {
+            ids: [...ids],
+            patch: { addToCategories: [categoryId] },
+          },
+        },
+      });
+
+      if (!result.data?.updateMangasCategories) {
+        throw new Error('Kategori manga tidak dapat disimpan.');
+      }
     },
   };
 }
