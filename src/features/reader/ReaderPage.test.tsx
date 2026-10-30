@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, configure, render, screen } from '@testing-library/react';
+import { cleanup, configure, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import {
@@ -28,6 +28,7 @@ configure({ asyncUtilTimeout: 5000 });
 
 beforeEach(() => {
   window.scrollTo = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
 });
 
 afterEach(() => {
@@ -35,7 +36,7 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
 });
 
-function chapter(id: number) {
+function chapter(id: number, lastPageRead = 0) {
   return {
     __typename: 'ChapterType' as const,
     id,
@@ -44,7 +45,7 @@ function chapter(id: number) {
     chapterNumber: id,
     sourceOrder: id,
     isRead: false,
-    lastPageRead: 0,
+    lastPageRead,
     manga: {
       __typename: 'MangaType' as const,
       id: 1,
@@ -87,11 +88,11 @@ function fakeResources(failFirst = false) {
   return { resources, handles, loadImageResource };
 }
 
-function renderReader(failFirstImage = false) {
+function renderReader(failFirstImage = false, page?: number, progress = 0) {
   const { resources, handles, loadImageResource } = fakeResources(failFirstImage);
   const query = vi.fn(async ({ query: document }: { query: unknown }) => {
     if (document === ReaderChapterDocument) {
-      return { data: { chapter: chapter(10) } };
+      return { data: { chapter: chapter(10, progress) } };
     }
 
     if (document === ReaderNeighborsDocument) {
@@ -149,7 +150,11 @@ function renderReader(failFirstImage = false) {
       resources,
     },
   };
-  window.history.replaceState({}, '', '/manga/1/chapter/10');
+  window.history.replaceState(
+    {},
+    '',
+    `/manga/1/chapter/10${page ? `?page=${page}` : ''}`,
+  );
   const coordinator = new FakeConnectionCoordinator(state);
   render(<App createCoordinator={() => coordinator} />);
 
@@ -217,5 +222,23 @@ describe('ReaderPage', () => {
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
     expect(await screen.findByRole('heading', { name: "Couldn't load pages" })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Retry pages' })).toBeTruthy();
+  });
+
+  it('resumes at the requested page', async () => {
+    renderReader(false, 2);
+
+    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    await waitFor(() =>
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
+    );
+  });
+
+  it('resumes from stored progress when no page query is present', async () => {
+    renderReader(false, undefined, 1);
+
+    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    await waitFor(() =>
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
+    );
   });
 });

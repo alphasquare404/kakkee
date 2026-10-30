@@ -6,7 +6,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createReaderController } from '../../core/reader/readerController';
 import { createReaderRepository } from '../../core/reader/readerRepository';
@@ -65,6 +65,7 @@ function ConnectedReader({
   );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
   const readerSettings = useReaderSettings();
+  const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,6 +83,15 @@ function ConnectedReader({
   const chapter = reader.chapter;
   const activeChapter =
     chapter && chapter.id === chapterId ? chapter : null;
+  const explicitPage = searchParams.has('page')
+    ? Number.parseInt(searchParams.get('page') ?? '1', 10)
+    : null;
+  const requestedPage = Math.max(
+    1,
+    explicitPage && explicitPage > 0
+      ? explicitPage
+      : (activeChapter?.lastPageRead ?? 0) + 1,
+  );
 
   progressRef.current = {
     chapterId: activeChapter?.id ?? 0,
@@ -89,6 +99,26 @@ function ConnectedReader({
     total: reader.pages.length,
   };
   const activeChapterId = activeChapter?.id ?? 0;
+
+  useEffect(() => {
+    if (
+      !activeChapterId ||
+      reader.pages.length === 0 ||
+      requestedPage <= 1 ||
+      requestedPage > reader.pages.length
+    ) {
+      return;
+    }
+
+    setCurrentPage(requestedPage);
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`page-${requestedPage}`)
+        ?.scrollIntoView({ block: 'start' });
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [activeChapterId, reader.pages.length, requestedPage]);
 
   useEffect(() => {
     if (!activeChapterId || reader.pages.length === 0) {
@@ -257,6 +287,7 @@ function ConnectedReader({
               resources={context.resources}
               path={path}
               pageNumber={index + 1}
+              eager={index + 1 === requestedPage}
               onVisible={handlePageVisible}
             />
           ))}
@@ -302,15 +333,17 @@ function ReaderPageImage({
   resources,
   path,
   pageNumber,
+  eager = false,
   onVisible,
 }: {
   readonly resources: ResourceService;
   readonly path: string;
   readonly pageNumber: number;
+  readonly eager?: boolean;
   readonly onVisible: (pageNumber: number) => void;
 }) {
   const figure = useRef<HTMLElement>(null);
-  const [nearViewport, setNearViewport] = useState(pageNumber <= 2);
+  const [nearViewport, setNearViewport] = useState(pageNumber <= 2 || eager);
 
   useEffect(() => {
     if (typeof IntersectionObserver === 'undefined') {

@@ -88,7 +88,7 @@ frontend.
 |---|---|---|---|---|
 | Manga | Cover, title, author/artist, status, source, genres, description | `Implemented` | Yes | Ambient hero from real cover |
 | Manga | Library add/remove and category picker | `Partial` | Yes | Detail has an in-library toggle; category picker and bulk actions absent |
-| Manga | Continue reading from last page | `Partial` | Reading progress | Detail selects the in-progress chapter; exact page resume is not applied yet |
+| Manga | Continue reading from last page | `Implemented` | Reading progress | Detail links the in-progress chapter with `?page=`; reader resumes that page |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Missing` | Manga meta mutations | |
 | Manga | Share | `Missing` | Client concern | |
@@ -133,7 +133,7 @@ frontend.
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
 | Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
 | Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
-| Reader | Resume at last page | `Missing` | Reading progress | |
+| Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Missing` | Client-side | |
 | Reader | Skip duplicate chapters | `Missing` | Client-side | |

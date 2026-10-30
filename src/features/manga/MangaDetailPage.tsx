@@ -179,7 +179,11 @@ function ConnectedMangaDetail({
               {primaryChapter ? (
                 <Link
                   className="button detail-primary"
-                  to={`/manga/${manga.id}/chapter/${primaryChapter.id}`}
+                  to={`/manga/${manga.id}/chapter/${primaryChapter.id}${
+                    inProgressChapter && inProgressChapter.lastPageRead > 0
+                      ? `?page=${inProgressChapter.lastPageRead + 1}`
+                      : ''
+                  }`}
                 >
                   {inProgressChapter
                     ? 'Continue reading'
