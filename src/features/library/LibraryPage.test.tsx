@@ -46,6 +46,7 @@ function manga(
     thumbnailUrlLastFetched: null,
     unreadCount,
     downloadCount,
+    lastReadChapter: null,
   };
 }
 
@@ -228,6 +229,38 @@ describe('LibraryPage initial states', () => {
     expect(
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();
+  });
+
+  it('shows continue-reading progress on a poster', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(
+        page([
+          {
+            ...manga(1, 'Alpha'),
+            lastReadChapter: {
+              __typename: 'ChapterType',
+              id: 10,
+              name: 'Chapter 10',
+              chapterNumber: 10,
+              lastPageRead: 4,
+              pageCount: 20,
+            },
+          },
+        ]),
+      );
+    });
+    renderLibrary(query);
+
+    expect(
+      await screen.findByText('Continue Ch. 10 · p5'),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'Alpha, manga details' }).getAttribute('title'),
+    ).toBe('Continue reading Chapter 10 — page 5');
   });
 
   it('shows unread/download badges and category counts', async () => {

@@ -18,6 +18,13 @@ query LibraryMangas(
       thumbnailUrlLastFetched
       unreadCount
       downloadCount
+      lastReadChapter {
+        id
+        name
+        chapterNumber
+        lastPageRead
+        pageCount
+      }
     }
     pageInfo {
       endCursor

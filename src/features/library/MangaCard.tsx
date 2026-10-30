@@ -22,6 +22,14 @@ export function MangaCard({
   onLongPress,
 }: MangaCardProps) {
   const thumbnail = useImageResource(resources, manga.thumbnailUrl);
+  const progress = manga.lastReadChapter;
+  const progressLabel = progress
+    ? `${progress.name}${
+        progress.lastPageRead > 0
+          ? ` — page ${Math.min(progress.pageCount, progress.lastPageRead + 1)}`
+          : ''
+      }`
+    : null;
   const longPressTimer = useRef<number | null>(null);
   const longPressTriggered = useRef(false);
 
@@ -64,6 +72,15 @@ export function MangaCard({
         {selectable ? (
           <span className="manga-card-select" aria-hidden="true">
             {selected ? '✓' : ''}
+          </span>
+        ) : null}
+        {progress ? (
+          <span
+            className="manga-card-progress"
+            title={`Continue reading ${progressLabel}`}
+          >
+            Continue {progress.chapterNumber ? `Ch. ${progress.chapterNumber}` : ''}
+            {progress.lastPageRead > 0 ? ` · p${progress.lastPageRead + 1}` : ''}
           </span>
         ) : null}
         {manga.unreadCount > 0 || manga.downloadCount > 0 ? (
@@ -114,6 +131,7 @@ export function MangaCard({
       className="manga-card-link"
       to={`/manga/${manga.id}`}
       aria-label={`${manga.title}, manga details`}
+      title={progressLabel ? `Continue reading ${progressLabel}` : undefined}
       onPointerDown={startLongPress}
       onPointerUp={clearLongPress}
       onPointerCancel={clearLongPress}

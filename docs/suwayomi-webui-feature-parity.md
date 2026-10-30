@@ -71,7 +71,7 @@ frontend.
 | Library | Filter AND/OR mode and saved defaults | `Missing` | Metadata/settings | |
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
 | Library | Random manga / random sort | `Partial` | Client concern | Shuffles loaded cards; not a server-wide random query |
-| Library | Continue-reading button / tooltip | `Missing` | Reading progress | No progress writer |
+| Library | Continue-reading button / tooltip | `Partial` | Reading progress | Progress chip and tooltip show last chapter/page; direct resume button absent |
 | Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
 | Library | Bulk download, delete downloads, mark read/unread | `Implemented` | Yes | All four bulk actions implemented with confirmation for delete |
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |

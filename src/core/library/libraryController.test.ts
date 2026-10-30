@@ -22,6 +22,7 @@ function manga(id: number, title = `Manga ${id}`): LibraryManga {
     thumbnailUrlLastFetched: null,
     unreadCount: 0,
     downloadCount: 0,
+    lastReadChapter: null,
   };
 }
 
