@@ -780,7 +780,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (256 test; 7 runtime integration memerlukan env)
+npm run test           lulus (265 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 
