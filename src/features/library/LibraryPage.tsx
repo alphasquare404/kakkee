@@ -57,6 +57,7 @@ const SORT_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: 'dateAdded', label: 'Date added' },
   { value: 'lastFetched', label: 'Last fetched' },
   { value: 'id', label: 'ID' },
+  { value: 'random', label: 'Random' },
 ];
 
 const DIRECTION_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
@@ -88,6 +89,19 @@ function countLabel(totalCount: number, loading: boolean): string {
   }
 
   return `${totalCount.toLocaleString('en-US')} manga`;
+}
+
+function shuffled<T>(items: readonly T[], seed: number): readonly T[] {
+  const result = [...items];
+  let state = seed + 1;
+
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    state = (state * 1_664_525 + 1_013_904_223) >>> 0;
+    const swapIndex = state % (index + 1);
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+
+  return result;
 }
 
 export function LibraryPage() {
@@ -133,6 +147,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [search, setSearch] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
+  const [randomOrder, setRandomOrder] = useState(false);
+  const [randomSeed, setRandomSeed] = useState(0);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(new Set());
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
@@ -216,6 +232,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   };
 
   const handleSortField = (value: string) => {
+    if (value === 'random') {
+      setRandomOrder(true);
+      setRandomSeed((seed) => seed + 1);
+      return;
+    }
+
+    setRandomOrder(false);
     void controller.setSort({ ...library.sort, field: value as LibrarySortField });
   };
 
@@ -306,7 +329,32 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const filterActive = Boolean(library.filter.status);
   const searchActive = Boolean(library.filter.search?.trim());
   const sortActive =
-    library.sort.field !== 'dateAdded' || library.sort.direction !== 'desc';
+    randomOrder ||
+    library.sort.field !== 'dateAdded' ||
+    library.sort.direction !== 'desc';
+  const hasAnyRefinement = isNarrowed || sortActive;
+  const displayedItems = randomOrder
+    ? shuffled(library.items, randomSeed)
+    : library.items;
+
+  const resetAll = () => {
+    setSearch('');
+    setRandomOrder(false);
+    setRandomSeed(0);
+    setOpenPanel(null);
+    void controller.setFilter({});
+
+    if (library.categoryId !== null) {
+      void controller.setCategory(null);
+    }
+
+    if (
+      library.sort.field !== 'dateAdded' ||
+      library.sort.direction !== 'desc'
+    ) {
+      void controller.setSort({ field: 'dateAdded', direction: 'desc' });
+    }
+  };
   const showInitialLoading = library.isInitialLoading && library.items.length === 0;
   const showInitialError = Boolean(library.initialError) && library.items.length === 0;
 
@@ -327,7 +375,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     {
       key: 'field',
       label: 'Sort by',
-      value: library.sort.field,
+      value: randomOrder ? 'random' : library.sort.field,
       options: SORT_OPTIONS,
       onSelect: (value) => {
         handleSortField(value);
@@ -484,6 +532,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               groups={sortGroups}
               onClose={closePanel}
             />
+
+            {hasAnyRefinement ? (
+              <button
+                className="library-action"
+                type="button"
+                onClick={resetAll}
+              >
+                Reset
+              </button>
+            ) : null}
           </div>
         </div>
       </header>
@@ -647,7 +705,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
           {library.items.length > 0 ? (
             <div className="manga-grid">
-              {library.items.map((manga, index) => (
+              {displayedItems.map((manga, index) => (
                 <MangaCard
                   key={manga.id}
                   manga={manga}

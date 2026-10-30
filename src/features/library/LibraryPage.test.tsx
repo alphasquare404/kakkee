@@ -505,6 +505,47 @@ describe('LibraryPage search, filter, and sort', () => {
     expect(screen.getByRole('button', { name: 'Close search' })).toBeTruthy();
   });
 
+  it('resets search, category, and sort state', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    await user.type(screen.getByLabelText('Search library'), 'alpha{Enter}');
+    expect(await screen.findByRole('button', { name: 'Reset' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Reset' }));
+
+    expect((screen.getByLabelText('Search library') as HTMLInputElement).value).toBe(
+      '',
+    );
+    expect(screen.queryByRole('button', { name: 'Reset' })).toBeNull();
+  });
+
+  it('shuffles loaded cards with the random sort option', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha'), manga(2, 'Beta')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    await openMenu(user, 'Sort');
+    await user.click(screen.getByRole('menuitemradio', { name: 'Random' }));
+
+    expect(screen.getByRole('button', { name: 'Sort, active' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Reset' })).toBeTruthy();
+  });
+
   it('changes the supported status filter without exposing source filter', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
