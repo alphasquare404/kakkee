@@ -2,9 +2,9 @@
 
 Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI dan tidak mengubah Suwayomi Server.
 
-Status saat ini: **Phase 0 COMPLETE**. Phase 1 core reader journey tersedia: koneksi, Library dengan authenticated thumbnails, category/search/filter/sort, Manga Detail, chapter list, dan vertical reader dengan Previous/Next. Download/offline, source/extension UI, tracking, category management, dan progress write belum termasuk. Fondasi aplikasi, schema stable, codegen, resolver, auth session, GraphQL HTTP/WebSocket transport, resource service, ConnectionCoordinator, UI koneksi/login, PWA shell, dan Library/Detail/Reader screen tersedia.
+Status saat ini: **Phase 1 core reading + reference-driven shell tersedia**. Functional baseline resmi dipin pada Suwayomi-WebUI **v20260929.01 (r3518)** dan server stable **v2.4.2366**. Top-level pages Library, Updates, Browse, Categories, History, Downloads, Settings, Manga Detail, dan Reader tersedia dengan data server nyata. Fitur state-changing/migration/tracking/extension/download-queue masih dicatat sebagai parity work, bukan diklaim selesai.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Kontrak/data/state/category/UI Library: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md). Manga detail/reader: [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Kontrak/data/state/category/UI Library: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md). Manga detail/reader: [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md). Visual system: [docs/phase-1-visual-redesign.md](docs/phase-1-visual-redesign.md). Feature parity: [docs/suwayomi-webui-feature-parity.md](docs/suwayomi-webui-feature-parity.md).
 
 ## Kemampuan saat ini
 
@@ -19,22 +19,35 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
 - Library screen: search, category tabs, status filter, sort, responsive grid, real thumbnails, empty/error/load-more states.
+- Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
+- Updates: latest library chapters grouped by day, read state, and real covers.
+- Browse: installed sources with language/NSFW/latest metadata.
+- Categories: server categories with real manga counts.
+- History: server-provided last-read chapters and page state.
+- Downloads: downloaded chapters and page totals.
+- Settings: real server/version/auth/compatibility/platform information and disconnect.
 - Manga Detail: metadata, cover, chapter list, chapter order, load more, and reader navigation.
 - Vertical Reader: authenticated pages, lazy page loading, page retry, previous/next chapter, keyboard navigation, and object URL cleanup.
 - PWA installable dengan shell-only cache dan update prompt.
 
-Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia; source/extension/download UI, tracking, progress write, dan offline reading belum termasuk.
+Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia; progress write, continue-reading, source browsing, extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work.
 
 Route utama:
 
 ```text
 /                                  connection / server management
 /library                           library grid
+/updates                           latest library chapters
+/browse                            installed source catalog
+/categories                        category overview
+/history                           server-provided reading history
+/downloads                         downloaded chapters
+/settings                          server/application information
 /manga/:mangaId                    manga detail + chapter list
 /manga/:mangaId/chapter/:chapterId vertical reader
 ```
 
-`/library`, detail, dan reader memerlukan koneksi aktif; membukanya tanpa koneksi akan mengarah ke `/`.
+Semua route selain `/` memerlukan koneksi aktif; route terproteksi akan mengarah ke `/` jika terputus.
 
 ## Lingkup Step 1
 
@@ -202,6 +215,8 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │  ├─ phase-1-library-categories.md
 │  ├─ phase-1-library-ui.md
 │  ├─ phase-1-manga-reader.md
+│  ├─ phase-1-visual-redesign.md
+│  ├─ suwayomi-webui-feature-parity.md
 │  └─ suwayomi-backend-notes.md
 ├─ graphql/
 │  ├─ schema/
@@ -212,6 +227,9 @@ PWA memerlukan HTTPS pada deployment nyata (localhost dikecualikan oleh browser)
 │     ├─ authProbe.graphql
 │     ├─ downloadStatusChanged.graphql
 │     ├─ fetchChapterPages.graphql
+│     ├─ chapterFeed.graphql
+│     ├─ sourceCatalog.graphql
+│     ├─ categoryCatalog.graphql
 │     ├─ libraryCategories.graphql
 │     ├─ libraryMangas.graphql
 │     ├─ login.graphql
@@ -753,6 +771,16 @@ npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
 npm run test           lulus (243 test; 7 runtime integration memerlukan env)
+npm run build          lulus
+```
+
+Validasi visual/parity terbaru (30 Oktober 2026):
+
+```text
+npm run codegen:check  lulus
+npm run lint           lulus
+npm run typecheck      lulus
+npm run test           lulus (256 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

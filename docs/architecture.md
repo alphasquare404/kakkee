@@ -1,10 +1,10 @@
 # Arsitektur frontend Suwayomi
 
-Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi. Phase 1 core reader journey tersedia: Library dengan authenticated thumbnails, Manga Detail, chapter list, dan vertical Reader. Progress write, download/offline, source/extension/category management, dan tracking belum. Target minimum: stable v2.4.2366. Bukti ada di [phase-0-validation.md](phase-0-validation.md), [phase-1-library-ui.md](phase-1-library-ui.md), dan [phase-1-manga-reader.md](phase-1-manga-reader.md).
+Status: **Phase 0 COMPLETE** — fondasi Step 1–10 tervalidasi. Phase 1 memiliki reference-driven shell dan top-level pages: Library, Updates, Browse, Categories, History, Downloads, Settings, Manga Detail, dan vertical Reader. Functional baseline resmi dipin pada Suwayomi-WebUI `v20260929.01` (r3518); progress write, source browsing/extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work. Target minimum server: stable v2.4.2366. Bukti ada di [phase-0-validation.md](phase-0-validation.md), [phase-1-library-ui.md](phase-1-library-ui.md), [phase-1-manga-reader.md](phase-1-manga-reader.md), [phase-1-visual-redesign.md](phase-1-visual-redesign.md), dan [suwayomi-webui-feature-parity.md](suwayomi-webui-feature-parity.md).
 
 ## Tujuan
 
-Satu aplikasi React untuk desktop, mobile, dan PWA iOS/Android. Frontend baru berkomunikasi dengan Suwayomi Server yang sudah ada; tidak mengganti atau mengubah server. Phase 0 hanya menghasilkan alur koneksi → autentikasi bila diperlukan → Connected → informasi dasar server. Desain visual lengkap dan fitur membaca menunggu tahap berikutnya.
+Satu aplikasi React untuk desktop, mobile, dan PWA iOS/Android. Frontend baru berkomunikasi dengan Suwayomi Server yang sudah ada; tidak mengganti atau mengubah server. Fase awal menghasilkan alur koneksi → autentikasi bila diperlukan → Connected; Phase 1 menambahkan shell visual dan fitur membaca. Functional parity target berasal dari WebUI resmi, sedangkan arah visual berasal dari `Refrence/`.
 
 ## Pembagian tanggung jawab
 
@@ -41,13 +41,19 @@ UI seperti loket: menerima input dan menampilkan hasil. Services mengurus aturan
 | `src/core/graphql/` | Apollo HTTP, graphql-ws, error transport, generated types |
 | `src/core/resources/` | Resource terautentikasi, Blob/object URL, lifecycle |
 | `src/core/library/` | Repository/controller Library, pagination/filter/state, category navigation |
+| `src/core/catalog/` | Chapter feeds dan read-only source/category catalog |
 | `src/core/manga/` | Repository/controller Manga Detail dan chapter pagination |
 | `src/core/reader/` | Chapter metadata, neighbor navigation, page-path controller |
 | `src/features/connection/` | Form koneksi/login, status dan aboutServer |
 | `src/features/library/` | Library screen, category/search/filter/sort, grid |
+| `src/features/updates/` | Latest library chapter feed |
+| `src/features/activity/` | Shared chapter feed untuk History/Downloads |
+| `src/features/browse/` | Source catalog |
+| `src/features/categories/` | Category overview |
+| `src/features/settings/` | Connection/server/app information |
 | `src/features/manga/` | Manga Detail dan chapter list |
 | `src/features/reader/` | Vertical Reader dan resource lifecycle |
-| `src/shared/` | `useImageResource` dan utilitas umum |
+| `src/shared/` | `useImageResource`, `AmbientArt`, `FeedRow`, `PageHeader`, utilitas umum |
 | `graphql/` | Snapshot stable, metadata, operasi yang diverifikasi |
 | `tests/` | Integrasi lintas modul dan skenario deployment |
 
@@ -93,7 +99,7 @@ Coordinator memiliki state konseptual: belum terhubung, menghubungkan, perlu log
 
 Ganti server/logout harus menutup koneksi lama dan membersihkan cache serta resource. Respons terlambat dari sesi lama tidak boleh mengisi sesi baru. Resource berheader autentikasi dapat dimuat melalui fetch → Blob → object URL; object URL harus dicabut saat tidak dipakai. Tidak ada token di URL/log dan tidak ada kredensial dikirim ke origin lain dari resource/redirect tak tervalidasi.
 
-Implementasi Phase 1 core reader journey menambahkan `src/core/manga/` (detail + chapter pagination), `src/core/reader/` (chapter metadata, neighbor navigation, page-path mutation), `src/features/manga/`, `src/features/reader/`, dan `src/shared/useImageResource.ts`. Semua resource gambar tetap melalui `ResourceService`; hook hanya memiliki lifecycle Blob/object URL. Reader memakai vertical lazy-loaded pages dan tidak menulis progress/read state ke server.
+Implementasi visual/parity menambahkan `src/core/catalog/` untuk chapter feed dan source/category catalog, serta top-level pages Updates/Browse/Categories/History/Downloads/Settings. Shell responsif memakai sidebar desktop dan tab bar mobile; Reader memakai shell tanpa navigasi aplikasi. Semua resource gambar tetap melalui `ResourceService`; hook hanya memiliki lifecycle Blob/object URL. Tidak ada token atau authenticated fetch di UI.
 
 ## PWA dan pengujian
 
