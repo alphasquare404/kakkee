@@ -2323,73 +2323,21 @@ button.manga-card-link {
 .reader-shell {
   width: 100%;
   max-width: 84rem;
+  min-height: 100dvh;
   padding-top: 0;
-}
-
-.reader-header {
-  margin: 0;
-  padding:
-    max(0.7rem, env(safe-area-inset-top))
-    max(1rem, env(safe-area-inset-right))
-    0.7rem
-    max(1rem, env(safe-area-inset-left));
-  border-bottom-color: var(--border);
-  background: rgba(7, 11, 20, 0.82);
-  backdrop-filter: blur(18px);
-}
-
-.reader-title p {
-  color: var(--muted);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.reader-title h1 {
-  color: #f7f9ff;
-  font-size: var(--text-md);
-}
-
-.reader-page-total {
-  display: block;
-  color: var(--faint);
-  font-size: 0.65rem;
-}
-
-.reader-back,
-.reader-chapter-nav a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2rem;
-  padding: 0.2rem 0.55rem;
-  color: var(--muted);
-  border: 1px solid transparent;
-  border-radius: 7px;
-  text-decoration: none;
-}
-
-.reader-back:hover,
-.reader-chapter-nav a:hover {
-  color: var(--text);
-  border-color: var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  text-decoration: none;
-}
-
-.reader-chapter-nav [aria-disabled="true"] {
-  padding: 0.2rem 0.55rem;
+  background: var(--reader-bg, #05070c);
 }
 
 .reader-pages {
-  width: min(100%, 62rem);
-  gap: 2px;
+  width: min(100%, var(--reader-width, 62rem));
+  gap: var(--reader-gap, 2px);
   padding-top: 0.25rem;
 }
 
 .reader-page {
   min-height: 8rem;
   border-radius: 0;
-  background: #05070c;
+  background: var(--reader-bg, #05070c);
 }
 
 .reader-page img {
@@ -3088,6 +3036,87 @@ button.manga-card-link {
   margin-right: 0.35rem;
   border-radius: 999px;
   background: var(--accent-grad);
+}
+
+.settings-range {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+.settings-range input {
+  flex: 1 1 auto;
+  min-width: 6rem;
+  accent-color: var(--accent);
+}
+
+.settings-range output {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.settings-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.settings-options button {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 0.55rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+}
+
+.settings-options button:hover,
+.settings-options button.is-active {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: var(--accent-soft);
+}
+
+.settings-color-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+}
+
+.settings-hint {
+  margin: 0;
+  color: var(--faint);
+  font-size: var(--text-xs);
+}
+
+.reader-settings-preview {
+  display: flex;
+  gap: var(--preview-gap, 2px);
+  justify-content: center;
+  width: min(100%, var(--preview-width, 62%));
+  margin: 0 auto;
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--preview-bg, #05070c);
+}
+
+.reader-settings-preview span {
+  display: grid;
+  flex: 1 1 0;
+  place-items: center;
+  aspect-ratio: 2 / 3;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .settings-actions {

@@ -34,6 +34,11 @@ const SettingsPage = lazy(() =>
     default: module.SettingsPage,
   })),
 );
+const ReaderSettingsPage = lazy(() =>
+  import('../features/settings/ReaderSettingsPage').then((module) => ({
+    default: module.ReaderSettingsPage,
+  })),
+);
 
 const MangaDetailPage = lazy(() =>
   import('../features/manga/MangaDetailPage').then((module) => ({
@@ -83,6 +88,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/downloads" element={<DownloadsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/settings/reader" element={<ReaderSettingsPage />} />
             <Route path="/manga/:mangaId" element={<MangaDetailPage />} />
             <Route
               path="/manga/:mangaId/chapter/:chapterId"

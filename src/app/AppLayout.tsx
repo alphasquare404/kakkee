@@ -95,7 +95,7 @@ const NAV_ITEMS = [
   { to: '/categories', label: 'Categories', icon: CategoriesIcon, match: (path: string) => path === '/categories' },
   { to: '/history', label: 'History', icon: HistoryIcon, match: (path: string) => path === '/history' },
   { to: '/downloads', label: 'Downloads', icon: DownloadsIcon, match: (path: string) => path === '/downloads' },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon, match: (path: string) => path === '/settings' },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon, match: (path: string) => path.startsWith('/settings') },
 ] as const;
 
 export function AppLayout() {

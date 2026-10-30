@@ -13,6 +13,8 @@ import { createReaderRepository } from '../../core/reader/readerRepository';
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
+import { useReaderSettings } from '../../shared/useReaderSettings';
+import type { CSSProperties } from 'react';
 
 export function ReaderPage() {
   const { state } = useConnection();
@@ -62,6 +64,7 @@ function ConnectedReader({
     [repository],
   );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
+  const readerSettings = useReaderSettings();
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -152,7 +155,16 @@ function ConnectedReader({
   }, [mangaId, navigate, reader.nextChapter, reader.previousChapter]);
 
   return (
-    <div className="app-shell reader-shell">
+    <div
+      className="app-shell reader-shell"
+      style={
+        {
+          '--reader-width': `${readerSettings.widthRem}rem`,
+          '--reader-gap': `${readerSettings.gapPx}px`,
+          '--reader-bg': readerSettings.background,
+        } as CSSProperties
+      }
+    >
       <header className="reader-header">
         <Link className="reader-back" to={`/manga/${mangaId}`}>
           ← Manga

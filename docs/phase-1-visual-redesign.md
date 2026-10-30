@@ -62,7 +62,8 @@ Top-level routes:
 /categories                        Categories and manga counts
 /history                           Server-provided reading history
 /downloads                         Download queue + downloaded chapters
-/settings                          Real server/application information
+/settings                          Server/application information
+/settings/reader                   Reader layout preferences
 /manga/:mangaId                    Manga Detail
 /manga/:mangaId/chapter/:chapterId Reader
 ```

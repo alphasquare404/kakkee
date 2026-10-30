@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
@@ -15,6 +15,7 @@ import {
   type SourceCatalogQuery,
 } from '../../core/graphql/generated/graphql';
 import { FakeConnectionCoordinator, makeConnectedState } from '../../test/fakeConnectionCoordinator';
+import { resetReaderSettings } from '../../core/preferences/readerSettings';
 
 vi.mock('../../app/pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -27,6 +28,7 @@ vi.mock('../../app/pwaUpdate', () => ({
 afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
+  resetReaderSettings();
 });
 
 function resources(): ResourceService {
@@ -182,8 +184,20 @@ describe('parity pages', () => {
     expect(screen.getByRole('button', { name: 'Disconnect server' })).toBeTruthy();
   });
 
-  it('renders the real download queue and downloaded feed states', async () => {
-    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+  it('updates reader layout preferences from the Settings subpage', async () => {
+    const query = vi.fn(async () => ({ data: {} }));
+    renderPage('/settings/reader', query);
+
+    expect(await screen.findByRole('heading', { name: 'Reader settings' })).toBeTruthy();
+    const width = screen.getByLabelText('Reader width') as HTMLInputElement;
+
+    fireEvent.change(width, { target: { value: '70' } });
+
+    expect(width.value).toBe('70');
+    expect(screen.getByText('70 rem')).toBeTruthy();
+  });
+
+  it('renders the real download queue and downloaded feed states', async () => {    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === DownloadQueueDocument) {
         return {
           data: {

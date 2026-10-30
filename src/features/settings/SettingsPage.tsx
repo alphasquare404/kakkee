@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { PageHeader } from '../../shared/PageHeader';
@@ -118,6 +118,11 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
                 <dd>Last page and read state are written when you read</dd>
               </div>
             </dl>
+            <div className="settings-actions">
+              <Link className="button button-secondary" to="/settings/reader">
+                Reader settings
+              </Link>
+            </div>
           </section>
 
           <section className="settings-section" id="about" aria-labelledby="settings-about">

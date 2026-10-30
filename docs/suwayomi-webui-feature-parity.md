@@ -128,7 +128,7 @@ frontend.
 | Reader | Webtoon mode + auto detection | `Missing` | Client-side | |
 | Reader | Reading direction (LTR/RTL) | `Missing` | Client-side | |
 | Reader | Page scale modes (width/height/screen/original) | `Missing` | Client-side | |
-| Reader | Stretch/scale small pages and custom width | `Missing` | Client-side | |
+| Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
 | Reader | Page gap, first-page offset, safe-area inset | `Missing` | Client-side | |
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
 | Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
@@ -211,7 +211,7 @@ frontend.
 | Sync | Sync settings (Yomi, intervals, data selection) | `Missing` | Yes | |
 | Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |
 | Settings | Appearance/themes/custom themes/pure black | `Missing` | Client concern | Fixed cinematic dark only |
-| Settings | Reader defaults and device profiles | `Missing` | Client metadata | |
+| Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Missing` | Metadata | |
 | Settings | Download preferences and image processing | `Missing` | Yes | |
 | Settings | Browse/source/extension-store settings | `Missing` | Yes | |
