@@ -123,6 +123,11 @@ function ConnectedMangaDetail({
 
   const manga = detail.manga;
   const firstChapter = detail.chapters[0] ?? null;
+  const inProgressChapter =
+    detail.chapters.find(
+      (chapter) => !chapter.isRead && chapter.lastPageRead > 0,
+    ) ?? null;
+  const primaryChapter = inProgressChapter ?? firstChapter;
   const meta = [
     STATUS_LABEL[manga.status] ?? manga.status,
     manga.author ? `Author: ${manga.author}` : null,
@@ -164,14 +169,16 @@ function ConnectedMangaDetail({
             ) : null}
 
             <div className="manga-actions">
-              {firstChapter ? (
+              {primaryChapter ? (
                 <Link
                   className="button detail-primary"
-                  to={`/manga/${manga.id}/chapter/${firstChapter.id}`}
+                  to={`/manga/${manga.id}/chapter/${primaryChapter.id}`}
                 >
-                  {detail.order === 'oldest'
-                    ? 'Read first chapter'
-                    : 'Read latest chapter'}
+                  {inProgressChapter
+                    ? 'Continue reading'
+                    : detail.order === 'oldest'
+                      ? 'Read first chapter'
+                      : 'Read latest chapter'}
                 </Link>
               ) : null}
               <Link className="button button-secondary" to="/library">

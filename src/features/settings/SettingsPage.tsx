@@ -115,7 +115,7 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
               </div>
               <div>
                 <dt>Progress sync</dt>
-                <dd>Not written by this frontend yet</dd>
+                <dd>Last page and read state are written when you read</dd>
               </div>
             </dl>
           </section>

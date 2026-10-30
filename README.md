@@ -30,7 +30,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Vertical Reader: authenticated pages, lazy page loading, page retry, previous/next chapter, keyboard navigation, and object URL cleanup.
 - PWA installable dengan shell-only cache dan update prompt.
 
-Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia; progress write, continue-reading, source browsing, extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work.
+Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia, termasuk progress baca (`lastPageRead`/`isRead`) dan Continue reading dari Detail. Exact page resume, library continue-reading, source browsing, extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work.
 
 Route utama:
 
@@ -900,10 +900,10 @@ Smoke test build produksi:
 
 ## Batasan dan unknown
 
-- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, PWA shell, Library, Manga Detail, dan vertical Reader tersedia. Core reading journey sudah dapat dipakai; download/offline/source/extension/tracking belum.
-- Runtime browser menggunakan server pengguna `https://suwayomi.alphasquare.my.id` (NONE) untuk validasi read-only; tidak ada mutasi library.
-- Repository Git sudah diinisialisasi; commit Phase 0, library contract/data/state/category/UI, dan manga/reader dibuat terpisah.
-- Belum ada progress write/mark-read, continue reading, download/offline reading, source/extension/download UI, category management, push notification, atau background sync.
+- Snapshot schema stable v2.4.2366, generated documents, resolver, auth session, GraphQL HTTP/WS transport, resource service, ConnectionCoordinator, connection UI, PWA shell, Library, Updates, Browse, Categories, History, Downloads, Settings, Manga Detail, dan vertical Reader tersedia. Progress baca ditulis melalui `UpdateChapter`; exact page resume, download/offline, source/extension browsing, tracking, migration, dan full Settings parity belum.
+- Runtime browser menggunakan server pengguna `https://suwayomi.alphasquare.my.id` (NONE) untuk validasi read-only; progress mutation belum dijalankan terhadap server nyata pada audit ini.
+- Repository Git sudah diinisialisasi; commit Phase 0, library contract/data/state/category/UI, manga/reader, visual shell, dan parity baseline dibuat terpisah.
+- Belum ada exact page resume, library continue-reading, download/offline reading, source/extension/download UI, category management, tracking, migration, sync, backup, push notification, atau background sync.
 - Pengujian browser memakai headless Chrome di Windows desktop dan viewport mobile; belum ada perangkat iOS/Android nyata atau browser Safari/Firefox.
 - `serverBaseUrl`, transport, resource, coordinator, connection UI, dan PWA sudah diuji terhadap runtime lokal; deployment reverse proxy/TLS/subpath produksi belum diuji.
 - Token dan server URL belum dipersistenkan; reload menghilangkan session dan input server.

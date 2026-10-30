@@ -23,13 +23,15 @@ function setup() {
   const getChapter = vi.fn();
   const getNeighbors = vi.fn();
   const getPages = vi.fn();
+  const updateProgress = vi.fn();
   const repository = {
     getChapter,
     getNeighbors,
     getPages,
+    updateProgress,
   } as unknown as ReaderRepository;
   const controller = createReaderController({ repository });
-  return { controller, getChapter, getNeighbors, getPages };
+  return { controller, getChapter, getNeighbors, getPages, updateProgress };
 }
 
 describe('createReaderController', () => {
@@ -73,6 +75,31 @@ describe('createReaderController', () => {
     await controller.retryPages();
     expect(controller.getState().pages).toEqual(['/page/0']);
     expect(controller.getState().pagesError).toBeNull();
+  });
+
+  it('saves progress and marks the chapter read on the last page', async () => {
+    const { controller, getChapter, getNeighbors, getPages, updateProgress } = setup();
+    getChapter.mockResolvedValue(chapter);
+    getNeighbors.mockResolvedValue({ previous: { nodes: [] }, next: { nodes: [] } });
+    getPages.mockResolvedValue(['/page/0', '/page/1']);
+    await controller.load(10);
+
+    await controller.saveProgress(10, 1, true);
+
+    expect(updateProgress).toHaveBeenCalledWith(10, 1, true);
+    expect(controller.getState().chapter).toMatchObject({ isRead: true, lastPageRead: 1 });
+  });
+
+  it('does not save progress after the reader moved to another chapter', async () => {
+    const { controller, getChapter, getNeighbors, getPages, updateProgress } = setup();
+    getChapter.mockResolvedValue(chapter);
+    getNeighbors.mockResolvedValue({ previous: { nodes: [] }, next: { nodes: [] } });
+    getPages.mockResolvedValue(['/page/0']);
+    await controller.load(10);
+
+    await controller.saveProgress(11, 1, false);
+
+    expect(updateProgress).not.toHaveBeenCalled();
   });
 
   it('ignores stale chapter results', async () => {

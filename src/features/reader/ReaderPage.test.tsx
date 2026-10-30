@@ -8,6 +8,7 @@ import {
   FetchChapterPagesDocument,
   ReaderChapterDocument,
   ReaderNeighborsDocument,
+  UpdateChapterProgressDocument,
 } from '../../core/graphql/generated/graphql';
 import type { ResourceService } from '../../core/resources/resourceService';
 import {
@@ -109,6 +110,22 @@ function renderReader(failFirstImage = false) {
     throw new Error('unexpected query');
   });
   const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+    if (mutation === UpdateChapterProgressDocument) {
+      return {
+        data: {
+          updateChapter: {
+            __typename: 'UpdateChapterPayload',
+            chapter: {
+              __typename: 'ChapterType',
+              id: 10,
+              isRead: false,
+              lastPageRead: 0,
+            },
+          },
+        },
+      };
+    }
+
     if (mutation !== FetchChapterPagesDocument) {
       throw new Error('unexpected mutation');
     }

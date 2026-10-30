@@ -3,6 +3,7 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   SourceCatalogDocument,
+  UpdateChapterProgressDocument,
 } from './generated/graphql';
 
 describe('parity GraphQL operations', () => {
@@ -21,6 +22,14 @@ describe('parity GraphQL operations', () => {
     expect(CategoryCatalogDocument.definitions[0]).toMatchObject({
       kind: 'OperationDefinition',
       name: { value: 'CategoryCatalog' },
+    });
+  });
+
+  it('defines the chapter progress mutation', () => {
+    expect(UpdateChapterProgressDocument.definitions[0]).toMatchObject({
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { value: 'UpdateChapterProgress' },
     });
   });
 });

@@ -88,7 +88,7 @@ frontend.
 |---|---|---|---|---|
 | Manga | Cover, title, author/artist, status, source, genres, description | `Implemented` | Yes | Ambient hero from real cover |
 | Manga | Library add/remove and category picker | `Missing` | Yes | |
-| Manga | Continue reading from last page | `Missing` | Reading progress | |
+| Manga | Continue reading from last page | `Partial` | Reading progress | Detail selects the in-progress chapter; exact page resume is not applied yet |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Missing` | Manga meta mutations | |
 | Manga | Share | `Missing` | Client concern | |
@@ -132,6 +132,7 @@ frontend.
 | Reader | Page gap, first-page offset, safe-area inset | `Missing` | Client-side | |
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
 | Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
+| Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead` and marks read on final page; live mutation not yet exercised on the audit server |
 | Reader | Resume at last page | `Missing` | Reading progress | |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Missing` | Client-side | |
@@ -157,7 +158,7 @@ frontend.
 | Updates | Unread/read filters, scanlator, state | `Partial` | Yes | All/Unread/Read; no scanlator filter |
 | Updates | Chapter/manga actions | `Missing` | Yes | |
 | Updates | Sync button and refresh | `Missing` | StartSync | |
-| History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; progress not written by this frontend |
+| History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
 | History | Last chapter per manga / per day | `Missing` | Client-side | |
 | History | Resume / clear / remove history | `Missing` | Yes | |
 | History | Hide history setting | `Missing` | Metadata | |
@@ -233,7 +234,8 @@ frontend.
 1. Finish the current visual shell and the seven real pages (Library, Updates,
    Browse, Categories, History, Downloads, Settings) with honest real-data states.
 2. Add state-changing core actions: manga library toggle/categories, chapter
-   read/bookmark/download actions, reader progress writes and continue reading.
+   read/bookmark/download actions, exact page resume, and continue-reading in
+   Library.
 3. Reader parity: modes, settings, filters, preload/resume, keybinds.
 4. Downloads queue and controls.
 5. Sources/extensions and Browse source search.

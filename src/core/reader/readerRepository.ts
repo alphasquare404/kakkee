@@ -3,6 +3,7 @@ import {
   FetchChapterPagesDocument,
   ReaderChapterDocument,
   ReaderNeighborsDocument,
+  UpdateChapterProgressDocument,
   type ReaderChapterQuery,
   type ReaderNeighborsQuery,
 } from '../graphql/generated/graphql';
@@ -14,6 +15,11 @@ export interface ReaderRepository {
   getChapter(chapterId: number): Promise<ReaderChapter>;
   getNeighbors(mangaId: number, chapterNumber: number): Promise<ReaderNeighbors>;
   getPages(chapterId: number): Promise<readonly string[]>;
+  updateProgress(
+    chapterId: number,
+    lastPageRead: number,
+    isRead?: boolean,
+  ): Promise<void>;
 }
 
 export interface ReaderRepositoryOptions {
@@ -62,6 +68,24 @@ export function createReaderRepository(
       }
 
       return result.data.fetchChapterPages.pages;
+    },
+    async updateProgress(chapterId, lastPageRead, isRead) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateChapterProgressDocument,
+        variables: {
+          input: {
+            id: chapterId,
+            patch: {
+              lastPageRead,
+              ...(isRead === undefined ? {} : { isRead }),
+            },
+          },
+        },
+      });
+
+      if (!result.data?.updateChapter) {
+        throw new Error('Progress chapter tidak dapat disimpan.');
+      }
     },
   };
 }

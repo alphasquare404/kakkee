@@ -1,0 +1,9 @@
+mutation UpdateChapterProgress($input: UpdateChapterInput!) {
+  updateChapter(input: $input) {
+    chapter {
+      id
+      isRead
+      lastPageRead
+    }
+  }
+}

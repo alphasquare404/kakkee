@@ -40,8 +40,7 @@ describe('createReaderRepository', () => {
           pages: ['/page/0', '/page/1'],
         },
       },
-    }));
-    const client = { query, mutate } as unknown as ApolloClient;
+    }));    const client = { query, mutate } as unknown as ApolloClient;
     const repository = createReaderRepository({ getClient: () => client });
 
     await expect(repository.getChapter(10)).resolves.toMatchObject({ id: 10 });
@@ -67,6 +66,34 @@ describe('createReaderRepository', () => {
 
     await expect(repository.getPages(10)).rejects.toThrow(
       'Halaman chapter tidak tersedia.',
+    );
+  });
+
+  it('writes last page and read state through UpdateChapter', async () => {
+    const mutate = vi.fn(async () => ({
+      data: {
+        updateChapter: {
+          chapter: { id: 10, isRead: true, lastPageRead: 1 },
+        },
+      },
+    }));
+    const client = {
+      mutate,
+      query: vi.fn(),
+    } as unknown as ApolloClient;
+    const repository = createReaderRepository({ getClient: () => client });
+
+    await repository.updateProgress(10, 1, true);
+
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: {
+          input: {
+            id: 10,
+            patch: { lastPageRead: 1, isRead: true },
+          },
+        },
+      }),
     );
   });
 });

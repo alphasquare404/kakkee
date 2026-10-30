@@ -63,6 +63,18 @@ fetchChapterPages(input: { chapterId: Int! }) {
 /api/v1/manga/1114/chapter/1185/page/0
 ```
 
+### `UpdateChapterProgress`
+
+```graphql
+updateChapter(input: { id: Int!, patch: { lastPageRead, isRead } }) {
+  chapter { id isRead lastPageRead }
+}
+```
+
+The reader debounces `lastPageRead` updates (0-based page index) and sends
+`isRead: true` when the final page becomes visible. Detail refetches chapter state
+on navigation, so read/in-progress state reflects the server.
+
 They are loaded through `ResourceService`; the reader never constructs resource URLs itself.
 
 ## Repository/controller boundaries
@@ -187,8 +199,10 @@ PWA production preview at root:
 
 ## Limitations
 
-- No progress write/mark-read mutation yet. Reading does not persist `lastPageRead`/`isRead` to the server.
-- No “continue reading” shortcut.
+- Reader writes `lastPageRead` and marks the chapter read on the last page, but it
+  still opens at the top of a chapter instead of resuming the exact page.
+- Manga Detail selects an in-progress chapter for Continue reading; Library has no
+  continue-reading shortcut yet.
 - No downloads/offline reading.
 - No paged reader mode; vertical only.
 - No source filter metadata UI.

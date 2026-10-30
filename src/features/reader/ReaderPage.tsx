@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -63,14 +64,67 @@ function ConnectedReader({
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
 
   useEffect(() => {
     if (loadedChapter.current !== chapterId) {
       loadedChapter.current = chapterId;
+      setCurrentPage(1);
       void controller.load(chapterId);
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
   }, [chapterId, controller]);
+
+  const chapter = reader.chapter;
+  const activeChapter =
+    chapter && chapter.id === chapterId ? chapter : null;
+
+  progressRef.current = {
+    chapterId: activeChapter?.id ?? 0,
+    page: currentPage,
+    total: reader.pages.length,
+  };
+  const activeChapterId = activeChapter?.id ?? 0;
+
+  useEffect(() => {
+    if (!activeChapterId || reader.pages.length === 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void controller
+        .saveProgress(
+          activeChapterId,
+          currentPage - 1,
+          currentPage >= reader.pages.length,
+        )
+        .catch(() => undefined);
+    }, 900);
+
+    return () => window.clearTimeout(timer);
+  }, [activeChapterId, controller, currentPage, reader.pages.length]);
+
+  useEffect(
+    () => () => {
+      const progress = progressRef.current;
+
+      if (progress.chapterId > 0 && progress.total > 0) {
+        void controller
+          .saveProgress(
+            progress.chapterId,
+            progress.page - 1,
+            progress.page >= progress.total,
+          )
+          .catch(() => undefined);
+      }
+    },
+    [controller],
+  );
+
+  const handlePageVisible = useCallback((pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -97,10 +151,6 @@ function ConnectedReader({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [mangaId, navigate, reader.nextChapter, reader.previousChapter]);
 
-  const chapter = reader.chapter;
-  const activeChapter =
-    chapter && chapter.id === chapterId ? chapter : null;
-
   return (
     <div className="app-shell reader-shell">
       <header className="reader-header">
@@ -112,7 +162,9 @@ function ConnectedReader({
           <p>{activeChapter?.manga.title ?? 'Reader'}</p>
           <h1>{activeChapter?.name ?? 'Loading chapter…'}</h1>
           {activeChapter && reader.pages.length > 0 ? (
-            <span className="reader-page-total">{reader.pages.length} pages</span>
+            <span className="reader-page-total">
+              {currentPage} / {reader.pages.length}
+            </span>
           ) : null}
         </div>
 
@@ -193,6 +245,7 @@ function ConnectedReader({
               resources={context.resources}
               path={path}
               pageNumber={index + 1}
+              onVisible={handlePageVisible}
             />
           ))}
         </main>
@@ -237,13 +290,41 @@ function ReaderPageImage({
   resources,
   path,
   pageNumber,
+  onVisible,
 }: {
   readonly resources: ResourceService;
   readonly path: string;
   readonly pageNumber: number;
+  readonly onVisible: (pageNumber: number) => void;
 }) {
   const figure = useRef<HTMLElement>(null);
   const [nearViewport, setNearViewport] = useState(pageNumber <= 2);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      onVisible(pageNumber);
+      return;
+    }
+
+    const element = figure.current;
+
+    if (!element) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          onVisible(pageNumber);
+        }
+      },
+      { threshold: 0.55 },
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [onVisible, pageNumber]);
 
   useEffect(() => {
     if (nearViewport) {
