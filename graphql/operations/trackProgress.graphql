@@ -1,0 +1,23 @@
+mutation TrackProgress($input: TrackProgressInput!) {
+  trackProgress(input: $input) {
+    trackRecords {
+      id
+      trackerId
+      title
+      status
+      score
+      displayScore
+      private
+      remoteUrl
+      tracker {
+        id
+        name
+        scores
+        statuses {
+          name
+          value
+        }
+      }
+    }
+  }
+}

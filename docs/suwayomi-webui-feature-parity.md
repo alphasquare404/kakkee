@@ -194,7 +194,7 @@ frontend.
 | Migration | Client data migration options | `Missing` | Yes | |
 | Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
 | Tracking | Manga search, bind/unbind, private binding | `Implemented` | Yes | Tracker search, bind, private option, unlink, status/score editing |
-| Tracking | Score/progress/status and sync behavior | `Partial` | Yes | Score and status editing; progress sync mutation absent |
+| Tracking | Score/progress/status and sync behavior | `Partial` | Yes | Score/status editing and manual progress sync; reading dates and automatic sync behavior absent |
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
 | Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
 | Categories | Assignment and default-category behavior | `Missing` | Yes | |

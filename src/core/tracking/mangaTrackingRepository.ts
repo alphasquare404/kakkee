@@ -3,6 +3,7 @@ import {
   BindTrackDocument,
   MangaTrackingDocument,
   SearchTrackerDocument,
+  TrackProgressDocument,
   TrackingServicesDocument,
   UnbindTrackDocument,
   UpdateTrackDocument,
@@ -33,6 +34,7 @@ export interface MangaTrackingRepository {
     readonly private?: boolean;
   }): Promise<NonNullable<BindTrackMutation['bindTrack']>['trackRecord']>;
   unbind(recordId: number): Promise<void>;
+  syncProgress(mangaId: number): Promise<readonly TrackRecord[]>;
   update(
     patch: Omit<UpdateTrackInput, 'recordId'>,
     recordId: number,
@@ -107,6 +109,18 @@ export function createMangaTrackingRepository(options: {
       if (!result.data?.unbindTrack) {
         throw new Error('Track record could not be unlinked.');
       }
+    },
+    async syncProgress(mangaId) {
+      const result = await options.getClient().mutate({
+        mutation: TrackProgressDocument,
+        variables: { input: { mangaId } },
+      });
+
+      if (!result.data?.trackProgress) {
+        throw new Error('Progress could not be synced.');
+      }
+
+      return result.data.trackProgress.trackRecords;
     },
     async update(patch, recordId) {
       const result = await options.getClient().mutate({

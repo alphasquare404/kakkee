@@ -48,7 +48,19 @@ export function MangaTrackingSection({
     <section className="manga-tracking" aria-labelledby="manga-tracking-heading">
       <div className="section-heading-row">
         <h2 id="manga-tracking-heading">Tracking</h2>
-        <span>{tracking.records.length} linked</span>
+        <div className="manga-track-heading-actions">
+          <span>{tracking.records.length} linked</span>
+          {tracking.records.length > 0 ? (
+            <button
+              className="library-action"
+              type="button"
+              disabled={tracking.syncing}
+              onClick={() => void controller.syncProgress()}
+            >
+              {tracking.syncing ? 'Syncing…' : 'Sync progress'}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {tracking.error ? (

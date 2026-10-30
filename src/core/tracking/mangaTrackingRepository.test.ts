@@ -4,6 +4,7 @@ import {
   BindTrackDocument,
   MangaTrackingDocument,
   SearchTrackerDocument,
+  TrackProgressDocument,
   TrackingServicesDocument,
   UnbindTrackDocument,
   UpdateTrackDocument,
@@ -162,6 +163,23 @@ describe('createMangaTrackingRepository', () => {
       variables: {
         input: { mangaId: 1, trackerId: 1, remoteId: 'remote-1' },
       },
+    });
+  });
+
+  it('syncs progress for all records', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === TrackProgressDocument) {
+        return { data: { trackProgress: { trackRecords: [record] } } };
+      }
+      throw new Error('unexpected mutation');
+    });
+    const client = { query: vi.fn(), mutate } as unknown as ApolloClient;
+    const repository = createMangaTrackingRepository({ getClient: () => client });
+
+    await expect(repository.syncProgress(1)).resolves.toHaveLength(1);
+    expect(mutate).toHaveBeenCalledWith({
+      mutation: TrackProgressDocument,
+      variables: { input: { mangaId: 1 } },
     });
   });
 });

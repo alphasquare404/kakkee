@@ -56,6 +56,7 @@ function setup() {
   ]);
   const bind = vi.fn(async () => record);
   const unbind = vi.fn(async () => undefined);
+  const syncProgress = vi.fn(async () => [record]);
   const update = vi.fn(async () => ({
     id: 9,
     status: 2,
@@ -68,6 +69,7 @@ function setup() {
     search,
     bind,
     unbind,
+    syncProgress,
     update,
   } as unknown as MangaTrackingRepository;
   return {
@@ -75,6 +77,7 @@ function setup() {
     search,
     bind,
     unbind,
+    syncProgress,
     update,
   };
 }
@@ -107,5 +110,14 @@ describe('createMangaTrackingController', () => {
       private: true,
     });
     expect(controller.getState().records).toHaveLength(1);
+  });
+
+  it('syncs tracker progress', async () => {
+    const { controller, syncProgress } = setup();
+    await controller.load(1);
+    await controller.syncProgress();
+
+    expect(syncProgress).toHaveBeenCalledWith(1);
+    expect(controller.getState().syncing).toBe(false);
   });
 });

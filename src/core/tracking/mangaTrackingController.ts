@@ -14,6 +14,7 @@ export interface MangaTrackingState {
   readonly trackers: readonly Tracker[];
   readonly searchResults: readonly TrackSearch[];
   readonly searching: boolean;
+  readonly syncing: boolean;
   readonly busyId: number | null;
   readonly error: boolean;
 }
@@ -28,6 +29,7 @@ export interface MangaTrackingController {
     remoteId: string,
     isPrivate: boolean,
   ): Promise<void>;
+  syncProgress(): Promise<void>;
   unbind(recordId: number): Promise<void>;
   update(
     recordId: number,
@@ -44,6 +46,7 @@ export function createMangaTrackingController(
     trackers: [],
     searchResults: [],
     searching: false,
+    syncing: false,
     busyId: null,
     error: false,
   };
@@ -119,6 +122,21 @@ export function createMangaTrackingController(
     }
   }
 
+  async function syncProgress(): Promise<void> {
+    if (!activeMangaId) {
+      return;
+    }
+
+    patch({ syncing: true, error: false });
+
+    try {
+      const records = await repository.syncProgress(activeMangaId);
+      patch({ records, syncing: false });
+    } catch {
+      patch({ syncing: false, error: true });
+    }
+  }
+
   async function unbind(recordId: number): Promise<void> {
     patch({ busyId: recordId, error: false });
 
@@ -161,6 +179,7 @@ export function createMangaTrackingController(
     load,
     search,
     bind,
+    syncProgress,
     unbind,
     update,
   };

@@ -3530,6 +3530,14 @@ button.manga-card-link {
   gap: 0.4rem;
 }
 
+.manga-track-heading-actions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 .manga-track-row {
   display: flex;
   flex-wrap: wrap;
