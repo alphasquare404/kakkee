@@ -4,7 +4,9 @@ import {
   READER_FILTER_CSS,
   resetReaderSettings,
   updateReaderSettings,
+  type ReaderDirection,
   type ReaderFilter,
+  type ReaderScale,
   type ReaderSettings,
 } from '../../core/preferences/readerSettings';
 import { useReaderSettings } from '../../shared/useReaderSettings';
@@ -148,6 +150,64 @@ export function ReaderSettingsPage() {
                   <option value="invert">Invert</option>
                   <option value="contrast">High contrast</option>
                 </select>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-scale">Page scale</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-scale"
+                  className="settings-select"
+                  value={settings.scale}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      scale: event.target.value as ReaderScale,
+                    })
+                  }
+                >
+                  <option value="fit-width">Fit width</option>
+                  <option value="fit-height">Fit height</option>
+                  <option value="original">Original size</option>
+                </select>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-direction">Reading direction</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-direction"
+                  className="settings-select"
+                  value={settings.direction}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      direction: event.target.value as ReaderDirection,
+                    })
+                  }
+                >
+                  <option value="ltr">Left to right</option>
+                  <option value="rtl">Right to left</option>
+                </select>
+              </dd>
+            </div>
+            <div>
+              <dt>Keep screen on</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.keepScreenOn}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        keepScreenOn: event.target.checked,
+                      })
+                    }
+                  />
+                  Use Wake Lock while reading
+                </label>
               </dd>
             </div>
           </dl>

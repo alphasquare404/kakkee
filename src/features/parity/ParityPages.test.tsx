@@ -290,11 +290,24 @@ describe('parity pages', () => {
     fireEvent.change(screen.getByLabelText('Image filter'), {
       target: { value: 'grayscale' },
     });
+    fireEvent.change(screen.getByLabelText('Page scale'), {
+      target: { value: 'fit-height' },
+    });
+    fireEvent.change(screen.getByLabelText('Reading direction'), {
+      target: { value: 'rtl' },
+    });
+    fireEvent.click(screen.getByLabelText('Use Wake Lock while reading'));
     expect(
       JSON.parse(
         window.localStorage.getItem('suwayomi.reader-settings.v1') ?? '{}',
       ),
-    ).toMatchObject({ mode: 'single', filter: 'grayscale' });
+    ).toMatchObject({
+      mode: 'single',
+      filter: 'grayscale',
+      scale: 'fit-height',
+      direction: 'rtl',
+      keepScreenOn: true,
+    });
   });
 
   it('applies the appearance theme to the document root', async () => {

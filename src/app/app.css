@@ -2469,6 +2469,41 @@ button.manga-card-link {
   gap: 0;
 }
 
+.reader-pages.scale-fit-height .reader-page img {
+  width: auto;
+  max-width: 100%;
+  max-height: calc(100vh - 5.5rem);
+  margin-inline: auto;
+  object-fit: contain;
+}
+
+.reader-pages.scale-original .reader-page img {
+  width: auto;
+  max-width: none;
+}
+
+.reader-pages.scale-original {
+  overflow-x: auto;
+}
+
+.reader-pages.is-rtl.mode-horizontal {
+  direction: rtl;
+}
+
+.reader-quick-action {
+  padding: 0.25rem 0.45rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+}
+
+.reader-quick-action:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
 .reader-page-nav {
   display: flex;
   grid-column: 1 / -1;
@@ -3311,6 +3346,20 @@ button.manga-card-link {
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--surface-sunken);
+}
+
+.settings-inline-toggle {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.settings-inline-toggle input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--accent);
 }
 
 .settings-rows {

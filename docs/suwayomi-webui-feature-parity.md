@@ -54,7 +54,7 @@ frontend.
 | Localization | Upstream translations and language selection | `Missing` | Client concern | Current UI is English |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
 | PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
-| Sharing | Native share of manga/reader | `Missing` | Client concern | Requires secure context; no fake fallback |
+| Sharing | Native share of manga/reader | `Partial` | Client concern | Reader chapter share when Web Share API exists; manga share absent |
 
 ### Library
 
@@ -126,8 +126,8 @@ frontend.
 | Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
 | Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
 | Reader | Webtoon mode + auto detection | `Partial` | Client-side | Webtoon layout exists; auto detection absent |
-| Reader | Reading direction (LTR/RTL) | `Missing` | Client-side | |
-| Reader | Page scale modes (width/height/screen/original) | `Missing` | Client-side | |
+| Reader | Reading direction (LTR/RTL) | `Partial` | Client-side | Direction setting applied to double-page order and horizontal flow |
+| Reader | Page scale modes (width/height/screen/original) | `Partial` | Client-side | Fit width, fit height, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
 | Reader | Page gap, first-page offset, safe-area inset | `Missing` | Client-side | |
 | Reader | Reader defaults per mode | `Missing` | Client metadata | |
@@ -143,9 +143,9 @@ frontend.
 | Reader | Auto-scroll and custom scroll amount | `Missing` | Client-side | |
 | Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |
 | Reader | Tap zones and touch drag scrolling | `Missing` | Client-side | |
-| Reader | Keep screen on | `Missing` | Platform | Wake Lock where supported |
+| Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
 | Reader | Auto background color | `Missing` | Client-side | |
-| Reader | Fullscreen | `Missing` | Platform limitation on iOS | |
+| Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
 | Reader | Download next chapter / delete after reading | `Missing` | Yes | |
 | Reader | Bookmark/library actions from reader | `Missing` | Yes | |
 | Reader | Chapter list overlay/sidebar | `Missing` | Yes | |

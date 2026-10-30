@@ -12,6 +12,9 @@ export type ReaderFilter =
   | 'invert'
   | 'contrast';
 
+export type ReaderScale = 'fit-width' | 'fit-height' | 'original';
+export type ReaderDirection = 'ltr' | 'rtl';
+
 export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
   original: 'none',
   grayscale: 'grayscale(1)',
@@ -26,6 +29,9 @@ export interface ReaderSettings {
   readonly background: string;
   readonly mode: ReaderMode;
   readonly filter: ReaderFilter;
+  readonly scale: ReaderScale;
+  readonly direction: ReaderDirection;
+  readonly keepScreenOn: boolean;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -34,6 +40,9 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   background: '#05070c',
   mode: 'vertical',
   filter: 'original',
+  scale: 'fit-width',
+  direction: 'ltr',
+  keepScreenOn: false,
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -63,6 +72,12 @@ function load(): ReaderSettings {
       filter: isReaderFilter(parsed.filter)
         ? parsed.filter
         : DEFAULT_READER_SETTINGS.filter,
+      scale: isReaderScale(parsed.scale)
+        ? parsed.scale
+        : DEFAULT_READER_SETTINGS.scale,
+      direction:
+        parsed.direction === 'rtl' ? 'rtl' : 'ltr',
+      keepScreenOn: parsed.keepScreenOn === true,
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
@@ -97,6 +112,14 @@ function isReaderFilter(value: unknown): value is ReaderFilter {
     value === 'sepia' ||
     value === 'invert' ||
     value === 'contrast'
+  );
+}
+
+function isReaderScale(value: unknown): value is ReaderScale {
+  return (
+    value === 'fit-width' ||
+    value === 'fit-height' ||
+    value === 'original'
   );
 }
 
@@ -144,6 +167,12 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
         : state.background,
     mode: isReaderMode(patch.mode) ? patch.mode : state.mode,
     filter: isReaderFilter(patch.filter) ? patch.filter : state.filter,
+    scale: isReaderScale(patch.scale) ? patch.scale : state.scale,
+    direction: patch.direction === 'rtl' ? 'rtl' : patch.direction === 'ltr' ? 'ltr' : state.direction,
+    keepScreenOn:
+      typeof patch.keepScreenOn === 'boolean'
+        ? patch.keepScreenOn
+        : state.keepScreenOn,
   };
   persist(state);
   notify();

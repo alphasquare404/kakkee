@@ -26,6 +26,9 @@ describe('reader settings', () => {
       background: '#000000',
       mode: 'single',
       filter: 'grayscale',
+      scale: 'fit-height',
+      direction: 'rtl',
+      keepScreenOn: true,
     });
 
     expect(getReaderSettings()).toEqual({
@@ -34,6 +37,9 @@ describe('reader settings', () => {
       background: '#000000',
       mode: 'single',
       filter: 'grayscale',
+      scale: 'fit-height',
+      direction: 'rtl',
+      keepScreenOn: true,
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(
       '"widthRem":72',

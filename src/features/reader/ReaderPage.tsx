@@ -103,9 +103,73 @@ function ConnectedReader({
   const pageIndices = isPaged
     ? readingMode === 'single'
       ? [safeCurrentPage - 1]
-      : [safeCurrentPage - 1, safeCurrentPage]
+      : readerSettings.direction === 'rtl'
+        ? [safeCurrentPage, safeCurrentPage - 1]
+        : [safeCurrentPage - 1, safeCurrentPage]
     : reader.pages.map((_, index) => index);
   const noopVisible = useCallback(() => undefined, []);
+
+  useEffect(() => {
+    if (!readerSettings.keepScreenOn) {
+      return;
+    }
+
+    const wakeLock = (
+      navigator as Navigator & {
+        wakeLock?: {
+          request(type: 'screen'): Promise<{ release(): Promise<void> }>;
+        };
+      }
+    ).wakeLock;
+
+    if (!wakeLock) {
+      return;
+    }
+
+    let sentinel: { release(): Promise<void> } | null = null;
+    let disposed = false;
+
+    void wakeLock
+      .request('screen')
+      .then((lock) => {
+        if (disposed) {
+          void lock.release();
+          return;
+        }
+
+        sentinel = lock;
+      })
+      .catch(() => {
+        // Wake Lock is optional and may be denied by the platform.
+      });
+
+    return () => {
+      disposed = true;
+      void sentinel?.release().catch(() => undefined);
+    };
+  }, [readerSettings.keepScreenOn]);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+
+    void document.documentElement.requestFullscreen?.().catch(() => undefined);
+  };
+
+  const shareChapter = () => {
+    if (!activeChapter || !navigator.share) {
+      return;
+    }
+
+    void navigator
+      .share({
+        title: `${activeChapter.manga.title} — ${activeChapter.name}`,
+        url: window.location.href,
+      })
+      .catch(() => undefined);
+  };
 
   progressRef.current = {
     chapterId: activeChapter?.id ?? 0,
@@ -239,6 +303,22 @@ function ConnectedReader({
           ) : (
             <span aria-disabled="true">Next</span>
           )}
+          <button
+            className="reader-quick-action"
+            type="button"
+            onClick={toggleFullscreen}
+          >
+            Fullscreen
+          </button>
+          {typeof navigator.share === 'function' ? (
+            <button
+              className="reader-quick-action"
+              type="button"
+              onClick={shareChapter}
+            >
+              Share
+            </button>
+          ) : null}
         </nav>
 
         {isPaged && activeChapter && reader.pages.length > 0 ? (
@@ -331,7 +411,9 @@ function ConnectedReader({
 
       {activeChapter && reader.pages.length > 0 ? (
         <main
-          className={`reader-pages mode-${readingMode}`}
+          className={`reader-pages mode-${readingMode} scale-${readerSettings.scale}${
+            readerSettings.direction === 'rtl' ? ' is-rtl' : ''
+          }`}
           aria-label={`${activeChapter.name} pages`}
         >
           {pageIndices.map((index) => {
