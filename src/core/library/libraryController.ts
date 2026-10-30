@@ -57,6 +57,8 @@ export interface LibraryController {
   removeFromLibrary(ids: readonly number[]): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
   markRead(ids: readonly number[], isRead: boolean): Promise<void>;
+  downloadMangas(ids: readonly number[]): Promise<void>;
+  deleteMangaDownloads(ids: readonly number[]): Promise<void>;
 }
 
 function initialState(options: LibraryControllerOptions): LibraryState {
@@ -307,12 +309,7 @@ export function createLibraryController(
       return;
     }
 
-    const chapterIds: number[] = [];
-
-    for (const mangaId of ids) {
-      chapterIds.push(...(await options.repository.getChapterIds(mangaId)));
-    }
-
+    const chapterIds = await collectChapterIds(ids);
     await options.repository.setChaptersRead(chapterIds, isRead);
 
     if (isRead) {
@@ -323,6 +320,45 @@ export function createLibraryController(
         ),
       });
     }
+  }
+
+  async function collectChapterIds(
+    ids: readonly number[],
+  ): Promise<readonly number[]> {
+    const chapterIds: number[] = [];
+
+    for (const mangaId of ids) {
+      chapterIds.push(...(await options.repository.getChapterIds(mangaId)));
+    }
+
+    return chapterIds;
+  }
+
+  async function downloadMangas(ids: readonly number[]): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    await options.repository.enqueueChapterDownloads(
+      await collectChapterIds(ids),
+    );
+  }
+
+  async function deleteMangaDownloads(ids: readonly number[]): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    await options.repository.deleteDownloadedChapters(
+      await collectChapterIds(ids),
+    );
+
+    const updated = new Set(ids);
+    patch({
+      items: state.items.map((item) =>
+        updated.has(item.id) ? { ...item, downloadCount: 0 } : item,
+      ),
+    });
   }
 
   return {
@@ -343,5 +379,7 @@ export function createLibraryController(
     removeFromLibrary,
     addToCategory,
     markRead,
+    downloadMangas,
+    deleteMangaDownloads,
   };
 }

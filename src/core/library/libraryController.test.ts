@@ -63,12 +63,16 @@ function setup(options: {
   const addToCategory = vi.fn();
   const getChapterIds = vi.fn(async () => [1, 2]);
   const setChaptersRead = vi.fn();
+  const enqueueChapterDownloads = vi.fn();
+  const deleteDownloadedChapters = vi.fn();
   const repository = {
     getPage,
     setLibrary,
     addToCategory,
     getChapterIds,
     setChaptersRead,
+    enqueueChapterDownloads,
+    deleteDownloadedChapters,
   } as unknown as LibraryRepository;
   const controller = createLibraryController({ repository, ...options });
   return {
@@ -78,6 +82,8 @@ function setup(options: {
     addToCategory,
     getChapterIds,
     setChaptersRead,
+    enqueueChapterDownloads,
+    deleteDownloadedChapters,
   };
 }
 
@@ -493,6 +499,30 @@ describe('createLibraryController bulk actions', () => {
     expect(getChapterIds).toHaveBeenCalledWith(1);
     expect(setChaptersRead).toHaveBeenCalledWith([10, 11], true);
     expect(state(controller).items[0]?.unreadCount).toBe(0);
+  });
+
+  it('queues and deletes downloads for selected manga', async () => {
+    const {
+      controller,
+      getPage,
+      getChapterIds,
+      enqueueChapterDownloads,
+      deleteDownloadedChapters,
+    } = setup();
+    getPage.mockResolvedValue(
+      page([{ ...manga(1), downloadCount: 3 }], { totalCount: 1 }),
+    );
+    getChapterIds.mockResolvedValue([10, 11]);
+    enqueueChapterDownloads.mockResolvedValue(undefined);
+    deleteDownloadedChapters.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.downloadMangas([1]);
+    await controller.deleteMangaDownloads([1]);
+
+    expect(enqueueChapterDownloads).toHaveBeenCalledWith([10, 11]);
+    expect(deleteDownloadedChapters).toHaveBeenCalledWith([10, 11]);
+    expect(state(controller).items[0]?.downloadCount).toBe(0);
   });
 });
 

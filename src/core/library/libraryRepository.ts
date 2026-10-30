@@ -1,5 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  DeleteDownloadedChaptersDocument,
+  EnqueueChapterDownloadsDocument,
   LibraryCategoriesDocument,
   LibraryMangasDocument,
   MangaChapterIdsDocument,
@@ -77,6 +79,8 @@ export interface LibraryRepository {
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
   getChapterIds(mangaId: number): Promise<readonly number[]>;
   setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
+  enqueueChapterDownloads(ids: readonly number[]): Promise<void>;
+  deleteDownloadedChapters(ids: readonly number[]): Promise<void>;
 }
 
 export interface LibraryRepositoryOptions {
@@ -279,6 +283,34 @@ export function createLibraryRepository(
 
       if (!result.data?.updateChapters) {
         throw new Error('Status baca chapter tidak dapat disimpan.');
+      }
+    },
+    async enqueueChapterDownloads(ids) {
+      if (ids.length === 0) {
+        return;
+      }
+
+      const result = await options.getClient().mutate({
+        mutation: EnqueueChapterDownloadsDocument,
+        variables: { input: { ids: [...ids] } },
+      });
+
+      if (!result.data?.enqueueChapterDownloads) {
+        throw new Error('Chapter tidak dapat dimasukkan ke antrean download.');
+      }
+    },
+    async deleteDownloadedChapters(ids) {
+      if (ids.length === 0) {
+        return;
+      }
+
+      const result = await options.getClient().mutate({
+        mutation: DeleteDownloadedChaptersDocument,
+        variables: { input: { ids: [...ids] } },
+      });
+
+      if (!result.data?.deleteDownloadedChapters) {
+        throw new Error('Download chapter tidak dapat dihapus.');
       }
     },
   };

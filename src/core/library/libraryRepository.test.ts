@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
+  DeleteDownloadedChaptersDocument,
+  EnqueueChapterDownloadsDocument,
   MangaChapterIdsDocument,
   UpdateChaptersStateDocument,
   UpdateMangasCategoriesDocument,
@@ -448,5 +450,33 @@ describe('LibraryInputError', () => {
         variables: { input: { ids: [10, 11], patch: { isRead: true } } },
       }),
     );
+  });
+
+  it('queues and deletes chapter downloads in bulk', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === EnqueueChapterDownloadsDocument) {
+        return { data: { enqueueChapterDownloads: { downloadStatus: {} } } };
+      }
+
+      if (mutation === DeleteDownloadedChaptersDocument) {
+        return { data: { deleteDownloadedChapters: { chapters: [] } } };
+      }
+
+      throw new Error('unexpected mutation');
+    });
+    const client = { query: vi.fn(), mutate } as unknown as ApolloClient;
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await repository.enqueueChapterDownloads([10, 11]);
+    await repository.deleteDownloadedChapters([10, 11]);
+
+    expect(mutate).toHaveBeenNthCalledWith(1, {
+      mutation: EnqueueChapterDownloadsDocument,
+      variables: { input: { ids: [10, 11] } },
+    });
+    expect(mutate).toHaveBeenNthCalledWith(2, {
+      mutation: DeleteDownloadedChaptersDocument,
+      variables: { input: { ids: [10, 11] } },
+    });
   });
 });

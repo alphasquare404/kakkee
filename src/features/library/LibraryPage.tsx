@@ -154,6 +154,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const [categoryChoice, setCategoryChoice] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [confirmDeleteDownloads, setConfirmDeleteDownloads] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState(false);
 
@@ -318,6 +319,45 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       await controller.markRead([...selectedIds], isRead);
       clearSelection();
       setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const downloadSelected = async () => {
+    if (selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.downloadMangas([...selectedIds]);
+      clearSelection();
+      setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const deleteSelectedDownloads = async () => {
+    if (selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.deleteMangaDownloads([...selectedIds]);
+      clearSelection();
+      setSelectionMode(false);
+      setConfirmDeleteDownloads(false);
     } catch {
       setBulkError(true);
     } finally {
@@ -637,6 +677,25 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 Cancel
               </button>
             </div>
+          ) : confirmDeleteDownloads ? (
+            <div className="library-selection-confirm">
+              <span>Delete downloads for {selectedIds.size} manga?</span>
+              <button
+                className="library-action is-danger"
+                type="button"
+                disabled={bulkBusy}
+                onClick={() => void deleteSelectedDownloads()}
+              >
+                Confirm
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                onClick={() => setConfirmDeleteDownloads(false)}
+              >
+                Cancel
+              </button>
+            </div>
           ) : (
             <>
               <label className="library-bulk-category">
@@ -684,6 +743,22 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 onClick={() => void markSelectedRead(false)}
               >
                 Mark unread
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={bulkBusy || selectedIds.size === 0}
+                onClick={() => void downloadSelected()}
+              >
+                Download
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={bulkBusy || selectedIds.size === 0}
+                onClick={() => setConfirmDeleteDownloads(true)}
+              >
+                Delete download
               </button>
               <button
                 className="library-action"
