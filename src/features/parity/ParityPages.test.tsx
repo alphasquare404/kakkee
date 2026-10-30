@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
@@ -16,6 +16,7 @@ import {
 } from '../../core/graphql/generated/graphql';
 import { FakeConnectionCoordinator, makeConnectedState } from '../../test/fakeConnectionCoordinator';
 import { resetReaderSettings } from '../../core/preferences/readerSettings';
+import { resetAppPreferences } from '../../core/preferences/appPreferences';
 
 vi.mock('../../app/pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -29,6 +30,7 @@ afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
   resetReaderSettings();
+  resetAppPreferences();
 });
 
 function resources(): ResourceService {
@@ -195,6 +197,30 @@ describe('parity pages', () => {
 
     expect(width.value).toBe('70');
     expect(screen.getByText('70 rem')).toBeTruthy();
+  });
+
+  it('applies the appearance theme to the document root', async () => {
+    const query = vi.fn(async () => ({ data: {} }));
+    renderPage('/settings/appearance', query);
+
+    expect(await screen.findByRole('heading', { name: 'Appearance' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Pure black/ }));
+
+    await waitFor(() =>
+      expect(document.documentElement.dataset.theme).toBe('pure-black'),
+    );
+  });
+
+  it('updates library density from the Settings subpage', async () => {
+    const query = vi.fn(async () => ({ data: {} }));
+    renderPage('/settings/library', query);
+
+    expect(await screen.findByRole('heading', { name: 'Library settings' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Comfortable/ }));
+
+    expect(window.localStorage.getItem('suwayomi.app-preferences.v1')).toContain(
+      '"libraryDensity":"comfortable"',
+    );
   });
 
   it('renders the real download queue and downloaded feed states', async () => {    const query = vi.fn(async ({ query: document }: { query: unknown }) => {

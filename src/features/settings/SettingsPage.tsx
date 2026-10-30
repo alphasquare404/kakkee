@@ -98,6 +98,32 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
                 <dd>Responsive with desktop navigation and mobile tab bar</dd>
               </div>
             </dl>
+            <div className="settings-actions">
+              <Link className="button button-secondary" to="/settings/appearance">
+                Appearance settings
+              </Link>
+            </div>
+          </section>
+
+          <section className="settings-section" id="library" aria-labelledby="settings-library">
+            <div className="section-heading-row">
+              <h2 id="settings-library">Library</h2>
+            </div>
+            <dl className="settings-rows">
+              <div>
+                <dt>Grid density</dt>
+                <dd>Compact or comfortable poster grid</dd>
+              </div>
+              <div>
+                <dt>Selection</dt>
+                <dd>Bulk category assignment and library removal</dd>
+              </div>
+            </dl>
+            <div className="settings-actions">
+              <Link className="button button-secondary" to="/settings/library">
+                Library settings
+              </Link>
+            </div>
           </section>
 
           <section className="settings-section" id="reading" aria-labelledby="settings-reading">

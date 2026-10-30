@@ -63,6 +63,8 @@ Top-level routes:
 /history                           Server-provided reading history
 /downloads                         Download queue + downloaded chapters
 /settings                          Server/application information
+/settings/appearance               Theme selection
+/settings/library                  Grid density
 /settings/reader                   Reader layout preferences
 /manga/:mangaId                    Manga Detail
 /manga/:mangaId/chapter/:chapterId Reader

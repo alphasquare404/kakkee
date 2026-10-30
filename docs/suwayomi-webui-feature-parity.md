@@ -210,9 +210,9 @@ frontend.
 | Sync | Sync button and sync status | `Missing` | Yes | |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Missing` | Yes | |
 | Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |
-| Settings | Appearance/themes/custom themes/pure black | `Missing` | Client concern | Fixed cinematic dark only |
+| Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
-| Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Missing` | Metadata | |
+| Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
 | Settings | Download preferences and image processing | `Missing` | Yes | |
 | Settings | Browse/source/extension-store settings | `Missing` | Yes | |
 | Settings | History preferences | `Missing` | Metadata | |

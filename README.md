@@ -25,7 +25,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Categories: server categories with real manga counts.
 - History: server-provided last-read chapters and page state.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
-- Settings: real server/version/auth/compatibility/platform information and disconnect.
+- Settings: real server/application information, dark/pure-black theme, and library grid density.
 - Manga Detail: metadata, cover, chapter list, chapter order, read/bookmark/download toggles, in-library toggle, load more, and reader navigation.
 - Reader: vertical continuous, authenticated lazy pages, progress write, saved-page resume, chapter navigation, and persisted reader width/gap/background preferences.
 - PWA installable dengan shell-only cache dan update prompt.
@@ -789,7 +789,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (283 test; 7 runtime integration memerlukan env)
+npm run test           lulus (287 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

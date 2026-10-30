@@ -28,6 +28,7 @@ import {
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
+import { useAppPreferences } from '../../shared/useAppPreferences';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -121,6 +122,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     context.resources,
     library.items[1]?.thumbnailUrl ?? library.items[0]?.thumbnailUrl ?? null,
   );
+  const appPreferences = useAppPreferences();
   const loadedLibrary = useRef<LibraryController | null>(null);
   const loadedCategories = useRef<LibraryCategoryController | null>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -345,7 +347,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   ];
 
   return (
-    <div className="app-shell library-shell">
+    <div
+      className={`app-shell library-shell${
+        appPreferences.libraryDensity === 'comfortable' ? ' is-comfortable' : ''
+      }`}
+    >
       <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className="library-header">
         <div className="library-title">
