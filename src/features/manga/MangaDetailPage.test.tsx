@@ -139,6 +139,17 @@ describe('MangaDetailPage', () => {
     );
   });
 
+  it('shows a separator for missing chapter numbers', async () => {
+    const query = vi.fn(async () => ({
+      data: detailData({ nodes: [chapter(1186), chapter(1184)] }),
+    }));
+    renderDetail(query);
+
+    expect(
+      await screen.findByText('1 missing chapter between 1184 and 1186'),
+    ).toBeTruthy();
+  });
+
   it('filters chapters by state and scanlator', async () => {
     const query = vi.fn(async () => ({
       data: detailData({

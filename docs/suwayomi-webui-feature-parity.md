@@ -96,7 +96,7 @@ frontend.
 | Manga | Migration entry point | `Missing` | Yes | |
 | Manga | Tracker binding/score/status | `Missing` | Yes | |
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
-| Manga | Missing-chapter indicators | `Missing` | Client-side/server data | |
+| Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
 | Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
 | Manga | Per-manga reader settings | `Missing` | Client concern | |
 | Manga | Mark all previous chapters read | `Missing` | Yes | |
@@ -113,7 +113,7 @@ frontend.
 | Chapters | Download/delete download | `Partial` | Yes | Enqueue/delete per chapter on Detail; queue is in Downloads |
 | Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation; other bulk actions absent |
 | Chapters | Scanlator filter and duplicate handling | `Missing` | Yes | |
-| Chapters | Missing-chapter separators | `Missing` | Client-side | |
+| Chapters | Missing-chapter separators | `Partial` | Client-side | Gap separators between loaded chapter numbers; unloaded boundaries absent |
 | Chapters | Saved sort/filter preferences | `Missing` | Metadata/settings | |
 
 ### Reader

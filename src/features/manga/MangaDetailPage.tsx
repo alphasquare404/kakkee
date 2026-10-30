@@ -45,6 +45,42 @@ function chapterMeta(chapter: {
   return `${chapter.pageCount} pages`;
 }
 
+type ChapterEntry<T extends { readonly chapterNumber: number }> =
+  | { readonly kind: 'chapter'; readonly chapter: T }
+  | {
+      readonly kind: 'gap';
+      readonly missing: number;
+      readonly from: number;
+      readonly to: number;
+    };
+
+function chapterEntries<T extends { readonly chapterNumber: number }>(
+  chapters: readonly T[],
+): readonly ChapterEntry<T>[] {
+  const entries: ChapterEntry<T>[] = [];
+
+  chapters.forEach((chapter, index) => {
+    if (index > 0) {
+      const previous = chapters[index - 1];
+      const gap = Math.abs(previous.chapterNumber - chapter.chapterNumber);
+      const missing = Number.isFinite(gap) ? Math.max(0, Math.ceil(gap) - 1) : 0;
+
+      if (missing > 0) {
+        entries.push({
+          kind: 'gap',
+          missing,
+          from: Math.min(previous.chapterNumber, chapter.chapterNumber),
+          to: Math.max(previous.chapterNumber, chapter.chapterNumber),
+        });
+      }
+    }
+
+    entries.push({ kind: 'chapter', chapter });
+  });
+
+  return entries;
+}
+
 export function MangaDetailPage() {
   const { state } = useConnection();
   const { mangaId } = useParams();
@@ -587,7 +623,22 @@ function ConnectedMangaDetail({
             <p className="chapter-empty">No chapters match these filters.</p>
           ) : (
             <ol className="chapter-list">
-              {visibleChapters.map((chapter, index) => {
+              {chapterEntries(visibleChapters).map((entry) => {
+                if (entry.kind === 'gap') {
+                  return (
+                    <li
+                      className="chapter-gap"
+                      key={`gap-${entry.from}-${entry.to}`}
+                    >
+                      {entry.missing} missing{' '}
+                      {entry.missing === 1 ? 'chapter' : 'chapters'} between{' '}
+                      {entry.from} and {entry.to}
+                    </li>
+                  );
+                }
+
+                const chapter = entry.chapter;
+                const index = visibleChapters.indexOf(chapter);
                 const uploaded = formatDate(chapter.uploadDate);
 
                 return (
