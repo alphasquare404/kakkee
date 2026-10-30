@@ -1,0 +1,15 @@
+query TrackingServices {
+  trackers(first: 50, order: [{ by: NAME, byType: ASC }]) {
+    nodes {
+      id
+      name
+      icon
+      isLoggedIn
+      isTokenExpired
+      authUrl
+      supportsPrivateTracking
+      supportsReadingDates
+      supportsTrackDeletion
+    }
+  }
+}

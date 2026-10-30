@@ -71,6 +71,9 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
               <Link className="button button-secondary" to="/settings/backup">
                 Backup settings
               </Link>
+              <Link className="button button-secondary" to="/settings/tracking">
+                Tracking settings
+              </Link>
               <button
                 className="button button-secondary"
                 type="button"

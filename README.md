@@ -26,6 +26,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
 - Extensions: installed/available extension catalog, language filter, store list, install/uninstall/update, and update checking.
+- Tracking settings: real tracker services, login links, token/expiry state, private/reading-date support, and logout.
 - Backup: create backup with selectable data categories and automatic-backup summary.
 - Settings: real server/application information, server update/download/system settings, dark/pure-black theme, and library grid density.
 - Manga Detail: metadata, cover, chapter search/filter/scanlator, chapter order, read/bookmark/download toggles, shift-range bulk read/bookmark/download/delete, in-library toggle, load more, and reader navigation.
@@ -791,7 +792,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (326 test; 7 runtime integration memerlukan env)
+npm run test           lulus (329 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

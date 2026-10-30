@@ -17,6 +17,7 @@ import {
   ServerSettingsDocument,
   SourceCatalogDocument,
   SourceInfoDocument,
+  TrackingServicesDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
   type ServerSettingsQuery,
@@ -168,6 +169,48 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('renders tracking services and logs out', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === TrackingServicesDocument) {
+        return {
+          data: {
+            trackers: {
+              __typename: 'TrackerNodeList',
+              nodes: [
+                {
+                  __typename: 'TrackerType',
+                  id: 1,
+                  name: 'MAL',
+                  icon: 'mal',
+                  isLoggedIn: true,
+                  isTokenExpired: false,
+                  authUrl: 'https://example.test/auth',
+                  supportsPrivateTracking: true,
+                  supportsReadingDates: true,
+                  supportsTrackDeletion: true,
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    const mutate = vi.fn(async () => ({
+      data: { logoutTracker: { tracker: { id: 1, isLoggedIn: false } } },
+    }));
+    renderPage('/settings/tracking', query, mutate);
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole('heading', { name: 'Tracking' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Logout' }));
+
+    await waitFor(() =>
+      expect(screen.getByText('Not connected')).toBeTruthy(),
+    );
+  });
+
   it('creates a backup with selected data', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === BackupSettingsDocument) {

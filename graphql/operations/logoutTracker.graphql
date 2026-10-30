@@ -1,0 +1,8 @@
+mutation LogoutTracker($input: LogoutTrackerInput!) {
+  logoutTracker(input: $input) {
+    tracker {
+      id
+      isLoggedIn
+    }
+  }
+}

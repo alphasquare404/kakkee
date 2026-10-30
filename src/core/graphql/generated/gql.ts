@@ -36,6 +36,7 @@ type Documents = {
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.LibraryCategoriesDocument,
     "query LibraryMangas($first: Int!, $after: Cursor, $filter: MangaFilterInput, $order: [MangaOrderInput!]) {\n  mangas(\n    condition: {inLibrary: true}\n    first: $first\n    after: $after\n    filter: $filter\n    order: $order\n  ) {\n    nodes {\n      id\n      title\n      thumbnailUrl\n      thumbnailUrlLastFetched\n      unreadCount\n      downloadCount\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": typeof types.LibraryMangasDocument,
     "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}": typeof types.LoginDocument,
+    "mutation LogoutTracker($input: LogoutTrackerInput!) {\n  logoutTracker(input: $input) {\n    tracker {\n      id\n      isLoggedIn\n    }\n  }\n}": typeof types.LogoutTrackerDocument,
     "query MangaChapterIds($mangaId: Int!) {\n  chapters(filter: {mangaId: {equalTo: $mangaId}}, first: 5000) {\n    nodes {\n      id\n    }\n  }\n}": typeof types.MangaChapterIdsDocument,
     "query MangaDetail($mangaId: Int!, $first: Int!, $after: Cursor, $order: [ChapterOrderInput!]) {\n  manga(id: $mangaId) {\n    id\n    title\n    author\n    artist\n    description\n    status\n    thumbnailUrl\n    thumbnailUrlLastFetched\n    genre\n    inLibrary\n    source {\n      id\n      name\n    }\n  }\n  chapters(\n    condition: {mangaId: $mangaId}\n    first: $first\n    after: $after\n    order: $order\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isBookmarked\n      isDownloaded\n      lastPageRead\n      scanlator\n      uploadDate\n      sourceOrder\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": typeof types.MangaDetailDocument,
     "query ReaderChapter($chapterId: Int!) {\n  chapter(id: $chapterId) {\n    id\n    name\n    pageCount\n    chapterNumber\n    sourceOrder\n    isRead\n    lastPageRead\n    manga {\n      id\n      title\n      thumbnailUrl\n    }\n  }\n}": typeof types.ReaderChapterDocument,
@@ -47,6 +48,7 @@ type Documents = {
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": typeof types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
+    "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}": typeof types.TrackingServicesDocument,
     "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.UpdateCategoryDocument,
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": typeof types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": typeof types.UpdateChapterProgressDocument,
@@ -80,6 +82,7 @@ const documents: Documents = {
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.LibraryCategoriesDocument,
     "query LibraryMangas($first: Int!, $after: Cursor, $filter: MangaFilterInput, $order: [MangaOrderInput!]) {\n  mangas(\n    condition: {inLibrary: true}\n    first: $first\n    after: $after\n    filter: $filter\n    order: $order\n  ) {\n    nodes {\n      id\n      title\n      thumbnailUrl\n      thumbnailUrlLastFetched\n      unreadCount\n      downloadCount\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": types.LibraryMangasDocument,
     "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    accessToken\n    refreshToken\n  }\n}": types.LoginDocument,
+    "mutation LogoutTracker($input: LogoutTrackerInput!) {\n  logoutTracker(input: $input) {\n    tracker {\n      id\n      isLoggedIn\n    }\n  }\n}": types.LogoutTrackerDocument,
     "query MangaChapterIds($mangaId: Int!) {\n  chapters(filter: {mangaId: {equalTo: $mangaId}}, first: 5000) {\n    nodes {\n      id\n    }\n  }\n}": types.MangaChapterIdsDocument,
     "query MangaDetail($mangaId: Int!, $first: Int!, $after: Cursor, $order: [ChapterOrderInput!]) {\n  manga(id: $mangaId) {\n    id\n    title\n    author\n    artist\n    description\n    status\n    thumbnailUrl\n    thumbnailUrlLastFetched\n    genre\n    inLibrary\n    source {\n      id\n      name\n    }\n  }\n  chapters(\n    condition: {mangaId: $mangaId}\n    first: $first\n    after: $after\n    order: $order\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isBookmarked\n      isDownloaded\n      lastPageRead\n      scanlator\n      uploadDate\n      sourceOrder\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": types.MangaDetailDocument,
     "query ReaderChapter($chapterId: Int!) {\n  chapter(id: $chapterId) {\n    id\n    name\n    pageCount\n    chapterNumber\n    sourceOrder\n    isRead\n    lastPageRead\n    manga {\n      id\n      title\n      thumbnailUrl\n    }\n  }\n}": types.ReaderChapterDocument,
@@ -91,6 +94,7 @@ const documents: Documents = {
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
+    "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}": types.TrackingServicesDocument,
     "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.UpdateCategoryDocument,
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": types.UpdateChapterProgressDocument,
@@ -207,6 +211,10 @@ export function graphql(source: "mutation Login($input: LoginInput!) {\n  login(
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "mutation LogoutTracker($input: LogoutTrackerInput!) {\n  logoutTracker(input: $input) {\n    tracker {\n      id\n      isLoggedIn\n    }\n  }\n}"): (typeof documents)["mutation LogoutTracker($input: LogoutTrackerInput!) {\n  logoutTracker(input: $input) {\n    tracker {\n      id\n      isLoggedIn\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "query MangaChapterIds($mangaId: Int!) {\n  chapters(filter: {mangaId: {equalTo: $mangaId}}, first: 5000) {\n    nodes {\n      id\n    }\n  }\n}"): (typeof documents)["query MangaChapterIds($mangaId: Int!) {\n  chapters(filter: {mangaId: {equalTo: $mangaId}}, first: 5000) {\n    nodes {\n      id\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -248,6 +256,10 @@ export function graphql(source: "mutation StartDownloader {\n  startDownloader(i
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}"): (typeof documents)["query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

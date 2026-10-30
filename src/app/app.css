@@ -3388,6 +3388,80 @@ button.manga-card-link {
   font-size: var(--text-xs);
 }
 
+.tracker-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.tracker-card {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(17, 24, 39, 0.52);
+}
+
+.tracker-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  color: var(--accent);
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--accent-soft);
+}
+
+.tracker-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tracker-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tracker-copy h2 {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.tracker-copy p {
+  margin: 0.1rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.tracker-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.tracker-badges span {
+  padding: 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.tracker-card > .button {
+  flex: 0 0 auto;
+  min-height: 2rem;
+  padding: 0 0.6rem;
+  font-size: var(--text-xs);
+  text-decoration: none;
+}
+
 .source-mark,
 .category-mark {
   display: inline-grid;

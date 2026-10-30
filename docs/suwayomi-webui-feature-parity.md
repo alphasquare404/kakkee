@@ -192,7 +192,7 @@ frontend.
 | Migration | Missing/outdated match filters, local source | `Missing` | Yes | |
 | Migration | Resume/abort via Web Locks | `Missing` | Platform/secure context | |
 | Migration | Client data migration options | `Missing` | Yes | |
-| Tracking | Tracker auth/config and services | `Missing` | Yes | |
+| Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
 | Tracking | Manga search, bind/unbind, private binding | `Missing` | Yes | |
 | Tracking | Score/progress/status and sync behavior | `Missing` | Yes | |
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
@@ -216,7 +216,7 @@ frontend.
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
 | Settings | Browse/source/extension-store settings | `Missing` | Yes | |
 | Settings | History preferences | `Missing` | Metadata | |
-| Settings | Tracking settings | `Missing` | Yes | |
+| Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | `/settings/server` reads and writes safe update/download/system settings; auth/database/OPDS/KOReader editing absent |
 | Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
 | Settings | Device management | `Missing` | Metadata | |
