@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { LibraryManga } from '../../core/library/libraryRepository';
 import type { ResourceService } from '../../core/resources/resourceService';
@@ -9,6 +10,7 @@ export interface MangaCardProps {
   readonly selectable?: boolean;
   readonly selected?: boolean;
   readonly onToggle?: (shiftKey: boolean) => void;
+  readonly onLongPress?: () => void;
 }
 
 export function MangaCard({
@@ -17,8 +19,32 @@ export function MangaCard({
   selectable = false,
   selected = false,
   onToggle,
+  onLongPress,
 }: MangaCardProps) {
   const thumbnail = useImageResource(resources, manga.thumbnailUrl);
+  const longPressTimer = useRef<number | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const clearLongPress = () => {
+    if (longPressTimer.current !== null) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const startLongPress = () => {
+    if (!onLongPress || selectable) {
+      return;
+    }
+
+    clearLongPress();
+    longPressTriggered.current = false;
+    longPressTimer.current = window.setTimeout(() => {
+      longPressTriggered.current = true;
+      onLongPress();
+    }, 500);
+  };
+
   const content = (
     <article className="manga-card">
       <div className="manga-card-cover">
@@ -66,6 +92,18 @@ export function MangaCard({
       className="manga-card-link"
       to={`/manga/${manga.id}`}
       aria-label={`${manga.title}, manga details`}
+      onPointerDown={startLongPress}
+      onPointerUp={clearLongPress}
+      onPointerCancel={clearLongPress}
+      onPointerLeave={clearLongPress}
+      onClick={(event) => {
+        clearLongPress();
+
+        if (longPressTriggered.current) {
+          event.preventDefault();
+          longPressTriggered.current = false;
+        }
+      }}
     >
       {content}
     </Link>

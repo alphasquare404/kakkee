@@ -657,6 +657,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   onToggle={(shiftKey) =>
                     toggleSelected(index, manga.id, shiftKey)
                   }
+                  onLongPress={() => {
+                    setSelectionMode(true);
+                    setSelectedIds(new Set([manga.id]));
+                    setLastSelectedIndex(index);
+                  }}
                 />
               ))}
             </div>

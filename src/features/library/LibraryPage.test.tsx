@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
@@ -192,6 +192,32 @@ describe('LibraryPage initial states', () => {
     );
 
     expect(screen.getByText('1 selected')).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Alpha, selected' }),
+    ).toBeTruthy();
+  });
+
+  it('enters selection mode by long-pressing a poster', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    renderLibrary(query);
+
+    const card = await screen.findByRole('link', {
+      name: 'Alpha, manga details',
+    });
+
+    await act(async () => {
+      fireEvent.pointerDown(card, { pointerType: 'touch' });
+      await new Promise((resolve) => window.setTimeout(resolve, 550));
+      fireEvent.pointerUp(card, { pointerType: 'touch' });
+    });
+
+    expect(await screen.findByText('1 selected')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();

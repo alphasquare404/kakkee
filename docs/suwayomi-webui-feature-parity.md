@@ -72,7 +72,7 @@ frontend.
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
 | Library | Random manga / random sort | `Missing` | Client concern | |
 | Library | Continue-reading button / tooltip | `Missing` | Reading progress | No progress writer |
-| Library | Manga selection, shift-click, long-press | `Partial` | Client concern | Explicit selection mode + shift-click range; long-press not yet |
+| Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
 | Library | Bulk download, delete downloads, mark read/unread | `Missing` | Yes | |
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
 | Library | Bulk migrate | `Missing` | Yes | |

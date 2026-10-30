@@ -2021,6 +2021,8 @@ h2 {
 
 .manga-card-link {
   transition: transform var(--dur-base) var(--ease-out);
+  touch-action: manipulation;
+  user-select: none;
 }
 
 button.manga-card-link {
