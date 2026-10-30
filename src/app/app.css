@@ -3442,6 +3442,10 @@ button.manga-card-link {
   font-size: var(--text-xs);
 }
 
+.extension-stores .library-action {
+  margin-left: auto;
+}
+
 .tracker-list {
   display: grid;
   gap: 0.5rem;

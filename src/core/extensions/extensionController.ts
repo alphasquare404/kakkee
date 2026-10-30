@@ -13,6 +13,7 @@ export interface ExtensionState {
   readonly stores: readonly ExtensionStore[];
   readonly busyPkg: string | null;
   readonly refreshing: boolean;
+  readonly storeBusy: string | null;
   readonly actionError: boolean;
 }
 
@@ -22,6 +23,8 @@ export interface ExtensionController {
   load(): Promise<void>;
   refresh(): Promise<void>;
   update(pkgName: string, patch: UpdateExtensionPatchInput): Promise<void>;
+  addStore(indexUrl: string): Promise<void>;
+  removeStore(indexUrl: string): Promise<void>;
 }
 
 export function createExtensionController(
@@ -33,6 +36,7 @@ export function createExtensionController(
     stores: [],
     busyPkg: null,
     refreshing: false,
+    storeBusy: null,
     actionError: false,
   };
   const listeners = new Set<() => void>();
@@ -98,6 +102,37 @@ export function createExtensionController(
     }
   }
 
+  async function addStore(indexUrl: string): Promise<void> {
+    patch({ storeBusy: indexUrl, actionError: false });
+
+    try {
+      const store = await repository.addStore(indexUrl);
+      patch({
+        stores: [
+          ...state.stores.filter((item) => item.indexUrl !== store.indexUrl),
+          store,
+        ],
+        storeBusy: null,
+      });
+    } catch {
+      patch({ storeBusy: null, actionError: true });
+    }
+  }
+
+  async function removeStore(indexUrl: string): Promise<void> {
+    patch({ storeBusy: indexUrl, actionError: false });
+
+    try {
+      await repository.removeStore(indexUrl);
+      patch({
+        stores: state.stores.filter((store) => store.indexUrl !== indexUrl),
+        storeBusy: null,
+      });
+    } catch {
+      patch({ storeBusy: null, actionError: true });
+    }
+  }
+
   return {
     getState: () => state,
     subscribe(listener) {
@@ -107,5 +142,7 @@ export function createExtensionController(
     load,
     refresh,
     update,
+    addStore,
+    removeStore,
   };
 }

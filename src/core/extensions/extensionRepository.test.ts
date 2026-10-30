@@ -1,8 +1,10 @@
 import type { ApolloClient } from '@apollo/client';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  AddExtensionStoreDocument,
   ExtensionsCatalogDocument,
   FetchExtensionsDocument,
+  RemoveExtensionStoreDocument,
   UpdateExtensionsDocument,
 } from '../graphql/generated/graphql';
 import { createExtensionRepository } from './extensionRepository';
@@ -87,6 +89,54 @@ describe('createExtensionRepository', () => {
     expect(mutate).toHaveBeenNthCalledWith(2, {
       mutation: UpdateExtensionsDocument,
       variables: { input: { ids: ['example'], patch: { install: true } } },
+    });
+  });
+
+  it('adds and removes extension stores', async () => {
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === AddExtensionStoreDocument) {
+        return {
+          data: {
+            addExtensionStore: {
+              extensionStore: {
+                __typename: 'ExtensionStoreType',
+                name: 'Store',
+                badgeLabel: 'Community',
+                indexUrl: 'https://example.test/index.json',
+              },
+            },
+          },
+        };
+      }
+      if (mutation === RemoveExtensionStoreDocument) {
+        return {
+          data: {
+            removeExtensionStore: {
+              extensionStore: {
+                __typename: 'ExtensionStoreType',
+                indexUrl: 'https://example.test/index.json',
+              },
+            },
+          },
+        };
+      }
+      throw new Error('unexpected mutation');
+    });
+    const client = { query: vi.fn(), mutate } as unknown as ApolloClient;
+    const repository = createExtensionRepository({ getClient: () => client });
+
+    await expect(
+      repository.addStore('https://example.test/index.json'),
+    ).resolves.toMatchObject({ name: 'Store' });
+    await repository.removeStore('https://example.test/index.json');
+
+    expect(mutate).toHaveBeenNthCalledWith(1, {
+      mutation: AddExtensionStoreDocument,
+      variables: { input: { indexUrl: 'https://example.test/index.json' } },
+    });
+    expect(mutate).toHaveBeenNthCalledWith(2, {
+      mutation: RemoveExtensionStoreDocument,
+      variables: { input: { indexUrl: 'https://example.test/index.json' } },
     });
   });
 });

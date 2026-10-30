@@ -29,16 +29,26 @@ function setup() {
       hasUpdate: false,
     },
   ]);
+  const addStore = vi.fn(async () => ({
+    name: 'Store',
+    badgeLabel: 'Community',
+    indexUrl: 'https://example.test/index.json',
+  }));
+  const removeStore = vi.fn(async () => undefined);
   const repository = {
     getExtensions,
     refresh,
     update,
+    addStore,
+    removeStore,
   } as unknown as ExtensionRepository;
   return {
     controller: createExtensionController(repository),
     getExtensions,
     refresh,
     update,
+    addStore,
+    removeStore,
   };
 }
 
@@ -62,5 +72,19 @@ describe('createExtensionController', () => {
 
     expect(controller.getState().actionError).toBe(true);
     expect(controller.getState().items).toHaveLength(1);
+  });
+
+  it('adds and removes extension stores', async () => {
+    const { controller, addStore, removeStore } = setup();
+    await controller.load();
+    await controller.refresh();
+    await controller.addStore('https://example.test/index.json');
+
+    expect(controller.getState().stores).toHaveLength(1);
+    await controller.removeStore('https://example.test/index.json');
+
+    expect(controller.getState().stores).toHaveLength(0);
+    expect(addStore).toHaveBeenCalledWith('https://example.test/index.json');
+    expect(removeStore).toHaveBeenCalledWith('https://example.test/index.json');
   });
 });

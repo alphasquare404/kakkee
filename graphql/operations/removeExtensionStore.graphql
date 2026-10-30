@@ -1,0 +1,7 @@
+mutation RemoveExtensionStore($input: RemoveExtensionStoreInput!) {
+  removeExtensionStore(input: $input) {
+    extensionStore {
+      indexUrl
+    }
+  }
+}

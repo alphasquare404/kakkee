@@ -15,6 +15,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  */
 type Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": typeof types.AboutServerDocument,
+    "mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": typeof types.AddExtensionStoreDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": typeof types.AuthProbeDocument,
     "query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}": typeof types.BackupSettingsDocument,
     "mutation BindTrack($input: BindTrackInput!) {\n  bindTrack(input: $input) {\n    trackRecord {\n      id\n      trackerId\n      title\n      status\n      score\n      displayScore\n      private\n      remoteUrl\n      tracker {\n        id\n        name\n        scores\n        statuses {\n          name\n          value\n        }\n      }\n    }\n  }\n}": typeof types.BindTrackDocument,
@@ -45,6 +46,7 @@ type Documents = {
     "query ReaderChapterList($mangaId: Int!) {\n  chapters(\n    filter: {mangaId: {equalTo: $mangaId}}\n    order: [{by: SOURCE_ORDER, byType: DESC}]\n    first: 1000\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n      isRead\n    }\n  }\n}": typeof types.ReaderChapterListDocument,
     "query ReaderNeighbors($mangaId: Int!, $chapterNumber: Float!) {\n  previous: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {lessThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: DESC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n  next: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {greaterThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: ASC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n}": typeof types.ReaderNeighborsDocument,
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": typeof types.RefreshTokenDocument,
+    "mutation RemoveExtensionStore($input: RemoveExtensionStoreInput!) {\n  removeExtensionStore(input: $input) {\n    extensionStore {\n      indexUrl\n    }\n  }\n}": typeof types.RemoveExtensionStoreDocument,
     "query SearchTracker($input: SearchTrackerInput!) {\n  searchTracker(input: $input) {\n    trackSearches {\n      id\n      remoteId\n      trackerId\n      title\n      coverUrl\n      summary\n      totalChapters\n      publishingStatus\n      publishingType\n      score\n      displayScore\n      status\n    }\n  }\n}": typeof types.SearchTrackerDocument,
     "query ServerSettings {\n  settings {\n    authMode\n    databaseType\n    updateMangas\n    autoDownloadNewChapters\n    autoDownloadNewChaptersLimit\n    downloadAsCbz\n    downloadsPath\n    maxSourcesInParallel\n    globalUpdateInterval\n    excludeCompleted\n    excludeNotStarted\n    excludeUnreadChapters\n    excludeEntryWithUnreadChapters\n    debugLogsEnabled\n    backupPath\n    backupInterval\n    webUIChannel\n    webUIFlavor\n    webUIInterface\n  }\n}": typeof types.ServerSettingsDocument,
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
@@ -69,6 +71,7 @@ type Documents = {
 };
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
+    "mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": types.AddExtensionStoreDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": types.AuthProbeDocument,
     "query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}": types.BackupSettingsDocument,
     "mutation BindTrack($input: BindTrackInput!) {\n  bindTrack(input: $input) {\n    trackRecord {\n      id\n      trackerId\n      title\n      status\n      score\n      displayScore\n      private\n      remoteUrl\n      tracker {\n        id\n        name\n        scores\n        statuses {\n          name\n          value\n        }\n      }\n    }\n  }\n}": types.BindTrackDocument,
@@ -99,6 +102,7 @@ const documents: Documents = {
     "query ReaderChapterList($mangaId: Int!) {\n  chapters(\n    filter: {mangaId: {equalTo: $mangaId}}\n    order: [{by: SOURCE_ORDER, byType: DESC}]\n    first: 1000\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n      isRead\n    }\n  }\n}": types.ReaderChapterListDocument,
     "query ReaderNeighbors($mangaId: Int!, $chapterNumber: Float!) {\n  previous: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {lessThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: DESC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n  next: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {greaterThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: ASC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n}": types.ReaderNeighborsDocument,
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": types.RefreshTokenDocument,
+    "mutation RemoveExtensionStore($input: RemoveExtensionStoreInput!) {\n  removeExtensionStore(input: $input) {\n    extensionStore {\n      indexUrl\n    }\n  }\n}": types.RemoveExtensionStoreDocument,
     "query SearchTracker($input: SearchTrackerInput!) {\n  searchTracker(input: $input) {\n    trackSearches {\n      id\n      remoteId\n      trackerId\n      title\n      coverUrl\n      summary\n      totalChapters\n      publishingStatus\n      publishingType\n      score\n      displayScore\n      status\n    }\n  }\n}": types.SearchTrackerDocument,
     "query ServerSettings {\n  settings {\n    authMode\n    databaseType\n    updateMangas\n    autoDownloadNewChapters\n    autoDownloadNewChaptersLimit\n    downloadAsCbz\n    downloadsPath\n    maxSourcesInParallel\n    globalUpdateInterval\n    excludeCompleted\n    excludeNotStarted\n    excludeUnreadChapters\n    excludeEntryWithUnreadChapters\n    debugLogsEnabled\n    backupPath\n    backupInterval\n    webUIChannel\n    webUIFlavor\n    webUIInterface\n  }\n}": types.ServerSettingsDocument,
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
@@ -140,6 +144,10 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}"): (typeof documents)["query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}"): (typeof documents)["mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -260,6 +268,10 @@ export function graphql(source: "query ReaderNeighbors($mangaId: Int!, $chapterN
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"): (typeof documents)["mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation RemoveExtensionStore($input: RemoveExtensionStoreInput!) {\n  removeExtensionStore(input: $input) {\n    extensionStore {\n      indexUrl\n    }\n  }\n}"): (typeof documents)["mutation RemoveExtensionStore($input: RemoveExtensionStoreInput!) {\n  removeExtensionStore(input: $input) {\n    extensionStore {\n      indexUrl\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

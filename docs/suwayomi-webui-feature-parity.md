@@ -178,7 +178,7 @@ frontend.
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
 | Browse | Saved source searches and global search | `Missing` | Client metadata + server | |
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
-| Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store list; advanced filters absent |
+| Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Partial` | Yes | Install/uninstall/update and obsolete badge; external JAR upload absent |
 | Extensions | Update badges/info pages | `Partial` | Yes | Update section and badge; detail pages absent |
 | Sources | Source configure/preferences | `Missing` | Yes | |
@@ -214,7 +214,7 @@ frontend.
 | Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
-| Settings | Browse/source/extension-store settings | `Missing` | Yes | |
+| Settings | Browse/source/extension-store settings | `Partial` | Yes | Extension stores can be added/removed; source preferences absent |
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | `/settings/server` reads and writes safe update/download/system settings; auth/database/OPDS/KOReader editing absent |

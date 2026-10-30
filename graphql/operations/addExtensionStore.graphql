@@ -1,0 +1,9 @@
+mutation AddExtensionStore($input: AddExtensionStoreInput!) {
+  addExtensionStore(input: $input) {
+    extensionStore {
+      name
+      badgeLabel
+      indexUrl
+    }
+  }
+}

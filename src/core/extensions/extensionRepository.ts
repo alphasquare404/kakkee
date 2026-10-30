@@ -1,7 +1,9 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  AddExtensionStoreDocument,
   ExtensionsCatalogDocument,
   FetchExtensionsDocument,
+  RemoveExtensionStoreDocument,
   UpdateExtensionsDocument,
   type ExtensionsCatalogQuery,
   type FetchExtensionsMutation,
@@ -27,6 +29,8 @@ export interface ExtensionRepository {
     isInstalled: boolean;
     hasUpdate: boolean;
   }[]>;
+  addStore(indexUrl: string): Promise<ExtensionStore>;
+  removeStore(indexUrl: string): Promise<void>;
 }
 
 export function createExtensionRepository(options: {
@@ -70,6 +74,28 @@ export function createExtensionRepository(options: {
       }
 
       return result.data.updateExtensions.extensions;
+    },
+    async addStore(indexUrl) {
+      const result = await options.getClient().mutate({
+        mutation: AddExtensionStoreDocument,
+        variables: { input: { indexUrl } },
+      });
+
+      if (!result.data?.addExtensionStore) {
+        throw new Error('Extension store could not be added.');
+      }
+
+      return result.data.addExtensionStore.extensionStore;
+    },
+    async removeStore(indexUrl) {
+      const result = await options.getClient().mutate({
+        mutation: RemoveExtensionStoreDocument,
+        variables: { input: { indexUrl } },
+      });
+
+      if (!result.data?.removeExtensionStore) {
+        throw new Error('Extension store could not be removed.');
+      }
     },
   };
 }

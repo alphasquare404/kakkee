@@ -184,11 +184,11 @@ Real server `https://suwayomi.alphasquare.my.id`, auth `NONE`, v2.4.2366:
 npm run codegen:check  PASS
 npm run lint           PASS
 npm run typecheck      PASS
-npm run test           PASS — 335 passed, 7 skipped (342 total)
+npm run test           PASS — 337 passed, 7 skipped (344 total)
 npm run build          PASS
 ```
 
-Build code-splits Manga Detail, Reader, and secondary pages. Main JS 567.77 kB (gzip 160.31 kB), CSS 65.75 kB (gzip 12.11 kB), detail 24.40 kB, reader 12.80 kB, source manga 5.86 kB, extensions 6.21 kB, backup 4.89 kB, sync 4.33 kB, tracking 4.03 kB, device 2.90 kB, history settings 1.17 kB, downloads 7.18 kB, server settings 7.11 kB, categories 6.65 kB, reader settings 5.79 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
+Build code-splits Manga Detail, Reader, and secondary pages. Main JS 569.44 kB (gzip 160.41 kB), CSS 65.80 kB (gzip 12.12 kB), detail 24.39 kB, reader 12.80 kB, extensions 7.92 kB, source manga 5.86 kB, backup 4.89 kB, sync 4.33 kB, tracking 4.03 kB, device 2.90 kB, history settings 1.17 kB, downloads 7.18 kB, server settings 7.11 kB, categories 6.65 kB, reader settings 5.79 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
 
 PWA production preview at root:
 

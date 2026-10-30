@@ -34,6 +34,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     controller.getState,
   );
   const [language, setLanguage] = useState('all');
+  const [storeUrl, setStoreUrl] = useState('');
 
   useEffect(() => {
     void controller.load();
@@ -169,11 +170,51 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
               <li key={store.indexUrl}>
                 <strong>{store.name}</strong>
                 <span>{store.badgeLabel}</span>
+                <button
+                  className="library-action"
+                  type="button"
+                  disabled={extensions.storeBusy === store.indexUrl}
+                  onClick={() => void controller.removeStore(store.indexUrl)}
+                >
+                  {extensions.storeBusy === store.indexUrl ? 'Working…' : 'Remove'}
+                </button>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+
+      <section className="extension-section" aria-labelledby="extension-add-store">
+        <div className="section-heading-row">
+          <h2 id="extension-add-store">Add store</h2>
+        </div>
+        <form
+          className="source-search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const url = storeUrl.trim();
+
+            if (url) {
+              void controller.addStore(url).then(() => setStoreUrl(''));
+            }
+          }}
+        >
+          <input
+            type="url"
+            aria-label="Extension store index URL"
+            placeholder="https://example.test/index.min.json"
+            value={storeUrl}
+            onChange={(event) => setStoreUrl(event.target.value)}
+          />
+          <button
+            className="button"
+            type="submit"
+            disabled={extensions.storeBusy !== null || !storeUrl.trim()}
+          >
+            Add store
+          </button>
+        </form>
+      </section>
     </div>
   );
 }
