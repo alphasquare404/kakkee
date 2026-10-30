@@ -2,6 +2,7 @@
 
 import type { ApolloClient } from '@apollo/client';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
@@ -204,6 +205,40 @@ describe('parity pages', () => {
     expect(await screen.findByRole('heading', { name: 'Categories' })).toBeTruthy();
     expect(await screen.findByText('Actual Category')).toBeTruthy();
     expect(screen.getByText('7 manga')).toBeTruthy();
+  });
+
+  it('opens the category creation form', async () => {
+    const data: CategoryCatalogQuery = {
+      __typename: 'Query',
+      categories: {
+        __typename: 'CategoryNodeList',
+        nodes: [
+          {
+            __typename: 'CategoryType',
+            id: 1,
+            name: 'Actual Category',
+            default: false,
+            isDefaultCategory: false,
+            order: 1,
+            mangas: { __typename: 'MangaNodeList', totalCount: 7 },
+          },
+        ],
+      },
+    };
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === CategoryCatalogDocument) {
+        return { data };
+      }
+      return { data: {} };
+    });
+    renderPage('/categories', query);
+
+    await userEvent
+      .setup()
+      .click(await screen.findByRole('button', { name: 'New category' }));
+
+    expect(screen.getByPlaceholderText('Category name')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeTruthy();
   });
 
   it('renders real server information on Settings', async () => {

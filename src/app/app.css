@@ -3107,6 +3107,94 @@ button.manga-card-link {
   text-decoration: none;
 }
 
+.category-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  margin-bottom: var(--sp-3);
+}
+
+.category-create label {
+  flex: 1 1 18rem;
+}
+
+.category-create input,
+.category-rename input {
+  width: 100%;
+  min-height: 2.45rem;
+  padding: 0 0.7rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.category-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.category-actions button {
+  padding: 0.25rem 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+}
+
+.category-actions button:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.category-actions button.is-danger {
+  color: color-mix(in srgb, var(--danger) 78%, var(--text));
+}
+
+.category-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.category-rename {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.category-rename input {
+  flex: 1 1 9rem;
+}
+
+.category-rename .button,
+.category-delete-confirm .button {
+  min-height: 2rem;
+  padding: 0.2rem 0.55rem;
+  font-size: var(--text-xs);
+}
+
+.category-delete-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.button-danger {
+  color: #fff;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--danger) 82%, #000);
+}
+
 .settings-layout {
   display: grid;
   grid-template-columns: 10.5rem minmax(0, 1fr);

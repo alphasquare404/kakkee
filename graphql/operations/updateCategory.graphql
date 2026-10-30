@@ -1,0 +1,14 @@
+mutation UpdateCategory($input: UpdateCategoryInput!) {
+  updateCategory(input: $input) {
+    category {
+      id
+      name
+      default
+      isDefaultCategory
+      order
+      mangas {
+        totalCount
+      }
+    }
+  }
+}

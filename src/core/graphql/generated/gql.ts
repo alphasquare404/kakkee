@@ -18,6 +18,8 @@ type Documents = {
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": typeof types.AuthProbeDocument,
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": typeof types.ChapterFeedDocument,
+    "mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CreateCategoryDocument,
+    "mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}": typeof types.DeleteCategoryDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": typeof types.DeleteDownloadedChapterDocument,
     "mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": typeof types.DeleteDownloadedChaptersDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.DequeueDownloadDocument,
@@ -37,6 +39,8 @@ type Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
+    "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.UpdateCategoryDocument,
+    "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": typeof types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": typeof types.UpdateChapterProgressDocument,
     "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": typeof types.UpdateChaptersStateDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangaLibraryDocument,
@@ -49,6 +53,8 @@ const documents: Documents = {
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": types.AuthProbeDocument,
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": types.ChapterFeedDocument,
+    "mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CreateCategoryDocument,
+    "mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}": types.DeleteCategoryDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": types.DeleteDownloadedChapterDocument,
     "mutation DeleteDownloadedChapters($input: DeleteDownloadedChaptersInput!) {\n  deleteDownloadedChapters(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": types.DeleteDownloadedChaptersDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.DequeueDownloadDocument,
@@ -68,6 +74,8 @@ const documents: Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StartDownloaderDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
+    "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.UpdateCategoryDocument,
+    "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": types.UpdateChapterProgressDocument,
     "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": types.UpdateChaptersStateDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangaLibraryDocument,
@@ -106,6 +114,14 @@ export function graphql(source: "query CategoryCatalog {\n  categories(order: [{
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"): (typeof documents)["query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"): (typeof documents)["mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}"): (typeof documents)["mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -182,6 +198,14 @@ export function graphql(source: "mutation StartDownloader {\n  startDownloader(i
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"): (typeof documents)["mutation UpdateCategory($input: UpdateCategoryInput!) {\n  updateCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}"): (typeof documents)["mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

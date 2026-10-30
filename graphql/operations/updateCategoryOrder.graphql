@@ -1,0 +1,8 @@
+mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {
+  updateCategoryOrder(input: $input) {
+    categories {
+      id
+      order
+    }
+  }
+}

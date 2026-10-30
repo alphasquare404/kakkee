@@ -196,7 +196,7 @@ frontend.
 | Tracking | Manga search, bind/unbind, private binding | `Missing` | Yes | |
 | Tracking | Score/progress/status and sync behavior | `Missing` | Yes | |
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
-| Categories | Create/rename/reorder/delete with confirmation | `Missing` | Yes | |
+| Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
 | Categories | Assignment and default-category behavior | `Missing` | Yes | |
 | Categories | Category update/download inclusion flags | `Missing` | Yes | |
 
