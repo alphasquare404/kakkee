@@ -2,6 +2,8 @@ import type { ApolloClient } from '@apollo/client';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
+  MangaChapterIdsDocument,
+  UpdateChaptersStateDocument,
   UpdateMangasCategoriesDocument,
   UpdateMangasLibraryDocument,
   type LibraryCategoriesQuery,
@@ -73,6 +75,8 @@ export interface LibraryRepository {
   getCategories(): Promise<readonly LibraryCategory[]>;
   setLibrary(ids: readonly number[], inLibrary: boolean): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
+  getChapterIds(mangaId: number): Promise<readonly number[]>;
+  setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
 }
 
 export interface LibraryRepositoryOptions {
@@ -248,6 +252,33 @@ export function createLibraryRepository(
 
       if (!result.data?.updateMangasCategories) {
         throw new Error('Kategori manga tidak dapat disimpan.');
+      }
+    },
+    async getChapterIds(mangaId) {
+      const result = await options.getClient().query({
+        query: MangaChapterIdsDocument,
+        variables: { mangaId },
+        fetchPolicy: 'network-only',
+      });
+
+      if (!result.data?.chapters) {
+        throw new Error('Chapter manga tidak dapat dimuat.');
+      }
+
+      return result.data.chapters.nodes.map((chapter) => chapter.id);
+    },
+    async setChaptersRead(ids, isRead) {
+      if (ids.length === 0) {
+        return;
+      }
+
+      const result = await options.getClient().mutate({
+        mutation: UpdateChaptersStateDocument,
+        variables: { input: { ids: [...ids], patch: { isRead } } },
+      });
+
+      if (!result.data?.updateChapters) {
+        throw new Error('Status baca chapter tidak dapat disimpan.');
       }
     },
   };

@@ -4,6 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   LibraryCategoriesDocument,
   LibraryMangasDocument,
+  MangaChapterIdsDocument,
+  UpdateChaptersStateDocument,
   UpdateMangasCategoriesDocument,
   UpdateMangasLibraryDocument,
   type LibraryCategoriesQuery,
@@ -412,6 +414,38 @@ describe('LibraryInputError', () => {
         variables: {
           input: { ids: [1], patch: { addToCategories: [7] } },
         },
+      }),
+    );
+  });
+
+  it('loads chapter ids and updates their read state', async () => {
+    const query = vi.fn(async () => ({
+      data: {
+        chapters: {
+          __typename: 'ChapterNodeList',
+          nodes: [{ __typename: 'ChapterType', id: 10 }, { __typename: 'ChapterType', id: 11 }],
+        },
+      },
+    }));
+    const mutate = vi.fn(async () => ({
+      data: { updateChapters: { chapters: [] } },
+    }));
+    const client = { query, mutate } as unknown as ApolloClient;
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await expect(repository.getChapterIds(1)).resolves.toEqual([10, 11]);
+    await repository.setChaptersRead([10, 11], true);
+
+    expect(query).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query: MangaChapterIdsDocument,
+        variables: { mangaId: 1 },
+      }),
+    );
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mutation: UpdateChaptersStateDocument,
+        variables: { input: { ids: [10, 11], patch: { isRead: true } } },
       }),
     );
   });

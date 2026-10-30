@@ -73,7 +73,7 @@ frontend.
 | Library | Random manga / random sort | `Partial` | Client concern | Shuffles loaded cards; not a server-wide random query |
 | Library | Continue-reading button / tooltip | `Missing` | Reading progress | No progress writer |
 | Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
-| Library | Bulk download, delete downloads, mark read/unread | `Missing` | Yes | |
+| Library | Bulk download, delete downloads, mark read/unread | `Partial` | Yes | Bulk mark read/unread implemented; bulk download/delete absent |
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
 | Library | Bulk migrate | `Missing` | Yes | |
 | Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |

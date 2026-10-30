@@ -56,6 +56,7 @@ export interface LibraryController {
   setCategory(categoryId: number | null): Promise<void>;
   removeFromLibrary(ids: readonly number[]): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
+  markRead(ids: readonly number[], isRead: boolean): Promise<void>;
 }
 
 function initialState(options: LibraryControllerOptions): LibraryState {
@@ -298,6 +299,32 @@ export function createLibraryController(
     await options.repository.addToCategory(ids, categoryId);
   }
 
+  async function markRead(
+    ids: readonly number[],
+    isRead: boolean,
+  ): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    const chapterIds: number[] = [];
+
+    for (const mangaId of ids) {
+      chapterIds.push(...(await options.repository.getChapterIds(mangaId)));
+    }
+
+    await options.repository.setChaptersRead(chapterIds, isRead);
+
+    if (isRead) {
+      const updated = new Set(ids);
+      patch({
+        items: state.items.map((item) =>
+          updated.has(item.id) ? { ...item, unreadCount: 0 } : item,
+        ),
+      });
+    }
+  }
+
   return {
     getState: () => state,
     subscribe: (listener) => {
@@ -315,5 +342,6 @@ export function createLibraryController(
     setCategory,
     removeFromLibrary,
     addToCategory,
+    markRead,
   };
 }

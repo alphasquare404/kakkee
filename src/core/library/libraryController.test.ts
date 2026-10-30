@@ -61,13 +61,24 @@ function setup(options: {
   const getPage = vi.fn();
   const setLibrary = vi.fn();
   const addToCategory = vi.fn();
+  const getChapterIds = vi.fn(async () => [1, 2]);
+  const setChaptersRead = vi.fn();
   const repository = {
     getPage,
     setLibrary,
     addToCategory,
+    getChapterIds,
+    setChaptersRead,
   } as unknown as LibraryRepository;
   const controller = createLibraryController({ repository, ...options });
-  return { controller, getPage, setLibrary, addToCategory };
+  return {
+    controller,
+    getPage,
+    setLibrary,
+    addToCategory,
+    getChapterIds,
+    setChaptersRead,
+  };
 }
 
 function state(controller: ReturnType<typeof setup>['controller']): LibraryState {
@@ -466,6 +477,22 @@ describe('createLibraryController bulk actions', () => {
 
     expect(addToCategory).toHaveBeenCalledWith([1], 7);
     expect(getPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks every chapter of selected manga read and clears unread badges', async () => {
+    const { controller, getPage, getChapterIds, setChaptersRead } = setup();
+    getPage.mockResolvedValue(
+      page([{ ...manga(1), unreadCount: 4 }], { totalCount: 1 }),
+    );
+    getChapterIds.mockResolvedValueOnce([10, 11]);
+    setChaptersRead.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.markRead([1], true);
+
+    expect(getChapterIds).toHaveBeenCalledWith(1);
+    expect(setChaptersRead).toHaveBeenCalledWith([10, 11], true);
+    expect(state(controller).items[0]?.unreadCount).toBe(0);
   });
 });
 

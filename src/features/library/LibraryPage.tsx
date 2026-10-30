@@ -306,8 +306,26 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
-  const removeSelected = async () => {
+  const markSelectedRead = async (isRead: boolean) => {
     if (selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.markRead([...selectedIds], isRead);
+      clearSelection();
+      setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const removeSelected = async () => {    if (selectedIds.size === 0) {
       return;
     }
 
@@ -650,6 +668,22 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 onClick={() => setConfirmRemove(true)}
               >
                 Remove from library
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={bulkBusy || selectedIds.size === 0}
+                onClick={() => void markSelectedRead(true)}
+              >
+                Mark read
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={bulkBusy || selectedIds.size === 0}
+                onClick={() => void markSelectedRead(false)}
+              >
+                Mark unread
               </button>
               <button
                 className="library-action"

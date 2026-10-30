@@ -1,0 +1,7 @@
+query MangaChapterIds($mangaId: Int!) {
+  chapters(filter: { mangaId: { equalTo: $mangaId } }, first: 5000) {
+    nodes {
+      id
+    }
+  }
+}
