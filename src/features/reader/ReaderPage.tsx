@@ -15,7 +15,7 @@ import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
 import { READER_FILTER_CSS } from '../../core/preferences/readerSettings';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MouseEvent } from 'react';
 
 export function ReaderPage() {
   const { state } = useConnection();
@@ -71,6 +71,7 @@ function ConnectedReader({
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [autoScrolling, setAutoScrolling] = useState(false);
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
 
   useEffect(() => {
@@ -248,6 +249,23 @@ function ConnectedReader({
         return;
       }
 
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+        return;
+      }
+
+      if (isPaged && !event.shiftKey) {
+        const step = readingMode === 'double' ? 2 : 1;
+        const delta = event.key === 'ArrowRight' ? step : -step;
+
+        setCurrentPage((page) =>
+          Math.min(
+            Math.max(1, page + delta),
+            Math.max(1, reader.pages.length),
+          ),
+        );
+        return;
+      }
+
       if (event.key === 'ArrowLeft' && reader.previousChapter) {
         navigate(`/manga/${mangaId}/chapter/${reader.previousChapter.id}`);
       }
@@ -260,7 +278,57 @@ function ConnectedReader({
     window.addEventListener('keydown', onKeyDown);
 
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [mangaId, navigate, reader.nextChapter, reader.previousChapter]);
+  }, [
+    isPaged,
+    mangaId,
+    navigate,
+    reader.nextChapter,
+    reader.pages.length,
+    reader.previousChapter,
+    readingMode,
+  ]);
+
+  useEffect(() => {
+    if (!autoScrolling) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      window.scrollBy(0, 1);
+    }, 45);
+
+    const stop = () => setAutoScrolling(false);
+    window.addEventListener('wheel', stop, { passive: true });
+    window.addEventListener('touchstart', stop, { passive: true });
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchstart', stop);
+    };
+  }, [autoScrolling]);
+
+  const selectPageFromTap = (event: MouseEvent<HTMLElement>) => {
+    if (!isPaged) {
+      return;
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    const offset = event.clientX - rect.left;
+
+    if (offset < rect.width / 3) {
+      setCurrentPage((page) =>
+        Math.max(1, page - (readingMode === 'double' ? 2 : 1)),
+      );
+    } else if (offset > (rect.width * 2) / 3) {
+      setCurrentPage((page) =>
+        Math.min(
+          Math.max(1, reader.pages.length),
+          page + (readingMode === 'double' ? 2 : 1),
+        ),
+      );
+    }
+  };
 
   return (
     <div
@@ -309,6 +377,14 @@ function ConnectedReader({
             onClick={toggleFullscreen}
           >
             Fullscreen
+          </button>
+          <button
+            className={`reader-quick-action${autoScrolling ? ' is-active' : ''}`}
+            type="button"
+            aria-pressed={autoScrolling}
+            onClick={() => setAutoScrolling((value) => !value)}
+          >
+            Auto-scroll
           </button>
           {typeof navigator.share === 'function' ? (
             <button
@@ -415,6 +491,7 @@ function ConnectedReader({
             readerSettings.direction === 'rtl' ? ' is-rtl' : ''
           }`}
           aria-label={`${activeChapter.name} pages`}
+          onClick={selectPageFromTap}
         >
           {pageIndices.map((index) => {
             const path = reader.pages[index];

@@ -2549,6 +2549,12 @@ button.manga-card-link {
   border-color: var(--border-strong);
 }
 
+.reader-quick-action.is-active {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  background: var(--accent-soft);
+}
+
 .reader-page-nav {
   display: flex;
   grid-column: 1 / -1;

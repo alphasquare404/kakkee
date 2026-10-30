@@ -140,9 +140,9 @@ frontend.
 | Reader | Preload pages and next chapter | `Partial` | Client-side | Near-viewport page loading only |
 | Reader | Image filters (brightness/contrast/etc.) | `Partial` | Client-side | Grayscale, sepia, invert, and high-contrast presets; per-channel sliders absent |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
-| Reader | Auto-scroll and custom scroll amount | `Missing` | Client-side | |
+| Reader | Auto-scroll and custom scroll amount | `Partial` | Client-side | Auto-scroll toggle with wheel/touch stop; speed control absent |
 | Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |
-| Reader | Tap zones and touch drag scrolling | `Missing` | Client-side | |
+| Reader | Tap zones and touch drag scrolling | `Partial` | Client-side | Left/right tap zones in paged modes; drag scrolling not customized |
 | Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
 | Reader | Auto background color | `Missing` | Client-side | |
 | Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
@@ -222,7 +222,7 @@ frontend.
 | Settings | Device management | `Missing` | Metadata | |
 | Global search | Search all sources, global source filter, library counts | `Missing` | Yes | |
 | Global search | Search history/suggestions | `Missing` | Client metadata | |
-| Hotkeys | Configurable app/reader hotkeys | `Missing` | Client concern | |
+| Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
 | About | About route with versions/update actions | `Partial` | Yes | About data is inside Settings; no `/about` route |
 | Server config | Persist server URL/session | `Missing` | Client concern | |

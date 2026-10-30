@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, configure, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import {
@@ -258,5 +258,11 @@ describe('ReaderPage', () => {
     expect(
       screen.getByRole('button', { name: 'Next page' }),
     ).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Auto-scroll' }),
+    ).toBeTruthy();
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
   });
 });
