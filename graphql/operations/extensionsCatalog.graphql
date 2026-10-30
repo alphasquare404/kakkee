@@ -1,0 +1,19 @@
+query ExtensionsCatalog {
+  extensions(first: 500, order: [{ by: NAME, byType: ASC }]) {
+    totalCount
+    nodes {
+      pkgName
+      name
+      versionName
+      lang
+      isInstalled
+      hasUpdate
+      isObsolete
+      iconUrl
+      contentWarning
+      extensionStore {
+        name
+      }
+    }
+  }
+}

@@ -25,6 +25,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Categories: server categories with real manga counts, create, rename, reorder, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
+- Extensions: installed/available extension catalog, language filter, store list, install/uninstall/update, and update checking.
 - Settings: real server/application information, server update/download/system settings, dark/pure-black theme, and library grid density.
 - Manga Detail: metadata, cover, chapter search/filter/scanlator, chapter order, read/bookmark/download toggles, shift-range bulk read/bookmark/download/delete, in-library toggle, load more, and reader navigation.
 - Reader: vertical, webtoon, single-page, double-page, and horizontal modes; authenticated lazy pages, progress write, saved-page resume, image filter presets, LTR/RTL direction, page scaling, keep-screen-on, fullscreen, share, tap zones, keyboard paging, auto-scroll, chapter navigation, and a chapter-list overlay.
@@ -789,7 +790,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (318 test; 7 runtime integration memerlukan env)
+npm run test           lulus (322 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

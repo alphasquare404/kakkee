@@ -73,8 +73,16 @@ function HistoryIcon() {
 
 function DownloadsIcon() {
   return (
-    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M10 3.5v8M6.8 8.8 10 12l3.2-3.2M4 14.5v1.2h12v-1.2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
+      <path d="M10 3v9m0 0 3.2-3.2M10 12 6.8 8.8M4 14.5v1.2A1.3 1.3 0 0 0 5.3 17h9.4a1.3 1.3 0 0 0 1.3-1.3v-1.2" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+function ExtensionsIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
+      <path d="M7.5 4.2a2 2 0 0 1 3.8-.7c.2.4.1.9.4 1.2.3.3.7.1 1.1.1h1.5a1.6 1.6 0 0 1 1.6 1.6v2.1c0 .4-.2.8-.5 1-.4.3-.9.1-1.3.4a2 2 0 0 0 0 3.2c.4.3.9.1 1.3.4.3.2.5.6.5 1v1.6a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 16.2v-2.1c0-.4.2-.8.5-1 .4-.3.9-.1 1.3-.4a2 2 0 0 0 0-3.2c-.4-.3-.9-.1-1.3-.4a1.4 1.4 0 0 1-.5-1V6.4a1.6 1.6 0 0 1 1.6-1.6h1.5c.4 0 .8.2 1-.1.3-.3.2-.8.4-1.2Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.2" />
     </svg>
   );
 }
@@ -89,13 +97,14 @@ function SettingsIcon() {
 }
 
 const NAV_ITEMS = [
-  { to: '/library', label: 'Library', icon: LibraryIcon, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
-  { to: '/updates', label: 'Updates', icon: UpdatesIcon, match: (path: string) => path === '/updates' },
-  { to: '/browse', label: 'Browse', icon: BrowseIcon, match: (path: string) => path === '/browse' },
-  { to: '/categories', label: 'Categories', icon: CategoriesIcon, match: (path: string) => path === '/categories' },
-  { to: '/history', label: 'History', icon: HistoryIcon, match: (path: string) => path === '/history' },
-  { to: '/downloads', label: 'Downloads', icon: DownloadsIcon, match: (path: string) => path === '/downloads' },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon, match: (path: string) => path.startsWith('/settings') },
+  { to: '/library', label: 'Library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
+  { to: '/updates', label: 'Updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
+  { to: '/browse', label: 'Browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' },
+  { to: '/extensions', label: 'Extensions', icon: ExtensionsIcon, mobile: false, match: (path: string) => path === '/extensions' },
+  { to: '/categories', label: 'Categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
+  { to: '/history', label: 'History', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
+  { to: '/downloads', label: 'Downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') },
 ] as const;
 
 export function AppLayout() {
@@ -160,7 +169,7 @@ export function AppLayout() {
       </div>
 
       <nav className="mobile-nav" aria-label="Primary navigation">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => item.mobile).map((item) => {
           const Icon = item.icon;
           const active = item.match(location.pathname);
 

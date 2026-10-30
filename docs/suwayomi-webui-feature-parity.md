@@ -178,9 +178,9 @@ frontend.
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
 | Browse | Saved source searches and global search | `Missing` | Client metadata + server | |
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
-| Extensions | Installed/available extensions, stores, language filters | `Missing` | Yes | |
-| Extensions | Install/uninstall/update, external JAR, obsolete handling | `Missing` | Yes | |
-| Extensions | Update badges/info pages | `Missing` | Yes | |
+| Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store list; advanced filters absent |
+| Extensions | Install/uninstall/update, external JAR, obsolete handling | `Partial` | Yes | Install/uninstall/update and obsolete badge; external JAR upload absent |
+| Extensions | Update badges/info pages | `Partial` | Yes | Update section and badge; detail pages absent |
 | Sources | Source configure/preferences | `Missing` | Yes | |
 
 ### Migration / Tracking / Categories

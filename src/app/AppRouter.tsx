@@ -19,6 +19,11 @@ const SourceMangaPage = lazy(() =>
     default: module.SourceMangaPage,
   })),
 );
+const ExtensionsPage = lazy(() =>
+  import('../features/extensions/ExtensionsPage').then((module) => ({
+    default: module.ExtensionsPage,
+  })),
+);
 const CategoriesPage = lazy(() =>
   import('../features/categories/CategoriesPage').then((module) => ({
     default: module.CategoriesPage,
@@ -105,6 +110,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/updates" element={<UpdatesPage />} />
             <Route path="/browse" element={<BrowsePage />} />
             <Route path="/browse/:sourceId" element={<SourceMangaPage />} />
+            <Route path="/extensions" element={<ExtensionsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/downloads" element={<DownloadsPage />} />

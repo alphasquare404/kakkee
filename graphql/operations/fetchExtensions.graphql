@@ -1,0 +1,23 @@
+mutation FetchExtensions {
+  fetchExtensions(input: {}) {
+    extensions {
+      pkgName
+      name
+      versionName
+      lang
+      isInstalled
+      hasUpdate
+      isObsolete
+      iconUrl
+      contentWarning
+      extensionStore {
+        name
+      }
+    }
+    extensionStores {
+      name
+      badgeLabel
+      indexUrl
+    }
+  }
+}

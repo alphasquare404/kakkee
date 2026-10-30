@@ -27,7 +27,9 @@ type Documents = {
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": typeof types.DownloadStatusChangedDocument,
     "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueDownloadDocument,
+    "query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}": typeof types.ExtensionsCatalogDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": typeof types.FetchChapterPagesDocument,
+    "mutation FetchExtensions {\n  fetchExtensions(input: {}) {\n    extensions {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n    extensionStores {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": typeof types.FetchExtensionsDocument,
     "mutation FetchSourceManga($input: FetchSourceMangaInput!) {\n  fetchSourceManga(input: $input) {\n    hasNextPage\n    mangas {\n      id\n      title\n      thumbnailUrl\n      inLibrary\n      sourceId\n    }\n  }\n}": typeof types.FetchSourceMangaDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.LibraryCategoriesDocument,
     "query LibraryMangas($first: Int!, $after: Cursor, $filter: MangaFilterInput, $order: [MangaOrderInput!]) {\n  mangas(\n    condition: {inLibrary: true}\n    first: $first\n    after: $after\n    filter: $filter\n    order: $order\n  ) {\n    nodes {\n      id\n      title\n      thumbnailUrl\n      thumbnailUrlLastFetched\n      unreadCount\n      downloadCount\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": typeof types.LibraryMangasDocument,
@@ -47,6 +49,7 @@ type Documents = {
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": typeof types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": typeof types.UpdateChapterProgressDocument,
     "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": typeof types.UpdateChaptersStateDocument,
+    "mutation UpdateExtensions($input: UpdateExtensionsInput!) {\n  updateExtensions(input: $input) {\n    extensions {\n      pkgName\n      isInstalled\n      hasUpdate\n    }\n  }\n}": typeof types.UpdateExtensionsDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangaLibraryDocument,
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": typeof types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": typeof types.UpdateMangasLibraryDocument,
@@ -66,7 +69,9 @@ const documents: Documents = {
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": types.DownloadStatusChangedDocument,
     "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueDownloadDocument,
+    "query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}": types.ExtensionsCatalogDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": types.FetchChapterPagesDocument,
+    "mutation FetchExtensions {\n  fetchExtensions(input: {}) {\n    extensions {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n    extensionStores {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": types.FetchExtensionsDocument,
     "mutation FetchSourceManga($input: FetchSourceMangaInput!) {\n  fetchSourceManga(input: $input) {\n    hasNextPage\n    mangas {\n      id\n      title\n      thumbnailUrl\n      inLibrary\n      sourceId\n    }\n  }\n}": types.FetchSourceMangaDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.LibraryCategoriesDocument,
     "query LibraryMangas($first: Int!, $after: Cursor, $filter: MangaFilterInput, $order: [MangaOrderInput!]) {\n  mangas(\n    condition: {inLibrary: true}\n    first: $first\n    after: $after\n    filter: $filter\n    order: $order\n  ) {\n    nodes {\n      id\n      title\n      thumbnailUrl\n      thumbnailUrlLastFetched\n      unreadCount\n      downloadCount\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n    totalCount\n  }\n}": types.LibraryMangasDocument,
@@ -86,6 +91,7 @@ const documents: Documents = {
     "mutation UpdateCategoryOrder($input: UpdateCategoryOrderInput!) {\n  updateCategoryOrder(input: $input) {\n    categories {\n      id\n      order\n    }\n  }\n}": types.UpdateCategoryOrderDocument,
     "mutation UpdateChapterProgress($input: UpdateChapterInput!) {\n  updateChapter(input: $input) {\n    chapter {\n      id\n      isRead\n      isBookmarked\n      lastPageRead\n    }\n  }\n}": types.UpdateChapterProgressDocument,
     "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}": types.UpdateChaptersStateDocument,
+    "mutation UpdateExtensions($input: UpdateExtensionsInput!) {\n  updateExtensions(input: $input) {\n    extensions {\n      pkgName\n      isInstalled\n      hasUpdate\n    }\n  }\n}": types.UpdateExtensionsDocument,
     "mutation UpdateMangaLibrary($input: UpdateMangaInput!) {\n  updateManga(input: $input) {\n    manga {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangaLibraryDocument,
     "mutation UpdateMangasCategories($input: UpdateMangasCategoriesInput!) {\n  updateMangasCategories(input: $input) {\n    mangas {\n      id\n    }\n  }\n}": types.UpdateMangasCategoriesDocument,
     "mutation UpdateMangasLibrary($input: UpdateMangasInput!) {\n  updateMangas(input: $input) {\n    mangas {\n      id\n      inLibrary\n    }\n  }\n}": types.UpdateMangasLibraryDocument,
@@ -161,7 +167,15 @@ export function graphql(source: "mutation EnqueueDownload($input: EnqueueChapter
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}"): (typeof documents)["query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}"): (typeof documents)["mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation FetchExtensions {\n  fetchExtensions(input: {}) {\n    extensions {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n    extensionStores {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}"): (typeof documents)["mutation FetchExtensions {\n  fetchExtensions(input: {}) {\n    extensions {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n    extensionStores {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -238,6 +252,10 @@ export function graphql(source: "mutation UpdateChapterProgress($input: UpdateCh
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}"): (typeof documents)["mutation UpdateChaptersState($input: UpdateChaptersInput!) {\n  updateChapters(input: $input) {\n    chapters {\n      id\n      isRead\n      isBookmarked\n      isDownloaded\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateExtensions($input: UpdateExtensionsInput!) {\n  updateExtensions(input: $input) {\n    extensions {\n      pkgName\n      isInstalled\n      hasUpdate\n    }\n  }\n}"): (typeof documents)["mutation UpdateExtensions($input: UpdateExtensionsInput!) {\n  updateExtensions(input: $input) {\n    extensions {\n      pkgName\n      isInstalled\n      hasUpdate\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

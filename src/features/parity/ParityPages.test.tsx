@@ -10,6 +10,7 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   DownloadQueueDocument,
+  ExtensionsCatalogDocument,
   FetchSourceMangaDocument,
   ServerSettingsDocument,
   SourceCatalogDocument,
@@ -165,6 +166,67 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('installs an extension from the catalog', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ExtensionsCatalogDocument) {
+        return {
+          data: {
+            extensions: {
+              __typename: 'ExtensionNodeList',
+              totalCount: 1,
+              nodes: [
+                {
+                  __typename: 'ExtensionType',
+                  pkgName: 'example',
+                  name: 'Example Extension',
+                  versionName: '1.0.0',
+                  lang: 'en',
+                  isInstalled: false,
+                  hasUpdate: false,
+                  isObsolete: false,
+                  iconUrl: '/icon.png',
+                  contentWarning: 'SAFE',
+                  extensionStore: {
+                    __typename: 'ExtensionStoreType',
+                    name: 'Store',
+                  },
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    const mutate = vi.fn(async () => ({
+      data: {
+        updateExtensions: {
+          extensions: [
+            {
+              __typename: 'ExtensionType',
+              pkgName: 'example',
+              isInstalled: true,
+              hasUpdate: false,
+            },
+          ],
+        },
+      },
+    }));
+    renderPage('/extensions', query, mutate);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Extensions' }),
+    ).toBeTruthy();
+    await userEvent
+      .setup()
+      .click(await screen.findByRole('button', { name: 'Install' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Uninstall' })).toBeTruthy(),
+    );
+  });
+
   it('browses a source catalog and its search results', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === SourceInfoDocument) {
