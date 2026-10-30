@@ -29,6 +29,8 @@ import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
+import { useSearchHistory } from '../../shared/useSearchHistory';
+import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -137,6 +139,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     library.items[1]?.thumbnailUrl ?? library.items[0]?.thumbnailUrl ?? null,
   );
   const appPreferences = useAppPreferences();
+  const searchHistory = useSearchHistory();
+  const [historyOpen, setHistoryOpen] = useState(false);
   const loadedLibrary = useRef<LibraryController | null>(null);
   const loadedCategories = useRef<LibraryCategoryController | null>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -209,7 +213,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    void controller.setSearch(search.trim());
+    const query = search.trim();
+
+    if (query) {
+      addSearchHistory(query);
+    }
+
+    setHistoryOpen(false);
+    void controller.setSearch(query);
   };
 
   const clearSearch = () => {
@@ -485,6 +496,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             placeholder="Search library"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
+            onFocus={() => setHistoryOpen(true)}
+            onClick={() => setHistoryOpen(true)}
+            onBlur={() => {
+              window.setTimeout(() => setHistoryOpen(false), 120);
+            }}
             onKeyDown={handleSearchKeyDown}
             autoComplete="off"
             enterKeyHint="search"
@@ -498,6 +514,35 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               <IconClose />
             </button>
+          ) : null}
+          {historyOpen && searchHistory.length > 0 ? (
+            <div className="library-search-history" role="listbox" aria-label="Recent searches">
+              {searchHistory.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => {
+                    setSearch(term);
+                    addSearchHistory(term);
+                    setHistoryOpen(false);
+                    void controller.setSearch(term);
+                  }}
+                >
+                  {term}
+                </button>
+              ))}
+              <button
+                className="library-search-history-clear"
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => clearSearchHistory()}
+              >
+                Clear history
+              </button>
+            </div>
           ) : null}
         </form>
 

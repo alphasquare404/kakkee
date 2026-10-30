@@ -14,6 +14,7 @@ import {
   type LibraryMangasQueryVariables,
 } from '../../core/graphql/generated/graphql';
 import type { LibraryManga, LibraryPage } from '../../core/library/libraryRepository';
+import { clearSearchHistory } from '../../core/preferences/searchHistory';
 import {
   FakeConnectionCoordinator,
   makeConnectedState,
@@ -30,6 +31,7 @@ vi.mock('../../app/pwaUpdate', () => ({
 afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
+  clearSearchHistory();
 });
 
 function manga(
@@ -606,6 +608,25 @@ describe('LibraryPage search, filter, and sort', () => {
 
     expect(screen.getByRole('button', { name: 'Sort, active' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Reset' })).toBeTruthy();
+  });
+
+  it('shows recent searches as autocomplete suggestions', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    const input = screen.getByLabelText('Search library');
+    await user.type(input, 'alpha{Enter}');
+    await user.click(input);
+
+    expect(await screen.findByRole('option', { name: 'alpha' })).toBeTruthy();
   });
 
   it('changes the supported status filter without exposing source filter', async () => {
