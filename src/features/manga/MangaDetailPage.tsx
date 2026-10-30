@@ -80,6 +80,11 @@ function ConnectedMangaDetail({
   const loaded = useRef<MangaDetailController | null>(null);
   const [section, setSection] = useState<'overview' | 'chapters'>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [chapterSearch, setChapterSearch] = useState('');
+  const [chapterFilter, setChapterFilter] = useState<
+    'all' | 'unread' | 'read' | 'downloaded' | 'bookmarked'
+  >('all');
+  const [scanlator, setScanlator] = useState('all');
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
   const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
@@ -141,6 +146,44 @@ function ConnectedMangaDetail({
     manga.artist ? `Artist: ${manga.artist}` : null,
     manga.source?.name ?? null,
   ].filter(Boolean);
+  const scanlators = [
+    ...new Set(
+      detail.chapters
+        .map((chapter) => chapter.scanlator)
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ].sort((left, right) => left.localeCompare(right));
+  const visibleChapters = detail.chapters.filter((chapter) => {
+    if (scanlator !== 'all' && chapter.scanlator !== scanlator) {
+      return false;
+    }
+
+    if (chapterFilter === 'unread' && chapter.isRead) {
+      return false;
+    }
+
+    if (chapterFilter === 'read' && !chapter.isRead) {
+      return false;
+    }
+
+    if (chapterFilter === 'downloaded' && !chapter.isDownloaded) {
+      return false;
+    }
+
+    if (chapterFilter === 'bookmarked' && !chapter.isBookmarked) {
+      return false;
+    }
+
+    const query = chapterSearch.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return `${chapter.name} ${chapter.scanlator ?? ''}`
+      .toLowerCase()
+      .includes(query);
+  });
 
   return (
     <div className="app-shell detail-shell">
@@ -299,11 +342,67 @@ function ConnectedMangaDetail({
             </label>
           </div>
 
+          <div className="chapter-toolbar">
+            <label className="chapter-search">
+              <span className="sr-only">Search chapters</span>
+              <input
+                type="search"
+                placeholder="Search chapters…"
+                value={chapterSearch}
+                onChange={(event) => setChapterSearch(event.target.value)}
+              />
+            </label>
+
+            <label className="chapter-select">
+              <span className="sr-only">Filter chapters</span>
+              <select
+                aria-label="Filter chapters"
+                value={chapterFilter}
+                onChange={(event) =>
+                  setChapterFilter(
+                    event.target.value as
+                      | 'all'
+                      | 'unread'
+                      | 'read'
+                      | 'downloaded'
+                      | 'bookmarked',
+                  )
+                }
+              >
+                <option value="all">All chapters</option>
+                <option value="unread">Unread</option>
+                <option value="read">Read</option>
+                <option value="downloaded">Downloaded</option>
+                <option value="bookmarked">Bookmarked</option>
+              </select>
+            </label>
+
+            {scanlators.length > 0 ? (
+              <label className="chapter-select">
+                <span className="sr-only">Filter by scanlator</span>
+                <select
+                  aria-label="Filter by scanlator"
+                  value={scanlator}
+                  onChange={(event) => setScanlator(event.target.value)}
+                >
+                  <option value="all">All scanlators</option>
+                  {scanlators.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+          </div>
+
           {detail.chapters.length === 0 ? (
             <p className="chapter-empty">No chapters available.</p>
+          ) : visibleChapters.length === 0 ? (
+            <p className="chapter-empty">No chapters match these filters.</p>
           ) : (
             <ol className="chapter-list">
-              {detail.chapters.map((chapter) => {
+              {visibleChapters.map((chapter) => {
                 const uploaded = formatDate(chapter.uploadDate);
 
                 return (

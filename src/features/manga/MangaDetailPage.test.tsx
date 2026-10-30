@@ -139,8 +139,32 @@ describe('MangaDetailPage', () => {
     );
   });
 
-  it('loads more chapters without discarding the first page', async () => {
-    let call = 0;
+  it('filters chapters by state and scanlator', async () => {
+    const query = vi.fn(async () => ({
+      data: detailData({
+        nodes: [
+          chapter(1186),
+          { ...chapter(1185), isRead: true, scanlator: 'Other' },
+        ],
+      }),
+    }));
+    const user = userEvent.setup();
+    renderDetail(query);
+    await screen.findByRole('link', { name: /Chapter 1186/ });
+
+    await user.selectOptions(screen.getByLabelText('Filter chapters'), 'read');
+    expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
+    expect(screen.getByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
+
+    await user.selectOptions(
+      screen.getByLabelText('Filter by scanlator'),
+      'Other',
+    );
+    expect(screen.getByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
+  });
+
+  it('loads more chapters without discarding the first page', async () => {    let call = 0;
     const query = vi.fn(async () => {
       call += 1;
       return {

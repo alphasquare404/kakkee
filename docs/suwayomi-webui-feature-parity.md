@@ -95,7 +95,7 @@ frontend.
 | Manga | Refresh metadata/chapters from source | `Missing` | Yes | |
 | Manga | Migration entry point | `Missing` | Yes | |
 | Manga | Tracker binding/score/status | `Missing` | Yes | |
-| Manga | Chapter filters and scanlator filter | `Partial` | Yes | Order newest/oldest only |
+| Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
 | Manga | Missing-chapter indicators | `Missing` | Client-side/server data | |
 | Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
 | Manga | Per-manga reader settings | `Missing` | Client concern | |
