@@ -148,7 +148,7 @@ frontend.
 | Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
 | Reader | Download next chapter / delete after reading | `Missing` | Yes | |
 | Reader | Bookmark/library actions from reader | `Missing` | Yes | |
-| Reader | Chapter list overlay/sidebar | `Missing` | Yes | |
+| Reader | Chapter list overlay/sidebar | `Partial` | Yes | Right-side chapter dialog with active/read markers; sidebar variant absent |
 
 ### Updates / History / Downloads
 

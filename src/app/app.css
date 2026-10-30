@@ -2555,6 +2555,75 @@ button.manga-card-link {
   background: var(--accent-soft);
 }
 
+.reader-chapter-overlay {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-items: start end;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: rgba(2, 5, 12, 0.66);
+  backdrop-filter: blur(8px);
+}
+
+.reader-chapter-dialog {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(100%, 24rem);
+  max-height: min(80vh, 42rem);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  background: rgba(10, 15, 26, 0.98);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+.reader-chapter-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.reader-chapter-dialog h2 {
+  margin: 0;
+  font-size: var(--text-md);
+}
+
+.reader-chapter-dialog ol {
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.reader-chapter-dialog a {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-radius: 7px;
+}
+
+.reader-chapter-dialog a:hover,
+.reader-chapter-dialog a.is-current {
+  background: var(--accent-soft);
+}
+
+.reader-chapter-dialog a.is-current {
+  color: var(--accent);
+}
+
+.reader-chapter-dialog small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 .reader-page-nav {
   display: flex;
   grid-column: 1 / -1;

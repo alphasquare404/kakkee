@@ -72,6 +72,7 @@ function ConnectedReader({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
 
   useEffect(() => {
@@ -245,6 +246,11 @@ function ConnectedReader({
       }
 
       if (event.key === 'Escape') {
+        if (chaptersOpen) {
+          setChaptersOpen(false);
+          return;
+        }
+
         navigate(`/manga/${mangaId}`);
         return;
       }
@@ -279,6 +285,7 @@ function ConnectedReader({
 
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
+    chaptersOpen,
     isPaged,
     mangaId,
     navigate,
@@ -371,6 +378,13 @@ function ConnectedReader({
           ) : (
             <span aria-disabled="true">Next</span>
           )}
+          <button
+            className="reader-quick-action"
+            type="button"
+            onClick={() => setChaptersOpen(true)}
+          >
+            Chapters
+          </button>
           <button
             className="reader-quick-action"
             type="button"
@@ -541,6 +555,47 @@ function ConnectedReader({
             )}
           </nav>
         </footer>
+      ) : null}
+
+      {chaptersOpen && activeChapter ? (
+        <div
+          className="reader-chapter-overlay"
+          role="presentation"
+          onClick={() => setChaptersOpen(false)}
+        >
+          <section
+            className="reader-chapter-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Chapter list"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>Chapters</h2>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => setChaptersOpen(false)}
+              >
+                Close
+              </button>
+            </header>
+            <ol>
+              {reader.chapters.map((chapter) => (
+                <li key={chapter.id}>
+                  <Link
+                    className={chapter.id === activeChapter.id ? 'is-current' : undefined}
+                    to={`/manga/${mangaId}/chapter/${chapter.id}`}
+                    onClick={() => setChaptersOpen(false)}
+                  >
+                    <span>{chapter.name}</span>
+                    {chapter.isRead ? <small>Read</small> : null}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </div>
       ) : null}
     </div>
   );

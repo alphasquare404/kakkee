@@ -2,18 +2,23 @@ import type { ApolloClient } from '@apollo/client';
 import {
   FetchChapterPagesDocument,
   ReaderChapterDocument,
+  ReaderChapterListDocument,
   ReaderNeighborsDocument,
   UpdateChapterProgressDocument,
+  type ReaderChapterListQuery,
   type ReaderChapterQuery,
   type ReaderNeighborsQuery,
 } from '../graphql/generated/graphql';
 
 export type ReaderChapter = ReaderChapterQuery['chapter'];
 export type ReaderNeighbors = ReaderNeighborsQuery;
+export type ReaderChapterListItem =
+  ReaderChapterListQuery['chapters']['nodes'][number];
 
 export interface ReaderRepository {
   getChapter(chapterId: number): Promise<ReaderChapter>;
   getNeighbors(mangaId: number, chapterNumber: number): Promise<ReaderNeighbors>;
+  getChapterList(mangaId: number): Promise<readonly ReaderChapterListItem[]>;
   getPages(chapterId: number): Promise<readonly string[]>;
   updateProgress(
     chapterId: number,
@@ -56,8 +61,20 @@ export function createReaderRepository(
 
       return result.data;
     },
-    async getPages(chapterId) {
-      const result = await options.getClient().mutate({
+    async getChapterList(mangaId) {
+      const result = await options.getClient().query({
+        query: ReaderChapterListDocument,
+        variables: { mangaId },
+        fetchPolicy: 'network-only',
+      });
+
+      if (!result.data?.chapters) {
+        throw new Error('Daftar chapter tidak tersedia.');
+      }
+
+      return result.data.chapters.nodes;
+    },
+    async getPages(chapterId) {      const result = await options.getClient().mutate({
         mutation: FetchChapterPagesDocument,
         variables: { input: { chapterId } },
         fetchPolicy: 'network-only',

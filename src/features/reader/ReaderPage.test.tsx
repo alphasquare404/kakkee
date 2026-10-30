@@ -1,12 +1,13 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import {
   FetchChapterPagesDocument,
   ReaderChapterDocument,
+  ReaderChapterListDocument,
   ReaderNeighborsDocument,
   UpdateChapterProgressDocument,
 } from '../../core/graphql/generated/graphql';
@@ -110,6 +111,20 @@ function renderReader(failFirstImage = false, page?: number, progress = 0) {
           },
           next: {
             nodes: [{ __typename: 'ChapterType', id: 11, name: 'Chapter 11', chapterNumber: 11 }],
+          },
+        },
+      };
+    }
+
+    if (document === ReaderChapterListDocument) {
+      return {
+        data: {
+          chapters: {
+            nodes: [
+              { __typename: 'ChapterType', id: 9, name: 'Chapter 9', chapterNumber: 9, isRead: true },
+              { __typename: 'ChapterType', id: 10, name: 'Chapter 10', chapterNumber: 10, isRead: false },
+              { __typename: 'ChapterType', id: 11, name: 'Chapter 11', chapterNumber: 11, isRead: false },
+            ],
           },
         },
       };
@@ -229,6 +244,18 @@ describe('ReaderPage', () => {
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
     expect(await screen.findByRole('heading', { name: "Couldn't load pages" })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Retry pages' })).toBeTruthy();
+  });
+
+  it('opens the chapter list overlay', async () => {
+    renderReader();
+    await screen.findByRole('heading', { name: 'Chapter 10' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chapters' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Chapter list' });
+    expect(dialog).toBeTruthy();
+    expect(within(dialog).getByRole('link', { name: /Chapter 9/ })).toBeTruthy();
+    expect(within(dialog).getByRole('link', { name: /Chapter 11/ })).toBeTruthy();
   });
 
   it('resumes at the requested page', async () => {

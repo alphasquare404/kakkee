@@ -22,16 +22,25 @@ const chapter: ReaderChapter = {
 function setup() {
   const getChapter = vi.fn();
   const getNeighbors = vi.fn();
+  const getChapterList = vi.fn(async () => []);
   const getPages = vi.fn();
   const updateProgress = vi.fn();
   const repository = {
     getChapter,
     getNeighbors,
+    getChapterList,
     getPages,
     updateProgress,
   } as unknown as ReaderRepository;
   const controller = createReaderController({ repository });
-  return { controller, getChapter, getNeighbors, getPages, updateProgress };
+  return {
+    controller,
+    getChapter,
+    getNeighbors,
+    getChapterList,
+    getPages,
+    updateProgress,
+  };
 }
 
 describe('createReaderController', () => {

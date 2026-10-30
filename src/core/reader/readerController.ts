@@ -1,7 +1,12 @@
-import type { ReaderChapter, ReaderRepository } from './readerRepository';
+import type {
+  ReaderChapter,
+  ReaderChapterListItem,
+  ReaderRepository,
+} from './readerRepository';
 
 export interface ReaderState {
   readonly chapter: ReaderChapter | null;
+  readonly chapters: readonly ReaderChapterListItem[];
   readonly pages: readonly string[];
   readonly previousChapter: { readonly id: number; readonly name: string } | null;
   readonly nextChapter: { readonly id: number; readonly name: string } | null;
@@ -30,6 +35,7 @@ export interface ReaderControllerOptions {
 function initialState(): ReaderState {
   return {
     chapter: null,
+    chapters: [],
     pages: [],
     previousChapter: null,
     nextChapter: null,
@@ -90,9 +96,10 @@ export function createReaderController(
       isLoadingPages: true,
     });
 
-    const [neighborsResult, pagesResult] = await Promise.allSettled([
+    const [neighborsResult, pagesResult, chaptersResult] = await Promise.allSettled([
       options.repository.getNeighbors(chapter.manga.id, chapter.chapterNumber),
       options.repository.getPages(chapter.id),
+      options.repository.getChapterList(chapter.manga.id),
     ]);
 
     if (requestGeneration !== generation) {
@@ -103,8 +110,11 @@ export function createReaderController(
       neighborsResult.status === 'fulfilled' ? neighborsResult.value : null;
     const pages = pagesResult.status === 'fulfilled' ? pagesResult.value : [];
     const pagesError = pagesResult.status === 'rejected' ? pagesResult.reason : null;
+    const chapters =
+      chaptersResult.status === 'fulfilled' ? chaptersResult.value : [];
 
     patch({
+      chapters,
       pages,
       previousChapter: neighbors?.previous.nodes[0] ?? null,
       nextChapter: neighbors?.next.nodes[0] ?? null,
