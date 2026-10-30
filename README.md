@@ -21,7 +21,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library screen: search, category tabs with counts, status filter, sort, random loaded-page shuffle, reset refinements, responsive grid, real thumbnails, unread/download badges, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
 - Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
 - Updates: latest library chapters grouped by day, read state, and real covers.
-- Browse: installed sources with language/NSFW/latest metadata.
+- Browse: installed source catalog plus source manga browsing with Popular/Latest, search, pagination, and quick library add/remove.
 - Categories: server categories with real manga counts, create, rename, reorder, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
@@ -789,7 +789,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (315 test; 7 runtime integration memerlukan env)
+npm run test           lulus (318 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

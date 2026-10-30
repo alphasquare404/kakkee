@@ -1,0 +1,9 @@
+query SourceInfo($id: LongString!) {
+  source(id: $id) {
+    id
+    displayName
+    name
+    lang
+    contentWarning
+  }
+}

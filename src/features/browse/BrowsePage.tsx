@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -31,7 +32,11 @@ export function BrowsePage() {
 
 function SourceCard({ source }: { readonly source: CatalogSource }) {
   return (
-    <article className="source-card">
+    <Link
+      className="source-card"
+      to={`/browse/${encodeURIComponent(source.id)}`}
+      aria-label={`${source.displayName}, browse source`}
+    >
       <span className="source-mark" aria-hidden="true">
         {source.displayName.trim().charAt(0).toUpperCase() || 'S'}
       </span>
@@ -44,7 +49,7 @@ function SourceCard({ source }: { readonly source: CatalogSource }) {
           {source.supportsLatest ? <span>Latest</span> : null}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -97,8 +102,8 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
           <p className="eyebrow">Source catalog</p>
           <h2 id="browse-hero-title">Your server&apos;s extensions, in one place.</h2>
           <p>
-            Browse the source catalog below. Opening a source&apos;s manga catalog is not
-            available in this frontend yet.
+            Open a source to browse its Popular/Latest catalog, search, and add manga
+            directly to your library.
           </p>
         </div>
         <span className="browse-hero-count">

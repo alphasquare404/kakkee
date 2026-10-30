@@ -10,8 +10,10 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   DownloadQueueDocument,
+  FetchSourceMangaDocument,
   ServerSettingsDocument,
   SourceCatalogDocument,
+  SourceInfoDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
   type ServerSettingsQuery,
@@ -142,13 +144,17 @@ function serverSettings(): ServerSettingsQuery {
   };
 }
 
-function renderPage(path: string, query: ReturnType<typeof vi.fn>) {
+function renderPage(
+  path: string,
+  query: ReturnType<typeof vi.fn>,
+  mutate: ReturnType<typeof vi.fn> = vi.fn(async () => ({ data: {} })),
+) {
   const connected = makeConnectedState();
   const state = {
     ...connected,
     context: {
       ...connected.context,
-      graphQL: { query } as unknown as ApolloClient,
+      graphQL: { query, mutate } as unknown as ApolloClient,
       resources: resources(),
     },
   };
@@ -159,6 +165,57 @@ function renderPage(path: string, query: ReturnType<typeof vi.fn>) {
 }
 
 describe('parity pages', () => {
+  it('browses a source catalog and its search results', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === SourceInfoDocument) {
+        return {
+          data: {
+            source: {
+              __typename: 'SourceType',
+              id: '42',
+              displayName: 'Example Source',
+              name: 'Example',
+              lang: 'en',
+              contentWarning: 'SAFE',
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === FetchSourceMangaDocument) {
+        return {
+          data: {
+            fetchSourceManga: {
+              hasNextPage: false,
+              mangas: [
+                {
+                  __typename: 'MangaType',
+                  id: 77,
+                  title: 'Source Manga',
+                  thumbnailUrl: null,
+                  inLibrary: false,
+                  sourceId: '42',
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/browse/42', query, mutate);
+
+    expect(
+      await screen.findByRole('heading', { name: 'Example Source' }),
+    ).toBeTruthy();
+    expect(await screen.findByText('Source Manga')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Add to library' })).toBeTruthy();
+  });
+
   it('groups history by day and resumes the latest chapter per manga', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === ChapterFeedDocument) {

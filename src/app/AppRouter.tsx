@@ -14,6 +14,11 @@ const BrowsePage = lazy(() =>
     default: module.BrowsePage,
   })),
 );
+const SourceMangaPage = lazy(() =>
+  import('../features/browse/SourceMangaPage').then((module) => ({
+    default: module.SourceMangaPage,
+  })),
+);
 const CategoriesPage = lazy(() =>
   import('../features/categories/CategoriesPage').then((module) => ({
     default: module.CategoriesPage,
@@ -99,6 +104,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/updates" element={<UpdatesPage />} />
             <Route path="/browse" element={<BrowsePage />} />
+            <Route path="/browse/:sourceId" element={<SourceMangaPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/downloads" element={<DownloadsPage />} />
