@@ -89,6 +89,10 @@ function ConnectedMangaDetail({
   const [selectedChapterIds, setSelectedChapterIds] = useState<ReadonlySet<number>>(
     new Set(),
   );
+  const [lastSelectedChapterIndex, setLastSelectedChapterIndex] = useState<
+    number | null
+  >(null);
+  const [chapterDeleteConfirm, setChapterDeleteConfirm] = useState(false);
   const [chapterBulkBusy, setChapterBulkBusy] = useState(false);
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
@@ -190,11 +194,26 @@ function ConnectedMangaDetail({
       .includes(query);
   });
 
-  const toggleChapterSelected = (chapterId: number) => {
+  const toggleChapterRange = (
+    chapterId: number,
+    index: number,
+    shiftKey: boolean,
+  ) => {
     setSelectedChapterIds((current) => {
       const next = new Set(current);
 
-      if (next.has(chapterId)) {
+      if (shiftKey && lastSelectedChapterIndex !== null) {
+        const start = Math.min(lastSelectedChapterIndex, index);
+        const end = Math.max(lastSelectedChapterIndex, index);
+
+        for (let position = start; position <= end; position += 1) {
+          const chapter = visibleChapters[position];
+
+          if (chapter) {
+            next.add(chapter.id);
+          }
+        }
+      } else if (next.has(chapterId)) {
         next.delete(chapterId);
       } else {
         next.add(chapterId);
@@ -202,6 +221,7 @@ function ConnectedMangaDetail({
 
       return next;
     });
+    setLastSelectedChapterIndex(index);
   };
 
   const runChapterBulkAction = async (
@@ -218,6 +238,8 @@ function ConnectedMangaDetail({
       await action([...selectedChapterIds]);
       setSelectedChapterIds(new Set());
       setChapterSelectionMode(false);
+      setLastSelectedChapterIndex(null);
+      setChapterDeleteConfirm(false);
     } catch {
       setChapterActionError(true);
     } finally {
@@ -390,6 +412,8 @@ function ConnectedMangaDetail({
               onClick={() => {
                 if (chapterSelectionMode) {
                   setSelectedChapterIds(new Set());
+                  setLastSelectedChapterIndex(null);
+                  setChapterDeleteConfirm(false);
                 }
                 setChapterSelectionMode((value) => !value);
               }}
@@ -523,18 +547,34 @@ function ConnectedMangaDetail({
                 className="library-action"
                 type="button"
                 disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() =>
+                onClick={() => {
+                  if (!chapterDeleteConfirm) {
+                    setChapterDeleteConfirm(true);
+                    return;
+                  }
                   void runChapterBulkAction((ids) =>
                     controller.deleteChapterDownloads(ids),
-                  )
-                }
+                  );
+                }}
               >
-                Delete download
+                {chapterDeleteConfirm ? 'Confirm delete' : 'Delete download'}
               </button>
+              {chapterDeleteConfirm ? (
+                <button
+                  className="library-action"
+                  type="button"
+                  onClick={() => setChapterDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+              ) : null}
               <button
                 className="library-action"
                 type="button"
-                onClick={() => setSelectedChapterIds(new Set())}
+                onClick={() => {
+                  setSelectedChapterIds(new Set());
+                  setLastSelectedChapterIndex(null);
+                }}
               >
                 Clear
               </button>
@@ -547,7 +587,7 @@ function ConnectedMangaDetail({
             <p className="chapter-empty">No chapters match these filters.</p>
           ) : (
             <ol className="chapter-list">
-              {visibleChapters.map((chapter) => {
+              {visibleChapters.map((chapter, index) => {
                 const uploaded = formatDate(chapter.uploadDate);
 
                 return (
@@ -560,7 +600,13 @@ function ConnectedMangaDetail({
                         type="button"
                         aria-pressed={selectedChapterIds.has(chapter.id)}
                         aria-label={`Select ${chapter.name}`}
-                        onClick={() => toggleChapterSelected(chapter.id)}
+                        onClick={(event) =>
+                          toggleChapterRange(
+                            chapter.id,
+                            index,
+                            event.shiftKey,
+                          )
+                        }
                       >
                         {selectedChapterIds.has(chapter.id) ? '✓' : ''}
                       </button>

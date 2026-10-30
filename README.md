@@ -26,7 +26,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - History: server-provided last-read chapters and page state.
 - Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
 - Settings: real server/application information, dark/pure-black theme, and library grid density.
-- Manga Detail: metadata, cover, chapter search/filter/scanlator, chapter order, read/bookmark/download toggles, bulk chapter read/bookmark/download/delete, in-library toggle, load more, and reader navigation.
+- Manga Detail: metadata, cover, chapter search/filter/scanlator, chapter order, read/bookmark/download toggles, shift-range bulk read/bookmark/download/delete, in-library toggle, load more, and reader navigation.
 - Reader: vertical, webtoon, single-page, double-page, and horizontal modes; authenticated lazy pages, progress write, saved-page resume, image filter presets, chapter navigation, and persisted width/gap/background preferences.
 - PWA installable dengan shell-only cache dan update prompt.
 

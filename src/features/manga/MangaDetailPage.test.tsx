@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, configure, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
@@ -174,10 +174,17 @@ describe('MangaDetailPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Select' }));
     await user.click(screen.getByRole('button', { name: 'Select Chapter 1186' }));
-    await user.click(screen.getByRole('button', { name: 'Select Chapter 1185' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Select Chapter 1185' }),
+      { shiftKey: true },
+    );
 
     expect(screen.getByText('2 selected')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Delete download' }));
+    expect(
+      screen.getByRole('button', { name: 'Confirm delete' }),
+    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
   });
 
   it('loads more chapters without discarding the first page', async () => {    let call = 0;
