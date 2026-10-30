@@ -8,15 +8,22 @@ interface FeedRowProps {
   readonly resources: ResourceService;
   readonly detail: string;
   readonly stateLabel?: string;
+  readonly to?: string;
 }
 
-export function FeedRow({ chapter, resources, detail, stateLabel }: FeedRowProps) {
+export function FeedRow({
+  chapter,
+  resources,
+  detail,
+  stateLabel,
+  to,
+}: FeedRowProps) {
   const image = useImageResource(resources, chapter.manga.thumbnailUrl);
 
   return (
     <Link
       className="feed-row"
-      to={`/manga/${chapter.manga.id}/chapter/${chapter.id}`}
+      to={to ?? `/manga/${chapter.manga.id}/chapter/${chapter.id}`}
       aria-label={`${chapter.manga.title}, ${chapter.name}`}
     >
       <span className="feed-art" aria-hidden="true">

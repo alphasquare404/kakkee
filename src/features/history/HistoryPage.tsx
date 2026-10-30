@@ -25,6 +25,14 @@ export function HistoryPage() {
         return [when, page].filter(Boolean).join(' · ');
       }}
       stateLabel={(chapter) => (chapter.isRead ? 'Read' : 'In progress')}
+      groupByDay
+      dedupeByManga
+      rowTo={(chapter) => {
+        const page =
+          chapter.lastPageRead > 0 ? `?page=${chapter.lastPageRead + 1}` : '';
+
+        return `/manga/${chapter.manga.id}/chapter/${chapter.id}${page}`;
+      }}
     />
   );
 }

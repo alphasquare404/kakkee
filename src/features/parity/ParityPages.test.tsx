@@ -50,8 +50,7 @@ function resources(): ResourceService {
   } as unknown as ResourceService;
 }
 
-function chapterFeed(): ChapterFeedQuery {
-  return {
+function chapterFeed(): ChapterFeedQuery {  return {
     __typename: 'Query',
     chapters: {
       __typename: 'ChapterNodeList',
@@ -75,6 +74,41 @@ function chapterFeed(): ChapterFeedQuery {
             thumbnailUrl: '/api/v1/manga/1/thumbnail',
           },
         },
+      ],
+    },
+  };
+}
+
+function historyFeed(): ChapterFeedQuery {
+  const now = String(Date.now());
+  const chapter = (id: number, mangaId: number, title: string, page: number) => ({
+    __typename: 'ChapterType' as const,
+    id,
+    name: `Chapter ${id}`,
+    chapterNumber: id,
+    pageCount: 18,
+    isRead: false,
+    isDownloaded: false,
+    lastPageRead: page,
+    lastReadAt: now,
+    uploadDate: now,
+    manga: {
+      __typename: 'MangaType' as const,
+      id: mangaId,
+      title,
+      thumbnailUrl: `/api/v1/manga/${mangaId}/thumbnail`,
+    },
+  });
+
+  return {
+    __typename: 'Query',
+    chapters: {
+      __typename: 'ChapterNodeList',
+      totalCount: 3,
+      nodes: [
+        chapter(10, 1, 'History Manga', 2),
+        chapter(9, 1, 'History Manga', 1),
+        chapter(8, 2, 'Other Manga', 0),
       ],
     },
   };
@@ -125,6 +159,28 @@ function renderPage(path: string, query: ReturnType<typeof vi.fn>) {
 }
 
 describe('parity pages', () => {
+  it('groups history by day and resumes the latest chapter per manga', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ChapterFeedDocument) {
+        return { data: historyFeed() };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/history', query);
+
+    const link = await screen.findByRole('link', {
+      name: 'History Manga, Chapter 10',
+    });
+
+    expect(link.getAttribute('href')).toBe('/manga/1/chapter/10?page=3');
+    expect(screen.getByRole('heading', { name: 'Today' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'History Manga, Chapter 9' })).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Other Manga, Chapter 8' }).getAttribute('href'),
+    ).toBe('/manga/2/chapter/8');
+  });
+
   it('renders the real chapter feed on Updates', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === ChapterFeedDocument) {

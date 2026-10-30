@@ -159,8 +159,8 @@ frontend.
 | Updates | Chapter/manga actions | `Missing` | Yes | |
 | Updates | Sync button and refresh | `Missing` | StartSync | |
 | History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
-| History | Last chapter per manga / per day | `Missing` | Client-side | |
-| History | Resume / clear / remove history | `Missing` | Yes | |
+| History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
+| History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
 | History | Hide history setting | `Missing` | Metadata | |
 | Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
 | Downloads | Pause/resume, retry, cancel, delete | `Partial` | Yes | Pause/resume, cancel, and delete are implemented; retry-all-failed is absent |
