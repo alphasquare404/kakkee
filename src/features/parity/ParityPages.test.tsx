@@ -10,6 +10,8 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   DownloadQueueDocument,
+  BackupSettingsDocument,
+  CreateBackupDocument,
   ExtensionsCatalogDocument,
   FetchSourceMangaDocument,
   ServerSettingsDocument,
@@ -166,6 +168,50 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('creates a backup with selected data', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === BackupSettingsDocument) {
+        return {
+          data: {
+            settings: {
+              __typename: 'SettingsType',
+              autoBackupIncludeCategories: true,
+              autoBackupIncludeChapters: true,
+              autoBackupIncludeClientData: false,
+              autoBackupIncludeHistory: true,
+              autoBackupIncludeManga: true,
+              autoBackupIncludeServerSettings: false,
+              autoBackupIncludeTracking: false,
+              backupPath: '/backups',
+              backupInterval: 24,
+              backupTime: '02:00',
+              backupTTL: 5,
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    const mutate = vi.fn(async ({ mutation }: { mutation: unknown }) => {
+      if (mutation === CreateBackupDocument) {
+        return {
+          data: { createBackup: { url: 'https://example.test/backup.zip' } },
+        };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/settings/backup', query, mutate);
+
+    expect(await screen.findByRole('heading', { name: 'Backup' })).toBeTruthy();
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Create backup' }));
+
+    expect(await screen.findByRole('link', { name: 'open backup file' })).toBeTruthy();
+  });
+
   it('installs an extension from the catalog', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === ExtensionsCatalogDocument) {

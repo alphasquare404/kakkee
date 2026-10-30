@@ -204,9 +204,9 @@ frontend.
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Backup | Create backup and select data | `Missing` | Yes | |
-| Backup | Restore/validate backup | `Missing` | Yes | |
-| Backup | Automatic backup settings | `Missing` | Yes | |
+| Backup | Create backup and select data | `Partial` | Yes | Create backup with include flags and returned URL; restore absent |
+| Backup | Restore/validate backup | `Missing` | Yes | Upload/restore UI absent |
+| Backup | Automatic backup settings | `Partial` | Yes | Auto-backup summary shown; editing remains in Server settings |
 | Sync | Sync button and sync status | `Missing` | Yes | |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Missing` | Yes | |
 | Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |

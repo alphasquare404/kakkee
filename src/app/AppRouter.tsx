@@ -64,6 +64,11 @@ const ServerSettingsPage = lazy(() =>
     default: module.ServerSettingsPage,
   })),
 );
+const BackupSettingsPage = lazy(() =>
+  import('../features/settings/BackupSettingsPage').then((module) => ({
+    default: module.BackupSettingsPage,
+  })),
+);
 
 const MangaDetailPage = lazy(() =>
   import('../features/manga/MangaDetailPage').then((module) => ({
@@ -119,6 +124,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/settings/appearance" element={<AppearanceSettingsPage />} />
             <Route path="/settings/library" element={<LibrarySettingsPage />} />
             <Route path="/settings/server" element={<ServerSettingsPage />} />
+            <Route path="/settings/backup" element={<BackupSettingsPage />} />
             <Route path="/manga/:mangaId" element={<MangaDetailPage />} />
             <Route
               path="/manga/:mangaId/chapter/:chapterId"

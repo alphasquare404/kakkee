@@ -16,8 +16,10 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
 type Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": typeof types.AboutServerDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": typeof types.AuthProbeDocument,
+    "query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}": typeof types.BackupSettingsDocument,
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": typeof types.ChapterFeedDocument,
+    "mutation CreateBackup($input: CreateBackupInput) {\n  createBackup(input: $input) {\n    url\n  }\n}": typeof types.CreateBackupDocument,
     "mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CreateCategoryDocument,
     "mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}": typeof types.DeleteCategoryDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": typeof types.DeleteDownloadedChapterDocument,
@@ -58,8 +60,10 @@ type Documents = {
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": types.AuthProbeDocument,
+    "query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}": types.BackupSettingsDocument,
     "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CategoryCatalogDocument,
     "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": types.ChapterFeedDocument,
+    "mutation CreateBackup($input: CreateBackupInput) {\n  createBackup(input: $input) {\n    url\n  }\n}": types.CreateBackupDocument,
     "mutation CreateCategory($input: CreateCategoryInput!) {\n  createCategory(input: $input) {\n    category {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CreateCategoryDocument,
     "mutation DeleteCategory($input: DeleteCategoryInput!) {\n  deleteCategory(input: $input) {\n    category {\n      id\n    }\n  }\n}": types.DeleteCategoryDocument,
     "mutation DeleteDownloadedChapter($input: DeleteDownloadedChapterInput!) {\n  deleteDownloadedChapter(input: $input) {\n    chapters {\n      id\n      isDownloaded\n    }\n  }\n}": types.DeleteDownloadedChapterDocument,
@@ -123,11 +127,19 @@ export function graphql(source: "query AuthProbe {\n  settings {\n    authMode\n
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}"): (typeof documents)["query BackupSettings {\n  settings {\n    autoBackupIncludeCategories\n    autoBackupIncludeChapters\n    autoBackupIncludeClientData\n    autoBackupIncludeHistory\n    autoBackupIncludeManga\n    autoBackupIncludeServerSettings\n    autoBackupIncludeTracking\n    backupPath\n    backupInterval\n    backupTime\n    backupTTL\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"): (typeof documents)["query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"): (typeof documents)["query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation CreateBackup($input: CreateBackupInput) {\n  createBackup(input: $input) {\n    url\n  }\n}"): (typeof documents)["mutation CreateBackup($input: CreateBackupInput) {\n  createBackup(input: $input) {\n    url\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
