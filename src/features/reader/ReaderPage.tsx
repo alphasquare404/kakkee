@@ -111,6 +111,9 @@ function ConnectedReader({
         <div className="reader-title">
           <p>{activeChapter?.manga.title ?? 'Reader'}</p>
           <h1>{activeChapter?.name ?? 'Loading chapter…'}</h1>
+          {activeChapter && reader.pages.length > 0 ? (
+            <span className="reader-page-total">{reader.pages.length} pages</span>
+          ) : null}
         </div>
 
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">

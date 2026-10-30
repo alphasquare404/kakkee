@@ -162,13 +162,12 @@ export function ConnectionPage() {
   );
 
   return (
-    <div className="app-shell">
+    <div className="app-shell connection-shell">
       <header className="app-header">
-        <p className="eyebrow">Phase 0 · Step 10</p>
-        <h1>Suwayomi Frontend</h1>
+        <p className="eyebrow">Suwayomi · Library &amp; Reader</p>
+        <h1>Suwayomi</h1>
         <p className="lede">
-          Hubungkan frontend ini ke Suwayomi Server. Library dan reader belum termasuk
-          dalam tahap ini.
+          Connect to your server and continue reading from your Library.
         </p>
       </header>
 
@@ -374,7 +373,7 @@ export function ConnectionPage() {
       </main>
 
       <footer className="app-footer">
-        <p>Library · Suwayomi Server · reader belum tersedia</p>
+        <p>Library · Reader · Suwayomi Server</p>
       </footer>
     </div>
   );

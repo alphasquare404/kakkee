@@ -1,0 +1,14 @@
+query CategoryCatalog {
+  categories(order: [{ by: ORDER, byType: ASC }]) {
+    nodes {
+      id
+      name
+      default
+      isDefaultCategory
+      order
+      mangas {
+        totalCount
+      }
+    }
+  }
+}

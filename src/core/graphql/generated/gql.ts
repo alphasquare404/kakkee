@@ -16,6 +16,8 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
 type Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": typeof types.AboutServerDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": typeof types.AuthProbeDocument,
+    "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": typeof types.CategoryCatalogDocument,
+    "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": typeof types.ChapterFeedDocument,
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": typeof types.DownloadStatusChangedDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": typeof types.FetchChapterPagesDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n    }\n  }\n}": typeof types.LibraryCategoriesDocument,
@@ -25,10 +27,13 @@ type Documents = {
     "query ReaderChapter($chapterId: Int!) {\n  chapter(id: $chapterId) {\n    id\n    name\n    pageCount\n    chapterNumber\n    sourceOrder\n    isRead\n    lastPageRead\n    manga {\n      id\n      title\n      thumbnailUrl\n    }\n  }\n}": typeof types.ReaderChapterDocument,
     "query ReaderNeighbors($mangaId: Int!, $chapterNumber: Float!) {\n  previous: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {lessThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: DESC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n  next: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {greaterThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: ASC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n}": typeof types.ReaderNeighborsDocument,
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": typeof types.RefreshTokenDocument,
+    "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
 };
 const documents: Documents = {
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": types.AuthProbeDocument,
+    "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}": types.CategoryCatalogDocument,
+    "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}": types.ChapterFeedDocument,
     "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": types.DownloadStatusChangedDocument,
     "mutation FetchChapterPages($input: FetchChapterPagesInput!) {\n  fetchChapterPages(input: $input) {\n    chapter {\n      id\n      pageCount\n    }\n    pages\n  }\n}": types.FetchChapterPagesDocument,
     "query LibraryCategories {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      order\n    }\n  }\n}": types.LibraryCategoriesDocument,
@@ -38,6 +43,7 @@ const documents: Documents = {
     "query ReaderChapter($chapterId: Int!) {\n  chapter(id: $chapterId) {\n    id\n    name\n    pageCount\n    chapterNumber\n    sourceOrder\n    isRead\n    lastPageRead\n    manga {\n      id\n      title\n      thumbnailUrl\n    }\n  }\n}": types.ReaderChapterDocument,
     "query ReaderNeighbors($mangaId: Int!, $chapterNumber: Float!) {\n  previous: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {lessThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: DESC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n  next: chapters(\n    condition: {mangaId: $mangaId}\n    filter: {chapterNumber: {greaterThan: $chapterNumber}}\n    first: 1\n    order: [{by: CHAPTER_NUMBER, byType: ASC}]\n  ) {\n    nodes {\n      id\n      name\n      chapterNumber\n    }\n  }\n}": types.ReaderNeighborsDocument,
     "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}": types.RefreshTokenDocument,
+    "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
 };
 
 /**
@@ -62,6 +68,14 @@ export function graphql(source: "query AboutServer {\n  aboutServer {\n    name\
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query AuthProbe {\n  settings {\n    authMode\n  }\n}"): (typeof documents)["query AuthProbe {\n  settings {\n    authMode\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"): (typeof documents)["query CategoryCatalog {\n  categories(order: [{by: ORDER, byType: ASC}]) {\n    nodes {\n      id\n      name\n      default\n      isDefaultCategory\n      order\n      mangas {\n        totalCount\n      }\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"): (typeof documents)["query ChapterFeed($first: Int!, $filter: ChapterFilterInput, $order: [ChapterOrderInput!]!) {\n  chapters(first: $first, filter: $filter, order: $order) {\n    nodes {\n      id\n      name\n      chapterNumber\n      pageCount\n      isRead\n      isDownloaded\n      lastPageRead\n      lastReadAt\n      uploadDate\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n    totalCount\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -98,6 +112,10 @@ export function graphql(source: "query ReaderNeighbors($mangaId: Int!, $chapterN
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"): (typeof documents)["mutation RefreshToken($input: RefreshTokenInput!) {\n  refreshToken(input: $input) {\n    accessToken\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}"): (typeof documents)["query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

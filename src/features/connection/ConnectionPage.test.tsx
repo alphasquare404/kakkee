@@ -37,7 +37,7 @@ describe('ConnectionPage disconnected', () => {
     const user = userEvent.setup();
     const coordinator = renderPage();
 
-    expect(screen.getByRole('heading', { name: 'Suwayomi Frontend' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Suwayomi' })).toBeTruthy();
     const input = screen.getByLabelText('Alamat server Suwayomi');
 
     await user.type(input, 'https://manga.example.com/suwayomi');

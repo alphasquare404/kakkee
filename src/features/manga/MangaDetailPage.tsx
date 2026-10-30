@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -11,6 +11,7 @@ import {
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
+import { AmbientArt } from '../../shared/AmbientArt';
 
 const STATUS_LABEL: Record<string, string> = {
   UNKNOWN: 'Unknown',
@@ -77,6 +78,8 @@ function ConnectedMangaDetail({
   );
   const detail = useSyncExternalStore(controller.subscribe, controller.getState);
   const loaded = useRef<MangaDetailController | null>(null);
+  const [section, setSection] = useState<'overview' | 'chapters'>('overview');
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const cover = useImageResource(
     context.resources,
     detail.manga?.thumbnailUrl ?? null,
@@ -119,6 +122,7 @@ function ConnectedMangaDetail({
   }
 
   const manga = detail.manga;
+  const firstChapter = detail.chapters[0] ?? null;
   const meta = [
     STATUS_LABEL[manga.status] ?? manga.status,
     manga.author ? `Author: ${manga.author}` : null,
@@ -128,6 +132,7 @@ function ConnectedMangaDetail({
 
   return (
     <div className="app-shell detail-shell">
+      <AmbientArt imageUrl={cover.objectUrl} className="detail-ambient" />
       <nav className="page-nav" aria-label="Breadcrumb">
         <Link to="/library">Library</Link>
         <span aria-hidden="true">/</span>
@@ -135,7 +140,7 @@ function ConnectedMangaDetail({
       </nav>
 
       <main className="manga-detail">
-        <header className="manga-hero">
+        <header className="manga-hero" id="overview">
           <div className="manga-hero-cover">
             {cover.objectUrl ? (
               <img src={cover.objectUrl} alt="" decoding="async" />
@@ -158,21 +163,78 @@ function ConnectedMangaDetail({
               </ul>
             ) : null}
 
+            <div className="manga-actions">
+              {firstChapter ? (
+                <Link
+                  className="button detail-primary"
+                  to={`/manga/${manga.id}/chapter/${firstChapter.id}`}
+                >
+                  {detail.order === 'oldest'
+                    ? 'Read first chapter'
+                    : 'Read latest chapter'}
+                </Link>
+              ) : null}
+              <Link className="button button-secondary" to="/library">
+                Back to library
+              </Link>
+            </div>
+
             {manga.description ? (
-              <p className="manga-description">{manga.description}</p>
+              <>
+                <p
+                  className={`manga-description${
+                    !descriptionExpanded && manga.description.length > 240
+                      ? ' is-clamped'
+                      : ''
+                  }`}
+                >
+                  {manga.description}
+                </p>
+                {manga.description.length > 240 ? (
+                  <button
+                    className="description-toggle"
+                    type="button"
+                    aria-expanded={descriptionExpanded}
+                    onClick={() => setDescriptionExpanded((value) => !value)}
+                  >
+                    {descriptionExpanded ? 'Show less' : 'Show more'}
+                  </button>
+                ) : null}
+              </>
             ) : (
               <p className="manga-description manga-description-empty">
                 No description.
               </p>
             )}
-
-            <Link className="button" to="/library">
-              Back to library
-            </Link>
           </div>
         </header>
 
-        <section className="chapter-section" aria-labelledby="chapters-heading">
+        <nav className="detail-tabs" aria-label="Manga sections">
+          <button
+            className={section === 'overview' ? 'is-active' : undefined}
+            type="button"
+            aria-current={section === 'overview' ? 'true' : undefined}
+            onClick={() => {
+              setSection('overview');
+              document.getElementById('overview')?.scrollIntoView({ block: 'start' });
+            }}
+          >
+            Overview
+          </button>
+          <button
+            className={section === 'chapters' ? 'is-active' : undefined}
+            type="button"
+            aria-current={section === 'chapters' ? 'true' : undefined}
+            onClick={() => {
+              setSection('chapters');
+              document.getElementById('chapters')?.scrollIntoView({ block: 'start' });
+            }}
+          >
+            Chapters
+          </button>
+        </nav>
+
+        <section className="chapter-section" id="chapters" aria-labelledby="chapters-heading">
           <div className="chapter-section-header">
             <div>
               <h2 id="chapters-heading">Chapters</h2>
@@ -209,6 +271,9 @@ function ConnectedMangaDetail({
                       className="chapter-row"
                       to={`/manga/${manga.id}/chapter/${chapter.id}`}
                     >
+                      <span className="chapter-play" aria-hidden="true">
+                        ▶
+                      </span>
                       <span className="chapter-row-main">
                         <span className="chapter-name">{chapter.name}</span>
                         <span className="chapter-meta">

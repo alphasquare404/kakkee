@@ -24,7 +24,7 @@ describe('App', () => {
 
     render(<App createCoordinator={() => coordinator} />);
 
-    expect(screen.getByRole('heading', { name: 'Suwayomi Frontend' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Suwayomi' })).toBeTruthy();
     expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
   });
 
@@ -55,6 +55,16 @@ describe('App', () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe('/app'));
+    expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
+  });
+
+  it('returns a protected page to the connection screen when disconnected', async () => {
+    const coordinator = new FakeConnectionCoordinator();
+    window.history.replaceState({}, '', '/browse');
+
+    render(<App createCoordinator={() => coordinator} />);
+
+    await waitFor(() => expect(window.location.pathname).toBe('/'));
     expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
   });
 });

@@ -1,0 +1,25 @@
+query ChapterFeed(
+  $first: Int!
+  $filter: ChapterFilterInput
+  $order: [ChapterOrderInput!]!
+) {
+  chapters(first: $first, filter: $filter, order: $order) {
+    nodes {
+      id
+      name
+      chapterNumber
+      pageCount
+      isRead
+      isDownloaded
+      lastPageRead
+      lastReadAt
+      uploadDate
+      manga {
+        id
+        title
+        thumbnailUrl
+      }
+    }
+    totalCount
+  }
+}

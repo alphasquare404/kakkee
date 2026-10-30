@@ -1,0 +1,15 @@
+query SourceCatalog($first: Int!) {
+  sources(first: $first, order: [{ by: NAME, byType: ASC }]) {
+    nodes {
+      id
+      name
+      displayName
+      lang
+      isNsfw
+      contentWarning
+      supportsLatest
+      iconUrl
+    }
+    totalCount
+  }
+}

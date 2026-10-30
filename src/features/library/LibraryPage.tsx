@@ -26,6 +26,8 @@ import {
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
 import { useConnection } from '../../app/useConnection';
+import { useImageResource } from '../../shared/useImageResource';
+import { AmbientArt } from '../../shared/AmbientArt';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -114,6 +116,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const categories = useSyncExternalStore(
     categoryController.subscribe,
     categoryController.getState,
+  );
+  const ambient = useImageResource(
+    context.resources,
+    library.items[1]?.thumbnailUrl ?? library.items[0]?.thumbnailUrl ?? null,
   );
   const loadedLibrary = useRef<LibraryController | null>(null);
   const loadedCategories = useRef<LibraryCategoryController | null>(null);
@@ -261,6 +267,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell library-shell">
+      <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className="library-header">
         <div className="library-title">
           <h1>Library</h1>

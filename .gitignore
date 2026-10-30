@@ -29,3 +29,6 @@ npm-debug.log*
 *.key
 server-data/
 suwayomi-data/
+
+# Referensi visual lokal (bukan aset aplikasi)
+Refrence/
