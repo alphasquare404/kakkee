@@ -3139,6 +3139,23 @@ button.manga-card-link {
   background: var(--accent-grad);
 }
 
+.extension-filter-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  margin: var(--sp-3) 0;
+}
+
+.extension-filter-row input {
+  flex: 1 1 18rem;
+  min-height: 2.35rem;
+  padding: 0 0.7rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
 .browse-filters {
   flex-wrap: nowrap;
   max-width: 100%;

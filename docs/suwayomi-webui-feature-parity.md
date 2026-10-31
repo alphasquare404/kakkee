@@ -178,7 +178,7 @@ frontend.
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
 | Browse | Saved source searches and global search | `Partial` | Client metadata + server | Per-source search history and `/search` page; live search across all sources absent |
 | Browse | WebView/open-in-WebView | `Platform limitation` | Platform/server | Browser frontend cannot host the server-side WebView integration |
-| Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
+| Extensions | Installed/available extensions, stores, language filters | `Implemented` | Yes | Catalog, installed/available sections, language filter, name/package search, updates-only filter, store add/remove |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
 | Extensions | Update badges/info pages | `Implemented` | Yes | Update section/badge and per-extension detail page with install/update/uninstall |
 | Sources | Source configure/preferences | `Implemented` | Yes | Checkbox, switch, edit-text, list, and multi-select preferences editable |

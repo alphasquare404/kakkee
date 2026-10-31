@@ -37,6 +37,8 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     controller.getState,
   );
   const [language, setLanguage] = useState('all');
+  const [query, setQuery] = useState('');
+  const [updatesOnly, setUpdatesOnly] = useState(false);
   const [storeUrl, setStoreUrl] = useState('');
   const [jarFile, setJarFile] = useState<File | null>(null);
 
@@ -48,10 +50,22 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     'all',
     ...[...new Set(extensions.items.map((item) => item.lang))].sort(),
   ];
-  const items =
+  const items = (
     language === 'all'
       ? extensions.items
-      : extensions.items.filter((item) => item.lang === language);
+      : extensions.items.filter((item) => item.lang === language)
+  ).filter((item) => {
+    const value = query.trim().toLowerCase();
+
+    if (
+      value &&
+      !`${item.name} ${item.pkgName}`.toLowerCase().includes(value)
+    ) {
+      return false;
+    }
+
+    return !updatesOnly || item.hasUpdate;
+  });
   const installed = items.filter((item) => item.isInstalled);
   const available = items.filter((item) => !item.isInstalled);
   const updates = installed.filter((item) => item.hasUpdate);
@@ -95,6 +109,24 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             {lang === 'all' ? 'All' : lang.toUpperCase()}
           </button>
         ))}
+      </div>
+
+      <div className="extension-filter-row">
+        <input
+          type="search"
+          aria-label="Search extensions"
+          placeholder="Search by name or package…"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <button
+          className={`library-action${updatesOnly ? ' is-active' : ''}`}
+          type="button"
+          aria-pressed={updatesOnly}
+          onClick={() => setUpdatesOnly((value) => !value)}
+        >
+          Updates only
+        </button>
       </div>
 
       {extensions.status === 'loading' && extensions.items.length === 0 ? (
