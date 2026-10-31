@@ -3752,6 +3752,18 @@ button.manga-card-link {
   border-bottom: 1px solid var(--border);
 }
 
+.manga-categories {
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.manga-category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
 .manga-notes-field textarea {
   width: 100%;
   min-height: 4.5rem;

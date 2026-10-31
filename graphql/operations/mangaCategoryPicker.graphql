@@ -1,0 +1,17 @@
+query MangaCategoryPicker($mangaId: Int!) {
+  manga(id: $mangaId) {
+    id
+    categories {
+      nodes {
+        id
+        name
+      }
+    }
+  }
+  categories {
+    nodes {
+      id
+      name
+    }
+  }
+}

@@ -87,7 +87,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Manga | Cover, title, author/artist, status, source, genres, description | `Implemented` | Yes | Ambient hero from real cover |
-| Manga | Library add/remove and category picker | `Partial` | Yes | Detail has an in-library toggle; category picker and bulk actions absent |
+| Manga | Library add/remove and category picker | `Partial` | Yes | In-library toggle and category picker; bulk library actions absent |
 | Manga | Continue reading from last page | `Implemented` | Reading progress | Detail links the in-progress chapter with `?page=`; reader resumes that page |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Implemented` | Manga meta mutations | Notes stored in manga meta with save/clear |

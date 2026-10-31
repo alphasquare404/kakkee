@@ -1,0 +1,13 @@
+mutation SetMangaCategories($input: UpdateMangaCategoriesInput!) {
+  updateMangaCategories(input: $input) {
+    manga {
+      id
+      categories {
+        nodes {
+          id
+          name
+        }
+      }
+    }
+  }
+}
