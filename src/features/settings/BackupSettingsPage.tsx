@@ -7,6 +7,49 @@ import { createBackupRepository } from '../../core/backup/backupRepository';
 import type { BackupSettings } from '../../core/backup/backupRepository';
 import type { PartialBackupFlagsInput } from '../../core/graphql/generated/graphql';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Backup: 'Cadangan',
+  'Server backup and restore data': 'Data cadangan dan pemulihan server',
+  'All settings': 'Semua pengaturan',
+  'Create backup': 'Buat cadangan',
+  'Creating backup…': 'Membuat cadangan…',
+  'Backup created:': 'Cadangan dibuat:',
+  'open backup file': 'buka file cadangan',
+  'Backup could not be created. Check server logs.':
+    'Cadangan tidak dapat dibuat. Periksa log server.',
+  'Restore backup': 'Pulihkan cadangan',
+  'Upload a backup archive to the server. This may replace server data.':
+    'Unggah arsip cadangan ke server. Ini dapat menggantikan data server.',
+  'Backup file': 'File cadangan',
+  'Validating…': 'Memvalidasi…',
+  'Validate backup': 'Validasi cadangan',
+  'Restoring…': 'Memulihkan…',
+  'Backup validation passed.': 'Validasi cadangan berhasil.',
+  'Missing sources:': 'Source hilang:',
+  'Missing trackers:': 'Tracker hilang:',
+  'Restore started:': 'Pemulihan dimulai:',
+  'Backup restore failed. Check server logs.':
+    'Pemulihan cadangan gagal. Periksa log server.',
+  'Automatic backup': 'Cadangan otomatis',
+  'Backup path': 'Lokasi cadangan',
+  'Interval (hours)': 'Interval (jam)',
+  'Backup time': 'Waktu cadangan',
+  'Retention (backups)': 'Retensi (cadangan)',
+  'Automatic backup settings could not be saved.':
+    'Pengaturan cadangan otomatis tidak dapat disimpan.',
+  'Saving…': 'Menyimpan…',
+  'Changes save automatically': 'Perubahan disimpan otomatis',
+  Categories: 'Kategori',
+  Chapters: 'Chapter',
+  'Client data': 'Data klien',
+  History: 'Riwayat',
+  Manga: 'Manga',
+  'Server settings': 'Pengaturan server',
+  Tracking: 'Tracking',
+});
 
 const FLAGS: ReadonlyArray<{
   key: keyof PartialBackupFlagsInput;
@@ -37,6 +80,7 @@ export function BackupSettingsPage() {
 }
 
 function BackupContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(() => {
     const repository = createBackupRepository({
       getClient: () => context.graphQL,
@@ -64,21 +108,24 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title="Backup" subtitle="Server backup and restore data">
+      <PageHeader
+        title={t('Backup')}
+        subtitle={t('Server backup and restore data')}
+      >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="backup-create">
           <div className="section-heading-row">
-            <h2 id="backup-create">Create backup</h2>
+            <h2 id="backup-create">{t('Create backup')}</h2>
           </div>
           <div className="settings-toggle-list">
             {FLAGS.map((flag) => (
               <label className="settings-toggle" key={flag.key}>
-                <span>{flag.label}</span>
+                <span>{t(flag.label)}</span>
                 <input
                   type="checkbox"
                   checked={flags[flag.key] === true}
@@ -105,31 +152,33 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
 
           {backup.createdUrl ? (
             <p className="settings-save-state" role="status">
-              Backup created:{' '}
+              {t('Backup created:')}{' '}
               <a href={backup.createdUrl} target="_blank" rel="noreferrer">
-                open backup file
+                {t('open backup file')}
               </a>
             </p>
           ) : null}
 
           {backup.error && backup.lastAction === 'create' ? (
             <p className="settings-inline-error" role="alert">
-              Backup could not be created. Check server logs.
+              {t('Backup could not be created. Check server logs.')}
             </p>
           ) : null}
         </section>
 
         <section className="settings-section" aria-labelledby="backup-restore">
           <div className="section-heading-row">
-            <h2 id="backup-restore">Restore backup</h2>
+            <h2 id="backup-restore">{t('Restore backup')}</h2>
           </div>
           <p className="settings-save-state">
-            Upload a backup archive to the server. This may replace server data.
+            {t(
+              'Upload a backup archive to the server. This may replace server data.',
+            )}
           </p>
           <input
             type="file"
             accept=".gz,.backup,application/gzip"
-            aria-label="Backup file"
+            aria-label={t('Backup file')}
             onChange={(event) =>
               setRestoreFile(event.target.files?.[0] ?? null)
             }
@@ -164,12 +213,12 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
             <div className="settings-save-state" role="status">
               {backup.validation.missingSources.length === 0 &&
               backup.validation.missingTrackers.length === 0 ? (
-                <span>Backup validation passed.</span>
+                <span>{t('Backup validation passed.')}</span>
               ) : (
                 <>
                   {backup.validation.missingSources.length > 0 ? (
                     <p>
-                      Missing sources:{' '}
+                      {t('Missing sources:')}{' '}
                       {backup.validation.missingSources
                         .map((source) => source.name)
                         .join(', ')}
@@ -177,7 +226,7 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
                   ) : null}
                   {backup.validation.missingTrackers.length > 0 ? (
                     <p>
-                      Missing trackers:{' '}
+                      {t('Missing trackers:')}{' '}
                       {backup.validation.missingTrackers
                         .map((tracker) => tracker.name)
                         .join(', ')}
@@ -189,19 +238,19 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
           ) : null}
           {backup.restoredId ? (
             <p className="settings-save-state" role="status">
-              Restore started: {backup.restoredId}
+              {t('Restore started:')} {backup.restoredId}
             </p>
           ) : null}
           {backup.error && backup.lastAction === 'restore' ? (
             <p className="settings-inline-error" role="alert">
-              Backup restore failed. Check server logs.
+              {t('Backup restore failed. Check server logs.')}
             </p>
           ) : null}
         </section>
 
         <section className="settings-section" aria-labelledby="backup-auto">
           <div className="section-heading-row">
-            <h2 id="backup-auto">Automatic backup</h2>
+            <h2 id="backup-auto">{t('Automatic backup')}</h2>
           </div>
           {backup.status === 'loading' && !backup.settings ? (
             <p className="settings-save-state" role="status">
@@ -212,23 +261,23 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
             <>
               <div className="settings-field-grid">
                 <TextSetting
-                  label="Backup path"
+                  label={t('Backup path')}
                   value={backup.settings.backupPath}
                   onCommit={(value) => void controller.update({ backupPath: value })}
                 />
                 <NumberSetting
-                  label="Interval (hours)"
+                  label={t('Interval (hours)')}
                   value={backup.settings.backupInterval}
                   min={1}
                   onCommit={(value) => void controller.update({ backupInterval: value })}
                 />
                 <TextSetting
-                  label="Backup time"
+                  label={t('Backup time')}
                   value={backup.settings.backupTime}
                   onCommit={(value) => void controller.update({ backupTime: value })}
                 />
                 <NumberSetting
-                  label="Retention (backups)"
+                  label={t('Retention (backups)')}
                   value={backup.settings.backupTTL}
                   min={1}
                   onCommit={(value) => void controller.update({ backupTTL: value })}
@@ -237,7 +286,7 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
               <div className="settings-toggle-list">
                 {FLAGS.map((flag) => (
                   <label className="settings-toggle" key={flag.autoKey}>
-                    <span>{flag.label}</span>
+                    <span>{t(flag.label)}</span>
                     <input
                       type="checkbox"
                       checked={backup.settings?.[flag.autoKey] === true}
@@ -252,7 +301,7 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
               </div>
               {backup.saveError ? (
                 <p className="settings-inline-error" role="alert">
-                  Automatic backup settings could not be saved.
+                  {t('Automatic backup settings could not be saved.')}
                 </p>
               ) : null}
               <p className="settings-save-state">

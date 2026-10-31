@@ -10,6 +10,38 @@ import {
   type SyncStatusChangedSubscription,
 } from '../../core/graphql/generated/graphql';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Sync: 'Sinkronisasi',
+  'Server and Yomi synchronization': 'Sinkronisasi server dan Yomi',
+  'All settings': 'Semua pengaturan',
+  'Start sync': 'Mulai sinkronisasi',
+  'Sync pushes selected server data to the configured Yomi host.':
+    'Sinkronisasi mengirim data server terpilih ke host Yomi yang dikonfigurasi.',
+  'Sync started': 'Sinkronisasi dimulai',
+  'Sync is already in progress': 'Sinkronisasi sedang berjalan',
+  'Sync is disabled in server settings':
+    'Sinkronisasi dinonaktifkan di pengaturan server',
+  'Live sync status': 'Status sinkronisasi langsung',
+  State: 'Status',
+  Started: 'Dimulai',
+  Finished: 'Selesai',
+  Error: 'Error',
+  'Sync action failed.': 'Aksi sinkronisasi gagal.',
+  'Data selection': 'Pilihan data',
+  'Yomi sync enabled': 'Sinkronisasi Yomi aktif',
+  'Yomi API key': 'Kunci API Yomi',
+  'Sync interval': 'Interval sinkronisasi',
+  'Yomi host': 'Host Yomi',
+  'Not configured': 'Belum dikonfigurasi',
+  Categories: 'Kategori',
+  Chapters: 'Chapter',
+  History: 'Riwayat',
+  Manga: 'Manga',
+  Tracking: 'Tracking',
+});
 
 type SyncStatus = SyncStatusChangedSubscription['syncStatusChanged'];
 
@@ -41,6 +73,7 @@ export function SyncSettingsPage() {
 }
 
 function SyncContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(() => {
     const repository = createSyncRepository({
       getClient: () => context.graphQL,
@@ -87,19 +120,22 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title="Sync" subtitle="Server and Yomi synchronization">
+      <PageHeader
+        title={t('Sync')}
+        subtitle={t('Server and Yomi synchronization')}
+      >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="sync-start">
           <div className="section-heading-row">
-            <h2 id="sync-start">Start sync</h2>
+            <h2 id="sync-start">{t('Start sync')}</h2>
           </div>
           <p className="settings-save-state">
-            Sync pushes selected server data to the configured Yomi host.
+            {t('Sync pushes selected server data to the configured Yomi host.')}
           </p>
           <div className="settings-actions">
             <button
@@ -113,30 +149,30 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
           </div>
           {sync.result ? (
             <p className="settings-save-state" role="status">
-              {SYNC_RESULT_LABEL[sync.result] ?? sync.result}
+              {t(SYNC_RESULT_LABEL[sync.result] ?? sync.result)}
             </p>
           ) : null}
           {liveStatus ? (
-            <dl className="settings-rows" aria-label="Live sync status">
+            <dl className="settings-rows" aria-label={t('Live sync status')}>
               <div>
-                <dt>State</dt>
+                <dt>{t('State')}</dt>
                 <dd>{liveStatus.state}</dd>
               </div>
               {liveStatus.startDate ? (
                 <div>
-                  <dt>Started</dt>
+                  <dt>{t('Started')}</dt>
                   <dd>{liveStatus.startDate}</dd>
                 </div>
               ) : null}
               {liveStatus.endDate ? (
                 <div>
-                  <dt>Finished</dt>
+                  <dt>{t('Finished')}</dt>
                   <dd>{liveStatus.endDate}</dd>
                 </div>
               ) : null}
               {liveStatus.errorMessage ? (
                 <div>
-                  <dt>Error</dt>
+                  <dt>{t('Error')}</dt>
                   <dd>{liveStatus.errorMessage}</dd>
                 </div>
               ) : null}
@@ -144,20 +180,20 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
           ) : null}
           {sync.error ? (
             <p className="settings-inline-error" role="alert">
-              Sync action failed.
+              {t('Sync action failed.')}
             </p>
           ) : null}
         </section>
 
         <section className="settings-section" aria-labelledby="sync-data">
           <div className="section-heading-row">
-            <h2 id="sync-data">Data selection</h2>
+            <h2 id="sync-data">{t('Data selection')}</h2>
           </div>
           {sync.settings ? (
             <div className="settings-toggle-list">
               {DATA_TOGGLES.map((toggle) => (
                 <label className="settings-toggle" key={toggle.key}>
-                  <span>{toggle.label}</span>
+                  <span>{t(toggle.label)}</span>
                   <input
                     type="checkbox"
                     checked={sync.settings?.[toggle.key] === true}
@@ -171,7 +207,7 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
                 </label>
               ))}
               <label className="settings-toggle">
-                <span>Yomi sync enabled</span>
+                <span>{t('Yomi sync enabled')}</span>
                 <input
                   type="checkbox"
                   checked={sync.settings.syncYomiEnabled}
@@ -184,7 +220,7 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
                 />
               </label>
               <label className="settings-text-field">
-                <span>Yomi API key</span>
+                <span>{t('Yomi API key')}</span>
                 <input
                   type="password"
                   autoComplete="off"
@@ -207,13 +243,13 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
           {sync.settings ? (
             <dl className="settings-rows">
               <div>
-                <dt>Sync interval</dt>
+                <dt>{t('Sync interval')}</dt>
                 <dd>{sync.settings.syncInterval}</dd>
               </div>
               <div>
-                <dt>Yomi host</dt>
+                <dt>{t('Yomi host')}</dt>
                 <dd className="settings-endpoint">
-                  {sync.settings.syncYomiHost || 'Not configured'}
+                  {sync.settings.syncYomiHost || t('Not configured')}
                 </dd>
               </div>
             </dl>
