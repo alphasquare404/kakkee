@@ -83,6 +83,7 @@ function ConnectedReader({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
+  const [autoWebtoon, setAutoWebtoon] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
@@ -96,6 +97,7 @@ function ConnectedReader({
     if (loadedChapter.current !== chapterId) {
       loadedChapter.current = chapterId;
       setCurrentPage(1);
+      setAutoWebtoon(false);
       setNextDownloadQueued(false);
       void controller.load(chapterId);
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -114,7 +116,7 @@ function ConnectedReader({
       ? explicitPage
       : (activeChapter?.lastPageRead ?? 0) + 1,
   );
-  const readingMode = readerSettings.mode;
+  const readingMode = autoWebtoon ? 'webtoon' : readerSettings.mode;
   const isPaged = readingMode === 'single' || readingMode === 'double';
   const safeCurrentPage = Math.min(
     Math.max(1, currentPage),
@@ -706,6 +708,16 @@ function ConnectedReader({
                 eager={isPaged || Math.abs(index + 1 - safeCurrentPage) <= 1}
                 filter={imageFilter}
                 onVisible={isPaged ? noopVisible : handlePageVisible}
+                onDimensions={(page, width, height) => {
+                  if (
+                    readerSettings.autoDetectWebtoon &&
+                    page === 1 &&
+                    width > 0 &&
+                    height / width > 2.2
+                  ) {
+                    setAutoWebtoon(true);
+                  }
+                }}
                 onColor={(page, color) =>
                   setPageColors((current) =>
                     current[page] === color
@@ -803,6 +815,7 @@ function ReaderPageImage({
   filter = 'none',
   onVisible,
   onColor,
+  onDimensions,
 }: {
   readonly resources: ResourceService;
   readonly path: string;
@@ -811,6 +824,11 @@ function ReaderPageImage({
   readonly filter?: string;
   readonly onVisible: (pageNumber: number) => void;
   readonly onColor?: (pageNumber: number, color: string) => void;
+  readonly onDimensions?: (
+    pageNumber: number,
+    width: number,
+    height: number,
+  ) => void;
 }) {
   const figure = useRef<HTMLElement>(null);
   const [nearViewport, setNearViewport] = useState(pageNumber <= 2 || eager);
@@ -884,6 +902,12 @@ function ReaderPageImage({
           decoding="async"
           style={{ filter }}
           onLoad={(event) => {
+            onDimensions?.(
+              pageNumber,
+              event.currentTarget.naturalWidth,
+              event.currentTarget.naturalHeight,
+            );
+
             if (!onColor) {
               return;
             }

@@ -125,7 +125,7 @@ frontend.
 | Reader | Single page mode | `Partial` | Client-side | Single-page layout and page controls; no double-spread pairing logic |
 | Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
 | Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
-| Reader | Webtoon mode + auto detection | `Partial` | Client-side | Webtoon layout exists; auto detection absent |
+| Reader | Webtoon mode + auto detection | `Implemented` | Client-side | Webtoon layout plus optional first-page height/width auto detection |
 | Reader | Reading direction (LTR/RTL) | `Implemented` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Implemented` | Client-side | Fit width, fit height, fit screen, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |

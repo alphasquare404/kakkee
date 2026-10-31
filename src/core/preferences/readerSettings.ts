@@ -64,6 +64,7 @@ export interface ReaderSettings {
   readonly firstPageOffset: number;
   readonly skipDuplicates: boolean;
   readonly autoAdvance: boolean;
+  readonly autoDetectWebtoon: boolean;
   readonly autoScrollSpeed: number;
   readonly deleteAfterReading: boolean;
   readonly autoBackground: boolean;
@@ -85,6 +86,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   firstPageOffset: 0,
   skipDuplicates: false,
   autoAdvance: false,
+  autoDetectWebtoon: false,
   autoScrollSpeed: 1,
   deleteAfterReading: false,
   autoBackground: false,
@@ -150,6 +152,7 @@ function load(): ReaderSettings {
       ),
       skipDuplicates: parsed.skipDuplicates === true,
       autoAdvance: parsed.autoAdvance === true,
+      autoDetectWebtoon: parsed.autoDetectWebtoon === true,
       autoScrollSpeed: clampNumber(
         parsed.autoScrollSpeed,
         1,
@@ -333,6 +336,10 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       typeof patch.autoAdvance === 'boolean'
         ? patch.autoAdvance
         : base.autoAdvance,
+    autoDetectWebtoon:
+      typeof patch.autoDetectWebtoon === 'boolean'
+        ? patch.autoDetectWebtoon
+        : base.autoDetectWebtoon,
     autoScrollSpeed: clampNumber(
       patch.autoScrollSpeed ?? base.autoScrollSpeed,
       1,

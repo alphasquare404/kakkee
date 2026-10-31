@@ -351,6 +351,23 @@ export function ReaderSettingsPage() {
               </dd>
             </div>
             <div>
+              <dt>Webtoon detection</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.autoDetectWebtoon}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        autoDetectWebtoon: event.target.checked,
+                      })
+                    }
+                  />
+                  Use webtoon layout for very tall pages
+                </label>
+              </dd>
+            </div>
+            <div>
               <dt>
                 <label htmlFor="reader-auto-scroll-speed">Auto-scroll speed</label>
               </dt>
