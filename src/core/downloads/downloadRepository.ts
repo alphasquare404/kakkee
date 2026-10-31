@@ -16,6 +16,7 @@ export interface DownloadRepository {
   getQueue(): Promise<DownloadQueue>;
   setPaused(paused: boolean): Promise<void>;
   dequeue(chapterId: number): Promise<void>;
+  dequeueMany(chapterIds: readonly number[]): Promise<void>;
   deleteDownloaded(chapterId: number): Promise<void>;
   retry(chapterIds: readonly number[]): Promise<void>;
 }
@@ -53,6 +54,18 @@ export function createDownloadRepository(options: {
 
       if (!result.data?.dequeueChapterDownload) {
         throw new Error('Chapter tidak dapat dihapus dari antrean.');
+      }
+    },
+    async dequeueMany(chapterIds) {
+      for (const chapterId of chapterIds) {
+        const result = await options.getClient().mutate({
+          mutation: DequeueDownloadDocument,
+          variables: { input: { id: chapterId } },
+        });
+
+        if (!result.data?.dequeueChapterDownload) {
+          throw new Error('Chapter tidak dapat dihapus dari antrean.');
+        }
       }
     },
     async deleteDownloaded(chapterId) {

@@ -15,6 +15,7 @@ export interface DownloadController {
   load(): Promise<void>;
   togglePaused(): Promise<void>;
   dequeue(chapterId: number): Promise<void>;
+  dequeueMany(chapterIds: readonly number[]): Promise<void>;
   deleteDownloaded(chapterId: number): Promise<void>;
   retryFailed(): Promise<void>;
 }
@@ -90,6 +91,8 @@ export function createDownloadController(
     togglePaused: () =>
       action(() => repository.setPaused(state.queue?.state !== 'STOPPED')),
     dequeue: (chapterId) => action(() => repository.dequeue(chapterId)),
+    dequeueMany: (chapterIds) =>
+      action(() => repository.dequeueMany(chapterIds)),
     deleteDownloaded: (chapterId) =>
       action(() => repository.deleteDownloaded(chapterId)),
     retryFailed: () => {

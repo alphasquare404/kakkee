@@ -9,11 +9,13 @@ function setup() {
   }));
   const setPaused = vi.fn(async () => undefined);
   const dequeue = vi.fn(async () => undefined);
+  const dequeueMany = vi.fn(async () => undefined);
   const deleteDownloaded = vi.fn(async () => undefined);
   const repository = {
     getQueue,
     setPaused,
     dequeue,
+    dequeueMany,
     deleteDownloaded,
   } as unknown as DownloadRepository;
   return {
@@ -21,6 +23,7 @@ function setup() {
     getQueue,
     setPaused,
     dequeue,
+    dequeueMany,
     deleteDownloaded,
   };
 }
@@ -45,6 +48,15 @@ describe('DownloadController', () => {
 
     expect(controller.getState().queue).not.toBeNull();
     expect(controller.getState().actionError).toBeInstanceOf(Error);
+    expect(controller.getState().isActing).toBe(false);
+  });
+
+  it('cancels a group of chapters', async () => {
+    const { controller, dequeueMany } = setup();
+    await controller.load();
+    await controller.dequeueMany([3, 4]);
+
+    expect(dequeueMany).toHaveBeenCalledWith([3, 4]);
     expect(controller.getState().isActing).toBe(false);
   });
 });

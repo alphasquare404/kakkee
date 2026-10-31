@@ -74,6 +74,21 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   );
   const isPaused = downloads.queue?.state === 'STOPPED';
   const failedCount = queue.filter((item) => item.state === 'ERROR').length;
+  const groups = Array.from(
+    queue
+      .reduce((result, item) => {
+        const group = result.get(item.manga.id);
+
+        if (group) {
+          group.items.push(item);
+        } else {
+          result.set(item.manga.id, { manga: item.manga, items: [item] });
+        }
+
+        return result;
+      }, new Map<number, { manga: DownloadItem['manga']; items: DownloadItem[] }>())
+      .values(),
+  );
 
   return (
     <div className="app-shell page-shell downloads-shell">
@@ -162,15 +177,47 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
 
         <div className="download-list">
-          {queue.map((item) => (
-            <DownloadRow
-              key={item.chapter.id}
-              item={item}
-              resources={context.resources}
-              controller={controller}
-              disabled={downloads.isActing}
-            />
-          ))}
+          {groups.map((group) => {
+            const progress = Math.round(
+              (group.items.reduce((total, item) => total + item.progress, 0) /
+                group.items.length) *
+                100,
+            );
+
+            return (
+              <section className="download-group" key={group.manga.id}>
+                <div className="download-group-heading">
+                  <strong>{group.manga.title}</strong>
+                  <span>
+                    {group.items.length} chapters · {progress}%
+                  </span>
+                  <button
+                    className="library-action"
+                    type="button"
+                    disabled={downloads.isActing}
+                    onClick={() =>
+                      void controller.dequeueMany(
+                        group.items.map((item) => item.chapter.id),
+                      )
+                    }
+                  >
+                    Cancel series
+                  </button>
+                </div>
+                <div className="download-group-rows">
+                  {group.items.map((item) => (
+                    <DownloadRow
+                      key={item.chapter.id}
+                      item={item}
+                      resources={context.resources}
+                      controller={controller}
+                      disabled={downloads.isActing}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
       </section>
 

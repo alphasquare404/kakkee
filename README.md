@@ -28,7 +28,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Browse: installed source catalog plus source manga browsing with Popular/Latest, search, pagination, and quick library add/remove.
 - Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
-- Downloads: real queue/state/progress, pause/resume, retry-all-failed, cancel/delete, downloaded-chapter list, and server image conversion lists.
+- Downloads: real queue/state/progress, pause/resume, retry-all-failed, cancel/delete, manga grouping with series cancel, downloaded-chapter list, and server image conversion lists.
 - Extensions: installed/available extension catalog, language filter, store add/remove, external JAR upload, per-extension detail pages, install/uninstall/update, and update checking.
 - Settings extras: hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
 - Sync settings: start sync, sync result, Yomi status, and data-selection toggles.
@@ -798,7 +798,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (383 test; 7 runtime integration memerlukan env)
+npm run test           lulus (384 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

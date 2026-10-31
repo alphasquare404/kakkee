@@ -164,7 +164,7 @@ frontend.
 | History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
 | Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
 | Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
-| Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Progress and per-row actions; no grouping/bulk/speed |
+| Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Manga grouping, series cancel, and progress; speed absent |
 | Downloads | List downloaded chapters | `Partial` | Yes | Real `isDownloaded` feed |
 | Downloads | Download/conversion/image settings | `Partial` | Yes | Download/serve conversion list editor; image processing settings absent |
 

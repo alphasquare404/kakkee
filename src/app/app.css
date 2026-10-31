@@ -4654,7 +4654,36 @@ button.manga-card-link {
 
 .download-list {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.6rem;
+}
+
+.download-group {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+}
+
+.download-group-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.download-group-heading strong {
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.download-group-rows {
+  display: grid;
+  gap: 0.4rem;
 }
 
 .download-row {
