@@ -57,6 +57,7 @@ function deferred<T>() {
 function setup(options: {
   initialFilter?: LibraryFilterCriteria;
   initialSort?: LibrarySort;
+  initialCategoryId?: number | null;
   pageSize?: number;
 } = {}) {
   const getPage = vi.fn();
@@ -92,8 +93,24 @@ function state(controller: ReturnType<typeof setup>['controller']): LibraryState
   return controller.getState();
 }
 
-describe('createLibraryController initial load', () => {  it('starts with a deterministic empty Library state and default criteria', () => {
-    const { controller } = setup();
+describe('createLibraryController initial load', () => {  it('uses an initial category and status filter from saved defaults', async () => {
+    const { controller, getPage } = setup({
+      initialCategoryId: 5,
+      initialFilter: { status: 'ONGOING' },
+    });
+    getPage.mockResolvedValue(page([]));
+
+    await controller.load();
+
+    expect(state(controller).categoryId).toBe(5);
+    expect(getPage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filter: { status: 'ONGOING', categoryId: 5 },
+      }),
+    );
+  });
+
+  it('starts with a deterministic empty Library state and default criteria', () => {    const { controller } = setup();
     const initial = state(controller);
 
     expect(initial.items).toEqual([]);

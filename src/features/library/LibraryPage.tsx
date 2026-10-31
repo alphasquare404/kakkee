@@ -31,6 +31,10 @@ import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { useSearchHistory } from '../../shared/useSearchHistory';
 import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
+import {
+  getLibraryPreferences,
+  updateLibraryPreferences,
+} from '../../core/preferences/libraryPreferences';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -151,9 +155,18 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     () => createLibraryRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
   );
+  const savedPreferences = useRef(getLibraryPreferences()).current;
   const controller = useMemo(
-    () => createLibraryController({ repository }),
-    [repository],
+    () =>
+      createLibraryController({
+        repository,
+        initialFilter: savedPreferences.status
+          ? { status: savedPreferences.status as LibraryStatus }
+          : {},
+        initialSort: savedPreferences.sort,
+        initialCategoryId: savedPreferences.categoryId,
+      }),
+    [repository, savedPreferences],
   );
   const categoryController = useMemo(
     () => createLibraryCategoryController({ repository }),
@@ -317,6 +330,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       delete rest.search;
       void controller.setFilter(rest);
     }
+  };
+
+  const saveDefaults = () => {
+    updateLibraryPreferences({
+      status: library.filter.status,
+      categoryId: library.categoryId,
+      sort: library.sort,
+    });
   };
 
   const clearSelection = () => {
@@ -713,6 +734,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 Reset
               </button>
             ) : null}
+            <button
+              className="library-action"
+              type="button"
+              title="Save current category, status, and sort as default"
+              onClick={saveDefaults}
+            >
+              Save defaults
+            </button>
           </div>
         </div>
       </header>

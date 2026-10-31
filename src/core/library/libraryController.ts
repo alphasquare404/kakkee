@@ -43,6 +43,7 @@ export interface LibraryControllerOptions {
   readonly pageSize?: number;
   readonly initialFilter?: LibraryFilterCriteria;
   readonly initialSort?: LibrarySort;
+  readonly initialCategoryId?: number | null;
 }
 
 export interface LibraryController {
@@ -70,7 +71,7 @@ function initialState(options: LibraryControllerOptions): LibraryState {
       hasNextPage: false,
     },
     filter: { ...(options.initialFilter ?? {}) },
-    categoryId: null,
+    categoryId: options.initialCategoryId ?? null,
     sort: options.initialSort ?? DEFAULT_LIBRARY_SORT,
     isInitialLoading: false,
     isLoadingMore: false,
