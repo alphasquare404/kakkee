@@ -42,5 +42,10 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
     },
+    preview: {
+      host: '0.0.0.0',
+      port: 4174,
+      strictPort: true,
+    },
   };
 });

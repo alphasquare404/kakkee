@@ -189,6 +189,18 @@ npm run build
 npm run preview
 ```
 
+`npm run preview` sekarang listen di `0.0.0.0:4174`, sehingga bisa dibuka dari perangkat lain di jaringan yang sama:
+
+```text
+http://<IP-PC>:4174
+```
+
+Contoh saat ini: `http://192.168.2.2:4174`.
+
+Jika perangkat lain masih tidak bisa membuka, izinkan Node.js/Vite pada port `4174` di firewall Windows untuk jaringan Private. Server Suwayomi juga harus listen di alamat LAN (bukan hanya `127.0.0.1`) dan mengizinkan origin frontend.
+
+Catatan: PWA/service worker memerlukan HTTPS atau `localhost`. Preview HTTP lewat alamat LAN tetap bisa dipakai untuk menguji UI, tetapi instalasi PWA dan cache offline tidak aktif sampai disajikan lewat HTTPS.
+
 Deployment subpath:
 
 ```bash
