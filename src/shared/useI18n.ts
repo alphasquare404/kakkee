@@ -6,6 +6,9 @@ export function useI18n() {
 
   return {
     locale: preferences.locale,
-    t: (key: MessageKey) => translate(preferences.locale, key),
+    t: (
+      key: MessageKey,
+      params?: Readonly<Record<string, string | number>>,
+    ) => translate(preferences.locale, key, params),
   };
 }

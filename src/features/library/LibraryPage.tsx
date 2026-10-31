@@ -40,6 +40,36 @@ import {
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { createCatalogRepository } from '../../core/catalog/catalogRepository';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Library: 'Perpustakaan',
+  'Loading…': 'Memuat…',
+  'Search library': 'Cari di perpustakaan',
+  'Clear history': 'Hapus riwayat',
+  Select: 'Pilih',
+  Done: 'Selesai',
+  Grid: 'Grid',
+  List: 'Daftar',
+  Filter: 'Filter',
+  Sort: 'Urutkan',
+  Reset: 'Reset',
+  'Save defaults': 'Simpan default',
+  'All titles': 'Semua judul',
+  Unread: 'Belum dibaca',
+  Started: 'Sudah dimulai',
+  Downloaded: 'Terunduh',
+  Bookmarked: 'Ditandai',
+  Tracked: 'Dilacak',
+  'Possible duplicates': 'Kemungkinan duplikat',
+  'Scan all library': 'Pindai seluruh perpustakaan',
+  'Rescan library': 'Pindai ulang',
+  Close: 'Tutup',
+  All: 'Semua',
+  'No server categories.': 'Tidak ada kategori server.',
+  'Loading categories…': 'Memuat kategori…',
+});
 import { LibrarySyncButton } from './LibrarySyncButton';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
 
@@ -98,12 +128,18 @@ function hasNarrowingCriteria(
   );
 }
 
-function countLabel(totalCount: number, loading: boolean): string {
+function countLabel(
+  totalCount: number,
+  loading: boolean,
+  t: (key: string, params?: Record<string, string | number>) => string,
+): string {
   if (loading) {
-    return 'Loading…';
+    return t('Loading…');
   }
 
-  return `${totalCount.toLocaleString('en-US')} manga`;
+  return t('{count} manga', {
+    count: totalCount.toLocaleString('en-US'),
+  });
 }
 
 function shuffled<T>(items: readonly T[], seed: number): readonly T[] {
@@ -166,6 +202,7 @@ export function LibraryPage() {
 }
 
 function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () => createLibraryRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -739,9 +776,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className="library-header">
         <div className="library-title">
-          <h1>Library</h1>
+          <h1>{t('Library')}</h1>
           <p className="library-count" aria-live="polite">
-            {countLabel(library.totalCount, library.isInitialLoading)}
+            {countLabel(library.totalCount, library.isInitialLoading, t)}
           </p>
         </div>
 
@@ -760,7 +797,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             id="library-search"
             name="search"
             type="search"
-            placeholder="Search library"
+            placeholder={t('Search library')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setHistoryOpen(true)}
@@ -850,7 +887,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 setSelectionMode((value) => !value);
               }}
             >
-              {selectionMode ? 'Done' : 'Select'}
+              {selectionMode ? t('Done') : t('Select')}
             </button>
             <button
               className={`library-action${fuzzy ? ' is-active' : ''}`}

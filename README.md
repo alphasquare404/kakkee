@@ -30,7 +30,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, live queue refresh, pause/resume, retry-all-failed, cancel/delete, manga grouping with series cancel, downloaded-chapter list, and server image conversion lists.
 - Extensions: installed/available extension catalog, language filter, name/package search, updates-only filter, store add/remove, external JAR upload, per-extension detail pages, install/uninstall/update, and update checking.
-- Localization foundation: English/Indonesian locale selection with translated navigation and Appearance screen.
+- Localization foundation: English/Indonesian locale selection with translated navigation, Appearance, and Library chrome.
 - Settings extras: About/update page with WebUI update action, hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
 - Sync settings: start sync, live sync status, Yomi host/interval/API key, and data-selection toggles.
 - Tracking settings: real tracker services, login links, token/expiry state, private/reading-date support, and logout.
