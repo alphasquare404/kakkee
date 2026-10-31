@@ -367,6 +367,45 @@ describe('parity pages', () => {
     expect(await screen.findByRole('link', { name: 'open backup file' })).toBeTruthy();
   });
 
+  it('renders an extension detail page', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ExtensionsCatalogDocument) {
+        return {
+          data: {
+            extensions: {
+              __typename: 'ExtensionNodeList',
+              totalCount: 1,
+              nodes: [
+                {
+                  __typename: 'ExtensionType',
+                  pkgName: 'example',
+                  name: 'Example Extension',
+                  versionName: '1.0.0',
+                  lang: 'en',
+                  isInstalled: true,
+                  hasUpdate: false,
+                  isObsolete: false,
+                  iconUrl: '/icon.png',
+                  contentWarning: 'SAFE',
+                  extensionStore: {
+                    __typename: 'ExtensionStoreType',
+                    name: 'Store',
+                  },
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/extensions/example', query);
+
+    expect(await screen.findByRole('heading', { name: 'Example Extension' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Uninstall' })).toBeTruthy();
+  });
+
   it('installs an extension from the catalog', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === ExtensionsCatalogDocument) {

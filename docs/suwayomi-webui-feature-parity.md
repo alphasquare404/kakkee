@@ -180,7 +180,7 @@ frontend.
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
 | Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Partial` | Yes | Install/uninstall/update and obsolete badge; external JAR upload absent |
-| Extensions | Update badges/info pages | `Partial` | Yes | Update section and badge; detail pages absent |
+| Extensions | Update badges/info pages | `Implemented` | Yes | Update section/badge and per-extension detail page with install/update/uninstall |
 | Sources | Source configure/preferences | `Missing` | Yes | |
 
 ### Migration / Tracking / Categories

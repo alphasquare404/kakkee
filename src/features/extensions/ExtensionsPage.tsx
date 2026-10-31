@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -275,7 +276,11 @@ function ExtensionCard({
         {icon.objectUrl ? <img src={icon.objectUrl} alt="" /> : extension.name.charAt(0)}
       </span>
       <div className="extension-copy">
-        <h3>{extension.name}</h3>
+        <h3>
+          <Link to={`/extensions/${encodeURIComponent(extension.pkgName)}`}>
+            {extension.name}
+          </Link>
+        </h3>
         <p>
           {extension.versionName} · {extension.lang.toUpperCase()}
           {extension.extensionStore ? ` · ${extension.extensionStore.name}` : ''}

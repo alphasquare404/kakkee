@@ -29,6 +29,11 @@ const GlobalSearchPage = lazy(() =>
     default: module.GlobalSearchPage,
   })),
 );
+const ExtensionDetailPage = lazy(() =>
+  import('../features/extensions/ExtensionDetailPage').then((module) => ({
+    default: module.ExtensionDetailPage,
+  })),
+);
 const CategoriesPage = lazy(() =>
   import('../features/categories/CategoriesPage').then((module) => ({
     default: module.CategoriesPage,
@@ -141,6 +146,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/browse" element={<BrowsePage />} />
             <Route path="/browse/:sourceId" element={<SourceMangaPage />} />
             <Route path="/extensions" element={<ExtensionsPage />} />
+            <Route path="/extensions/:pkgName" element={<ExtensionDetailPage />} />
             <Route path="/search" element={<GlobalSearchPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
