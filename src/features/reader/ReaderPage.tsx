@@ -81,6 +81,7 @@ function ConnectedReader({
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
+  const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const syncedChapter = useRef(0);
   const deletedAfterReading = useRef(0);
@@ -89,6 +90,7 @@ function ConnectedReader({
     if (loadedChapter.current !== chapterId) {
       loadedChapter.current = chapterId;
       setCurrentPage(1);
+      setNextDownloadQueued(false);
       void controller.load(chapterId);
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
@@ -507,6 +509,24 @@ function ConnectedReader({
                 ? 'Delete download'
                 : 'Download'}
           </button>
+          {nextChapter ? (
+            <button
+              className="reader-quick-action"
+              type="button"
+              disabled={downloadBusy || nextDownloadQueued}
+              onClick={() => {
+                setDownloadError(false);
+                setDownloadBusy(true);
+                void controller
+                  .downloadChapter(nextChapter.id)
+                  .then(() => setNextDownloadQueued(true))
+                  .catch(() => setDownloadError(true))
+                  .finally(() => setDownloadBusy(false));
+              }}
+            >
+              {nextDownloadQueued ? 'Next queued' : 'Download next'}
+            </button>
+          ) : null}
           <button
             className="reader-quick-action"
             type="button"

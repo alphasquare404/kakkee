@@ -146,7 +146,7 @@ frontend.
 | Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
 | Reader | Auto background color | `Missing` | Client-side | |
 | Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
-| Reader | Download next chapter / delete after reading | `Partial` | Yes | Active chapter download/delete and opt-in delete-after-reading; next-chapter download absent |
+| Reader | Download next chapter / delete after reading | `Implemented` | Yes | Active chapter download/delete, download next chapter, and opt-in delete-after-reading |
 | Reader | Bookmark/library actions from reader | `Missing` | Yes | |
 | Reader | Chapter list overlay/sidebar | `Partial` | Yes | Right-side chapter dialog with active/read markers; sidebar variant absent |
 
