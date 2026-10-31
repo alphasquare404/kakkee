@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -19,16 +19,16 @@ registerMessages('id', {
   'Sources installed through your server':
     'Source yang terpasang melalui server Anda',
   '{count} extensions': '{count} ekstensi',
-  'Checking…': 'Memeriksa…',
+  'Checkingâ€¦': 'Memeriksaâ€¦',
   'Check for updates': 'Periksa update',
   'The last extension change was rejected by the server.':
     'Perubahan ekstensi terakhir ditolak server.',
   'Search extensions': 'Cari ekstensi',
   Language: 'Bahasa',
   'All languages': 'Semua bahasa',
-  'Search by name or package…': 'Cari berdasarkan nama atau paket…',
+  'Search by name or packageâ€¦': 'Cari berdasarkan nama atau paketâ€¦',
   'Updates only': 'Hanya update',
-  'Couldn’t load extensions': 'Tidak dapat memuat ekstensi',
+  'Couldnâ€™t load extensions': 'Tidak dapat memuat ekstensi',
   'The extension catalog could not be loaded.':
     'Katalog ekstensi tidak dapat dimuat.',
   Retry: 'Coba lagi',
@@ -44,7 +44,7 @@ registerMessages('id', {
   'Add store': 'Tambah toko',
   'Install external JAR': 'Pasang JAR eksternal',
   'Install JAR': 'Pasang JAR',
-  'Installing…': 'Memasang…',
+  'Installingâ€¦': 'Memasangâ€¦',
   'Extension store index URL': 'URL indeks toko ekstensi',
   Obsolete: 'Usang',
   Update: 'Update',
@@ -79,7 +79,6 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
   );
   const [language, setLanguage] = useState('all');
   const [query, setQuery] = useState('');
-  const [updatesOnly, setUpdatesOnly] = useState(false);
   const [storeUrl, setStoreUrl] = useState('');
   const [jarFile, setJarFile] = useState<File | null>(null);
 
@@ -105,11 +104,11 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
       return false;
     }
 
-    return !updatesOnly || item.hasUpdate;
+    return true;
   });
-  const installed = items.filter((item) => item.isInstalled);
+  const installed = items.filter((item) => item.isInstalled && !item.hasUpdate);
   const available = items.filter((item) => !item.isInstalled);
-  const updates = installed.filter((item) => item.hasUpdate);
+  const updates = items.filter((item) => item.isInstalled && item.hasUpdate);
 
   return (
     <div className="app-shell page-shell extensions-shell">
@@ -130,7 +129,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
           disabled={extensions.refreshing}
           onClick={() => void controller.refresh()}
         >
-          {extensions.refreshing ? 'Checking…' : 'Check for updates'}
+          {extensions.refreshing ? 'Checkingâ€¦' : 'Check for updates'}
         </button>
       </PageHeader>
 
@@ -161,18 +160,10 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         <input
           type="search"
           aria-label="Search extensions"
-          placeholder="Search by name or package…"
+          placeholder="Search by name or packageâ€¦"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <button
-          className={`library-action${updatesOnly ? ' is-active' : ''}`}
-          type="button"
-          aria-pressed={updatesOnly}
-          onClick={() => setUpdatesOnly((value) => !value)}
-        >
-          {t('Updates only')}
-        </button>
       </div>
 
       {extensions.status === 'loading' && extensions.items.length === 0 ? (
@@ -185,7 +176,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {extensions.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldn’t load extensions')}</h1>
+          <h1>{t('Couldnâ€™t load extensions')}</h1>
           <p>{t('The extension catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
             {t('Retry')}
@@ -258,7 +249,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
                   disabled={extensions.storeBusy === store.indexUrl}
                   onClick={() => void controller.removeStore(store.indexUrl)}
                 >
-                  {extensions.storeBusy === store.indexUrl ? 'Working…' : 'Remove'}
+                  {extensions.storeBusy === store.indexUrl ? 'Workingâ€¦' : 'Remove'}
                 </button>
               </li>
             ))}
@@ -319,7 +310,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
               }
             }}
           >
-            {extensions.storeBusy === 'external' ? 'Installing…' : 'Install JAR'}
+            {extensions.storeBusy === 'external' ? 'Installingâ€¦' : 'Install JAR'}
           </button>
         </div>
       </section>
@@ -390,8 +381,8 @@ function ExtensionCard({
           </Link>
         </h3>
         <p>
-          {extension.versionName} · {extension.lang.toUpperCase()}
-          {extension.extensionStore ? ` · ${extension.extensionStore.name}` : ''}
+          {extension.versionName} Â· {extension.lang.toUpperCase()}
+          {extension.extensionStore ? ` Â· ${extension.extensionStore.name}` : ''}
         </p>
         <div className="extension-badges">
           {extension.isObsolete ? <span>{t('Obsolete')}</span> : null}
@@ -405,7 +396,7 @@ function ExtensionCard({
         onClick={() => onAction(extension, action)}
       >
         {busy
-          ? 'Working…'
+          ? 'Workingâ€¦'
           : action === 'install'
             ? 'Install'
             : action === 'update'
@@ -415,3 +406,4 @@ function ExtensionCard({
     </article>
   );
 }
+

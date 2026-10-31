@@ -78,6 +78,15 @@ import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
 
 type LibraryStatus = NonNullable<LibraryFilter['status']>;
 type OpenPanel = 'filter' | 'sort';
+type QuickFilter = 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked';
+
+const QUICK_FILTER_OPTIONS: ReadonlyArray<{ readonly value: QuickFilter; readonly label: string }> = [
+  { value: 'unread', label: 'Unread' },
+  { value: 'started', label: 'Started' },
+  { value: 'downloaded', label: 'Downloaded' },
+  { value: 'bookmarked', label: 'Bookmarked' },
+  { value: 'tracked', label: 'Tracked' },
+];
 
 const SEARCH_FORM_ID = 'library-search-form';
 const FILTER_MENU_ID = 'library-filter-menu';
@@ -107,17 +116,6 @@ const DIRECTION_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: 'asc', label: 'Ascending' },
   { value: 'desc', label: 'Descending' },
 ];
-
-function statusFilter(
-  filter: LibraryFilterCriteria,
-  status: LibraryStatus | null,
-): LibraryFilterCriteria {
-  return {
-    ...(filter.search !== undefined ? { search: filter.search } : {}),
-    ...(status !== null ? { status } : {}),
-    ...(filter.sourceId !== undefined ? { sourceId: filter.sourceId } : {}),
-  };
-}
 
 function hasNarrowingCriteria(
   filter: LibraryFilterCriteria,
@@ -281,9 +279,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   >(null);
   const [duplicateScanBusy, setDuplicateScanBusy] = useState(false);
   const [duplicateScanError, setDuplicateScanError] = useState(false);
-  const [quickFilter, setQuickFilter] = useState<
-    'all' | 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked'
-  >('all');
+  const [quickFilters, setQuickFilters] = useState<ReadonlySet<QuickFilter>>(
+    () => new Set(),
+  );
   const [sources, setSources] = useState<
     readonly { readonly id: string; readonly displayName: string }[]
   >([]);
@@ -457,12 +455,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       setSearchOpen(false);
       searchToggle.current?.focus({ preventScroll: true });
     }
-  };
-
-  const handleStatus = (value: string) => {
-    const status = value === '' ? null : (value as LibraryStatus);
-
-    void controller.setFilter(statusFilter(library.filter, status));
   };
 
   const handleSortField = (value: string) => {
@@ -662,44 +654,50 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   };
 
   const isNarrowed = hasNarrowingCriteria(library.filter, library.categoryId);
-  const filterActive = Boolean(
-    library.filter.status ||
-      (library.filter.statuses?.length ?? 0) > 0 ||
-      library.filter.sourceId,
-  );
+  const selectedStatuses = library.filter.statuses?.length
+    ? library.filter.statuses
+    : library.filter.status
+      ? [library.filter.status]
+      : [];
+  const serverFilterCount =
+    selectedStatuses.length + (library.filter.sourceId ? 1 : 0);
+  const filterCount = serverFilterCount + quickFilters.size;
+  const filterActive = filterCount > 0;
   const searchActive = Boolean(search.trim()) || Boolean(library.filter.search?.trim());
   const sortActive =
     randomOrder ||
     library.sort.field !== 'dateAdded' ||
     library.sort.direction !== 'desc';
   const hasAnyRefinement =
-    isNarrowed || sortActive || searchActive || quickFilter !== 'all';
+    isNarrowed || sortActive || searchActive || quickFilters.size > 0;
   const locallyFiltered =
     fuzzy && search.trim()
       ? library.items.filter((manga) => fuzzyMatch(manga.title, search.trim()))
       : library.items;
   const quickFiltered =
-    quickFilter === 'all'
+    quickFilters.size === 0
       ? locallyFiltered
-      : locallyFiltered.filter((manga) => {
-          if (quickFilter === 'unread') {
-            return manga.unreadCount > 0;
-          }
+      : locallyFiltered.filter((manga) =>
+          [...quickFilters].every((quickFilter) => {
+            if (quickFilter === 'unread') {
+              return manga.unreadCount > 0;
+            }
 
-          if (quickFilter === 'started') {
-            return manga.lastReadChapter !== null;
-          }
+            if (quickFilter === 'started') {
+              return manga.lastReadChapter !== null;
+            }
 
-          if (quickFilter === 'bookmarked') {
-            return manga.bookmarkCount > 0;
-          }
+            if (quickFilter === 'bookmarked') {
+              return manga.bookmarkCount > 0;
+            }
 
-          if (quickFilter === 'tracked') {
-            return manga.trackRecords.totalCount > 0;
-          }
+            if (quickFilter === 'tracked') {
+              return manga.trackRecords.totalCount > 0;
+            }
 
-          return manga.downloadCount > 0;
-        });
+            return manga.downloadCount > 0;
+          }),
+        );
   const displayedItems = randomOrder
     ? shuffled(quickFiltered, randomSeed)
     : quickFiltered;
@@ -731,7 +729,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     setRandomOrder(false);
     setRandomSeed(0);
     setFuzzy(false);
-    setQuickFilter('all');
+    setQuickFilters(new Set());
     setOpenPanel(null);
     void controller.setFilter({});
 
@@ -763,40 +761,58 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const showInitialLoading = library.isInitialLoading && library.items.length === 0;
   const showInitialError = Boolean(library.initialError) && library.items.length === 0;
 
+  const applyStatuses = (next: readonly LibraryStatus[]) => {
+    const filter = { ...library.filter };
+    delete filter.status;
+    delete filter.statuses;
+
+    void controller.setFilter({
+      ...filter,
+      ...(next.length > 0 ? { statuses: [...next] } : {}),
+    });
+  };
+
   const filterGroups: readonly LibraryMenuGroup[] = [
     {
-      key: 'status',
-      label: 'Status',
-      value: library.filter.status ?? '',
-      options: STATUS_OPTIONS,
-      onSelect: (value) => {
-        handleStatus(value);
-        closePanel();
-      },
-    },
-    {
       key: 'statuses',
-      label: 'Status OR',
+      label: 'Publication status',
       value: '',
       selection: 'multiple',
-      values: library.filter.statuses ?? [],
+      values: selectedStatuses,
       options: STATUS_OPTIONS.filter((option) => option.value !== ''),
       onSelect: () => undefined,
       onToggle: (value) => {
-        const current = new Set(library.filter.statuses ?? []);
+        const next = new Set(selectedStatuses);
         const status = value as LibraryStatus;
 
-        if (current.has(status)) {
-          current.delete(status);
+        if (next.has(status)) {
+          next.delete(status);
         } else {
-          current.add(status);
+          next.add(status);
         }
 
-        const statuses = [...current];
-        void controller.setFilter({
-          ...statusFilter(library.filter, null),
-          ...(statuses.length > 0 ? { statuses } : {}),
-        });
+        applyStatuses([...next]);
+      },
+    },
+    {
+      key: 'loaded',
+      label: 'Loaded titles',
+      value: '',
+      selection: 'multiple',
+      values: [...quickFilters],
+      options: QUICK_FILTER_OPTIONS,
+      onSelect: () => undefined,
+      onToggle: (value) => {
+        const next = new Set(quickFilters);
+        const filter = value as QuickFilter;
+
+        if (next.has(filter)) {
+          next.delete(filter);
+        } else {
+          next.add(filter);
+        }
+
+        setQuickFilters(next);
       },
     },
     {
@@ -988,10 +1004,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               <IconFilter />
               <span>Filter</span>
-              {filterActive ? (
-                <span className="library-action-dot" aria-hidden="true" />
+              {filterCount > 0 ? (
+                <span className="library-action-count" aria-hidden="true">
+                  {filterCount}
+                </span>
               ) : null}
-              {filterActive ? <span className="sr-only">, active</span> : null}
+              {filterCount > 0 ? (
+                <span className="sr-only">, {filterCount} active</span>
+              ) : null}
             </button>
 
             <button
@@ -1195,29 +1215,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           <p className="library-note">No server categories.</p>
         ) : null}
       </nav>
-
-      <div className="library-quick-filters" role="group" aria-label="Quick filters">
-        {(
-          [
-            ['all', 'All titles'],
-            ['unread', 'Unread'],
-            ['started', 'Started'],
-            ['downloaded', 'Downloaded'],
-            ['bookmarked', 'Bookmarked'],
-            ['tracked', 'Tracked'],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            className={quickFilter === value ? 'is-active' : undefined}
-            key={value}
-            type="button"
-            aria-pressed={quickFilter === value}
-            onClick={() => setQuickFilter(value)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
 
       {selectionMode ? (
         <div className="library-selection-bar" role="toolbar" aria-label="Bulk manga actions">

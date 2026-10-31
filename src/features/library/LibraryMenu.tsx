@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+﻿import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { IconCheck } from './icons';
 
 export interface LibraryMenuOption {
@@ -127,7 +127,7 @@ export function LibraryMenu({ id, label, open, groups, onClose }: LibraryMenuPro
                 type="button"
                 role={multiple ? 'menuitemcheckbox' : 'menuitemradio'}
                 aria-checked={checked}
-                tabIndex={checked ? 0 : -1}
+                tabIndex={-1}
                 onClick={() => {
                   if (multiple) {
                     group.onToggle?.(option.value);
@@ -146,3 +146,8 @@ export function LibraryMenu({ id, label, open, groups, onClose }: LibraryMenuPro
     </div>
   );
 }
+
+
+
+
+

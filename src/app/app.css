@@ -6160,3 +6160,23 @@ button.manga-card-link {
 .manga-tag-disclosure[open] > summary::after {
   content: "-";
 }
+
+.library-action-count {
+  display: inline-grid;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  place-items: center;
+  color: var(--accent-text);
+  font-size: 0.62rem;
+  font-weight: 750;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.feed-action.is-active {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: var(--accent-soft);
+}

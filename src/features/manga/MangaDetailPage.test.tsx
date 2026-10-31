@@ -123,6 +123,11 @@ describe('MangaDetailPage', () => {
     expect(screen.getByRole('link', { name: /Chapter 1186/ }).getAttribute('href')).toBe(
       '/manga/1114/chapter/1186',
     );
+    expect(
+      screen
+        .getByRole('button', { name: 'Read Chapter 1186' })
+        .getAttribute('aria-pressed'),
+    ).toBe('false');
     expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(
       '/library',
     );

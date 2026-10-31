@@ -1268,9 +1268,13 @@ function ConnectedMangaDetail({
                         }`}
                         type="button"
                         disabled={pendingChapterId === chapter.id}
-                        aria-label={`Mark ${chapter.name} as ${
-                          chapter.isRead ? 'unread' : 'read'
-                        }`}
+                        aria-label={`Read ${chapter.name}`}
+                        aria-pressed={chapter.isRead}
+                        title={
+                          chapter.isRead
+                            ? `Mark ${chapter.name} as unread`
+                            : `Mark ${chapter.name} as read`
+                        }
                         onClick={() => {
                           setChapterActionError(false);
                           setPendingChapterId(chapter.id);
@@ -1280,7 +1284,7 @@ function ConnectedMangaDetail({
                             .finally(() => setPendingChapterId(null));
                         }}
                       >
-                        {chapter.isRead ? 'Read' : 'Unread'}
+                        {t('Read')}
                       </button>
                       <button
                         className="chapter-icon-button"

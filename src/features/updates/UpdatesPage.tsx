@@ -284,12 +284,13 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 resources={context.resources}
                 state={{ origin }}
                 detail={`${formatRelativeTime(chapter.uploadDate)} · ${chapter.pageCount} pages`}
-                stateLabel={chapter.isRead ? 'Read' : 'Unread'}
                 actions={
                   <>
                     <button
-                      className="feed-action"
+                      className={`feed-action${chapter.isRead ? ' is-active' : ''}`}
                       type="button"
+                      aria-pressed={chapter.isRead}
+                      title={chapter.isRead ? 'Mark as unread' : 'Mark as read'}
                       disabled={pendingChapterId === chapter.id}
                       onClick={() => {
                         setActionError(false);
@@ -301,7 +302,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                           .finally(() => setPendingChapterId(null));
                       }}
                     >
-                      {chapter.isRead ? t('Unread') : t('Read')}
+                      {t('Read')}
                     </button>
                     <button
                       className="feed-action"
