@@ -139,9 +139,30 @@ export function SourcePreferencesSection({
           }
 
           return (
-            <p className="settings-save-state" key={`${preference.key}-${position}`}>
-              {preference.title}: {(preference.multiValue ?? []).join(', ') || 'None'}
-            </p>
+            <fieldset className="source-preference-multi" key={`${preference.key}-${position}`}>
+              <legend>{preference.title}</legend>
+              {preference.entryValues.map((value, index) => {
+                const selected = (preference.multiValue ?? []).includes(value);
+
+                return (
+                  <label className="settings-toggle" key={value}>
+                    <span>{preference.entries[index] ?? value}</span>
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={(event) => {
+                        const current = preference.multiValue ?? [];
+                        const next = event.target.checked
+                          ? [...current, value]
+                          : current.filter((item) => item !== value);
+
+                        update(position, { multiSelectState: next });
+                      }}
+                    />
+                  </label>
+                );
+              })}
+            </fieldset>
           );
         })}
       </div>

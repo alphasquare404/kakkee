@@ -181,7 +181,7 @@ frontend.
 | Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
 | Extensions | Update badges/info pages | `Implemented` | Yes | Update section/badge and per-extension detail page with install/update/uninstall |
-| Sources | Source configure/preferences | `Partial` | Yes | Switch/checkbox/edit/list preferences editable; multi-select editing absent |
+| Sources | Source configure/preferences | `Implemented` | Yes | Checkbox, switch, edit-text, list, and multi-select preferences editable |
 
 ### Migration / Tracking / Categories
 

@@ -3405,6 +3405,20 @@ button.manga-card-link {
   gap: var(--sp-2);
 }
 
+.source-preference-multi {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.source-preference-multi legend {
+  padding: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+
 .source-search {
   position: relative;
   display: flex;
