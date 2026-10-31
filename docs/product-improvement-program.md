@@ -23,8 +23,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 13 | Performance/resources | Complete | [performance-audit.md](performance-audit.md) | `Goal 13` |
 | 14 | PWA/offline | Complete | [pwa-offline-audit.md](pwa-offline-audit.md) | `Goal 14` |
 | 15 | Visual hierarchy | Complete | [visual-hierarchy-audit.md](visual-hierarchy-audit.md) | `Goal 15` |
-| 16 | Motion/microinteractions | In Progress | — | — |
-| 17 | Content/copy | Pending | — | — |
+| 16 | Motion/microinteractions | Complete | [motion-audit.md](motion-audit.md) | `Goal 16` |
+| 17 | Content/copy | In Progress | — | — |
 | 18 | Extreme data/stress | Pending | — | — |
 | 19 | Preference persistence | Pending | — | — |
 | 20 | Cross-feature coherence | Pending | — | — |
