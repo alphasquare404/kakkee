@@ -374,7 +374,7 @@ h2[tabindex="-1"]:focus {
   display: none;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 760px) {
   .app-frame {
     display: block;
   }
@@ -471,6 +471,61 @@ h2[tabindex="-1"]:focus {
   .mobile-more-link.is-active {
     color: var(--accent);
     background: var(--accent-soft);
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  :root {
+    --sidebar-width: 4.75rem;
+  }
+
+  .app-sidebar {
+    align-items: center;
+    padding: var(--sp-5) 0.55rem;
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .brand > span:last-child,
+  .nav-item > span:not(.nav-badge),
+  .sidebar-account div {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .primary-nav {
+    width: 100%;
+  }
+
+  .nav-item {
+    justify-content: center;
+    min-height: 2.9rem;
+    padding: 0;
+  }
+
+  .nav-item.is-active::before {
+    display: none;
+  }
+
+  .nav-item .nav-badge {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.65rem;
+    margin-left: 0;
+  }
+
+  .sidebar-account {
+    justify-content: center;
+    width: 100%;
+    padding: var(--sp-3) 0;
   }
 }
 
@@ -3138,8 +3193,14 @@ button.manga-card-link {
 
   .library-header {
     grid-template-areas:
-      "title actions"
-      "search search";
+      "title"
+      "search"
+      "actions";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .library-actions {
+    flex-wrap: wrap;
   }
 
   .manga-hero {
@@ -5556,5 +5617,53 @@ button.manga-card-link {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .settings-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+
+  .settings-nav {
+    position: static;
+    display: flex;
+    gap: 0.25rem;
+    padding-bottom: 0.25rem;
+    overflow-x: auto;
+  }
+
+  .settings-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .settings-content {
+    max-width: none;
+  }
+
+  .settings-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .settings-actions .button {
+    flex: 1 1 100%;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1360px) {
+  .library-header {
+    grid-template-areas:
+      "title"
+      "search"
+      "actions";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .library-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
