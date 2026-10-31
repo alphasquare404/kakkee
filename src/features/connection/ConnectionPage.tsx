@@ -14,6 +14,11 @@ import {
   saveLastServerUrl,
   setAutoConnect,
 } from '../../core/preferences/connectionPreferences';
+import {
+  clearRememberedSession,
+  getRememberedSession,
+  saveRememberedSession,
+} from '../../core/preferences/sessionPreferences';
 
 const ERROR_TEXT: Partial<Record<ConnectionError['code'], string>> = {
   'invalid-server-url': 'Alamat server tidak valid. Periksa format URL, termasuk skema http:// atau https://.',
@@ -55,9 +60,13 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 }
 
 export function ConnectionPage() {
-  const { state, connect, login, disconnect } = useConnection();
+  const { state, connect, login, restoreSession, disconnect } = useConnection();
   const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
   const [autoConnect, setAutoConnectState] = useState(() => getAutoConnect());
+  const [rememberLogin, setRememberLogin] = useState(
+    () => getRememberedSession() !== null,
+  );
+  const attemptedRestore = useRef(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -76,10 +85,31 @@ export function ConnectionPage() {
   useEffect(() => {
     if (state.status === 'connected') {
       saveLastServerUrl(state.context.config.serverBaseUrl);
+
+      const refreshToken = state.context.authService?.getRefreshToken();
+
+      if (rememberLogin && refreshToken) {
+        saveRememberedSession(state.context.config.serverBaseUrl, refreshToken);
+      } else if (!rememberLogin) {
+        clearRememberedSession();
+      }
     } else if (state.status === 'login-required') {
       saveLastServerUrl(state.serverBaseUrl);
     }
-  }, [state]);
+  }, [rememberLogin, state]);
+
+  useEffect(() => {
+    if (state.status !== 'login-required' || attemptedRestore.current) {
+      return;
+    }
+
+    attemptedRestore.current = true;
+    const remembered = getRememberedSession();
+
+    if (remembered && remembered.serverUrl === state.serverBaseUrl) {
+      void restoreSession(remembered.refreshToken).catch(() => undefined);
+    }
+  }, [restoreSession, state]);
 
   useEffect(() => {
     if (state.status === 'login-required') {
@@ -137,6 +167,8 @@ export function ConnectionPage() {
   const handleDisconnect = () => {
     setPassword('');
     setLocalError(null);
+    attemptedRestore.current = false;
+    clearRememberedSession();
     void disconnect();
   };
 
@@ -292,6 +324,15 @@ export function ConnectionPage() {
                   aria-invalid={state.error?.code === 'invalid-credentials' ? true : undefined}
                 />
               </div>
+
+              <label className="settings-inline-toggle">
+                <input
+                  type="checkbox"
+                  checked={rememberLogin}
+                  onChange={(event) => setRememberLogin(event.target.checked)}
+                />
+                Remember login on this device
+              </label>
 
               {localError ? (
                 <p className="alert alert-error" role="alert">

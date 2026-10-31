@@ -19,7 +19,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
 - Navigation: responsive desktop sidebar and mobile tab bar with download-queue and extension-update badges.
-- Connection: server URL validation, last-server memory, opt-in auto-connect, UI_LOGIN, and explicit unsupported-auth messaging.
+- Connection: server URL validation, last-server memory, opt-in auto-connect, opt-in remembered login/session restore, UI_LOGIN, and explicit unsupported-auth messaging.
 - Global Search: top-level search across server-known manga and matching sources, with recent-search suggestions and library/unread metadata.
 - Updates: recent chapters grouped by day, unread/read filters, per-manga resume, real covers, and a library sync trigger with live progress and auto-refresh.
 - Tracking: service list/login/logout, per-manga search/bind/unbind, private flag, status/score/reading dates, manual sync, and optional auto-sync after finishing a Reader chapter.
@@ -798,7 +798,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (379 test; 7 runtime integration memerlukan env)
+npm run test           lulus (381 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

@@ -44,6 +44,7 @@ export interface ConnectedContext {
   readonly resources: ResourceService;
   readonly authService?: {
     getAccessToken(): string | null;
+    getRefreshToken(): string | null;
   };
 }
 
@@ -131,6 +132,7 @@ type ProbeResult =
 export interface ConnectionCoordinator {
   connect(serverUrl: string): Promise<void>;
   login(username: string, password: string): Promise<void>;
+  restoreSession(refreshToken: string): Promise<void>;
   disconnect(): Promise<void>;
   dispose(): Promise<void>;
   getState(): ConnectionState;
@@ -490,6 +492,67 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
         probe.kind === 'authentication-required'
           ? new ConnectionError('authentication-required', 'probe-after-login')
           : probe.error,
+    });
+  }
+
+  public async restoreSession(refreshToken: string): Promise<void> {
+    this.assertNotDisposed();
+
+    const state = this.state;
+
+    if (state.status !== 'login-required') {
+      throw new ConnectionError('invalid-state', 'restore-requires-login-required');
+    }
+
+    const services = this.services;
+
+    if (!services) {
+      throw new ConnectionError('invalid-state', 'missing-services');
+    }
+
+    const generation = this.generation;
+    const loginContext = {
+      serverBaseUrl: state.serverBaseUrl,
+      config: state.config,
+      serverInfo: state.serverInfo,
+      compatibility: state.compatibility,
+    };
+
+    try {
+      const result = await services.graphQL.authTransport.refresh({ refreshToken });
+
+      if (!this.isCurrent(generation)) {
+        return;
+      }
+
+      services.authService.setUiLoginSession({
+        accessToken: result.accessToken,
+        refreshToken,
+      });
+    } catch {
+      if (!this.isCurrent(generation)) {
+        return;
+      }
+
+      services.authService.setUiLoginRequired();
+      this.publish(generation, {
+        status: 'login-required',
+        ...loginContext,
+        authMode: 'UNKNOWN',
+        error: new ConnectionError('authentication-required', 'refresh-restore'),
+      });
+      return;
+    }
+
+    this.publish(generation, {
+      status: 'connected',
+      context: {
+        ...loginContext,
+        authMode: 'UI_LOGIN',
+        graphQL: services.graphQL.client,
+        resources: services.resources,
+        authService: services.authService,
+      },
     });
   }
 

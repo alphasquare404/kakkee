@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -65,6 +65,21 @@ describe('ConnectionPage disconnected', () => {
 });
 
 describe('ConnectionPage login', () => {
+  it('restores a remembered session with its refresh token', async () => {
+    window.localStorage.setItem(
+      'suwayomi.remembered-session.v1',
+      JSON.stringify({
+        serverUrl: 'https://server.example/suwayomi',
+        refreshToken: 'remembered-refresh',
+      }),
+    );
+    const coordinator = renderPage(makeLoginRequiredState());
+
+    await waitFor(() =>
+      expect(coordinator.restoreCalls).toEqual(['remembered-refresh']),
+    );
+  });
+
   it('submits username/password, shows invalid credentials, and clears password', async () => {
     const user = userEvent.setup();
     const initial = makeLoginRequiredState();

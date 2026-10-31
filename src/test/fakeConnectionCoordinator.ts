@@ -11,6 +11,7 @@ import { ConnectionError } from '../core/server/connectionError';
 export class FakeConnectionCoordinator implements ConnectionCoordinator {
   public readonly connectCalls: string[] = [];
   public readonly loginCalls: Array<{ username: string; password: string }> = [];
+  public readonly restoreCalls: string[] = [];
   public readonly disconnectCalls: string[] = [];
   public disposed = false;
   public listenerCount = 0;
@@ -42,6 +43,10 @@ export class FakeConnectionCoordinator implements ConnectionCoordinator {
 
   async login(username: string, password: string): Promise<void> {
     this.loginCalls.push({ username, password });
+  }
+
+  async restoreSession(refreshToken: string): Promise<void> {
+    this.restoreCalls.push(refreshToken);
   }
 
   async disconnect(): Promise<void> {
