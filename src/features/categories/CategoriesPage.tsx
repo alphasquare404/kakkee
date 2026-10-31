@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -9,6 +9,7 @@ import {
   type Category,
 } from '../../core/categories/categoryRepository';
 import { PageHeader } from '../../shared/PageHeader';
+import { ActionMenu } from '../../shared/ActionMenu';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -22,7 +23,7 @@ registerMessages('id', {
   Cancel: 'Batal',
   'The last category change was rejected by the server.':
     'Perubahan kategori terakhir ditolak server.',
-  'Couldn’t load categories': 'Tidak dapat memuat kategori',
+  'Couldnâ€™t load categories': 'Tidak dapat memuat kategori',
   'The categories could not be loaded from your server.':
     'Kategori tidak dapat dimuat dari server Anda.',
   Retry: 'Coba lagi',
@@ -37,6 +38,8 @@ registerMessages('id', {
   'Delete this category?': 'Hapus kategori ini?',
   Confirm: 'Konfirmasi',
   Rename: 'Ubah nama',
+  More: 'Lainnya',
+  'More actions for': 'Aksi lainnya untuk',
   'Move up': 'Naikkan',
   'Move down': 'Turunkan',
   'Set default': 'Jadikan default',
@@ -186,7 +189,7 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
 
       {categories.status === 'error' && items.length === 0 ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldn’t load categories')}</h1>
+          <h1>{t('Couldnâ€™t load categories')}</h1>
           <p>{t('The categories could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.retry()}>
             {t('Retry')}
@@ -341,7 +344,7 @@ function CategoryCard({
           {t('{count} manga', {
             count: category.mangas.totalCount.toLocaleString('en-US'),
           })}
-          {isDefault ? ` · ${t('Default')}` : ''}
+          {isDefault ? ` Â· ${t('Default')}` : ''}
         </p>
         <div className="category-flags">
           <label>
@@ -378,26 +381,33 @@ function CategoryCard({
             <button disabled={busy} type="button" onClick={onStartRename}>
               {t('Rename')}
             </button>
-            <button disabled={busy || !canMoveUp} type="button" onClick={onMoveUp}>
-              {t('Move up')}
-            </button>
-            <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
-              {t('Move down')}
-            </button>
-            <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
-              {t('Set default')}
-            </button>
-            <button
-              className="is-danger"
-              disabled={busy || isDefault}
-              type="button"
-              onClick={onStartDelete}
+            <ActionMenu
+              label={t('More')}
+              ariaLabel={`${t('More actions for')} ${category.name}`}
+              summaryClassName="category-more-trigger"
             >
-              {t('Delete')}
-            </button>
+              <button disabled={busy || !canMoveUp} type="button" onClick={onMoveUp}>
+                {t('Move up')}
+              </button>
+              <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
+                {t('Move down')}
+              </button>
+              <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
+                {t('Set default')}
+              </button>
+              <button
+                className="is-danger"
+                disabled={busy || isDefault}
+                type="button"
+                onClick={onStartDelete}
+              >
+                {t('Delete')}
+              </button>
+            </ActionMenu>
           </div>
         )}
       </div>
     </article>
   );
 }
+

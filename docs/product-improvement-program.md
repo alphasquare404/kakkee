@@ -10,8 +10,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | --- | --- | --- | --- | --- |
 | 1 | Interaction semantics | Complete | [interaction-semantics-audit.md](interaction-semantics-audit.md) | `Goal 1` |
 | 2 | Information architecture | Complete | [information-architecture-audit.md](information-architecture-audit.md) | `Goal 2` |
-| 3 | Action hierarchy | In Progress | — | — |
-| 4 | UI consistency | Pending | — | — |
+| 3 | Action hierarchy | Complete | [action-hierarchy-audit.md](action-hierarchy-audit.md) | `Goal 3` |
+| 4 | UI consistency | In Progress | — | — |
 | 5 | Responsive/adaptive layout | Pending | — | — |
 | 6 | Navigation regression/context | Pending | — | — |
 | 7 | User task flows | Pending | — | — |

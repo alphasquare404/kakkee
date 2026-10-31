@@ -6280,3 +6280,49 @@ button.manga-card-link {
   color: var(--muted);
   font-size: var(--text-xs);
 }
+
+.category-more-trigger {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  list-style: none;
+}
+
+.category-more-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.category-more-trigger:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.button-secondary.is-danger {
+  color: color-mix(in srgb, var(--danger) 78%, var(--text));
+  border-color: color-mix(in srgb, var(--danger) 28%, var(--border));
+}
+
+.chapter-row-more {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.chapter-row-more .action-menu-chevron {
+  display: none;
+}
+
+.chapter-actions .action-menu-panel {
+  width: min(14rem, calc(100vw - 2rem));
+}
+
+.chapter-item:has(.action-menu[open]) {
+  position: relative;
+  z-index: 12;
+}

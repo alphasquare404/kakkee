@@ -73,6 +73,9 @@ registerMessages('id', {
   'More manga actions': 'Aksi manga lainnya',
   'More chapter actions': 'Aksi chapter lainnya',
   'Scan all chapters': 'Pindai semua chapter',
+  'Mark earlier': 'Tandai sebelumnya',
+  'Mark earlier as read': 'Tandai chapter sebelumnya sebagai dibaca',
+  'More chapter actions for': 'Aksi chapter lainnya untuk',
   '{count} chapters': '{count} chapter',
   Order: 'Urutan',
   'Newest first': 'Terbaru dulu',
@@ -1286,38 +1289,42 @@ function ConnectedMangaDetail({
                       >
                         {t('Read')}
                       </button>
-                      <button
-                        className="chapter-icon-button"
-                        type="button"
-                        disabled={
-                          pendingChapterId === chapter.id ||
-                          !detail.chapters.some(
-                            (item) =>
-                              item.sourceOrder < chapter.sourceOrder &&
-                              !item.isRead,
-                          )
-                        }
-                        title={`Mark chapters before ${chapter.name} as read`}
-                        aria-label={`Mark chapters before ${chapter.name} as read`}
-                        onClick={() => {
-                          const ids = detail.chapters
-                            .filter(
+                      <ActionMenu
+                        label="⋯"
+                        ariaLabel={`${t('More chapter actions for')} ${chapter.name}`}
+                        summaryClassName="chapter-icon-button chapter-row-more"
+                      >
+                        <button
+                          type="button"
+                          disabled={
+                            pendingChapterId === chapter.id ||
+                            !detail.chapters.some(
                               (item) =>
                                 item.sourceOrder < chapter.sourceOrder &&
                                 !item.isRead,
                             )
-                            .map((item) => item.id);
+                          }
+                          title={`Mark chapters before ${chapter.name} as read`}
+                          onClick={() => {
+                            const ids = detail.chapters
+                              .filter(
+                                (item) =>
+                                  item.sourceOrder < chapter.sourceOrder &&
+                                  !item.isRead,
+                              )
+                              .map((item) => item.id);
 
-                          setChapterActionError(false);
-                          setPendingChapterId(chapter.id);
-                          void controller
-                            .setChaptersRead(ids, true)
-                            .catch(() => setChapterActionError(true))
-                            .finally(() => setPendingChapterId(null));
-                        }}
-                      >
-                        Prev
-                      </button>
+                            setChapterActionError(false);
+                            setPendingChapterId(chapter.id);
+                            void controller
+                              .setChaptersRead(ids, true)
+                              .catch(() => setChapterActionError(true))
+                              .finally(() => setPendingChapterId(null));
+                          }}
+                        >
+                          {t('Mark earlier as read')}
+                        </button>
+                      </ActionMenu>
                     </div>
                   </li>
                 );

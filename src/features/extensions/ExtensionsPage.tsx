@@ -390,7 +390,7 @@ function ExtensionCard({
         </div>
       </div>
       <button
-        className={`button${action === 'uninstall' ? ' button-secondary' : ''}`}
+        className={`button${action === 'uninstall' ? ' button-secondary is-danger' : ''}`}
         type="button"
         disabled={busy}
         onClick={() => onAction(extension, action)}
@@ -406,4 +406,5 @@ function ExtensionCard({
     </article>
   );
 }
+
 
