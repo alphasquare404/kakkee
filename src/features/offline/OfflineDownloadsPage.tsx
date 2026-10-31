@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   createOfflineStorage,
   isOfflineStorageSupported,
@@ -43,7 +43,13 @@ function formatBytes(bytes: number): string {
 
 export function OfflineDownloadsPage() {
   const { t } = useI18n();
+  const location = useLocation();
   const navigate = useNavigate();
+  const from = (location.state as { from?: unknown } | null)?.from;
+  const backTo =
+    typeof from === 'string' && from.startsWith('/') && !from.startsWith('//')
+      ? from
+      : '/';
   const storage = useMemo(() => createOfflineStorage(), []);
   const supported = isOfflineStorageSupported();
   const [records, setRecords] = useState<readonly OfflineChapterRecord[]>([]);
@@ -86,7 +92,7 @@ export function OfflineDownloadsPage() {
         subtitle={t('Chapters stored in this browser with OPFS')}
         count={records.length > 0 ? `${records.length} · ${formatBytes(totalBytes)}` : undefined}
       >
-        <Link className="button button-secondary" to="/">
+        <Link className="button button-secondary" to={backTo}>
           {t('Back')}
         </Link>
       </PageHeader>

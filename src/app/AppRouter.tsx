@@ -1,6 +1,14 @@
-import { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef } from 'react';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigationType,
+} from 'react-router-dom';
 import { AppLayout } from './AppLayout';
+import { useConnection } from './useConnection';
 import { ConnectionPage } from '../features/connection/ConnectionPage';
 import { LibraryPage } from '../features/library/LibraryPage';
 
@@ -132,14 +140,71 @@ export interface AppRouterProps {
 
 function ScrollToTop() {
   const location = useLocation();
+  const navigationType = useNavigationType();
+  const lastScroll = useRef(0);
 
   useEffect(() => {
-    if (window.scrollX !== 0 || window.scrollY !== 0) {
+    const previous = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+
+    return () => {
+      window.history.scrollRestoration = previous;
+    };
+  }, []);
+
+  useEffect(() => {
+    const path = location.pathname;
+    const storageKey = `kakkee:scroll:${path}`;
+    let saved = 0;
+
+    if (navigationType === 'POP') {
+      try {
+        saved = Number(window.sessionStorage.getItem(storageKey) ?? 0);
+      } catch {
+        saved = 0;
+      }
+    } else {
       window.scrollTo(0, 0);
     }
-  }, [location.pathname]);
+
+    lastScroll.current = saved > 0 ? saved : 0;
+
+    const onScroll = () => {
+      if (window.location.pathname === path) {
+        lastScroll.current = window.scrollY;
+      }
+    };
+
+    if (saved > 0) {
+      for (const delay of [0, 120, 400, 900]) {
+        window.setTimeout(() => window.scrollTo(0, saved), delay);
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    requestAnimationFrame(() => {
+      document
+        .getElementById('main-content')
+        ?.focus({ preventScroll: true });
+    });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+
+      try {
+        window.sessionStorage.setItem(storageKey, String(lastScroll.current));
+      } catch {
+        // Storage can be unavailable in private or embedded contexts.
+      }
+    };
+  }, [location.pathname, navigationType]);
 
   return null;
+}
+
+function FallbackRoute() {
+  const { state } = useConnection();
+
+  return <Navigate to={state.status === 'connected' ? '/library' : '/'} replace />;
 }
 
 export function AppRouter({ basename }: AppRouterProps) {
@@ -182,13 +247,17 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/settings/history" element={<HistorySettingsPage />} />
             <Route path="/settings/device" element={<DeviceSettingsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/settings/*"
+              element={<Navigate to="/settings" replace />}
+            />
             <Route path="/manga/:mangaId" element={<MangaDetailPage />} />
             <Route
               path="/manga/:mangaId/chapter/:chapterId"
               element={<ReaderPage />}
             />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<FallbackRoute />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

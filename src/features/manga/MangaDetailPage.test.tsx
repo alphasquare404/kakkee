@@ -93,7 +93,10 @@ function fakeResources(): ResourceService {
   } as unknown as ResourceService;
 }
 
-function renderDetail(query: ReturnType<typeof vi.fn>) {
+function renderDetail(
+  query: ReturnType<typeof vi.fn>,
+  locationState: unknown = {},
+) {
   const connected = makeConnectedState();
   const state = {
     ...connected,
@@ -103,7 +106,7 @@ function renderDetail(query: ReturnType<typeof vi.fn>) {
       resources: fakeResources(),
     },
   };
-  window.history.replaceState({}, '', '/manga/1114');
+  window.history.replaceState({ usr: locationState }, '', '/manga/1114');
   const coordinator = new FakeConnectionCoordinator(state);
   render(<App createCoordinator={() => coordinator} />);
 }
@@ -121,6 +124,16 @@ describe('MangaDetailPage', () => {
     );
     expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(
       '/library',
+    );
+  });
+
+  it('returns to the originating page when opened from Updates', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    renderDetail(query, { from: '/updates' });
+
+    expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Back' }).getAttribute('href')).toBe(
+      '/updates',
     );
   });
 

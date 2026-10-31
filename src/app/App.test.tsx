@@ -1,9 +1,12 @@
-﻿// @vitest-environment jsdom
+// @vitest-environment jsdom
 
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { FakeConnectionCoordinator } from '../test/fakeConnectionCoordinator';
+import {
+  FakeConnectionCoordinator,
+  makeConnectedState,
+} from '../test/fakeConnectionCoordinator';
 
 vi.mock('./pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -66,5 +69,20 @@ describe('App', () => {
 
     await waitFor(() => expect(window.location.pathname).toBe('/'));
     expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
+  });
+
+  it('returns to the intended protected route after connecting', async () => {
+    const coordinator = new FakeConnectionCoordinator();
+    window.history.replaceState({}, '', '/settings');
+
+    render(<App createCoordinator={() => coordinator} />);
+
+    await waitFor(() => expect(window.location.pathname).toBe('/'));
+
+    act(() => {
+      coordinator.emit(makeConnectedState());
+    });
+
+    await waitFor(() => expect(window.location.pathname).toBe('/settings'));
   });
 });

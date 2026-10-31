@@ -328,6 +328,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                     <Link
                       className="feed-action"
                       to={`/manga/${chapter.manga.id}`}
+                      state={{ from: '/updates' }}
                     >
                       {t('Manga')}
                     </Link>

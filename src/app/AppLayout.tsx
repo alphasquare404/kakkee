@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAppPath } from './useAppPath';
 import { useConnection } from './useConnection';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
 import { useI18n } from '../shared/useI18n';
@@ -128,13 +129,13 @@ const NAV_ITEMS: ReadonlyArray<{
 }> = [
   { to: '/library', labelKey: 'nav.library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
   { to: '/updates', labelKey: 'nav.updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
-  { to: '/browse', labelKey: 'nav.browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' },
+  { to: '/browse', labelKey: 'nav.browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' || path.startsWith('/browse/') },
   { to: '/search', labelKey: 'nav.search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
-  { to: '/extensions', labelKey: 'nav.extensions', icon: ExtensionsIcon, mobile: false, match: (path: string) => path === '/extensions' },
+  { to: '/extensions', labelKey: 'nav.extensions', icon: ExtensionsIcon, mobile: true, match: (path: string) => path === '/extensions' || path.startsWith('/extensions/') },
   { to: '/categories', labelKey: 'nav.categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
   { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
   { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
-  { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') },
+  { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') || path === '/about' },
 ];
 
 const MOBILE_PRIMARY_ROUTES = new Set([
@@ -147,15 +148,18 @@ const MOBILE_PRIMARY_ROUTES = new Set([
 export function AppLayout() {
   const { state } = useConnection();
   const location = useLocation();
+  const { pathname: appPathname, from } = useAppPath();
   const { t } = useI18n();
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreTrigger = useRef<HTMLButtonElement>(null);
+  const moreMenu = useRef<HTMLDivElement>(null);
   const mobilePrimaryItems = NAV_ITEMS.filter(
     (item) => item.mobile && MOBILE_PRIMARY_ROUTES.has(item.to),
   );
   const mobileMoreItems = NAV_ITEMS.filter(
     (item) => item.mobile && !MOBILE_PRIMARY_ROUTES.has(item.to),
   );
-  const moreActive = mobileMoreItems.some((item) => item.match(location.pathname));
+  const moreActive = mobileMoreItems.some((item) => item.match(appPathname));
 
   useEffect(() => {
     setMoreOpen(false);
@@ -166,23 +170,53 @@ export function AppLayout() {
       return;
     }
 
+    const menu = moreMenu.current;
+    const trigger = moreTrigger.current;
+    const firstLink = menu?.querySelector<HTMLAnchorElement>('a');
+    firstLink?.focus({ preventScroll: true });
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        setMoreOpen(false);
+        trigger?.focus({ preventScroll: true });
+      }
+    };
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+
+      if (
+        target &&
+        !menu?.contains(target) &&
+        !trigger?.contains(target)
+      ) {
         setMoreOpen(false);
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pointerdown', onPointerDown);
+    };
   }, [moreOpen]);
-  const readerActive = location.pathname.includes('/chapter/');
+  const readerActive = appPathname.includes('/chapter/');
   const badges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
-    location.pathname,
+    appPathname,
   );
 
   if (state.status !== 'connected') {
-    return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{
+          from,
+        }}
+      />
+    );
   }
 
   if (readerActive) {
@@ -214,7 +248,7 @@ export function AppLayout() {
         <nav className="primary-nav" aria-label="Primary navigation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = item.match(location.pathname);
+            const active = item.match(appPathname);
             const badge =
               item.to === '/downloads'
                 ? badges.downloads
@@ -228,6 +262,8 @@ export function AppLayout() {
                 key={item.to}
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
+                aria-label={t(item.labelKey)}
+                title={t(item.labelKey)}
               >
                 <Icon />
                 <span>{t(item.labelKey)}</span>
@@ -259,7 +295,7 @@ export function AppLayout() {
       <nav className="mobile-nav" aria-label="Primary navigation">
         {mobilePrimaryItems.map((item) => {
           const Icon = item.icon;
-          const active = item.match(location.pathname);
+          const active = item.match(appPathname);
 
           return (
             <Link
@@ -267,6 +303,7 @@ export function AppLayout() {
               key={item.to}
               to={item.to}
               aria-current={active ? 'page' : undefined}
+              aria-label={t(item.labelKey)}
             >
               <Icon />
               <span>{t(item.labelKey)}</span>
@@ -274,6 +311,7 @@ export function AppLayout() {
           );
         })}
         <button
+          ref={moreTrigger}
           className={`mobile-nav-item mobile-more-trigger${
             moreActive || moreOpen ? ' is-active' : ''
           }`}
@@ -294,6 +332,7 @@ export function AppLayout() {
 
       {moreOpen ? (
         <div
+          ref={moreMenu}
           className="mobile-more-menu"
           id="mobile-more-menu"
           role="dialog"
@@ -301,7 +340,7 @@ export function AppLayout() {
         >
           {mobileMoreItems.map((item) => {
             const Icon = item.icon;
-            const active = item.match(location.pathname);
+            const active = item.match(appPathname);
             const badge = item.to === '/downloads' ? badges.downloads : 0;
 
             return (
@@ -310,6 +349,7 @@ export function AppLayout() {
                 key={item.to}
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
+                aria-label={t(item.labelKey)}
               >
                 <Icon />
                 <span>{t(item.labelKey)}</span>

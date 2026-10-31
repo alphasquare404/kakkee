@@ -106,7 +106,10 @@ function queryClient(
   return vi.fn(implementation);
 }
 
-function renderLibrary(query: ReturnType<typeof queryClient>) {
+function renderLibrary(
+  query: ReturnType<typeof queryClient>,
+  path = '/library',
+) {
   const connected = makeConnectedState();
   const resources = {
     loadImageResource: vi.fn(async () => ({
@@ -127,7 +130,7 @@ function renderLibrary(query: ReturnType<typeof queryClient>) {
       resources,
     },
   };
-  window.history.replaceState({}, '', '/library');
+  window.history.replaceState({}, '', path);
 
   const coordinator = new FakeConnectionCoordinator(state);
   render(<App createCoordinator={() => coordinator} />);
@@ -634,6 +637,23 @@ describe('LibraryPage search, filter, and sort', () => {
 
     expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
+    expect(window.location.search).toBe('?q=alpa&fuzzy=1');
+  });
+
+  it('restores the search query from the URL', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    renderLibrary(query, '/library?q=Alpha');
+
+    expect(await screen.findByRole('heading', { name: 'Alpha' })).toBeTruthy();
+    expect(
+      (screen.getByLabelText('Search library') as HTMLInputElement).value,
+    ).toBe('Alpha');
   });
 
   it('shows recent searches as autocomplete suggestions', async () => {

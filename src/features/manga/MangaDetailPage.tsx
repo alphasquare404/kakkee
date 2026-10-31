@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createMangaDetailController,
@@ -11,6 +11,7 @@ import {
   type MangaChapterOrder,
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { MangaTrackingSection } from './MangaTrackingSection';
@@ -49,6 +50,7 @@ registerMessages('id', {
   'Link copied': 'Tautan disalin',
   'Copy failed': 'Gagal menyalin',
   Share: 'Bagikan',
+  Back: 'Kembali',
   'Back to library': 'Kembali ke perpustakaan',
   'Couldn’t update the library state.':
     'Tidak dapat memperbarui status perpustakaan.',
@@ -166,11 +168,20 @@ function chapterEntries<T extends { readonly chapterNumber: number }>(
 
 export function MangaDetailPage() {
   const { state } = useConnection();
+  const { from } = useAppPath();
   const { mangaId } = useParams();
   const id = Number(mangaId);
 
   if (state.status !== 'connected') {
-    return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{
+          from,
+        }}
+      />
+    );
   }
 
   if (!mangaId || !Number.isSafeInteger(id) || id <= 0) {
@@ -188,6 +199,17 @@ function ConnectedMangaDetail({
   readonly mangaId: number;
 }) {
   const { t } = useI18n();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const returnCandidate = (location.state as { from?: unknown } | null)?.from;
+  const returnTo =
+    typeof returnCandidate === 'string' &&
+    returnCandidate.startsWith('/') &&
+    !returnCandidate.startsWith('//')
+      ? returnCandidate
+      : '/library';
+  const returnLabel =
+    returnTo === '/library' ? t('Back to library') : t('Back');
   const repository = useMemo(
     () => createMangaRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -233,7 +255,9 @@ function ConnectedMangaDetail({
   >(null);
   const [scanBusy, setScanBusy] = useState(false);
   const [scanError, setScanError] = useState(false);
-  const [section, setSection] = useState<'overview' | 'chapters'>('overview');
+  const [section, setSection] = useState<'overview' | 'chapters'>(
+    searchParams.get('section') === 'chapters' ? 'chapters' : 'overview',
+  );
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterSearch, setChapterSearch] = useState('');
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>(
@@ -286,9 +310,31 @@ function ConnectedMangaDetail({
   }, [chapterFilter, detail.order, hideDuplicates, mangaId, scanlator]);
 
   useEffect(() => {
+    setSection(searchParams.get('section') === 'chapters' ? 'chapters' : 'overview');
+  }, [searchParams]);
+
+  useEffect(() => {
     setScannedChapters(null);
     setScanError(false);
   }, [mangaId]);
+
+  const changeSection = (next: 'overview' | 'chapters') => {
+    setSection(next);
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current);
+
+        if (next === 'overview') {
+          params.delete('section');
+        } else {
+          params.set('section', next);
+        }
+
+        return params;
+      },
+      { replace: false },
+    );
+  };
 
   useEffect(() => {
     if (!isOfflineStorageSupported()) {
@@ -374,8 +420,8 @@ function ConnectedMangaDetail({
             <button className="button" type="button" onClick={() => void controller.load()}>
               Retry
             </button>
-            <Link className="button button-secondary" to="/library">
-              Back to library
+            <Link className="button button-secondary" to={returnTo}>
+              {returnLabel}
             </Link>
           </div>
         </div>
@@ -655,8 +701,8 @@ function ConnectedMangaDetail({
                     ? t('Copy failed')
                     : t('Share')}
               </button>
-              <Link className="button button-secondary" to="/library">
-                {t('Back to library')}
+              <Link className="button button-secondary" to={returnTo}>
+                {returnLabel}
               </Link>
             </div>
 
@@ -718,7 +764,7 @@ function ConnectedMangaDetail({
             type="button"
             aria-current={section === 'overview' ? 'true' : undefined}
             onClick={() => {
-              setSection('overview');
+              changeSection('overview');
               document.getElementById('overview')?.scrollIntoView({ block: 'start' });
             }}
           >
@@ -729,7 +775,7 @@ function ConnectedMangaDetail({
             type="button"
             aria-current={section === 'chapters' ? 'true' : undefined}
             onClick={() => {
-              setSection('chapters');
+              changeSection('chapters');
               document.getElementById('chapters')?.scrollIntoView({ block: 'start' });
             }}
           >

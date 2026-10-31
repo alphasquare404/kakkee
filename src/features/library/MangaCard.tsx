@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { LibraryManga } from '../../core/library/libraryRepository';
 import type { ResourceService } from '../../core/resources/resourceService';
+import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 
 export interface MangaCardProps {
@@ -26,6 +27,8 @@ export function MangaCard({
   showProgress = true,
 }: MangaCardProps) {
   const thumbnail = useImageResource(resources, manga.thumbnailUrl);
+  const { from } = useAppPath();
+  const cardState = { from };
   const progress = manga.lastReadChapter;
   const progressLabel = progress
     ? `${progress.name}${
@@ -134,6 +137,7 @@ export function MangaCard({
     <Link
       className="manga-card-link"
       to={`/manga/${manga.id}`}
+      state={cardState}
       aria-label={`${manga.title}, manga details`}
       title={progressLabel ? `Continue reading ${progressLabel}` : undefined}
       onPointerDown={startLongPress}

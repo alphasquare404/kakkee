@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { PageHeader } from '../../shared/PageHeader';
@@ -72,6 +72,8 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const { disconnect } = useConnection();
   const navigate = useNavigate();
+  const location = useLocation();
+  const activeAnchor = location.hash.replace(/^#/, '') || 'connection';
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -82,10 +84,11 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
 
       <div className="settings-layout">
         <nav className="settings-nav" aria-label={t('Settings')}>
-          <a className="is-active" href="#connection">{t('Connection')}</a>
-          <a href="#appearance">{t('Appearance')}</a>
-          <a href="#reading">{t('Reading')}</a>
-          <a href="#about">{t('About')}</a>
+          <a className={activeAnchor === 'connection' ? 'is-active' : undefined} href="#connection">{t('Connection')}</a>
+          <a className={activeAnchor === 'appearance' ? 'is-active' : undefined} href="#appearance">{t('Appearance')}</a>
+          <a className={activeAnchor === 'library' ? 'is-active' : undefined} href="#library">{t('Library')}</a>
+          <a className={activeAnchor === 'reading' ? 'is-active' : undefined} href="#reading">{t('Reading')}</a>
+          <a className={activeAnchor === 'about' ? 'is-active' : undefined} href="#about">{t('About')}</a>
         </nav>
 
         <div className="settings-content">

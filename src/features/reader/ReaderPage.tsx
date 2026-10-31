@@ -14,6 +14,7 @@ import { createTrackingSyncRepository } from '../../core/tracking/trackingSyncRe
 import { getTrackingPreferences } from '../../core/preferences/trackingPreferences';
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -57,12 +58,21 @@ import type { CSSProperties, MouseEvent, PointerEvent } from 'react';
 
 export function ReaderPage() {
   const { state } = useConnection();
+  const { from } = useAppPath();
   const { mangaId, chapterId } = useParams();
   const manga = Number(mangaId);
   const chapter = Number(chapterId);
 
   if (state.status !== 'connected') {
-    return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{
+          from,
+        }}
+      />
+    );
   }
 
   if (

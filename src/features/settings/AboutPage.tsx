@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client/react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -8,6 +7,7 @@ import {
   ServerUpdateCheckDocument,
   UpdateWebUiDocument,
   WebUiUpdateStatusChangeDocument,
+  type AboutPageQuery,
   type ServerUpdateCheckQuery,
   type WebUiUpdateStatusChangeSubscription,
 } from '../../core/graphql/generated/graphql';
@@ -60,7 +60,9 @@ export function AboutPage() {
 
 function AboutContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
-  const about = useQuery(AboutPageDocument, { fetchPolicy: 'cache-and-network' });
+  const [about, setAbout] = useState<AboutPageQuery | null>(null);
+  const [aboutLoading, setAboutLoading] = useState(true);
+  const [aboutError, setAboutError] = useState(false);
   const [updates, setUpdates] = useState<
     ServerUpdateCheckQuery['checkForServerUpdates'] | null
   >(null);
@@ -71,6 +73,32 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
   );
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    void context.graphQL
+      .query({ query: AboutPageDocument, fetchPolicy: 'network-only' })
+      .then((result) => {
+        if (active && result.data) {
+          setAbout(result.data);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setAboutError(true);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setAboutLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [context.graphQL]);
 
   useEffect(() => {
     if (typeof context.graphQL.subscribe !== 'function') {
@@ -131,41 +159,41 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
           <div className="section-heading-row">
             <h2 id="about-server">Suwayomi Server</h2>
           </div>
-          {about.loading && !about.data ? (
+          {aboutLoading && !about ? (
             <p className="settings-save-state">Loading build information…</p>
           ) : null}
-          {about.error ? (
+          {aboutError ? (
             <p className="settings-inline-error" role="alert">
               {t('Could not load About information.')}
             </p>
           ) : null}
-          {about.data ? (
+          {about ? (
             <dl className="settings-rows">
               <div>
                 <dt>{t('Name')}</dt>
-                <dd>{about.data.aboutServer.name}</dd>
+                <dd>{about.aboutServer.name}</dd>
               </div>
               <div>
                 <dt>{t('Version')}</dt>
                 <dd>
-                  {about.data.aboutServer.version} · {about.data.aboutServer.buildType}
+                  {about.aboutServer.version} · {about.aboutServer.buildType}
                 </dd>
               </div>
               <div>
                 <dt>{t('Build time')}</dt>
-                <dd>{about.data.aboutServer.buildTime}</dd>
+                <dd>{about.aboutServer.buildTime}</dd>
               </div>
               <div>
                 <dt>{t('WebUI channel')}</dt>
-                <dd>{about.data.aboutWebUI.channel}</dd>
+                <dd>{about.aboutWebUI.channel}</dd>
               </div>
               <div>
                 <dt>{t('WebUI tag')}</dt>
-                <dd>{about.data.aboutWebUI.tag}</dd>
+                <dd>{about.aboutWebUI.tag}</dd>
               </div>
               <div>
                 <dt>{t('WebUI checked')}</dt>
-                <dd>{about.data.aboutWebUI.updateTimestamp}</dd>
+                <dd>{about.aboutWebUI.updateTimestamp}</dd>
               </div>
             </dl>
           ) : null}
@@ -179,16 +207,16 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
             <div>
               <dt>{t('WebUI update')}</dt>
               <dd>
-                {about.data?.checkForWebUIUpdate.updateAvailable
+                {about?.checkForWebUIUpdate.updateAvailable
                   ? t('{tag} available', {
-                      tag: about.data.checkForWebUIUpdate.tag,
+                      tag: about.checkForWebUIUpdate.tag,
                     })
                   : t('No newer WebUI build reported')}
               </dd>
             </div>
           </dl>
           <div className="settings-actions">
-            {about.data?.checkForWebUIUpdate.updateAvailable ? (
+            {about?.checkForWebUIUpdate.updateAvailable ? (
               <button
                 className="button"
                 type="button"

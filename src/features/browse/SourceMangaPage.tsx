@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createSourceController,
@@ -78,7 +79,13 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     [repository],
   );
   const source = useSyncExternalStore(controller.subscribe, controller.getState);
-  const [search, setSearch] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParamKey = searchParams.toString();
+  const initialQuery = searchParams.get('q') ?? '';
+  const initialQueryRef = useRef(initialQuery);
+  const [search, setSearch] = useState(initialQuery);
+  const searchRef = useRef(search);
+  searchRef.current = search;
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
@@ -92,6 +99,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     }
 
     setHistoryOpen(false);
+    setSearchParams(query ? { q: query } : {}, { replace: true });
     void controller.search(query);
   };
 
@@ -119,8 +127,30 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   });
 
   useEffect(() => {
-    void controller.load(sourceId);
+    let active = true;
+
+    void controller.load(sourceId).then(() => {
+      if (active && initialQueryRef.current) {
+        void controller.search(initialQueryRef.current);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   }, [controller, sourceId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParamKey);
+    const urlQuery = params.get('q') ?? '';
+
+    if (urlQuery === searchRef.current.trim()) {
+      return;
+    }
+
+    setSearch(urlQuery);
+    void controller.search(urlQuery);
+  }, [controller, searchParamKey]);
 
   return (
     <div className="app-shell page-shell browse-shell">
@@ -316,6 +346,7 @@ function SourceMangaCard({
   readonly onToggleLibrary: () => void;
 }) {
   const { t } = useI18n();
+  const { from } = useAppPath();
   const image = useImageResource(resources, manga.thumbnailUrl);
 
   return (
@@ -323,6 +354,7 @@ function SourceMangaCard({
       <Link
         className="source-manga-cover"
         to={`/manga/${manga.id}`}
+        state={{ from }}
         aria-label={`${manga.title}, manga details`}
       >
         {image.objectUrl ? (

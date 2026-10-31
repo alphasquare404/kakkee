@@ -75,6 +75,7 @@ registerMessages('id', {
     'Penyimpanan perangkat tidak tersedia di browser ini.',
   'Device download failed.': 'Unduhan perangkat gagal.',
   'Loading…': 'Memuat…',
+  'Open offline library': 'Buka pustaka offline',
 });
 
 function formatBytes(bytes: number): string {
@@ -477,6 +478,9 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                 )}`
               : 0}
           </span>
+          <Link className="library-action" to="/offline" state={{ from: '/downloads' }}>
+            {t('Open offline library')}
+          </Link>
         </div>
 
         {!isOfflineStorageSupported() ? (

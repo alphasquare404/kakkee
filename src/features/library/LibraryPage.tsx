@@ -7,7 +7,7 @@ import {
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createLibraryController,
@@ -27,6 +27,7 @@ import {
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
@@ -193,9 +194,18 @@ function duplicateKey(title: string): string {
 
 export function LibraryPage() {
   const { state } = useConnection();
+  const { from } = useAppPath();
 
   if (state.status !== 'connected') {
-    return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{
+          from,
+        }}
+      />
+    );
   }
 
   return <ConnectedLibrary context={state.context} />;
@@ -240,6 +250,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   );
   const appPreferences = useAppPreferences();
   const searchHistory = useSearchHistory();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParamKey = searchParams.toString();
+  const initialQuery = searchParams.get('q') ?? '';
+  const initialFuzzy = searchParams.get('fuzzy') === '1';
   const [historyOpen, setHistoryOpen] = useState(false);
   const loadedLibrary = useRef<LibraryController | null>(null);
   const loadedCategories = useRef<LibraryCategoryController | null>(null);
@@ -248,12 +262,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const sortButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const searchToggle = useRef<HTMLButtonElement>(null);
-  const [search, setSearch] = useState('');
+  const appliedInitialSearch = useRef(false);
+  const [search, setSearch] = useState(initialQuery);
+  const searchRef = useRef(search);
+  searchRef.current = search;
   const [searchOpen, setSearchOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
   const [randomOrder, setRandomOrder] = useState(false);
   const [randomSeed, setRandomSeed] = useState(0);
-  const [fuzzy, setFuzzy] = useState(false);
+  const [fuzzy, setFuzzy] = useState(initialFuzzy);
+  const fuzzyRef = useRef(fuzzy);
+  fuzzyRef.current = fuzzy;
   const [duplicatesOpen, setDuplicatesOpen] = useState(false);
   const [scannedDuplicates, setScannedDuplicates] = useState<
     readonly DuplicateScanItem[] | null
@@ -286,6 +305,54 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       void categoryController.load();
     }
   }, [controller, categoryController]);
+
+  useEffect(() => {
+    if (appliedInitialSearch.current) {
+      return;
+    }
+
+    appliedInitialSearch.current = true;
+
+    if (initialQuery && !initialFuzzy) {
+      void controller.setSearch(initialQuery);
+    }
+  }, [controller, initialFuzzy, initialQuery]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParamKey);
+    const urlQuery = params.get('q') ?? '';
+    const urlFuzzy = params.get('fuzzy') === '1';
+
+    if (urlQuery === searchRef.current && urlFuzzy === fuzzyRef.current) {
+      return;
+    }
+
+    setSearch(urlQuery);
+    setFuzzy(urlFuzzy);
+
+    if (!urlFuzzy) {
+      void controller.setSearch(urlQuery);
+    }
+  }, [controller, searchParamKey]);
+
+  const writeSearchUrl = (query: string, nextFuzzy: boolean) => {
+    setSearchParams(
+      () => {
+        const params = new URLSearchParams();
+
+        if (query) {
+          params.set('q', query);
+        }
+
+        if (nextFuzzy) {
+          params.set('fuzzy', '1');
+        }
+
+        return params;
+      },
+      { replace: true },
+    );
+  };
 
   useEffect(() => {
     let active = true;
@@ -358,6 +425,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
 
     setHistoryOpen(false);
+    writeSearchUrl(query, fuzzy);
 
     if (fuzzy) {
       const rest = { ...library.filter };
@@ -375,6 +443,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const clearSearch = () => {
     setSearch('');
+    writeSearchUrl('', false);
     void controller.setSearch('');
   };
 
@@ -418,11 +487,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const toggleFuzzy = () => {
     const next = !fuzzy;
     setFuzzy(next);
+    writeSearchUrl(search.trim(), next);
 
     if (next && library.filter.search !== undefined) {
       const rest = { ...library.filter };
       delete rest.search;
       void controller.setFilter(rest);
+    } else if (!next && search.trim()) {
+      void controller.setSearch(search.trim());
     }
   };
 
@@ -652,6 +724,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const resetAll = () => {
     setSearch('');
+    writeSearchUrl('', false);
     setRandomOrder(false);
     setRandomSeed(0);
     setFuzzy(false);
@@ -832,6 +905,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                     setSearch(term);
                     addSearchHistory(term);
                     setHistoryOpen(false);
+                    writeSearchUrl(term, fuzzy);
                     void controller.setSearch(term);
                   }}
                 >

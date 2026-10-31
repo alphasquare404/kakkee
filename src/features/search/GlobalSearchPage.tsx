@@ -1,6 +1,7 @@
-import { useMemo, useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import { createSearchController } from '../../core/search/searchController';
@@ -59,7 +60,10 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     [context.graphQL],
   );
   const search = useSyncExternalStore(controller.subscribe, controller.getState);
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
+  const appliedInitialQuery = useRef(false);
+  const [query, setQuery] = useState(initialQuery);
   const [sourceFilter, setSourceFilter] = useState('all');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [liveStatus, setLiveStatus] = useState<
@@ -91,8 +95,22 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   };
 
   const submit = () => {
+    const trimmed = query.trim();
+    setSearchParams(trimmed ? { q: trimmed } : {}, { replace: true });
     runSearch(query);
   };
+
+  useEffect(() => {
+    if (appliedInitialQuery.current) {
+      return;
+    }
+
+    appliedInitialQuery.current = true;
+
+    if (initialQuery) {
+      void controller.search(initialQuery);
+    }
+  }, [controller, initialQuery]);
 
   const searchAllSources = async () => {
     const value = (query.trim() || search.query).trim();
@@ -225,6 +243,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
                   setQuery(term);
+                  setSearchParams({ q: term }, { replace: true });
                   runSearch(term);
                 }}
               >
@@ -276,6 +295,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
                 className="live-source-result"
                 key={manga.id}
                 to={`/manga/${manga.id}`}
+                state={{ from: '/search' }}
               >
                 <strong>{manga.title}</strong>
                 <span>{manga.sourceName}</span>
@@ -399,11 +419,13 @@ function SearchMangaCard({
   readonly resources: ConnectedContext['resources'];
 }) {
   const image = useImageResource(resources, manga.thumbnailUrl);
+  const { from } = useAppPath();
 
   return (
     <Link
       className="search-manga-card"
       to={`/manga/${manga.id}`}
+      state={{ from }}
       aria-label={`${manga.title}, manga details`}
     >
       <span className="search-manga-cover">

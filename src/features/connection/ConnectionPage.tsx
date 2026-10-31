@@ -4,7 +4,7 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
@@ -158,6 +158,17 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 
 export function ConnectionPage() {
   const { t } = useI18n();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirectFrom = (() => {
+    const value = (location.state as { from?: unknown } | null)?.from;
+
+    return typeof value === 'string' &&
+      value.startsWith('/') &&
+      !value.startsWith('//')
+      ? value
+      : null;
+  })();
   const {
     state,
     connect,
@@ -188,6 +199,12 @@ export function ConnectionPage() {
   useEffect(() => {
     setLocalError(null);
   }, [state.status]);
+
+  useEffect(() => {
+    if (state.status === 'connected' && redirectFrom) {
+      navigate(redirectFrom, { replace: true });
+    }
+  }, [navigate, redirectFrom, state.status]);
 
   useEffect(() => {
     if (!isOfflineStorageSupported()) {
