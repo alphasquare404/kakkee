@@ -48,7 +48,7 @@ import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
   Library: 'Perpustakaan',
-  'Loadingâ€¦': 'Memuatâ€¦',
+  'Loading…': 'Memuat…',
   'Search library': 'Cari di perpustakaan',
   'Submit search': 'Cari',
   'Clear history': 'Hapus riwayat',
@@ -73,7 +73,7 @@ registerMessages('id', {
   Close: 'Tutup',
   All: 'Semua',
   'No server categories.': 'Tidak ada kategori server.',
-  'Loading categoriesâ€¦': 'Memuat kategoriâ€¦',
+  'Loading categories…': 'Memuat kategori…',
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -136,7 +136,7 @@ function countLabel(
   t: (key: string, params?: Record<string, string | number>) => string,
 ): string {
   if (loading) {
-    return t('Loadingâ€¦');
+    return t('Loading…');
   }
 
   return t('{count} manga', {
@@ -1111,7 +1111,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 onClick={() => void scanAllDuplicates()}
               >
                 {duplicateScanBusy
-                  ? 'Scanningâ€¦'
+                  ? 'Scanning…'
                   : scannedDuplicates
                     ? 'Rescan library'
                     : 'Scan all library'}
@@ -1189,7 +1189,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
         {categories.isLoading && categories.categories.length === 0 ? (
           <p className="library-note" role="status">
-            Loading categoriesâ€¦
+            Loading categories…
           </p>
         ) : null}
 
@@ -1264,7 +1264,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   value={categoryChoice}
                   onChange={(event) => setCategoryChoice(event.target.value)}
                 >
-                  <option value="">Add to categoryâ€¦</option>
+                  <option value="">Add to category…</option>
                   {categories.categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -1441,7 +1441,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               disabled={library.isLoadingMore}
               onClick={() => void controller.loadMore()}
             >
-              {library.isLoadingMore ? 'Loadingâ€¦' : 'Load more'}
+              {library.isLoadingMore ? 'Loading…' : 'Load more'}
             </button>
           </section>
         ) : null}

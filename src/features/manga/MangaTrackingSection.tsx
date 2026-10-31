@@ -58,7 +58,7 @@ export function MangaTrackingSection({
               disabled={tracking.syncing}
               onClick={() => void controller.syncProgress()}
             >
-              {tracking.syncing ? 'Syncingâ€¦' : 'Sync progress'}
+              {tracking.syncing ? 'Syncing…' : 'Sync progress'}
             </button>
           ) : null}
         </div>
@@ -72,7 +72,7 @@ export function MangaTrackingSection({
 
       {tracking.status === 'loading' && tracking.records.length === 0 ? (
         <p className="settings-save-state" role="status">
-          Loading tracker recordsâ€¦
+          Loading tracker records…
         </p>
       ) : null}
 
@@ -133,7 +133,7 @@ export function MangaTrackingSection({
             type="submit"
             disabled={tracking.searching || !query.trim()}
           >
-            {tracking.searching ? 'Searchingâ€¦' : 'Search tracker'}
+            {tracking.searching ? 'Searching…' : 'Search tracker'}
           </button>
           {selectedTracker?.supportsPrivateTracking ? (
             <label className="manga-track-private">
@@ -164,7 +164,7 @@ export function MangaTrackingSection({
               <div>
                 <strong>{result.title}</strong>
                 <span>
-                  {result.publishingStatus} Â· {result.totalChapters} chapters
+                  {result.publishingStatus} · {result.totalChapters === 1 ? '1 chapter' : `${result.totalChapters} chapters`}
                 </span>
               </div>
               <button
@@ -310,7 +310,7 @@ function TrackRecordRow({
         disabled={busy}
         onClick={onUnbind}
       >
-        {busy ? 'Workingâ€¦' : 'Unlink'}
+        {busy ? 'Working…' : 'Unlink'}
       </button>
     </article>
   );

@@ -55,6 +55,8 @@ registerMessages('id', {
   'The download queue is empty.': 'Antrean unduhan kosong.',
   'Browse library': 'Jelajahi perpustakaan',
   '{count} chapters': '{count} chapter',
+  '1 chapter': '1 chapter',
+  '1 page': '1 halaman',
   'Cancel series': 'Batalkan seri',
   'Downloaded chapters': 'Chapter terunduh',
   '{shown} of {total}': '{shown} dari {total}',
@@ -385,7 +387,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                 <div className="download-group-heading">
                   <strong>{group.manga.title}</strong>
                   <span>
-                    {t('{count} chapters', { count: group.items.length })} ·{' '}
+                    {group.items.length === 1 ? t('1 chapter') : t('{count} chapters', { count: group.items.length })} ·{' '}
                     {progress}%
                   </span>
                   <button
@@ -456,7 +458,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   chapter={chapter}
                   resources={context.resources}
                   state={{ origin }}
-                  detail={`${t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
+                  detail={`${chapter.pageCount === 1 ? t('1 page') : t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
                 />
                 {isOfflineStorageSupported() ? (
                   <button
@@ -534,7 +536,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   <strong>{record.chapterName}</strong>
                   <span className="download-meta">
                     {record.mangaTitle} ·{' '}
-                    {t('{count} pages', { count: record.pageCount })} ·{' '}
+                    {record.pageCount === 1 ? t('1 page') : t('{count} pages', { count: record.pageCount })} ·{' '}
                     {formatBytes(record.bytes)}
                   </span>
                 </div>
@@ -606,7 +608,7 @@ function DownloadRow({
           <span style={{ width: `${progress}%` }} />
         </div>
         <span className="download-meta">
-          {progress}% · {t('{count} pages', { count: item.chapter.pageCount })} ·{' '}
+          {progress}% · {item.chapter.pageCount === 1 ? t('1 page') : t('{count} pages', { count: item.chapter.pageCount })} ·{' '}
           {t('try {count}', { count: item.tries + 1 })}
         </span>
       </div>

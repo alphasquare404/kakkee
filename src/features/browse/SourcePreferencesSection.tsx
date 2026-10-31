@@ -73,7 +73,7 @@ export function SourcePreferencesSection({
   if (status === 'loading') {
     return (
       <p className="library-note" role="status">
-        {t('Loading source preferencesâ€¦')}
+        {t('Loading source preferences…')}
       </p>
     );
   }

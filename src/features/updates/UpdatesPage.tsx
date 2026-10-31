@@ -295,7 +295,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 chapter={chapter}
                 resources={context.resources}
                 state={{ origin }}
-                detail={`${formatRelativeTime(chapter.uploadDate)} · ${chapter.pageCount} pages`}
+                detail={`${formatRelativeTime(chapter.uploadDate)} · ${chapter.pageCount === 1 ? '1 page' : `${chapter.pageCount} pages`}`}
                 actions={
                   <>
                     <button

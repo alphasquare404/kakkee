@@ -23,8 +23,8 @@ registerMessages('id', {
     'Temukan source yang terpasang di server Anda',
   '{count} sources': '{count} source',
   'Source catalog': 'Katalog source',
-  'Your server’s extensions, in one place.':
-    'Ekstensi server Anda, dalam satu tempat.',
+  'Your sources, in one place.':
+    'Source server Anda, dalam satu tempat.',
   'Open a source to browse its Popular/Latest catalog, search, and add manga directly to your library.':
     'Buka source untuk menjelajahi katalog Populer/Terbaru, mencari, dan menambahkan manga langsung ke perpustakaan.',
   'installed sources': 'source terpasang',
@@ -213,7 +213,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         <div>
           <p className="eyebrow">{t('Source catalog')}</p>
           <h2 id="browse-hero-title">
-            {t('Your server’s extensions, in one place.')}
+            {t('Your sources, in one place.')}
           </h2>
           <p>
             {t(

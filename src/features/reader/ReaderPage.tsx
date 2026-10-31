@@ -1109,7 +1109,7 @@ function ConnectedReader({
             ) : (
               <span aria-disabled="true">Previous</span>
             )}
-            <span>{activeChapter.pageCount} pages</span>
+            <span>{activeChapter.pageCount === 1 ? '1 page' : `${activeChapter.pageCount} pages`}</span>
             {nextChapter ? (
               <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={readerState}>
                 Next: {nextChapter.name}

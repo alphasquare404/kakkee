@@ -78,6 +78,7 @@ registerMessages('id', {
   'Mark earlier as read': 'Tandai chapter sebelumnya sebagai dibaca',
   'More chapter actions for': 'Aksi chapter lainnya untuk',
   '{count} chapters': '{count} chapter',
+  '1 chapter': '1 chapter',
   Order: 'Urutan',
   'Newest first': 'Terbaru dulu',
   'Oldest first': 'Terlama dulu',
@@ -143,7 +144,7 @@ function chapterMeta(chapter: {
     return `Page ${chapter.lastPageRead} of ${chapter.pageCount}`;
   }
 
-  return `${chapter.pageCount} pages`;
+  return chapter.pageCount === 1 ? '1 page' : `${chapter.pageCount} pages`;
 }
 
 type ChapterEntry<T extends { readonly chapterNumber: number }> =
@@ -933,7 +934,9 @@ function ConnectedMangaDetail({
                 {scanBusy
                   ? t('Scanning…')
                   : scannedChapters
-                    ? t('{count} chapters', { count: scannedChapters.length })
+                    ? scannedChapters.length === 1
+                    ? t('1 chapter')
+                    : t('{count} chapters', { count: scannedChapters.length })
                     : t('Scan all chapters')}
               </button>
               <p className="action-menu-section">Chapter filters</p>

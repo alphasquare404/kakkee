@@ -19,16 +19,17 @@ registerMessages('id', {
   'Sources installed through your server':
     'Source yang terpasang melalui server Anda',
   '{count} extensions': '{count} ekstensi',
-  'Checkingâ€¦': 'Memeriksaâ€¦',
+  '1 extension': '1 ekstensi',
+  'Checking…': 'Memeriksa…',
   'Check for updates': 'Periksa update',
   'The last extension change was rejected by the server.':
     'Perubahan ekstensi terakhir ditolak server.',
   'Search extensions': 'Cari ekstensi',
   Language: 'Bahasa',
   'All languages': 'Semua bahasa',
-  'Search by name or packageâ€¦': 'Cari berdasarkan nama atau paketâ€¦',
+  'Search by name or package…': 'Cari berdasarkan nama atau paket…',
   'Updates only': 'Hanya update',
-  'Couldnâ€™t load extensions': 'Tidak dapat memuat ekstensi',
+  'Couldn’t load extensions': 'Tidak dapat memuat ekstensi',
   'The extension catalog could not be loaded.':
     'Katalog ekstensi tidak dapat dimuat.',
   Retry: 'Coba lagi',
@@ -44,7 +45,7 @@ registerMessages('id', {
   'Add store': 'Tambah toko',
   'Install external JAR': 'Pasang JAR eksternal',
   'Install JAR': 'Pasang JAR',
-  'Installingâ€¦': 'Memasangâ€¦',
+  'Installing…': 'Memasang…',
   'Extension store index URL': 'URL indeks toko ekstensi',
   Obsolete: 'Usang',
   Update: 'Update',
@@ -117,9 +118,11 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         subtitle={t('Sources installed through your server')}
         count={
           extensions.status === 'ready'
-            ? t('{count} extensions', {
-                count: extensions.items.length,
-              })
+            ? extensions.items.length === 1
+              ? t('1 extension')
+              : t('{count} extensions', {
+                  count: extensions.items.length,
+                })
             : undefined
         }
       >
@@ -129,7 +132,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
           disabled={extensions.refreshing}
           onClick={() => void controller.refresh()}
         >
-          {extensions.refreshing ? 'Checkingâ€¦' : 'Check for updates'}
+          {extensions.refreshing ? 'Checking…' : 'Check for updates'}
         </button>
       </PageHeader>
 
@@ -160,7 +163,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         <input
           type="search"
           aria-label="Search extensions"
-          placeholder="Search by name or packageâ€¦"
+          placeholder="Search by name or package…"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
@@ -176,7 +179,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {extensions.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldnâ€™t load extensions')}</h1>
+          <h1>{t('Couldn’t load extensions')}</h1>
           <p>{t('The extension catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
             {t('Retry')}
@@ -254,7 +257,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
                   disabled={extensions.storeBusy === store.indexUrl}
                   onClick={() => void controller.removeStore(store.indexUrl)}
                 >
-                  {extensions.storeBusy === store.indexUrl ? 'Workingâ€¦' : 'Remove'}
+                  {extensions.storeBusy === store.indexUrl ? 'Working…' : 'Remove'}
                 </button>
               </li>
             ))}
@@ -315,7 +318,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
               }
             }}
           >
-            {extensions.storeBusy === 'external' ? 'Installingâ€¦' : 'Install JAR'}
+            {extensions.storeBusy === 'external' ? 'Installing…' : 'Install JAR'}
           </button>
         </div>
       </section>
@@ -414,8 +417,8 @@ function ExtensionCard({
           </Link>
         </h3>
         <p>
-          {extension.versionName} Â· {extension.lang.toUpperCase()}
-          {extension.extensionStore ? ` Â· ${extension.extensionStore.name}` : ''}
+          {extension.versionName} · {extension.lang.toUpperCase()}
+          {extension.extensionStore ? ` · ${extension.extensionStore.name}` : ''}
         </p>
         <div className="extension-badges">
           {extension.isObsolete ? <span>{t('Obsolete')}</span> : null}
@@ -429,7 +432,7 @@ function ExtensionCard({
         onClick={() => onAction(extension, action)}
       >
         {busy
-          ? 'Workingâ€¦'
+          ? 'Working…'
           : action === 'install'
             ? 'Install'
             : action === 'update'

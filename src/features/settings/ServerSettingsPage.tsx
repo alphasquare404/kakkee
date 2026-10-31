@@ -19,12 +19,12 @@ registerMessages('id', {
   'Server behavior stored by Suwayomi':
     'Perilaku server yang disimpan Suwayomi',
   'All settings': 'Semua pengaturan',
-  'Couldnâ€™t load server settings':
+  'Couldn’t load server settings':
     'Tidak dapat memuat pengaturan server',
   Retry: 'Coba lagi',
   'The server rejected the last change. The previous value is still shown.':
     'Server menolak perubahan terakhir. Nilai sebelumnya tetap ditampilkan.',
-  'Savingâ€¦': 'Menyimpanâ€¦',
+  'Saving…': 'Menyimpan…',
   'Changes save automatically': 'Perubahan disimpan otomatis',
   'Library updates': 'Update perpustakaan',
   Downloads: 'Unduhan',
@@ -130,13 +130,13 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
       <div className="settings-content">
         {settings.status === 'loading' && !settings.settings ? (
           <p className="library-state" role="status">
-            Loading server settingsâ€¦
+            Loading server settings…
           </p>
         ) : null}
 
         {settings.status === 'error' ? (
           <div className="library-state" role="alert">
-            <h2>{t('Couldnâ€™t load server settings')}</h2>
+            <h2>{t('Couldn’t load server settings')}</h2>
             <button className="button button-secondary" type="button" onClick={() => void controller.retry()}>
               {t('Retry')}
             </button>
@@ -174,7 +174,7 @@ function ServerSettingsForm({
         </p>
       ) : null}
       <p className="settings-save-state" role="status">
-        {controller.getState().saving ? 'Savingâ€¦' : 'Changes save automatically'}
+        {controller.getState().saving ? 'Saving…' : 'Changes save automatically'}
       </p>
 
       <section className="settings-section" aria-labelledby="server-updates">
@@ -337,7 +337,7 @@ function ServerSettingsForm({
                     {settings[key].map((conversion, index) => (
                       <li key={`${conversion.target}-${conversion.mimeType}-${index}`}>
                         <span>
-                          {conversion.target} Â· {conversion.mimeType}
+                          {conversion.target} · {conversion.mimeType}
                         </span>
                         <button
                           className="library-action"

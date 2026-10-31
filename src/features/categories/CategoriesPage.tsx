@@ -23,7 +23,7 @@ registerMessages('id', {
   Cancel: 'Batal',
   'The last category change was rejected by the server.':
     'Perubahan kategori terakhir ditolak server.',
-  'Couldnâ€™t load categories': 'Tidak dapat memuat kategori',
+  'Couldn’t load categories': 'Tidak dapat memuat kategori',
   'The categories could not be loaded from your server.':
     'Kategori tidak dapat dimuat dari server Anda.',
   Retry: 'Coba lagi',
@@ -189,7 +189,7 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
 
       {categories.status === 'error' && items.length === 0 ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldnâ€™t load categories')}</h1>
+          <h1>{t('Couldn’t load categories')}</h1>
           <p>{t('The categories could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.retry()}>
             {t('Retry')}
@@ -344,7 +344,7 @@ function CategoryCard({
           {t('{count} manga', {
             count: category.mangas.totalCount.toLocaleString('en-US'),
           })}
-          {isDefault ? ` Â· ${t('Default')}` : ''}
+          {isDefault ? ` · ${t('Default')}` : ''}
         </p>
         <div className="category-flags">
           <label>

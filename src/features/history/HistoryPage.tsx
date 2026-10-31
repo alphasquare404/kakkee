@@ -16,6 +16,7 @@ registerMessages('id', {
     'Chapter yang Anda baca akan muncul di sini saat server memiliki progres bacaan.',
   'Page {page} of {total}': 'Halaman {page} dari {total}',
   '{count} pages': '{count} halaman',
+  '1 page': '1 halaman',
   Read: 'Sudah dibaca',
   'In progress': 'Sedang dibaca',
 });
@@ -53,7 +54,9 @@ export function HistoryPage() {
                 page: chapter.lastPageRead,
                 total: chapter.pageCount,
               })
-            : t('{count} pages', { count: chapter.pageCount });
+            : chapter.pageCount === 1
+          ? t('1 page')
+          : t('{count} pages', { count: chapter.pageCount });
 
         return [when, page].filter(Boolean).join(' · ');
       }}

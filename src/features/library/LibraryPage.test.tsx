@@ -167,7 +167,7 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
 
     expect(libraryRegion().getAttribute('aria-busy')).toBe('true');
-    expect(screen.getByText('Loadingâ€¦')).toBeTruthy();
+    expect(screen.getByText('Loading…')).toBeTruthy();
 
     resolveLibrary(libraryQuery(page([manga(1, 'Alpha')])));
 
@@ -487,7 +487,7 @@ describe('LibraryPage categories', () => {
     renderLibrary(query);
 
     expect(await screen.findByRole('heading', { name: 'Alpha' })).toBeTruthy();
-    expect(screen.getByText('Loading categoriesâ€¦')).toBeTruthy();
+    expect(screen.getByText('Loading categories…')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'All' })).toBeTruthy();
 
     resolveCategories(
@@ -946,7 +946,7 @@ describe('LibraryPage pagination', () => {
     await screen.findByRole('heading', { name: 'Alpha' });
     await user.click(screen.getByRole('button', { name: 'Load more' }));
 
-    const loading = screen.getByRole('button', { name: 'Loadingâ€¦' });
+    const loading = screen.getByRole('button', { name: 'Loading…' });
     expect((loading as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
 

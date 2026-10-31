@@ -38,11 +38,11 @@ registerMessages('id', {
   'Source filters': 'Filter source',
   'Result filters': 'Filter hasil',
   'Search source': 'Cari di source',
-  'Search this sourceâ€¦': 'Cari di source iniâ€¦',
+  'Search this source…': 'Cari di source ini…',
   'Clear history': 'Hapus riwayat',
   'Library change was rejected by the server.':
     'Perubahan perpustakaan ditolak server.',
-  'Couldnâ€™t load this source': 'Tidak dapat memuat source ini',
+  'Couldn’t load this source': 'Tidak dapat memuat source ini',
   'The source catalog could not be loaded.':
     'Katalog source tidak dapat dimuat.',
   Retry: 'Coba lagi',
@@ -271,7 +271,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           <input
             type="search"
             aria-label="Search source"
-            placeholder="Search this sourceâ€¦"
+            placeholder="Search this source…"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setHistoryOpen(true)}
@@ -384,7 +384,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
 
       {source.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldnâ€™t load this source')}</h1>
+          <h1>{t('Couldn’t load this source')}</h1>
           <p>{t('The source catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load(sourceId)}>
             {t('Retry')}
@@ -458,7 +458,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 disabled={source.loadingMore}
                 onClick={() => void controller.loadMore()}
               >
-                {source.loadingMore ? t('Loadingâ€¦') : t('Load more')}
+                {source.loadingMore ? t('Loading…') : t('Load more')}
               </button>
             </div>
           ) : null}
