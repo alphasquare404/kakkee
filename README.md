@@ -21,7 +21,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Navigation: responsive desktop sidebar and mobile tab bar with download-queue and extension-update badges.
 - Connection: server URL validation, last-server memory with one-tap reconnect, UI_LOGIN, and explicit unsupported-auth messaging.
 - Global Search: top-level search across server-known manga and matching sources, with recent-search suggestions and library/unread metadata.
-- Library screen: search with recent-search suggestions and optional fuzzy title matching, category tabs with counts, status filter, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
+- Library screen: search with recent-search suggestions and optional fuzzy title matching, category tabs with counts, single/OR status filters, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
 - Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
 - Updates: latest library chapters grouped by day, read state, and real covers.
 - Browse: installed source catalog plus source manga browsing with Popular/Latest, search, pagination, and quick library add/remove.
@@ -797,7 +797,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (362 test; 7 runtime integration memerlukan env)
+npm run test           lulus (364 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

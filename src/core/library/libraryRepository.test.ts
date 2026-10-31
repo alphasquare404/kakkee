@@ -198,6 +198,19 @@ describe('createLibraryRepository filtering', () => {
     });
   });
 
+  it('maps a status OR set to the server in-filter', async () => {
+    const { client, query } = fakeClient();
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await repository.getPage({
+      filter: { status: 'ONGOING', statuses: ['COMPLETED', 'ON_HIATUS'] },
+    });
+
+    expect(queryOptions(query).variables?.filter).toEqual({
+      status: { in: ['COMPLETED', 'ON_HIATUS'] },
+    });
+  });
+
   it('rejects a non-integer category id', async () => {
     const { client } = fakeClient();
     const repository = createLibraryRepository({ getClient: () => client });

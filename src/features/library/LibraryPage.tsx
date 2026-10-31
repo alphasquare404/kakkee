@@ -470,7 +470,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   };
 
   const isNarrowed = hasNarrowingCriteria(library.filter, library.categoryId);
-  const filterActive = Boolean(library.filter.status);
+  const filterActive = Boolean(
+    library.filter.status || (library.filter.statuses?.length ?? 0) > 0,
+  );
   const searchActive = Boolean(search.trim()) || Boolean(library.filter.search?.trim());
   const sortActive =
     randomOrder ||
@@ -516,6 +518,31 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       onSelect: (value) => {
         handleStatus(value);
         closePanel();
+      },
+    },
+    {
+      key: 'statuses',
+      label: 'Status OR',
+      value: '',
+      selection: 'multiple',
+      values: library.filter.statuses ?? [],
+      options: STATUS_OPTIONS.filter((option) => option.value !== ''),
+      onSelect: () => undefined,
+      onToggle: (value) => {
+        const current = new Set(library.filter.statuses ?? []);
+        const status = value as LibraryStatus;
+
+        if (current.has(status)) {
+          current.delete(status);
+        } else {
+          current.add(status);
+        }
+
+        const statuses = [...current];
+        void controller.setFilter({
+          ...statusFilter(library.filter, null),
+          ...(statuses.length > 0 ? { statuses } : {}),
+        });
       },
     },
   ];

@@ -12,6 +12,9 @@ export interface LibraryMenuGroup {
   readonly value: string;
   readonly options: readonly LibraryMenuOption[];
   readonly onSelect: (value: string) => void;
+  readonly selection?: 'single' | 'multiple';
+  readonly values?: readonly string[];
+  readonly onToggle?: (value: string) => void;
 }
 
 export interface LibraryMenuProps {
@@ -27,7 +30,11 @@ function menuItems(root: HTMLDivElement | null): HTMLButtonElement[] {
     return [];
   }
 
-  return Array.from(root.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]'));
+  return Array.from(
+    root.querySelectorAll<HTMLButtonElement>(
+      '[role="menuitemradio"], [role="menuitemcheckbox"]',
+    ),
+  );
 }
 
 /**
@@ -108,17 +115,26 @@ export function LibraryMenu({ id, label, open, groups, onClose }: LibraryMenuPro
           </p>
 
           {group.options.map((option) => {
-            const checked = option.value === group.value;
+            const multiple = group.selection === 'multiple';
+            const checked = multiple
+              ? (group.values ?? []).includes(option.value)
+              : option.value === group.value;
 
             return (
               <button
                 className={`library-menu-item${checked ? ' is-checked' : ''}`}
                 key={option.value}
                 type="button"
-                role="menuitemradio"
+                role={multiple ? 'menuitemcheckbox' : 'menuitemradio'}
                 aria-checked={checked}
                 tabIndex={checked ? 0 : -1}
-                onClick={() => group.onSelect(option.value)}
+                onClick={() => {
+                  if (multiple) {
+                    group.onToggle?.(option.value);
+                  } else {
+                    group.onSelect(option.value);
+                  }
+                }}
               >
                 <span>{option.label}</span>
                 {checked ? <IconCheck className="library-menu-check" /> : null}

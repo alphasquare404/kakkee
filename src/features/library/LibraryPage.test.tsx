@@ -680,6 +680,33 @@ describe('LibraryPage search, filter, and sort', () => {
     );
   });
 
+  it('combines multiple statuses with an OR filter', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+
+    await openMenu(user, 'Filter');
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Ongoing' }));
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Completed' }));
+
+    await waitFor(() =>
+      expect(query).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: LibraryMangasDocument,
+          variables: expect.objectContaining({
+            filter: { status: { in: ['ONGOING', 'COMPLETED'] } },
+          }),
+        }),
+      ),
+    );
+  });
+
   it('closes the filter menu on Escape and restores focus to its trigger', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {

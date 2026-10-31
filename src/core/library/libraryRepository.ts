@@ -45,6 +45,8 @@ export interface LibraryFilter {
   /** Server-side title contains; trimmed before use. */
   readonly search?: string;
   readonly status?: MangaStatus;
+  /** Status OR set; takes precedence over the single status field. */
+  readonly statuses?: readonly MangaStatus[];
   readonly sourceId?: string;
   /** Single category; multi-category remains a later extension. */
   readonly categoryId?: number;
@@ -134,7 +136,9 @@ function filterInput(filter: LibraryFilter | undefined): MangaFilterInput | unde
     result.title = { includesInsensitive: search };
   }
 
-  if (filter.status) {
+  if (filter.statuses && filter.statuses.length > 0) {
+    result.status = { in: [...filter.statuses] };
+  } else if (filter.status) {
     result.status = { equalTo: filter.status };
   }
 
