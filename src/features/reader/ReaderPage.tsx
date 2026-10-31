@@ -111,6 +111,16 @@ function ConnectedReader({
   const chapter = reader.chapter;
   const activeChapter =
     chapter && chapter.id === chapterId ? chapter : null;
+  const activeChapterIndex = reader.chapters.findIndex(
+    (item) => item.id === chapterId,
+  );
+  const railChapters =
+    activeChapterIndex >= 0
+      ? reader.chapters.slice(
+          Math.max(0, activeChapterIndex - 3),
+          Math.min(reader.chapters.length, activeChapterIndex + 4),
+        )
+      : [];
   const explicitPage = searchParams.has('page')
     ? Number.parseInt(searchParams.get('page') ?? '1', 10)
     : null;
@@ -712,6 +722,25 @@ function ConnectedReader({
           </nav>
         ) : null}
       </header>
+
+      {railChapters.length > 1 ? (
+        <aside className="reader-rail" aria-labelledby="reader-rail-heading">
+          <h2 id="reader-rail-heading">Chapters</h2>
+          <ol>
+            {railChapters.map((item) => (
+              <li key={item.id}>
+                <Link
+                  className={item.id === chapterId ? 'is-active' : undefined}
+                  to={`/manga/${mangaId}/chapter/${item.id}`}
+                  aria-current={item.id === chapterId ? 'page' : undefined}
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </aside>
+      ) : null}
 
       {!activeChapter && !reader.error ? (
         <p className="reader-status" role="status">

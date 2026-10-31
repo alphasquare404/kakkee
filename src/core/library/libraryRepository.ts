@@ -3,12 +3,14 @@ import {
   DeleteDownloadedChaptersDocument,
   EnqueueChapterDownloadsDocument,
   LibraryCategoriesDocument,
+  LibraryDuplicateScanDocument,
   LibraryMangasDocument,
   MangaChapterIdsDocument,
   UpdateChaptersStateDocument,
   UpdateMangasCategoriesDocument,
   UpdateMangasLibraryDocument,
   type LibraryCategoriesQuery,
+  type LibraryDuplicateScanQuery,
   type LibraryMangasQuery,
   type LibraryMangasQueryVariables,
   type MangaFilterInput,
@@ -21,6 +23,8 @@ export const MAX_LIBRARY_PAGE_SIZE = 50;
 
 export type LibraryManga = LibraryMangasQuery['mangas']['nodes'][number];
 export type LibraryCategory = LibraryCategoriesQuery['categories']['nodes'][number];
+export type DuplicateScanItem =
+  LibraryDuplicateScanQuery['mangas']['nodes'][number];
 
 export interface LibraryPageInfo {
   readonly endCursor: string | null;
@@ -76,6 +80,7 @@ export class LibraryInputError extends Error {
 
 export interface LibraryRepository {
   getPage(input?: LibraryPageInput): Promise<LibraryPage>;
+  scanDuplicates(): Promise<readonly DuplicateScanItem[]>;
   getCategories(): Promise<readonly LibraryCategory[]>;
   setLibrary(ids: readonly number[], inLibrary: boolean): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
@@ -220,6 +225,35 @@ export function createLibraryRepository(
           hasNextPage: mangas.pageInfo.hasNextPage,
         },
       };
+    },
+    async scanDuplicates() {
+      const items: DuplicateScanItem[] = [];
+      let after: string | null = null;
+
+      for (;;) {
+        const result = (await options.getClient().query({
+          query: LibraryDuplicateScanDocument,
+          variables: { first: 200, after: after ?? undefined },
+          fetchPolicy: 'network-only',
+        })) as { data?: LibraryDuplicateScanQuery };
+
+        if (!result.data?.mangas) {
+          throw new Error('Library duplicate scan failed.');
+        }
+
+        items.push(...result.data.mangas.nodes);
+
+        if (
+          !result.data.mangas.pageInfo.hasNextPage ||
+          !result.data.mangas.pageInfo.endCursor
+        ) {
+          break;
+        }
+
+        after = result.data.mangas.pageInfo.endCursor;
+      }
+
+      return items;
     },
     async getCategories() {
       const result = await options.getClient().query({

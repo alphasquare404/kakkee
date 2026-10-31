@@ -7,6 +7,7 @@ import {
 } from '../../core/manga/mangaDetailController';
 import {
   createMangaRepository,
+  type MangaChapter,
   type MangaChapterOrder,
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
@@ -129,6 +130,11 @@ function ConnectedMangaDetail({
   );
   const detail = useSyncExternalStore(controller.subscribe, controller.getState);
   const loaded = useRef<MangaDetailController | null>(null);
+  const [scannedChapters, setScannedChapters] = useState<
+    readonly MangaChapter[] | null
+  >(null);
+  const [scanBusy, setScanBusy] = useState(false);
+  const [scanError, setScanError] = useState(false);
   const [section, setSection] = useState<'overview' | 'chapters'>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterSearch, setChapterSearch] = useState('');
@@ -181,6 +187,11 @@ function ConnectedMangaDetail({
     });
   }, [chapterFilter, detail.order, hideDuplicates, mangaId, scanlator]);
 
+  useEffect(() => {
+    setScannedChapters(null);
+    setScanError(false);
+  }, [mangaId]);
+
   if (!detail.manga && !detail.error) {
     return (
       <div className="app-shell detail-shell">
@@ -225,12 +236,42 @@ function ConnectedMangaDetail({
   ].filter(Boolean);
   const scanlators = [
     ...new Set(
-      detail.chapters
+      (scannedChapters ?? detail.chapters)
         .map((chapter) => chapter.scanlator)
         .filter((value): value is string => Boolean(value)),
     ),
   ].sort((left, right) => left.localeCompare(right));
-  const filteredChapters = detail.chapters.filter((chapter) => {
+  const scanAllChapters = async () => {
+    setScanBusy(true);
+    setScanError(false);
+    const collected: MangaChapter[] = [];
+    let after: string | null = null;
+
+    try {
+      for (;;) {
+        const page = await repository.getDetail({
+          mangaId,
+          first: 200,
+          after,
+          order: detail.order,
+        });
+        collected.push(...page.chapters);
+
+        if (!page.pageInfo.hasNextPage || !page.pageInfo.endCursor) {
+          break;
+        }
+
+        after = page.pageInfo.endCursor;
+      }
+
+      setScannedChapters(collected);
+    } catch {
+      setScanError(true);
+    } finally {
+      setScanBusy(false);
+    }
+  };
+  const filteredChapters = (scannedChapters ?? detail.chapters).filter((chapter) => {
     if (scanlator !== 'all' && chapter.scanlator !== scanlator) {
       return false;
     }
@@ -573,6 +614,20 @@ function ConnectedMangaDetail({
               }}
             >
               {chapterSelectionMode ? 'Done' : 'Select'}
+            </button>
+
+            <button
+              className="library-action"
+              type="button"
+              disabled={scanBusy}
+              title="Load every chapter to detect gaps across pages"
+              onClick={() => void scanAllChapters()}
+            >
+              {scanBusy
+                ? 'Scanning…'
+                : scannedChapters
+                  ? `${scannedChapters.length} chapters`
+                  : 'Scan all'}
             </button>
 
             <label className="chapter-search">
@@ -944,6 +999,12 @@ function ConnectedMangaDetail({
             </ol>
           )}
 
+          {scanError ? (
+            <p className="alert alert-error" role="alert">
+              Could not scan the full chapter list.
+            </p>
+          ) : null}
+
           {chapterActionError ? (
             <p className="alert alert-error" role="alert">
               Couldn&apos;t update the chapter state.
@@ -956,7 +1017,7 @@ function ConnectedMangaDetail({
             </p>
           ) : null}
 
-          {detail.pageInfo.hasNextPage ? (
+          {!scannedChapters && detail.pageInfo.hasNextPage ? (
             <div className="chapter-load-more">
               <button
                 className="button button-secondary"

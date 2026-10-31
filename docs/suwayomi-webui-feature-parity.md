@@ -80,7 +80,7 @@ frontend.
 | Library | Bulk category assignment | `Implemented` | Yes | Add to and remove from a selected category for selected manga |
 | Library | Bulk migrate | `Blocked by server` | No | No migration API in stable schema; single/bulk migration impossible without inventing mutations |
 | Library | Remove from library (single/bulk) | `Implemented` | Yes | Single-manga toggle on Detail and bulk removal on Library with confirmation |
-| Library | Library duplicate detection/overview | `Partial` | Client-side | Normalized title groups over loaded library items; server-wide scan absent |
+| Library | Library duplicate detection/overview | `Implemented` | Client-side | On-demand full-library pagination scan groups normalized duplicate titles |
 | Library | Sync button | `Implemented` | Yes | Starts `updateLibrary` and shows live job progress via subscription |
 | Library | Show unread/download badges | `Implemented` | Yes | Unread and downloaded chapter counts from `MangaType` |
 | Library | Tab item counts | `Implemented` | Yes | All total plus per-category manga counts |
@@ -99,7 +99,7 @@ frontend.
 | Manga | Migration entry point | `Blocked by server` | No | Stable v2.4.2366 schema exposes no migration mutation/query |
 | Manga | Tracker binding/score/status | `Implemented` | Yes | Search/bind/unbind with private option, status and score editing |
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
-| Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
+| Manga | Missing-chapter indicators | `Implemented` | Client-side/server data | Full chapter scan loads every page before computing gap separators |
 | Manga | Overview/Chapters tab organization | `Implemented` | Client concern | Anchor tabs for Overview and Chapters |
 | Manga | Related/recommendations | `Blocked by server` | Server metadata | Stable schema exposes no related or recommendation query |
 | Manga | Per-manga reader settings | `Implemented` | Client concern | Per-manga mode, width, background, filter, scale, and direction overrides |
@@ -117,7 +117,7 @@ frontend.
 | Chapters | Download/delete download | `Implemented` | Yes | Per-chapter and bulk enqueue/delete, plus Downloads queue and Reader actions |
 | Chapters | Bulk chapter actions | `Implemented` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation |
 | Chapters | Scanlator filter and duplicate handling | `Implemented` | Yes | Scanlator filter plus hide-duplicate chapter numbers toggle |
-| Chapters | Missing-chapter separators | `Partial` | Client-side | Gap separators between loaded chapter numbers; unloaded boundaries absent |
+| Chapters | Missing-chapter separators | `Implemented` | Client-side | Full chapter scan removes pagination boundaries before gap detection |
 | Chapters | Saved sort/filter preferences | `Implemented` | Client metadata | Per-manga order, filter, and scanlator restored from device storage |
 
 ### Reader
@@ -125,7 +125,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Reader | Vertical continuous reader | `Implemented` | Yes | Current reader |
-| Reader | Desktop/mobile chrome | `Partial` | Client concern | Distraction-free shell, previous/next, page count; no chapter rail |
+| Reader | Desktop/mobile chrome | `Implemented` | Client concern | Distraction-free shell, previous/next, page count, and desktop chapter rail |
 | Reader | Single page mode | `Implemented` | Client-side | Single-page layout with tap, swipe, and keyboard page controls |
 | Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
 | Reader | Horizontal continuous mode | `Implemented` | Client-side | Horizontal scroll-snap canvas with page tracking |
@@ -140,7 +140,7 @@ frontend.
 | Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
-| Reader | Skip duplicate chapters | `Partial` | Client-side | Deduplicates loaded chapter numbers for overlay and navigation; unloaded boundaries fall back to server |
+| Reader | Skip duplicate chapters | `Implemented` | Client-side | Full chapter scan deduplicates numbers across pagination boundaries |
 | Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter manifest prefetched near the end, page images not prefetched |
 | Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |

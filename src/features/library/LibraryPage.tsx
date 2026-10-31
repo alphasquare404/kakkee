@@ -21,8 +21,8 @@ import {
 import {
   createLibraryRepository,
   type LibraryCategory,
+  type DuplicateScanItem,
   type LibraryFilter,
-  type LibraryManga,
   type LibrarySortDirection,
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
@@ -218,6 +218,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [randomSeed, setRandomSeed] = useState(0);
   const [fuzzy, setFuzzy] = useState(false);
   const [duplicatesOpen, setDuplicatesOpen] = useState(false);
+  const [scannedDuplicates, setScannedDuplicates] = useState<
+    readonly DuplicateScanItem[] | null
+  >(null);
+  const [duplicateScanBusy, setDuplicateScanBusy] = useState(false);
+  const [duplicateScanError, setDuplicateScanError] = useState(false);
   const [quickFilter, setQuickFilter] = useState<
     'all' | 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked'
   >('all');
@@ -587,9 +592,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     ? shuffled(quickFiltered, randomSeed)
     : quickFiltered;
   const duplicateGroups = useMemo(() => {
-    const groups = new Map<string, LibraryManga[]>();
+    const groups = new Map<string, Array<{ id: number; title: string }>>();
 
-    for (const manga of library.items) {
+    for (const manga of scannedDuplicates ?? library.items) {
       const key = duplicateKey(manga.title);
 
       if (!key) {
@@ -606,7 +611,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
 
     return [...groups.values()].filter((group) => group.length > 1);
-  }, [library.items]);
+  }, [library.items, scannedDuplicates]);
 
   const resetAll = () => {
     setSearch('');
@@ -628,6 +633,20 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       void controller.setSort({ field: 'dateAdded', direction: 'desc' });
     }
   };
+
+  const scanAllDuplicates = async () => {
+    setDuplicateScanBusy(true);
+    setDuplicateScanError(false);
+
+    try {
+      setScannedDuplicates(await repository.scanDuplicates());
+    } catch {
+      setDuplicateScanError(true);
+    } finally {
+      setDuplicateScanBusy(false);
+    }
+  };
+
   const showInitialLoading = library.isInitialLoading && library.items.length === 0;
   const showInitialError = Boolean(library.initialError) && library.items.length === 0;
 
@@ -846,8 +865,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               className={`library-action${duplicatesOpen ? ' is-active' : ''}`}
               type="button"
               aria-pressed={duplicatesOpen}
-              disabled={duplicateGroups.length === 0}
-              title="Show duplicate titles in the loaded library"
+              title="Show duplicate titles; scan the full library on demand"
               onClick={() => setDuplicatesOpen((value) => !value)}
             >
               Duplicates ({duplicateGroups.length})
@@ -949,33 +967,60 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         </div>
       </header>
 
-      {duplicatesOpen && duplicateGroups.length > 0 ? (
+      {duplicatesOpen ? (
         <section className="library-duplicates" aria-labelledby="duplicates-heading">
           <div className="section-heading-row">
             <h2 id="duplicates-heading">Possible duplicates</h2>
-            <button
-              className="library-action"
-              type="button"
-              onClick={() => setDuplicatesOpen(false)}
-            >
-              Close
-            </button>
+            <span className="library-duplicate-actions">
+              <button
+                className="library-action"
+                type="button"
+                disabled={duplicateScanBusy}
+                onClick={() => void scanAllDuplicates()}
+              >
+                {duplicateScanBusy
+                  ? 'Scanning…'
+                  : scannedDuplicates
+                    ? 'Rescan library'
+                    : 'Scan all library'}
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                onClick={() => setDuplicatesOpen(false)}
+              >
+                Close
+              </button>
+            </span>
           </div>
-          <div className="library-duplicate-groups">
-            {duplicateGroups.map((group) => (
-              <div className="library-duplicate-group" key={group[0]?.id}>
-                <strong>{group[0]?.title}</strong>
-                <ul>
-                  {group.map((manga) => (
-                    <li key={manga.id}>
-                      <Link to={`/manga/${manga.id}`}>{manga.title}</Link>
-                      <span>#{manga.id}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {duplicateScanError ? (
+            <p className="alert alert-error" role="alert">
+              Could not scan the full library.
+            </p>
+          ) : null}
+          {duplicateGroups.length > 0 ? (
+            <div className="library-duplicate-groups">
+              {duplicateGroups.map((group) => (
+                <div className="library-duplicate-group" key={group[0]?.id}>
+                  <strong>{group[0]?.title}</strong>
+                  <ul>
+                    {group.map((manga) => (
+                      <li key={manga.id}>
+                        <Link to={`/manga/${manga.id}`}>{manga.title}</Link>
+                        <span>#{manga.id}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="settings-save-state">
+              {scannedDuplicates
+                ? 'No duplicate titles found in the full library.'
+                : 'No duplicates in the loaded page. Scan the full library to check everything.'}
+            </p>
+          )}
         </section>
       ) : null}
 

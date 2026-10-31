@@ -1,0 +1,18 @@
+query LibraryDuplicateScan($first: Int!, $after: Cursor) {
+  mangas(
+    condition: { inLibrary: true }
+    first: $first
+    after: $after
+    order: [{ by: TITLE, byType: ASC }]
+  ) {
+    nodes {
+      id
+      title
+      sourceId
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
