@@ -3,6 +3,17 @@ import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createLibraryUpdateRepository } from '../../core/library/libraryUpdateRepository';
 import type { LibraryUpdateInfo } from '../../core/library/libraryUpdateRepository';
 import { LibraryUpdateStatusChangedDocument } from '../../core/graphql/generated/graphql';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Sync library': 'Sinkronkan perpustakaan',
+  'Retry sync': 'Coba sinkron lagi',
+  'Update library': 'Perbarui perpustakaan',
+  'Sync queued ({count})': 'Sinkronisasi dalam antrean ({count})',
+  'Updating {finished}/{total}': 'Memperbarui {finished}/{total}',
+  'Update queued: {count} jobs': 'Update dalam antrean: {count} tugas',
+});
 
 interface State {
   readonly running: boolean;
@@ -21,6 +32,7 @@ export function LibrarySyncButton({
   readonly className?: string;
   readonly onComplete?: () => void;
 }) {
+  const { t } = useI18n();
   const store = useMemo(() => {
     let state: State = {
       running: false,
@@ -116,15 +128,22 @@ export function LibrarySyncButton({
       type="button"
       disabled={state.running}
       onClick={() => void store.start()}
-      title={state.started ? `Update queued: ${state.total} jobs` : 'Update library'}
+      title={
+        state.started
+          ? t('Update queued: {count} jobs', { count: state.total })
+          : t('Update library')
+      }
     >
       {state.running
-        ? `Updating ${state.finished}/${state.total}`
+        ? t('Updating {finished}/{total}', {
+            finished: state.finished,
+            total: state.total,
+          })
         : state.error
-          ? 'Retry sync'
+          ? t('Retry sync')
           : state.started
-            ? `Sync queued (${state.total})`
-            : 'Sync library'}
+            ? t('Sync queued ({count})', { count: state.total })
+            : t('Sync library')}
     </button>
   );
 }

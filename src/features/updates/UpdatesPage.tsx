@@ -14,6 +14,36 @@ import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
 import { createMangaRepository } from '../../core/manga/mangaRepository';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Updates: 'Update',
+  'New chapters from your library': 'Chapter baru dari perpustakaan Anda',
+  'Latest {shown} of {total}': 'Terbaru {shown} dari {total}',
+  All: 'Semua',
+  Unread: 'Belum dibaca',
+  Read: 'Sudah dibaca',
+  'All scanlators': 'Semua scanlator',
+  'Newest first': 'Terbaru dulu',
+  'Continue reading': 'Lanjut membaca',
+  '{count} manga': '{count} manga',
+  'Couldn’t load updates': 'Tidak dapat memuat update',
+  "Couldn't load updates": 'Tidak dapat memuat update',
+  'The chapter feed could not be loaded from your server.':
+    'Feed chapter tidak dapat dimuat dari server Anda.',
+  'No updates yet': 'Belum ada update',
+  'New chapters from manga in your library will appear here.':
+    'Chapter baru dari manga di perpustakaan Anda akan muncul di sini.',
+  'Nothing in this filter': 'Tidak ada pada filter ini',
+  'Try another update filter.': 'Coba filter update lain.',
+  Download: 'Unduh',
+  Queued: 'Dalam antrean',
+  Manga: 'Manga',
+  Today: 'Hari ini',
+  Yesterday: 'Kemarin',
+  Earlier: 'Sebelumnya',
+});
 
 type FeedFilter = 'all' | 'unread' | 'read';
 
@@ -45,6 +75,7 @@ export function UpdatesPage() {
 }
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [scanlator, setScanlator] = useState('all');
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
@@ -130,9 +161,16 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   return (
     <div className="app-shell page-shell feed-shell">
       <PageHeader
-        title="Updates"
-        subtitle="New chapters from your library"
-        count={feed.data ? `Latest ${items.length} of ${feed.data.totalCount.toLocaleString('en-US')}` : undefined}
+        title={t('Updates')}
+        subtitle={t('New chapters from your library')}
+        count={
+          feed.data
+            ? t('Latest {shown} of {total}', {
+                shown: items.length,
+                total: feed.data.totalCount.toLocaleString('en-US'),
+              })
+            : undefined
+        }
       >
         <LibrarySyncButton context={context} onComplete={() => void controller.load()} />
       </PageHeader>
@@ -153,7 +191,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               aria-pressed={filter === value}
               onClick={() => setFilter(value)}
             >
-              {label}
+              {t(label)}
               <span>{count}</span>
             </button>
           ))}
@@ -166,7 +204,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               value={scanlator}
               onChange={(event) => setScanlator(event.target.value)}
             >
-              <option value="all">All scanlators</option>
+              <option value="all">{t('All scanlators')}</option>
               {scanlators.map((value) => (
                 <option key={value} value={value}>
                   {value}
@@ -175,14 +213,14 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
             </select>
           </label>
         ) : null}
-        <span className="feed-sort">Newest first</span>
+        <span className="feed-sort">{t('Newest first')}</span>
       </div>
 
       {continueItems.length > 0 ? (
         <section className="updates-continue" aria-labelledby="updates-continue-heading">
           <div className="section-heading-row">
-            <h2 id="updates-continue-heading">Continue reading</h2>
-            <span>{continueItems.length} manga</span>
+            <h2 id="updates-continue-heading">{t('Continue reading')}</h2>
+            <span>{t('{count} manga', { count: continueItems.length })}</span>
           </div>
           <div className="updates-continue-grid">
             {continueItems.map((manga) => (
@@ -206,8 +244,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
 
       {feed.error && !feed.data ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load updates</h1>
-          <p>The chapter feed could not be loaded from your server.</p>
+          <h1>{t('Couldn’t load updates')}</h1>
+          <p>{t('The chapter feed could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
             Retry
           </button>
@@ -216,22 +254,22 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
 
       {!feed.isLoading && !feed.error && items.length === 0 ? (
         <div className="library-state">
-          <h1>No updates yet</h1>
-          <p>New chapters from manga in your library will appear here.</p>
+          <h1>{t('No updates yet')}</h1>
+          <p>{t('New chapters from manga in your library will appear here.')}</p>
         </div>
       ) : null}
 
       {visible.length === 0 && items.length > 0 ? (
         <div className="library-state">
-          <h1>Nothing in this filter</h1>
-          <p>Try another update filter.</p>
+          <h1>{t('Nothing in this filter')}</h1>
+          <p>{t('Try another update filter.')}</p>
         </div>
       ) : null}
 
       {[...groups.entries()].map(([day, chapters]) => (
         <section className="feed-group" key={day} aria-labelledby={`feed-${day}`}>
           <div className="feed-group-heading">
-            <h2 id={`feed-${day}`}>{day}</h2>
+            <h2 id={`feed-${day}`}>{t(day)}</h2>
             <span>{chapters.length}</span>
           </div>
           <div className="feed-list">
@@ -258,7 +296,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                           .finally(() => setPendingChapterId(null));
                       }}
                     >
-                      {chapter.isRead ? 'Unread' : 'Read'}
+                      {chapter.isRead ? t('Unread') : t('Read')}
                     </button>
                     <button
                       className="feed-action"
@@ -283,13 +321,15 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                           .finally(() => setPendingChapterId(null));
                       }}
                     >
-                      {queuedChapters.has(chapter.id) ? 'Queued' : 'Download'}
+                      {queuedChapters.has(chapter.id)
+                        ? t('Queued')
+                        : t('Download')}
                     </button>
                     <Link
                       className="feed-action"
                       to={`/manga/${chapter.manga.id}`}
                     >
-                      Manga
+                      {t('Manga')}
                     </Link>
                   </>
                 }
