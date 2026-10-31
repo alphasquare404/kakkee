@@ -1,0 +1,26 @@
+query AboutPage {
+  aboutServer {
+    name
+    version
+    buildType
+    buildTime
+  }
+  aboutWebUI {
+    channel
+    tag
+    updateTimestamp
+  }
+  checkForWebUIUpdate {
+    channel
+    tag
+    updateAvailable
+  }
+}
+
+query ServerUpdateCheck {
+  checkForServerUpdates {
+    channel
+    tag
+    url
+  }
+}

@@ -99,6 +99,11 @@ const DeviceSettingsPage = lazy(() =>
     default: module.DeviceSettingsPage,
   })),
 );
+const AboutPage = lazy(() =>
+  import('../features/settings/AboutPage').then((module) => ({
+    default: module.AboutPage,
+  })),
+);
 
 const MangaDetailPage = lazy(() =>
   import('../features/manga/MangaDetailPage').then((module) => ({
@@ -161,6 +166,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/settings/sync" element={<SyncSettingsPage />} />
             <Route path="/settings/history" element={<HistorySettingsPage />} />
             <Route path="/settings/device" element={<DeviceSettingsPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/manga/:mangaId" element={<MangaDetailPage />} />
             <Route
               path="/manga/:mangaId/chapter/:chapterId"

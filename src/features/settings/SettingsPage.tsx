@@ -83,6 +83,9 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
               <Link className="button button-secondary" to="/settings/device">
                 Device info
               </Link>
+              <Link className="button button-secondary" to="/about">
+                About &amp; updates
+              </Link>
               <button
                 className="button button-secondary"
                 type="button"

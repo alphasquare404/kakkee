@@ -14,6 +14,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "query AboutPage {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n  }\n  aboutWebUI {\n    channel\n    tag\n    updateTimestamp\n  }\n  checkForWebUIUpdate {\n    channel\n    tag\n    updateAvailable\n  }\n}\n\nquery ServerUpdateCheck {\n  checkForServerUpdates {\n    channel\n    tag\n    url\n  }\n}": typeof types.AboutPageDocument,
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": typeof types.AboutServerDocument,
     "mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": typeof types.AddExtensionStoreDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": typeof types.AuthProbeDocument,
@@ -88,6 +89,7 @@ type Documents = {
     "query ValidateBackup($input: ValidateBackupInput!) {\n  validateBackup(input: $input) {\n    missingSources {\n      id\n      name\n    }\n    missingTrackers {\n      name\n    }\n  }\n}": typeof types.ValidateBackupDocument,
 };
 const documents: Documents = {
+    "query AboutPage {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n  }\n  aboutWebUI {\n    channel\n    tag\n    updateTimestamp\n  }\n  checkForWebUIUpdate {\n    channel\n    tag\n    updateAvailable\n  }\n}\n\nquery ServerUpdateCheck {\n  checkForServerUpdates {\n    channel\n    tag\n    url\n  }\n}": types.AboutPageDocument,
     "query AboutServer {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n    platformInfo {\n      arch\n      headless\n      os {\n        name\n        version\n        build\n      }\n      jvm {\n        javaVersion\n        vmName\n        vmVersion\n        vmVendor\n      }\n    }\n  }\n}": types.AboutServerDocument,
     "mutation AddExtensionStore($input: AddExtensionStoreInput!) {\n  addExtensionStore(input: $input) {\n    extensionStore {\n      name\n      badgeLabel\n      indexUrl\n    }\n  }\n}": types.AddExtensionStoreDocument,
     "query AuthProbe {\n  settings {\n    authMode\n  }\n}": types.AuthProbeDocument,
@@ -176,6 +178,10 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "query AboutPage {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n  }\n  aboutWebUI {\n    channel\n    tag\n    updateTimestamp\n  }\n  checkForWebUIUpdate {\n    channel\n    tag\n    updateAvailable\n  }\n}\n\nquery ServerUpdateCheck {\n  checkForServerUpdates {\n    channel\n    tag\n    url\n  }\n}"): (typeof documents)["query AboutPage {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n  }\n  aboutWebUI {\n    channel\n    tag\n    updateTimestamp\n  }\n  checkForWebUIUpdate {\n    channel\n    tag\n    updateAvailable\n  }\n}\n\nquery ServerUpdateCheck {\n  checkForServerUpdates {\n    channel\n    tag\n    url\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

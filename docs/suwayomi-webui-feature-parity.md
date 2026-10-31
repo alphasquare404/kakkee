@@ -50,7 +50,7 @@ frontend.
 | Shell | Desktop sidebar + mobile bottom navigation | `Partial` | Client concern | All seven top-level pages now have routes; mobile uses seven compact tabs |
 | Shell | Mobile "More" overflow destination | `Partial` | Client concern | We expose all pages directly instead of an overflow sheet |
 | Navigation | Download queue badge and extension-update badge | `Implemented` | Yes | Download subscription, periodic extension-update refresh, and route-change refresh |
-| App updates | Inform about WebUI/server updates | `Partial` | WebUI update query + subscriptions | PWA shell update prompt exists; server/WebUI update checker does not |
+| App updates | Inform about WebUI/server updates | `Implemented` | WebUI update query + subscriptions | PWA update prompt, WebUI update check, and server update check on `/about` |
 | Localization | Upstream translations and language selection | `Partial` | Client concern | English/Indonesian locale selection; upstream message catalogs absent |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
 | PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
@@ -224,7 +224,7 @@ frontend.
 | Global search | Search history/suggestions | `Partial` | Client metadata | Recent global searches stored per device; remote suggestions absent |
 | Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
-| About | About route with versions/update actions | `Partial` | Yes | About data is inside Settings; no `/about` route |
+| About | About route with versions/update actions | `Partial` | Yes | `/about` shows server/WebUI versions and update checks; WebUI update install action absent |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
 | Localization | Translated UI | `Partial` | Client concern | Navigation and Appearance strings translated; remaining screens still English |
 | Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited; new parity screens still need audits |
