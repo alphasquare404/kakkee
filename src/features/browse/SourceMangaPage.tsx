@@ -12,6 +12,11 @@ import {
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
+import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
+import {
+  addSourceSearch,
+  clearSourceSearchHistory,
+} from '../../core/preferences/sourceSearchHistory';
 
 export function SourceMangaPage() {
   const { state } = useConnection();
@@ -35,6 +40,19 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   );
   const source = useSyncExternalStore(controller.subscribe, controller.getState);
   const [search, setSearch] = useState('');
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const searchHistory = useSourceSearchHistory(sourceId);
+
+  const runSearch = (value: string) => {
+    const query = value.trim();
+
+    if (query) {
+      addSourceSearch(sourceId, query);
+    }
+
+    setHistoryOpen(false);
+    void controller.search(query);
+  };
 
   useEffect(() => {
     void controller.load(sourceId);
@@ -75,7 +93,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           className="source-search"
           onSubmit={(event) => {
             event.preventDefault();
-            void controller.search(search);
+            runSearch(search);
           }}
         >
           <input
@@ -84,10 +102,40 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             placeholder="Search this source…"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
+            onFocus={() => setHistoryOpen(true)}
+            onClick={() => setHistoryOpen(true)}
+            onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
           />
           <button className="button" type="submit" disabled={source.status === 'loading'}>
             Search
           </button>
+          {historyOpen && searchHistory.length > 0 ? (
+            <div className="source-search-history" role="listbox" aria-label="Recent source searches">
+              {searchHistory.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  role="option"
+                  aria-selected={false}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => {
+                    setSearch(term);
+                    runSearch(term);
+                  }}
+                >
+                  {term}
+                </button>
+              ))}
+              <button
+                className="source-search-history-clear"
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => clearSourceSearchHistory(sourceId)}
+              >
+                Clear history
+              </button>
+            </div>
+          ) : null}
         </form>
       </div>
 

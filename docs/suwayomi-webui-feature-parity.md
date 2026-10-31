@@ -176,7 +176,7 @@ frontend.
 | Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Partial` | Metadata | Pin/last-used, saved language filter, and NSFW toggle; multi-language preference list absent |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
-| Browse | Saved source searches and global search | `Missing` | Client metadata + server | |
+| Browse | Saved source searches and global search | `Partial` | Client metadata + server | Per-source search history and `/search` page; live search across all sources absent |
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
 | Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
