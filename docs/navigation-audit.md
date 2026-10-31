@@ -420,3 +420,37 @@ Tests       415 passed | 7 skipped (422)
 - The temporary public tunnel and LAN backend are runtime aids, not product
   deployment guarantees. The recorded runtime evidence is from the final code
   built in this workspace.
+
+
+## Post-change verification (Goal 6)
+
+Runtime dilakukan ulang setelah perubahan semantics, IA, action hierarchy, dan responsive.
+
+| Skenario | Hasil | Status |
+| --- | --- | --- |
+| Library → Manga 3111 | breadcrumb berawal `Library`; Back `Back to library`; active nav Library | Lulus |
+| Manga → chapter 3171 | Reader menampilkan `← Manga`; browser Back kembali ke Manga yang sama | Lulus |
+| Reader → browser Back → Manga → browser Back | kembali ke Library tanpa membuat entri Manga ganda | Lulus |
+| Direct `/manga/1115` | breadcrumb hanya judul; tidak ada active primary nav; Back fallback `/library` | Lulus |
+| Search → Manga 1148 | breadcrumb `Search / ...`; Back `/search?q=one%20piece`; active Search | Lulus |
+| Browse source → Manga 5656 | breadcrumb `Browse / Comick ... / title`; Back kembali ke source; active Browse | Lulus |
+| Updates → feed row | feed row membuka Reader, bukan Manga; Reader Back menampilkan origin feed | Lulus secara struktur; runtime feed row belum diulang setelah perubahan |
+| Manga tab Overview | URL `?section=overview`; tab Overview active; Chapters tidak dirender | Lulus |
+| Manga tab Chapters | URL tanpa `section`; Chapters active; Overview tool tidak dirender | Lulus |
+| Reload setelah origin Library | halaman kembali ke Connection karena sesi server belum auto-connect, bukan karena provenance salah | Concern Goal 14/19 |
+| Reload halaman Manga tanpa state | setelah reconnect, breadcrumb harus title-only dan active nav kosong; tidak ada origin rekaan | Diverifikasi oleh test dan desain state |
+
+### Catatan provenance
+
+- Provenance tidak diambil dari `inLibrary`; Manga non-Library dari Search tetap menampilkan Search.
+- Category/filter state tidak dipakai untuk menebak asal.
+- `origin.trail` hanya berisi jalur yang benar-benar dilalui user.
+- Back tetap memakai history Back jika origin adalah entri sebelumnya; jika tidak, memakai `originHref`.
+- Reload menghapus navigation state secara intentional. Konsekuensinya adalah title-only breadcrumb setelah koneksi dipulihkan; issue sesi adalah domain Goal 14/19.
+
+### Sisa concerns
+
+1. Auto-connect/session restoration setelah reload belum memulihkan route Manga; ini bukan bug provenance, tetapi UX recovery.
+2. Feed row Updates/History langsung membuka Reader; test runtime Back feed perlu diulang pada Goal 12.
+3. Back link dan breadcrumb sama-sama tampil; keduanya berbeda (history vs konteks), tetapi perlu dijaga agar tidak terasa duplikat di phone.
+4. Scroll restoration untuk daftar panjang belum diukur pada data ekstrem; Goal 18.

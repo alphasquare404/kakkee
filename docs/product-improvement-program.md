@@ -13,8 +13,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 3 | Action hierarchy | Complete | [action-hierarchy-audit.md](action-hierarchy-audit.md) | `Goal 3` |
 | 4 | UI consistency | Complete | [ui-consistency-audit.md](ui-consistency-audit.md) | `Goal 4` |
 | 5 | Responsive/adaptive layout | Complete | [responsive-layout-audit.md](responsive-layout-audit.md) | `Goal 5` |
-| 6 | Navigation regression/context | In Progress | — | — |
-| 7 | User task flows | Pending | — | — |
+| 6 | Navigation regression/context | Complete | [navigation-audit.md](navigation-audit.md) | `Goal 6` |
+| 7 | User task flows | In Progress | — | — |
 | 8 | State and feedback | Pending | — | — |
 | 9 | Error recovery | Pending | — | — |
 | 10 | Empty states | Pending | — | — |
