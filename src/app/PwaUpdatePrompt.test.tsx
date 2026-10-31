@@ -31,8 +31,8 @@ describe('PwaUpdatePrompt', () => {
     const user = userEvent.setup();
     render(<PwaUpdatePrompt />);
 
-    expect(screen.getByText(/Versi baru aplikasi tersedia/)).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Update dan reload' }));
+    expect(screen.getByText(/A new version of the app is available/)).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Update and reload' }));
 
     expect(pwaState.updateServiceWorker).toHaveBeenCalledWith(true);
   });
@@ -42,8 +42,8 @@ describe('PwaUpdatePrompt', () => {
     pwaState.offlineReady = true;
     render(<PwaUpdatePrompt />);
 
-    expect(screen.getByText(/Shell aplikasi siap dipakai/)).toBeTruthy();
-    expect(screen.getByText(/Data server tetap memerlukan koneksi/)).toBeTruthy();
+    expect(screen.getByText(/The app shell is ready/)).toBeTruthy();
+    expect(screen.getByText(/Server data still requires a connection/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Update dan reload' })).toBeNull();
   });
 

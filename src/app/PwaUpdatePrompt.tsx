@@ -1,6 +1,18 @@
 import { usePwaUpdate } from './pwaUpdate';
+import { useI18n } from '../shared/useI18n';
+import { registerMessages } from '../shared/i18n';
+
+registerMessages('id', {
+  'A new version of the app is available. Reload to use the latest shell.':
+    'Versi baru aplikasi tersedia. Muat ulang untuk memakai shell terbaru.',
+  'The app shell is ready. Server data still requires a connection.':
+    'Shell aplikasi siap dipakai. Data server tetap memerlukan koneksi.',
+  'Update and reload': 'Update dan muat ulang',
+  Close: 'Tutup',
+});
 
 export function PwaUpdatePrompt() {
+  const { t } = useI18n();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
@@ -20,8 +32,12 @@ export function PwaUpdatePrompt() {
     <aside className="pwa-update" role="status" aria-live="polite">
       <p>
         {needRefresh
-          ? 'Versi baru aplikasi tersedia. Muat ulang untuk memakai shell terbaru.'
-          : 'Shell aplikasi siap dipakai. Data server tetap memerlukan koneksi.'}
+          ? t(
+              'A new version of the app is available. Reload to use the latest shell.',
+            )
+          : t(
+              'The app shell is ready. Server data still requires a connection.',
+            )}
       </p>
       <div className="actions">
         {needRefresh ? (
@@ -32,11 +48,11 @@ export function PwaUpdatePrompt() {
               void updateServiceWorker(true);
             }}
           >
-            Update dan reload
+            {t('Update and reload')}
           </button>
         ) : null}
         <button className="button button-secondary" type="button" onClick={dismiss}>
-          Tutup
+          {t('Close')}
         </button>
       </div>
     </aside>

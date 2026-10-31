@@ -11,6 +11,51 @@ import {
   type EditableServerSettings,
 } from '../../core/settings/serverSettingsRepository';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Server settings': 'Pengaturan server',
+  'Server behavior stored by Suwayomi':
+    'Perilaku server yang disimpan Suwayomi',
+  'All settings': 'Semua pengaturan',
+  'Couldn’t load server settings':
+    'Tidak dapat memuat pengaturan server',
+  Retry: 'Coba lagi',
+  'The server rejected the last change. The previous value is still shown.':
+    'Server menolak perubahan terakhir. Nilai sebelumnya tetap ditampilkan.',
+  'Saving…': 'Menyimpan…',
+  'Changes save automatically': 'Perubahan disimpan otomatis',
+  'Library updates': 'Update perpustakaan',
+  Downloads: 'Unduhan',
+  'Image conversions': 'Konversi gambar',
+  OPDS: 'OPDS',
+  'KOReader sync': 'Sinkronisasi KOReader',
+  Authentication: 'Autentikasi',
+  Database: 'Database',
+  System: 'Sistem',
+  WebUI: 'WebUI',
+  'Image cache': 'Cache gambar',
+  'No authentication': 'Tanpa autentikasi',
+  'UI login': 'Login UI',
+  Mode: 'Mode',
+  Username: 'Username',
+  Password: 'Password',
+  Type: 'Tipe',
+  URL: 'URL',
+  'Backup path': 'Lokasi cadangan',
+  'Backup interval': 'Interval cadangan',
+  'Backup interval value': 'Interval cadangan',
+  Channel: 'Kanal',
+  Flavor: 'Varian',
+  Interface: 'Antarmuka',
+  'Downloads path': 'Lokasi unduhan',
+  Target: 'Target',
+  'MIME type': 'Tipe MIME',
+  'Cached pages': 'Halaman ter-cache',
+  'Cached thumbnails': 'Thumbnail ter-cache',
+  'Downloaded thumbnails': 'Thumbnail terunduh',
+});
 
 export function ServerSettingsPage() {
   const { state } = useConnection();
@@ -23,6 +68,7 @@ export function ServerSettingsPage() {
 }
 
 function ServerSettingsContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(() => {
     const repository = createServerSettingsRepository({
       getClient: () => context.graphQL,
@@ -39,11 +85,11 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
   return (
     <div className="app-shell page-shell settings-shell">
       <PageHeader
-        title="Server settings"
-        subtitle="Server behavior stored by Suwayomi"
+        title={t('Server settings')}
+        subtitle={t('Server behavior stored by Suwayomi')}
       >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
@@ -56,9 +102,9 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
 
         {settings.status === 'error' ? (
           <div className="library-state" role="alert">
-            <h2>Couldn&apos;t load server settings</h2>
+            <h2>{t('Couldn’t load server settings')}</h2>
             <button className="button button-secondary" type="button" onClick={() => void controller.retry()}>
-              Retry
+              {t('Retry')}
             </button>
           </div>
         ) : null}
@@ -79,6 +125,7 @@ function ServerSettingsForm({
   readonly controller: ServerSettingsController;
   readonly settings: NonNullable<ReturnType<ServerSettingsController['getState']>['settings']>;
 }) {
+  const { t } = useI18n();
   const [conversionTarget, setConversionTarget] = useState('');
   const [conversionMime, setConversionMime] = useState('image/webp');
   const update = (patch: Partial<EditableServerSettings>) => {
@@ -89,7 +136,7 @@ function ServerSettingsForm({
     <>
       {controller.getState().saveError ? (
         <p className="settings-inline-error" role="alert">
-          The server rejected the last change. The previous value is still shown.
+          {t('The server rejected the last change. The previous value is still shown.')}
         </p>
       ) : null}
       <p className="settings-save-state" role="status">
@@ -98,7 +145,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-updates">
         <div className="section-heading-row">
-          <h2 id="server-updates">Library updates</h2>
+          <h2 id="server-updates">{t('Library updates')}</h2>
         </div>
         <div className="settings-toggle-list">
           <Toggle
@@ -140,7 +187,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-downloads">
         <div className="section-heading-row">
-          <h2 id="server-downloads">Downloads</h2>
+          <h2 id="server-downloads">{t('Downloads')}</h2>
         </div>
         <div className="settings-toggle-list">
           <Toggle
@@ -182,7 +229,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-conversions">
         <div className="section-heading-row">
-          <h2 id="server-conversions">Image conversions</h2>
+          <h2 id="server-conversions">{t('Image conversions')}</h2>
         </div>
         <p className="settings-save-state">
           Convert downloaded or served images through the server.
@@ -283,7 +330,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-opds">
         <div className="section-heading-row">
-          <h2 id="server-opds">OPDS</h2>
+          <h2 id="server-opds">{t('OPDS')}</h2>
         </div>
         <div className="settings-toggle-list">
           <Toggle
@@ -349,7 +396,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-koreader">
         <div className="section-heading-row">
-          <h2 id="server-koreader">KOReader sync</h2>
+          <h2 id="server-koreader">{t('KOReader sync')}</h2>
         </div>
         <div className="settings-field-grid">
           <SelectField
@@ -397,7 +444,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-auth">
         <div className="section-heading-row">
-          <h2 id="server-auth">Authentication</h2>
+          <h2 id="server-auth">{t('Authentication')}</h2>
         </div>
         <p className="settings-inline-warning">
           Changing authentication can require a reconnect. BASIC_AUTH and
@@ -405,7 +452,7 @@ function ServerSettingsForm({
         </p>
         <div className="settings-field-grid">
           <label className="settings-select-field">
-            <span>Mode</span>
+            <span>{t('Mode')}</span>
             <select
               value={settings.authMode}
               onChange={(event) =>
@@ -415,12 +462,12 @@ function ServerSettingsForm({
                 })
               }
             >
-              <option value="NONE">No authentication</option>
-              <option value="UI_LOGIN">UI login</option>
+              <option value="NONE">{t('No authentication')}</option>
+              <option value="UI_LOGIN">{t('UI login')}</option>
             </select>
           </label>
           <label className="settings-text-field">
-            <span>Username</span>
+            <span>{t('Username')}</span>
             <input
               defaultValue={settings.authUsername}
               autoComplete="off"
@@ -428,7 +475,7 @@ function ServerSettingsForm({
             />
           </label>
           <label className="settings-text-field">
-            <span>Password</span>
+            <span>{t('Password')}</span>
             <input
               type="password"
               defaultValue={settings.authPassword}
@@ -441,11 +488,11 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-database">
         <div className="section-heading-row">
-          <h2 id="server-database">Database</h2>
+          <h2 id="server-database">{t('Database')}</h2>
         </div>
         <div className="settings-field-grid">
           <label className="settings-select-field">
-            <span>Type</span>
+            <span>{t('Type')}</span>
             <select
               value={settings.databaseType}
               onChange={(event) =>
@@ -460,7 +507,7 @@ function ServerSettingsForm({
             </select>
           </label>
           <label className="settings-text-field">
-            <span>URL</span>
+            <span>{t('URL')}</span>
             <input
               defaultValue={settings.databaseUrl}
               autoComplete="off"
@@ -468,7 +515,7 @@ function ServerSettingsForm({
             />
           </label>
           <label className="settings-text-field">
-            <span>Username</span>
+            <span>{t('Username')}</span>
             <input
               defaultValue={settings.databaseUsername}
               autoComplete="off"
@@ -478,7 +525,7 @@ function ServerSettingsForm({
             />
           </label>
           <label className="settings-text-field">
-            <span>Password</span>
+            <span>{t('Password')}</span>
             <input
               type="password"
               defaultValue={settings.databasePassword}
@@ -493,7 +540,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-system">
         <div className="section-heading-row">
-          <h2 id="server-system">System</h2>
+          <h2 id="server-system">{t('System')}</h2>
         </div>
         <div className="settings-toggle-list">
           <Toggle
@@ -521,7 +568,7 @@ function ServerSettingsForm({
 
       <section className="settings-section" aria-labelledby="server-webui">
         <div className="section-heading-row">
-          <h2 id="server-webui">WebUI</h2>
+          <h2 id="server-webui">{t('WebUI')}</h2>
         </div>
         <dl className="settings-rows">
           <div>
