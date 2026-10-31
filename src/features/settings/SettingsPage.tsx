@@ -2,6 +2,61 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Settings: 'Pengaturan',
+  'Application and server information': 'Informasi aplikasi dan server',
+  Connection: 'Koneksi',
+  Appearance: 'Tampilan',
+  Reading: 'Membaca',
+  About: 'Tentang',
+  Connected: 'Terhubung',
+  Server: 'Server',
+  Version: 'Versi',
+  Endpoint: 'Endpoint',
+  Authentication: 'Autentikasi',
+  'No authentication': 'Tanpa autentikasi',
+  'UI login': 'Login UI',
+  Compatibility: 'Kompatibilitas',
+  'Stable baseline {version}': 'Baseline stabil {version}',
+  'Server settings': 'Pengaturan server',
+  'Backup settings': 'Pengaturan cadangan',
+  'Tracking settings': 'Pengaturan tracking',
+  'Sync settings': 'Pengaturan sinkronisasi',
+  'History settings': 'Pengaturan riwayat',
+  'Device info': 'Info perangkat',
+  'About & updates': 'Tentang & update',
+  'Disconnect server': 'Putuskan server',
+  Theme: 'Tema',
+  'Cinematic dark': 'Gelap sinematik',
+  Accent: 'Aksen',
+  'Blue-violet': 'Biru-ungu',
+  Layout: 'Tata letak',
+  'Responsive with desktop navigation and mobile tab bar':
+    'Responsif dengan navigasi desktop dan bilah tab seluler',
+  'Appearance settings': 'Pengaturan tampilan',
+  Library: 'Perpustakaan',
+  'Grid density': 'Kepadatan grid',
+  'Compact or comfortable poster grid': 'Grid poster ringkas atau nyaman',
+  Selection: 'Seleksi',
+  'Bulk category assignment and library removal':
+    'Penetapan kategori massal dan penghapusan dari perpustakaan',
+  'Library settings': 'Pengaturan perpustakaan',
+  'Reader mode': 'Mode reader',
+  'Vertical continuous': 'Vertikal berkelanjutan',
+  'Page loading': 'Pemuatan halaman',
+  'Lazy, authenticated through ResourceService':
+    'Lazy, terautentikasi melalui ResourceService',
+  'Progress sync': 'Sinkronisasi progres',
+  'Last page and read state are written when you read':
+    'Halaman terakhir dan status baca ditulis saat Anda membaca',
+  'Reader settings': 'Pengaturan reader',
+  Application: 'Aplikasi',
+  'API baseline': 'Baseline API',
+  'Server platform': 'Platform server',
+});
 
 export function SettingsPage() {
   const { state } = useConnection();
@@ -14,77 +69,80 @@ export function SettingsPage() {
 }
 
 function SettingsContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const { disconnect } = useConnection();
   const navigate = useNavigate();
 
   return (
     <div className="app-shell page-shell settings-shell">
       <PageHeader
-        title="Settings"
-        subtitle="Application and server information"
+        title={t('Settings')}
+        subtitle={t('Application and server information')}
       />
 
       <div className="settings-layout">
-        <nav className="settings-nav" aria-label="Settings sections">
-          <a className="is-active" href="#connection">Connection</a>
-          <a href="#appearance">Appearance</a>
-          <a href="#reading">Reading</a>
-          <a href="#about">About</a>
+        <nav className="settings-nav" aria-label={t('Settings')}>
+          <a className="is-active" href="#connection">{t('Connection')}</a>
+          <a href="#appearance">{t('Appearance')}</a>
+          <a href="#reading">{t('Reading')}</a>
+          <a href="#about">{t('About')}</a>
         </nav>
 
         <div className="settings-content">
           <section className="settings-section" id="connection" aria-labelledby="settings-connection">
             <div className="section-heading-row">
-              <h2 id="settings-connection">Connection</h2>
-              <span className="settings-badge">Connected</span>
+              <h2 id="settings-connection">{t('Connection')}</h2>
+              <span className="settings-badge">{t('Connected')}</span>
             </div>
             <dl className="settings-rows">
               <div>
-                <dt>Server</dt>
+                <dt>{t('Server')}</dt>
                 <dd>{context.serverInfo.name}</dd>
               </div>
               <div>
-                <dt>Version</dt>
+                <dt>{t('Version')}</dt>
                 <dd>{context.serverInfo.version} · {context.serverInfo.buildType}</dd>
               </div>
               <div>
-                <dt>Endpoint</dt>
+                <dt>{t('Endpoint')}</dt>
                 <dd className="settings-endpoint">{context.config.serverBaseUrl}</dd>
               </div>
               <div>
-                <dt>Authentication</dt>
-                <dd>{context.authMode === 'NONE' ? 'No authentication' : 'UI login'}</dd>
+                <dt>{t('Authentication')}</dt>
+                <dd>{context.authMode === 'NONE' ? t('No authentication') : t('UI login')}</dd>
               </div>
               <div>
-                <dt>Compatibility</dt>
+                <dt>{t('Compatibility')}</dt>
                 <dd>
                   {context.compatibility.status === 'compatible'
-                    ? `Stable baseline ${context.compatibility.baseline}`
+                    ? t('Stable baseline {version}', {
+                        version: context.compatibility.baseline,
+                      })
                     : context.compatibility.warning ?? context.compatibility.status}
                 </dd>
               </div>
             </dl>
             <div className="settings-actions">
               <Link className="button button-secondary" to="/settings/server">
-                Server settings
+                {t('Server settings')}
               </Link>
               <Link className="button button-secondary" to="/settings/backup">
-                Backup settings
+                {t('Backup settings')}
               </Link>
               <Link className="button button-secondary" to="/settings/tracking">
-                Tracking settings
+                {t('Tracking settings')}
               </Link>
               <Link className="button button-secondary" to="/settings/sync">
-                Sync settings
+                {t('Sync settings')}
               </Link>
               <Link className="button button-secondary" to="/settings/history">
-                History settings
+                {t('History settings')}
               </Link>
               <Link className="button button-secondary" to="/settings/device">
-                Device info
+                {t('Device info')}
               </Link>
               <Link className="button button-secondary" to="/about">
-                About &amp; updates
+                {t('About & updates')}
               </Link>
               <button
                 className="button button-secondary"
@@ -93,100 +151,100 @@ function SettingsContent({ context }: { readonly context: ConnectedContext }) {
                   void disconnect().then(() => navigate('/', { replace: true }));
                 }}
               >
-                Disconnect server
+                {t('Disconnect server')}
               </button>
             </div>
           </section>
 
           <section className="settings-section" id="appearance" aria-labelledby="settings-appearance">
             <div className="section-heading-row">
-              <h2 id="settings-appearance">Appearance</h2>
+              <h2 id="settings-appearance">{t('Appearance')}</h2>
             </div>
             <dl className="settings-rows">
               <div>
-                <dt>Theme</dt>
-                <dd>Cinematic dark</dd>
+                <dt>{t('Theme')}</dt>
+                <dd>{t('Cinematic dark')}</dd>
               </div>
               <div>
-                <dt>Accent</dt>
+                <dt>{t('Accent')}</dt>
                 <dd>
                   <span className="settings-swatch" aria-hidden="true" />
-                  Blue-violet
+                  {t('Blue-violet')}
                 </dd>
               </div>
               <div>
-                <dt>Layout</dt>
-                <dd>Responsive with desktop navigation and mobile tab bar</dd>
+                <dt>{t('Layout')}</dt>
+                <dd>{t('Responsive with desktop navigation and mobile tab bar')}</dd>
               </div>
             </dl>
             <div className="settings-actions">
               <Link className="button button-secondary" to="/settings/appearance">
-                Appearance settings
+                {t('Appearance settings')}
               </Link>
             </div>
           </section>
 
           <section className="settings-section" id="library" aria-labelledby="settings-library">
             <div className="section-heading-row">
-              <h2 id="settings-library">Library</h2>
+              <h2 id="settings-library">{t('Library')}</h2>
             </div>
             <dl className="settings-rows">
               <div>
-                <dt>Grid density</dt>
-                <dd>Compact or comfortable poster grid</dd>
+                <dt>{t('Grid density')}</dt>
+                <dd>{t('Compact or comfortable poster grid')}</dd>
               </div>
               <div>
-                <dt>Selection</dt>
-                <dd>Bulk category assignment and library removal</dd>
+                <dt>{t('Selection')}</dt>
+                <dd>{t('Bulk category assignment and library removal')}</dd>
               </div>
             </dl>
             <div className="settings-actions">
               <Link className="button button-secondary" to="/settings/library">
-                Library settings
+                {t('Library settings')}
               </Link>
             </div>
           </section>
 
           <section className="settings-section" id="reading" aria-labelledby="settings-reading">
             <div className="section-heading-row">
-              <h2 id="settings-reading">Reading</h2>
+              <h2 id="settings-reading">{t('Reading')}</h2>
             </div>
             <dl className="settings-rows">
               <div>
-                <dt>Reader mode</dt>
-                <dd>Vertical continuous</dd>
+                <dt>{t('Reader mode')}</dt>
+                <dd>{t('Vertical continuous')}</dd>
               </div>
               <div>
-                <dt>Page loading</dt>
-                <dd>Lazy, authenticated through ResourceService</dd>
+                <dt>{t('Page loading')}</dt>
+                <dd>{t('Lazy, authenticated through ResourceService')}</dd>
               </div>
               <div>
-                <dt>Progress sync</dt>
-                <dd>Last page and read state are written when you read</dd>
+                <dt>{t('Progress sync')}</dt>
+                <dd>{t('Last page and read state are written when you read')}</dd>
               </div>
             </dl>
             <div className="settings-actions">
               <Link className="button button-secondary" to="/settings/reader">
-                Reader settings
+                {t('Reader settings')}
               </Link>
             </div>
           </section>
 
           <section className="settings-section" id="about" aria-labelledby="settings-about">
             <div className="section-heading-row">
-              <h2 id="settings-about">About</h2>
+              <h2 id="settings-about">{t('About')}</h2>
             </div>
             <dl className="settings-rows">
               <div>
-                <dt>Application</dt>
+                <dt>{t('Application')}</dt>
                 <dd>Suwayomi React Frontend</dd>
               </div>
               <div>
-                <dt>API baseline</dt>
+                <dt>{t('API baseline')}</dt>
                 <dd>Suwayomi Server stable v2.4.2366</dd>
               </div>
               <div>
-                <dt>Server platform</dt>
+                <dt>{t('Server platform')}</dt>
                 <dd>
                   {context.serverInfo.platformInfo.os.name} ·{' '}
                   {context.serverInfo.platformInfo.jvm.javaVersion}

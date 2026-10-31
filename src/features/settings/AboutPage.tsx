@@ -12,6 +12,38 @@ import {
   type WebUiUpdateStatusChangeSubscription,
 } from '../../core/graphql/generated/graphql';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  About: 'Tentang',
+  'Server and WebUI build information':
+    'Informasi build server dan WebUI',
+  'All settings': 'Semua pengaturan',
+  'Suwayomi Server': 'Suwayomi Server',
+  'Could not load About information.':
+    'Tidak dapat memuat informasi Tentang.',
+  Name: 'Nama',
+  Version: 'Versi',
+  'Build time': 'Waktu build',
+  'WebUI channel': 'Kanal WebUI',
+  'WebUI tag': 'Tag WebUI',
+  'WebUI checked': 'WebUI diperiksa',
+  Updates: 'Update',
+  'WebUI update': 'Update WebUI',
+  '{tag} available': '{tag} tersedia',
+  'No newer WebUI build reported': 'Tidak ada build WebUI baru',
+  'Update WebUI': 'Perbarui WebUI',
+  'Check server updates': 'Periksa update server',
+  State: 'Status',
+  Progress: 'Progres',
+  Target: 'Target',
+  'WebUI update could not be started.':
+    'Update WebUI tidak dapat dimulai.',
+  'Server update check failed.':
+    'Pemeriksaan update server gagal.',
+  'No server updates reported.': 'Tidak ada update server.',
+});
 
 type WebUIUpdateStatus =
   WebUiUpdateStatusChangeSubscription['webUIUpdateStatusChange'];
@@ -27,6 +59,7 @@ export function AboutPage() {
 }
 
 function AboutContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const about = useQuery(AboutPageDocument, { fetchPolicy: 'cache-and-network' });
   const [updates, setUpdates] = useState<
     ServerUpdateCheckQuery['checkForServerUpdates'] | null
@@ -84,9 +117,12 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title="About" subtitle="Server and WebUI build information">
+      <PageHeader
+        title={t('About')}
+        subtitle={t('Server and WebUI build information')}
+      >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
@@ -100,35 +136,35 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
           ) : null}
           {about.error ? (
             <p className="settings-inline-error" role="alert">
-              Could not load About information.
+              {t('Could not load About information.')}
             </p>
           ) : null}
           {about.data ? (
             <dl className="settings-rows">
               <div>
-                <dt>Name</dt>
+                <dt>{t('Name')}</dt>
                 <dd>{about.data.aboutServer.name}</dd>
               </div>
               <div>
-                <dt>Version</dt>
+                <dt>{t('Version')}</dt>
                 <dd>
                   {about.data.aboutServer.version} · {about.data.aboutServer.buildType}
                 </dd>
               </div>
               <div>
-                <dt>Build time</dt>
+                <dt>{t('Build time')}</dt>
                 <dd>{about.data.aboutServer.buildTime}</dd>
               </div>
               <div>
-                <dt>WebUI channel</dt>
+                <dt>{t('WebUI channel')}</dt>
                 <dd>{about.data.aboutWebUI.channel}</dd>
               </div>
               <div>
-                <dt>WebUI tag</dt>
+                <dt>{t('WebUI tag')}</dt>
                 <dd>{about.data.aboutWebUI.tag}</dd>
               </div>
               <div>
-                <dt>WebUI checked</dt>
+                <dt>{t('WebUI checked')}</dt>
                 <dd>{about.data.aboutWebUI.updateTimestamp}</dd>
               </div>
             </dl>
@@ -137,15 +173,17 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
 
         <section className="settings-section" aria-labelledby="about-updates">
           <div className="section-heading-row">
-            <h2 id="about-updates">Updates</h2>
+            <h2 id="about-updates">{t('Updates')}</h2>
           </div>
           <dl className="settings-rows">
             <div>
-              <dt>WebUI update</dt>
+              <dt>{t('WebUI update')}</dt>
               <dd>
                 {about.data?.checkForWebUIUpdate.updateAvailable
-                  ? `${about.data.checkForWebUIUpdate.tag} available`
-                  : 'No newer WebUI build reported'}
+                  ? t('{tag} available', {
+                      tag: about.data.checkForWebUIUpdate.tag,
+                    })
+                  : t('No newer WebUI build reported')}
               </dd>
             </div>
           </dl>
@@ -172,15 +210,15 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
           {updateStatus ? (
             <dl className="settings-rows" aria-label="WebUI update status">
               <div>
-                <dt>State</dt>
+                <dt>{t('State')}</dt>
                 <dd>{updateStatus.state}</dd>
               </div>
               <div>
-                <dt>Progress</dt>
+                <dt>{t('Progress')}</dt>
                 <dd>{updateStatus.progress}%</dd>
               </div>
               <div>
-                <dt>Target</dt>
+                <dt>{t('Target')}</dt>
                 <dd>
                   {updateStatus.info.channel} · {updateStatus.info.tag}
                 </dd>
@@ -189,12 +227,12 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
           ) : null}
           {updateError ? (
             <p className="settings-inline-error" role="alert">
-              WebUI update could not be started.
+              {t('WebUI update could not be started.')}
             </p>
           ) : null}
           {checkError ? (
             <p className="settings-inline-error" role="alert">
-              Server update check failed.
+              {t('Server update check failed.')}
             </p>
           ) : null}
           {updates ? (
@@ -217,7 +255,7 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
                 ))}
               </dl>
             ) : (
-              <p className="settings-save-state">No server updates reported.</p>
+              <p className="settings-save-state">{t('No server updates reported.')}</p>
             )
           ) : null}
         </section>

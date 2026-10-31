@@ -6,6 +6,28 @@ import { createExtensionController } from '../../core/extensions/extensionContro
 import { createExtensionRepository, type Extension } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Extension: 'Ekstensi',
+  'Extension not found': 'Ekstensi tidak ditemukan',
+  'Back to extensions': 'Kembali ke ekstensi',
+  Version: 'Versi',
+  Language: 'Bahasa',
+  Store: 'Toko',
+  Unknown: 'Tidak diketahui',
+  Status: 'Status',
+  Installed: 'Terpasang',
+  Available: 'Tersedia',
+  'Update available': 'Update tersedia',
+  Obsolete: 'Usang',
+  'Content warning': 'Peringatan konten',
+  Install: 'Pasang',
+  Update: 'Update',
+  Uninstall: 'Copot',
+  'Working…': 'Memproses…',
+});
 
 export function ExtensionDetailPage() {
   const { state } = useConnection();
@@ -18,6 +40,7 @@ export function ExtensionDetailPage() {
 }
 
 function ExtensionDetailContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const { pkgName = '' } = useParams();
   const controller = useMemo(
     () =>
@@ -49,11 +72,11 @@ function ExtensionDetailContent({ context }: { readonly context: ConnectedContex
   if (!extension) {
     return (
       <div className="app-shell page-shell extensions-shell">
-        <PageHeader title="Extension" subtitle={pkgName} />
+        <PageHeader title={t('Extension')} subtitle={pkgName} />
         <div className="library-state">
-          <h1>Extension not found</h1>
+          <h1>{t('Extension not found')}</h1>
           <Link className="button button-secondary" to="/extensions">
-            Back to extensions
+            {t('Back to extensions')}
           </Link>
         </div>
       </div>
@@ -90,6 +113,7 @@ function ExtensionDetail({
   readonly busy: boolean;
   readonly onAction: (action: 'install' | 'update' | 'uninstall') => void;
 }) {
+  const { t } = useI18n();
   const icon = useImageResource(context.resources, extension.iconUrl);
   const action = !extension.isInstalled
     ? 'install'
@@ -101,7 +125,7 @@ function ExtensionDetail({
     <div className="app-shell page-shell extensions-shell">
       <PageHeader title={extension.name} subtitle={extension.pkgName}>
         <Link className="button button-secondary" to="/extensions">
-          Back to extensions
+          {t('Back to extensions')}
         </Link>
       </PageHeader>
 
@@ -115,27 +139,27 @@ function ExtensionDetail({
         </span>
         <dl className="settings-rows">
           <div>
-            <dt>Version</dt>
+            <dt>{t('Version')}</dt>
             <dd>{extension.versionName}</dd>
           </div>
           <div>
-            <dt>Language</dt>
+            <dt>{t('Language')}</dt>
             <dd>{extension.lang.toUpperCase()}</dd>
           </div>
           <div>
-            <dt>Store</dt>
-            <dd>{extension.extensionStore?.name ?? 'Unknown'}</dd>
+            <dt>{t('Store')}</dt>
+            <dd>{extension.extensionStore?.name ?? t('Unknown')}</dd>
           </div>
           <div>
-            <dt>Status</dt>
+            <dt>{t('Status')}</dt>
             <dd>
-              {extension.isInstalled ? 'Installed' : 'Available'}
+              {extension.isInstalled ? t('Installed') : t('Available')}
               {extension.hasUpdate ? ' · Update available' : ''}
               {extension.isObsolete ? ' · Obsolete' : ''}
             </dd>
           </div>
           <div>
-            <dt>Content warning</dt>
+            <dt>{t('Content warning')}</dt>
             <dd>{extension.contentWarning}</dd>
           </div>
         </dl>
@@ -149,10 +173,10 @@ function ExtensionDetail({
             {busy
               ? 'Working…'
               : action === 'install'
-                ? 'Install'
+                ? t('Install')
                 : action === 'update'
-                  ? 'Update'
-                  : 'Uninstall'}
+                  ? t('Update')
+                  : t('Uninstall')}
           </button>
         </div>
       </article>
