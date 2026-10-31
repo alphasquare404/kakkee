@@ -184,17 +184,17 @@ Real server `https://suwayomi.alphasquare.my.id`, auth `NONE`, v2.4.2366:
 npm run codegen:check  PASS
 npm run lint           PASS
 npm run typecheck      PASS
-npm run test           PASS — 347 passed, 7 skipped (354 total)
+npm run test           PASS — 350 passed, 7 skipped (357 total)
 npm run build          PASS
 ```
 
-Build code-splits Manga Detail, Reader, and secondary pages. Main JS 576.48 kB (gzip 161.47 kB), CSS 67.03 kB (gzip 12.32 kB), detail 27.63 kB, reader 12.78 kB, reader settings 6.12 kB, extensions 7.92 kB, source manga 5.86 kB, backup 4.89 kB, sync 4.33 kB, tracking 4.03 kB, device 2.90 kB, history settings 1.17 kB, downloads 7.18 kB, server settings 7.11 kB, categories 6.65 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
+Build code-splits Manga Detail, Reader, and secondary pages. Main JS 579.55 kB (gzip 161.67 kB), CSS 68.19 kB (gzip 12.44 kB), detail 27.63 kB, reader 12.78 kB, global search 4.36 kB, extensions 7.92 kB, source manga 5.86 kB, backup 4.89 kB, sync 4.33 kB, tracking 4.03 kB, device 2.90 kB, history settings 1.17 kB, downloads 7.18 kB, server settings 7.11 kB, categories 6.65 kB, reader settings 6.12 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
 
 PWA production preview at root:
 
 - manifest errors: none
 - installability errors: none
-- CacheStorage only Workbox shell (35 entries): index, JS/CSS, workbox-window, icons, manifest, dynamic route chunks
+- CacheStorage only Workbox shell (36 entries): index, JS/CSS, workbox-window, icons, manifest, dynamic route chunks
 - private entries (`/api`, GraphQL, thumbnail/page): none
 - console errors: none
 

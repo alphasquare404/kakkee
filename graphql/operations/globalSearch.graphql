@@ -1,0 +1,25 @@
+query GlobalSearch($search: String!) {
+  mangas(
+    filter: { title: { includesInsensitive: $search } }
+    order: [{ by: TITLE, byType: ASC }]
+    first: 60
+  ) {
+    totalCount
+    nodes {
+      id
+      title
+      thumbnailUrl
+      inLibrary
+      unreadCount
+    }
+  }
+  sources(filter: { name: { includesInsensitive: $search } }, first: 20) {
+    totalCount
+    nodes {
+      id
+      name
+      displayName
+      lang
+    }
+  }
+}

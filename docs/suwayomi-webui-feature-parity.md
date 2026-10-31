@@ -220,7 +220,7 @@ frontend.
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | `/settings/server` reads and writes safe update/download/system settings; auth/database/OPDS/KOReader editing absent |
 | Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
 | Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
-| Global search | Search all sources, global source filter, library counts | `Missing` | Yes | |
+| Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources; live fetch across every source and source filter absent |
 | Global search | Search history/suggestions | `Missing` | Client metadata | |
 | Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |

@@ -87,6 +87,15 @@ function ExtensionsIcon() {
   );
 }
 
+function SearchIcon() {
+  return (
+    <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
+      <circle cx="8.8" cy="8.8" r="5.2" stroke="currentColor" strokeWidth="1.3" />
+      <path d="m12.7 12.7 3.2 3.2" stroke="currentColor" strokeLinecap="round" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
 function SettingsIcon() {
   return (
     <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -100,6 +109,7 @@ const NAV_ITEMS = [
   { to: '/library', label: 'Library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
   { to: '/updates', label: 'Updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
   { to: '/browse', label: 'Browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' },
+  { to: '/search', label: 'Search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
   { to: '/extensions', label: 'Extensions', icon: ExtensionsIcon, mobile: false, match: (path: string) => path === '/extensions' },
   { to: '/categories', label: 'Categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
   { to: '/history', label: 'History', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },

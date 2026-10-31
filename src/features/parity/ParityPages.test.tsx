@@ -14,6 +14,7 @@ import {
   CreateBackupDocument,
   ExtensionsCatalogDocument,
   FetchSourceMangaDocument,
+  GlobalSearchDocument,
   ServerSettingsDocument,
   SourceCatalogDocument,
   SourceInfoDocument,
@@ -172,6 +173,55 @@ function renderPage(
 }
 
 describe('parity pages', () => {
+  it('searches manga and sources globally', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === GlobalSearchDocument) {
+        return {
+          data: {
+            mangas: {
+              __typename: 'MangaNodeList',
+              totalCount: 1,
+              nodes: [
+                {
+                  __typename: 'MangaType',
+                  id: 1,
+                  title: 'Alpha',
+                  thumbnailUrl: null,
+                  inLibrary: true,
+                  unreadCount: 2,
+                },
+              ],
+            },
+            sources: {
+              __typename: 'SourceNodeList',
+              totalCount: 1,
+              nodes: [
+                {
+                  __typename: 'SourceType',
+                  id: '42',
+                  name: 'Example',
+                  displayName: 'Example Source',
+                  lang: 'en',
+                },
+              ],
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/search', query);
+    const user = userEvent.setup();
+    const input = await screen.findByLabelText('Search all manga');
+
+    await user.type(input, 'alpha');
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+
+    expect(await screen.findByText('Alpha')).toBeTruthy();
+    expect(screen.getByText('Example Source')).toBeTruthy();
+  });
+
   it('toggles hide-read history preference', async () => {
     const query = vi.fn(async () => ({ data: {} }));
     renderPage('/settings/history', query);
