@@ -257,17 +257,25 @@ frontend.
 
 ## Audit notes
 
-- The upstream release adds fuzzy library search, search autocomplete/history,
+- Re-audit **2026-10-31**: stable `v2.4.2366` and preview `v2.4.2435`
+  (master commit `6b481e8b62938b9c060eb210b934e0fbfdfa466b`) were checked.
+  The 19 `Blocked by server` rows remain unavailable in both:
+  - no migration query/mutation or migration-match API;
+  - `MangaOrderBy` still has no random value; no fuzzy/autocomplete/suggestion endpoint;
+  - no clear/remove-history mutation, history-recording setting, or retention setting;
+  - `DownloadType` has no speed field and no image-processing settings;
+  - `MangaType` has no related/recommendation field;
+  - no remote device-management query or mutation.
+- Upstream release also adds fuzzy library search, search autocomplete/history,
   per-manga notes, retry-all-failed downloads, reader fullscreen, library filter
   reset, tracker filter AND/OR, sync buttons, and extension-search suggestions.
-  These are included above.
+  These are included above where the server API exists.
 - Upstream uses MUI and its own navigation/layout. This frontend deliberately
   does not copy those choices; our shell, surfaces, density, and motion come from
   the local `Refrence/` images.
-- The stable server schema exposes the mutations and queries needed by the
-  missing areas above (manga/chapter/category updates, downloads, extensions,
-  migration/source metadata, trackers, backup/restore, sync, settings). No
-  blanket "blocked by server" claim is justified.
+- The stable server schema does **not** expose a migration API; the earlier note
+  claiming otherwise was incorrect. Blocked rows are limited to the 19 listed,
+  each with schema evidence.
 - Platform limitations are explicit: iOS fullscreen behavior, Wake Lock
   availability, secure-context share, Web Locks for migration resume, and native
   WebView/Electron flows.
