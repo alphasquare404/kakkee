@@ -281,6 +281,23 @@ export function ReaderSettingsPage() {
               </dd>
             </div>
             <div>
+              <dt>Stretch small pages</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.stretchSmallPages}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        stretchSmallPages: event.target.checked,
+                      })
+                    }
+                  />
+                  Scale narrow pages to the reading width
+                </label>
+              </dd>
+            </div>
+            <div>
               <dt>
                 <label htmlFor="reader-direction">Reading direction</label>
               </dt>

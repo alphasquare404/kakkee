@@ -72,6 +72,7 @@ export interface ReaderSettings {
   readonly brightnessPct: number;
   readonly contrastPct: number;
   readonly saturationPct: number;
+  readonly stretchSmallPages: boolean;
   readonly scale: ReaderScale;
   readonly direction: ReaderDirection;
   readonly keepScreenOn: boolean;
@@ -97,6 +98,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   brightnessPct: 100,
   contrastPct: 100,
   saturationPct: 100,
+  stretchSmallPages: false,
   scale: 'fit-width',
   direction: 'ltr',
   keepScreenOn: false,
@@ -158,6 +160,7 @@ function load(): ReaderSettings {
         200,
         DEFAULT_READER_SETTINGS.saturationPct,
       ),
+      stretchSmallPages: parsed.stretchSmallPages === true,
       scale: isReaderScale(parsed.scale)
         ? parsed.scale
         : DEFAULT_READER_SETTINGS.scale,
@@ -345,6 +348,10 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       200,
       base.saturationPct,
     ),
+    stretchSmallPages:
+      typeof patch.stretchSmallPages === 'boolean'
+        ? patch.stretchSmallPages
+        : base.stretchSmallPages,
     scale: isReaderScale(patch.scale) ? patch.scale : base.scale,
     direction: patch.direction === 'rtl' ? 'rtl' : patch.direction === 'ltr' ? 'ltr' : base.direction,
     keepScreenOn:

@@ -1,0 +1,16 @@
+query UpdatesContinue {
+  mangas(condition: { inLibrary: true }, first: 24) {
+    nodes {
+      id
+      title
+      thumbnailUrl
+      firstUnreadChapter {
+        id
+        name
+        chapterNumber
+        pageCount
+        lastPageRead
+      }
+    }
+  }
+}

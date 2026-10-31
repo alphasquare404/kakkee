@@ -64,13 +64,16 @@ frontend.
 | Library | List / comfortable grid / compact grid | `Implemented` | Client concern | Grid/list toggle plus compact/comfortable density |
 | Library | Categories and category counts | `Implemented` | Yes | Category tabs in Library and the Categories page both show real manga counts |
 | Library | Search | `Implemented` | Yes | Server-side search |
-| Library | Fuzzy search | `Partial` | Client-side/upstream metadata | Token/subsequence fuzzy filter over loaded titles; not a server-wide fuzzy query |
-| Library | Search autocomplete and search history | `Partial` | Client-side | Recent-search suggestions and history stored per device; remote autocomplete absent |
+| Library | Local fuzzy title filter | `Implemented` | Client-side | Token/subsequence fuzzy filter over loaded titles |
+| Library | Server-wide fuzzy search | `Blocked by server` | Server metadata | Stable title filter exposes includesInsensitive only; no fuzzy ranking endpoint |
+| Library | Local search history and suggestions | `Implemented` | Client-side | Recent-search suggestions and history stored per device |
+| Library | Remote search autocomplete | `Blocked by server` | Server metadata | No autocomplete/suggestion endpoint in the stable schema |
 | Library | Reset all filters | `Implemented` | Client concern | Resets search, status, category, random mode, and default sort |
 | Library | Status, source, tracker, unread, started, downloaded, bookmarked filters | `Implemented` | Yes | Status, source, tracked, unread, started, downloaded, and bookmarked filters |
 | Library | Filter AND/OR mode and saved defaults | `Implemented` | Yes | Status OR set, AND with source/category, saved defaults include the OR set |
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
-| Library | Random manga / random sort | `Partial` | Client concern | Shuffles loaded cards; not a server-wide random query |
+| Library | Local loaded-page shuffle | `Implemented` | Client concern | Shuffles loaded cards for the Random sort |
+| Library | Server-wide random order | `Blocked by server` | Server metadata | MangaOrderBy has no random value |
 | Library | Continue-reading button / tooltip | `Implemented` | Reading progress | Progress chip, tooltip, and direct resume button with saved page |
 | Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
 | Library | Bulk download, delete downloads, mark read/unread | `Implemented` | Yes | All four bulk actions implemented with confirmation for delete |
@@ -97,7 +100,8 @@ frontend.
 | Manga | Tracker binding/score/status | `Implemented` | Yes | Search/bind/unbind with private option, status and score editing |
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
-| Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
+| Manga | Overview/Chapters tab organization | `Implemented` | Client concern | Anchor tabs for Overview and Chapters |
+| Manga | Related/recommendations | `Blocked by server` | Server metadata | Stable schema exposes no related or recommendation query |
 | Manga | Per-manga reader settings | `Partial` | Client concern | Per-manga reading-mode override; other reader settings remain global |
 | Manga | Mark all previous chapters read | `Implemented` | Yes | Per-chapter Prev action marks older unread chapters read |
 
@@ -107,7 +111,7 @@ frontend.
 |---|---|---|---|---|
 | Chapters | Chapter list with state, date, page count | `Implemented` | Yes | |
 | Chapters | Chapter pagination / load more | `Implemented` | Yes | |
-| Chapters | Select single/multiple/range chapters | `Partial` | Client concern | Multi-select with shift-click range; long-press absent |
+| Chapters | Select single/multiple/range chapters | `Implemented` | Client concern | Selection mode, shift-click range, and 500 ms long-press selection |
 | Chapters | Bookmark/unbookmark | `Implemented` | Yes | Per-chapter and bulk bookmark toggles plus bookmarked filter |
 | Chapters | Mark read/unread and mark previous read | `Implemented` | Yes | Single toggle, bulk read/unread, and per-chapter mark-previous |
 | Chapters | Download/delete download | `Implemented` | Yes | Per-chapter and bulk enqueue/delete, plus Downloads queue and Reader actions |
@@ -128,7 +132,7 @@ frontend.
 | Reader | Webtoon mode + auto detection | `Implemented` | Client-side | Webtoon layout plus optional first-page height/width auto detection |
 | Reader | Reading direction (LTR/RTL) | `Implemented` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Implemented` | Client-side | Fit width, fit height, fit screen, and original size |
-| Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
+| Reader | Stretch/scale small pages and custom width | `Implemented` | Client-side | Custom reading width, gap, background, and stretch-small-pages toggle |
 | Reader | Page gap, first-page offset, safe-area inset | `Implemented` | Client-side | Gap, first-page offset, safe-area padding, and per-mode layout defaults |
 | Reader | Reader defaults per mode | `Implemented` | Client metadata | Save layout per mode and restore on mode switch |
 | Reader | Per-device reader profiles | `Implemented` | Metadata/settings | Per-mode layouts stored per device |
@@ -143,9 +147,9 @@ frontend.
 | Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
 | Reader | Custom keybindings | `Implemented` | Client-side | Configurable previous/next page and back keys, with Shift chapter navigation |
 | Reader | Tap zones and touch drag scrolling | `Implemented` | Client-side | Left/right tap zones plus horizontal swipe paging in paged modes |
-| Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
+| Reader | Keep screen on | `Platform limitation` | Wake Lock API availability | Wake Lock is used where supported; denial or missing API is non-fatal |
 | Reader | Auto background color | `Implemented` | Client-side | Samples the current page and tints the Reader background when enabled |
-| Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
+| Reader | Fullscreen | `Platform limitation` | Browser Fullscreen API availability | Fullscreen API used where available; iOS Safari has no equivalent |
 | Reader | Download next chapter / delete after reading | `Implemented` | Yes | Active chapter download/delete, download next chapter, and opt-in delete-after-reading |
 | Reader | Bookmark/library actions from reader | `Implemented` | Yes | Bookmark toggle and add/remove library from Reader |
 | Reader | Chapter list overlay/sidebar | `Implemented` | Yes | Right-side chapter overlay with active/read markers and chapter navigation |
@@ -154,19 +158,23 @@ frontend.
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Updates | Latest chapters from library | `Partial` | Yes | ChapterFeed grouped by day; no "first unread per manga" semantics |
-| Updates | Unread/read filters, scanlator, state | `Partial` | Yes | All/Unread/Read; no scanlator filter |
+| Updates | Latest chapters from library | `Implemented` | Yes | Day-grouped ChapterFeed plus a Continue reading section driven by firstUnreadChapter |
+| Updates | Unread/read filters, scanlator, state | `Implemented` | Yes | All/Unread/Read filters plus scanlator filter derived from the feed |
 | Updates | Chapter/manga actions | `Partial` | Yes | Mark read/unread and download from feed; broader manga actions absent |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |
 | History | Reading history entries | `Implemented` | Yes | Real lastReadAt feed; reader progress writes populate it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
-| History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
-| History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
+| History | Resume history entry | `Implemented` | Yes | Resume link includes the saved page |
+| History | Clear/remove history | `Blocked by server` | Server metadata | Stable schema exposes no clear/remove-history mutation |
+| History | Client hide-read filter | `Implemented` | Metadata | Client-side hide-read filter stored per device |
+| History | Server-side hidden history | `Blocked by server` | Server metadata | No setting or mutation to prevent server history recording |
 | Downloads | Download queue, active/queued/failed states | `Implemented` | DownloadStatus + subscriptions | Queue, state, progress, tries, pause/resume/cancel, grouping, and live subscription refresh |
 | Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
-| Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Manga grouping, series cancel, and progress; speed absent |
+| Downloads | Grouping, bulk series actions, progress | `Implemented` | Yes | Manga grouping, series cancel, and progress |
+| Downloads | Download speed | `Blocked by server` | Server metadata | DownloadStatus/DownloadType expose no speed field |
 | Downloads | List downloaded chapters | `Implemented` | Yes | Real `isDownloaded` feed with delete action |
-| Downloads | Download/conversion/image settings | `Partial` | Yes | Download/serve conversion list editor; image processing settings absent |
+| Downloads | Download/serve conversion lists | `Implemented` | Yes | Download and serve conversion list editor |
+| Downloads | Image processing settings | `Blocked by server` | Server metadata | Stable schema exposes no image-processing settings |
 
 ### Browse / Sources / Extensions
 
@@ -213,15 +221,19 @@ frontend.
 | Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark and pure-black themes plus persisted custom accent color |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Implemented` | Metadata | Density, grid/list, badges, continue-reading visibility, and fuzzy filter |
-| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, conversion lists, and cache clearing; image processing absent |
+| Settings | Download preferences and cache | `Implemented` | Yes | Download toggles/limits, CBZ, conversion lists, and cache clearing |
+| Settings | Image processing settings | `Blocked by server` | Server metadata | Stable schema exposes no image-processing settings |
 | Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
-| Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
+| Settings | Client hide-read preference | `Implemented` | Metadata | Hide-read preference stored per device |
+| Settings | Server history retention | `Blocked by server` | Server metadata | No retention/history-recording setting in the stable schema |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | Update/download/system plus OPDS and KOReader sync editing; auth/database remain read-only |
 | Settings | WebUI channel/flavor/update settings | `Implemented` | Yes | Channel/flavor/interface shown plus WebUI update action and live status on About |
-| Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
+| Settings | Local device information | `Implemented` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities |
+| Settings | Remote device management | `Blocked by server` | Server metadata | Stable schema exposes no device-management query or mutation |
 | Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources with source filter and in-library counts; live fetch across every source absent |
-| Global search | Search history/suggestions | `Partial` | Client metadata | Recent global searches stored per device; remote suggestions absent |
+| Global search | Local search history | `Implemented` | Client metadata | Recent global searches stored per device |
+| Global search | Remote search suggestions | `Blocked by server` | Server metadata | No suggestion/autocomplete endpoint in the stable schema |
 | Hotkeys | Configurable app/reader hotkeys | `Implemented` | Client concern | Reader page/back keys configurable; Shift preserves chapter navigation |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |

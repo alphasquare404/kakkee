@@ -767,8 +767,8 @@ function ConnectedReader({
       {activeChapter && reader.pages.length > 0 ? (
         <main
           className={`reader-pages mode-${readingMode} scale-${readerSettings.scale}${
-            readerSettings.direction === 'rtl' ? ' is-rtl' : ''
-          }`}
+            readerSettings.stretchSmallPages ? ' stretch-small' : ''
+          }${readerSettings.direction === 'rtl' ? ' is-rtl' : ''}`}
           aria-label={`${activeChapter.name} pages`}
           onClick={selectPageFromTap}
           onPointerDown={beginSwipe}

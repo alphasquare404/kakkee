@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -6,8 +7,10 @@ import {
   type FeedChapter,
 } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
+import { UpdatesContinueDocument, type UpdatesContinueQuery } from '../../core/graphql/generated/graphql';
 import { feedDay, formatRelativeTime } from '../../shared/feedTime';
 import { FeedRow } from '../../shared/FeedRow';
+import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
 import { createMangaRepository } from '../../core/manga/mangaRepository';
@@ -43,6 +46,7 @@ export function UpdatesPage() {
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [scanlator, setScanlator] = useState('all');
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
   const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
     new Set(),
@@ -68,17 +72,59 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     [repository],
   );
   const feed = useSyncExternalStore(controller.subscribe, controller.getState);
+  const continueController = useMemo(
+    () =>
+      createLoadableController({
+        load: async () => {
+          const result = await context.graphQL.query({
+            query: UpdatesContinueDocument,
+            fetchPolicy: 'network-only',
+          });
+
+          if (!result.data) {
+            throw new Error('Continue reading feed is unavailable.');
+          }
+
+          return result.data;
+        },
+      }),
+    [context.graphQL],
+  );
+  const continueFeed = useSyncExternalStore(
+    continueController.subscribe,
+    continueController.getState,
+  );
 
   useEffect(() => {
     void controller.load();
-  }, [controller]);
+    void continueController.load();
+  }, [continueController, controller]);
+
+  const continueItems = (continueFeed.data?.mangas.nodes ?? []).filter(
+    (manga) => manga.firstUnreadChapter !== null,
+  );
 
   const items = feed.data?.items ?? [];
   const unread = items.filter((item) => !item.isRead).length;
   const read = items.length - unread;
-  const visible = items.filter((item) =>
-    filter === 'all' ? true : filter === 'unread' ? !item.isRead : item.isRead,
-  );
+  const scanlators = [
+    ...new Set(
+      items
+        .map((item) => item.scanlator)
+        .filter((value): value is string => Boolean(value)),
+    ),
+  ].sort();
+  const visible = items.filter((item) => {
+    if (scanlator !== 'all' && item.scanlator !== scanlator) {
+      return false;
+    }
+
+    return filter === 'all'
+      ? true
+      : filter === 'unread'
+        ? !item.isRead
+        : item.isRead;
+  });
   const groups = groupFeed(visible);
 
   return (
@@ -112,8 +158,43 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
             </button>
           ))}
         </div>
+        {scanlators.length > 0 ? (
+          <label className="chapter-select">
+            <span className="sr-only">Filter updates by scanlator</span>
+            <select
+              aria-label="Filter updates by scanlator"
+              value={scanlator}
+              onChange={(event) => setScanlator(event.target.value)}
+            >
+              <option value="all">All scanlators</option>
+              {scanlators.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <span className="feed-sort">Newest first</span>
       </div>
+
+      {continueItems.length > 0 ? (
+        <section className="updates-continue" aria-labelledby="updates-continue-heading">
+          <div className="section-heading-row">
+            <h2 id="updates-continue-heading">Continue reading</h2>
+            <span>{continueItems.length} manga</span>
+          </div>
+          <div className="updates-continue-grid">
+            {continueItems.map((manga) => (
+              <ContinueCard
+                key={manga.id}
+                manga={manga}
+                resources={context.resources}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {feed.isLoading && !feed.data ? (
         <div className="feed-skeleton" aria-hidden="true">
@@ -217,5 +298,41 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         </p>
       ) : null}
     </div>
+  );
+}
+
+function ContinueCard({
+  manga,
+  resources,
+}: {
+  readonly manga: UpdatesContinueQuery['mangas']['nodes'][number];
+  readonly resources: ConnectedContext['resources'];
+}) {
+  const chapter = manga.firstUnreadChapter;
+  const image = useImageResource(resources, manga.thumbnailUrl);
+
+  if (!chapter) {
+    return null;
+  }
+
+  return (
+    <Link
+      className="updates-continue-card"
+      to={`/manga/${manga.id}/chapter/${chapter.id}${
+        chapter.lastPageRead > 0 ? `?page=${chapter.lastPageRead + 1}` : ''
+      }`}
+    >
+      <span className="updates-continue-cover" aria-hidden="true">
+        {image.objectUrl ? (
+          <img src={image.objectUrl} alt="" loading="lazy" decoding="async" />
+        ) : (
+          <span>{manga.title.charAt(0).toUpperCase() || 'M'}</span>
+        )}
+      </span>
+      <span>
+        <strong>{manga.title}</strong>
+        <small>{chapter.name}</small>
+      </span>
+    </Link>
   );
 }

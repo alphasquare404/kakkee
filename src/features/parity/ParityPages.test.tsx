@@ -77,6 +77,7 @@ function chapterFeed(): ChapterFeedQuery {  return {
           lastPageRead: 0,
           lastReadAt: '0',
           uploadDate: String(Date.now() - 3_600_000),
+          scanlator: null,
           manga: {
             __typename: 'MangaType',
             id: 1,
@@ -102,6 +103,7 @@ function historyFeed(): ChapterFeedQuery {
     lastPageRead: page,
     lastReadAt: now,
     uploadDate: now,
+    scanlator: null,
     manga: {
       __typename: 'MangaType' as const,
       id: mangaId,

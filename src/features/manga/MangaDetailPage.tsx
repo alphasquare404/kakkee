@@ -150,6 +150,8 @@ function ConnectedMangaDetail({
   const [chapterBulkBusy, setChapterBulkBusy] = useState(false);
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
+  const chapterLongPressTimer = useRef<number | null>(null);
+  const chapterLongPressTriggered = useRef(false);
   const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
     new Set(),
   );
@@ -296,6 +298,28 @@ function ConnectedMangaDetail({
       return next;
     });
     setLastSelectedChapterIndex(index);
+  };
+
+  const clearChapterLongPress = () => {
+    if (chapterLongPressTimer.current !== null) {
+      window.clearTimeout(chapterLongPressTimer.current);
+      chapterLongPressTimer.current = null;
+    }
+  };
+
+  const startChapterLongPress = (chapterId: number, index: number) => {
+    if (chapterSelectionMode) {
+      return;
+    }
+
+    clearChapterLongPress();
+    chapterLongPressTriggered.current = false;
+    chapterLongPressTimer.current = window.setTimeout(() => {
+      chapterLongPressTriggered.current = true;
+      setChapterSelectionMode(true);
+      setSelectedChapterIds(new Set([chapterId]));
+      setLastSelectedChapterIndex(index);
+    }, 500);
   };
 
   const runChapterBulkAction = async (
@@ -768,6 +792,20 @@ function ConnectedMangaDetail({
                     <Link
                       className="chapter-row"
                       to={`/manga/${manga.id}/chapter/${chapter.id}`}
+                      onPointerDown={() =>
+                        startChapterLongPress(chapter.id, index)
+                      }
+                      onPointerUp={clearChapterLongPress}
+                      onPointerCancel={clearChapterLongPress}
+                      onPointerLeave={clearChapterLongPress}
+                      onClick={(event) => {
+                        clearChapterLongPress();
+
+                        if (chapterLongPressTriggered.current) {
+                          event.preventDefault();
+                          chapterLongPressTriggered.current = false;
+                        }
+                      }}
                     >
                       <span className="chapter-play" aria-hidden="true">
                         ▶

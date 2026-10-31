@@ -14,6 +14,7 @@ query ChapterFeed(
       lastPageRead
       lastReadAt
       uploadDate
+      scanlator
       manga {
         id
         title

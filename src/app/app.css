@@ -2780,6 +2780,13 @@ button.manga-card-link {
   object-fit: contain;
 }
 
+.reader-pages.stretch-small .reader-page img {
+  width: 100%;
+  max-width: var(--reader-width);
+  height: auto;
+  object-fit: contain;
+}
+
 .reader-pages.scale-original .reader-page img {
   width: auto;
   max-width: none;
@@ -3410,6 +3417,64 @@ button.manga-card-link {
   border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
   border-radius: 999px;
   background: var(--accent-soft);
+}
+
+.updates-continue {
+  margin-bottom: var(--sp-4);
+}
+
+.updates-continue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--sp-2);
+}
+
+.updates-continue-card {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  min-width: 0;
+  padding: 0.45rem;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-sunken);
+}
+
+.updates-continue-card > span:last-child {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.updates-continue-card strong,
+.updates-continue-card small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.updates-continue-card small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.updates-continue-cover {
+  display: grid;
+  flex: 0 0 2.5rem;
+  place-items: center;
+  width: 2.5rem;
+  height: 3.2rem;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--surface-strong);
+}
+
+.updates-continue-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .feed-skeleton {
