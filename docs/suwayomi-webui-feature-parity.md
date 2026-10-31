@@ -129,9 +129,9 @@ frontend.
 | Reader | Reading direction (LTR/RTL) | `Partial` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Partial` | Client-side | Fit width, fit height, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
-| Reader | Page gap, first-page offset, safe-area inset | `Partial` | Client-side | Gap, first-page offset slider, and safe-area padding implemented; per-mode defaults absent |
-| Reader | Reader defaults per mode | `Missing` | Client metadata | |
-| Reader | Per-device reader profiles | `Missing` | Metadata/settings | |
+| Reader | Page gap, first-page offset, safe-area inset | `Implemented` | Client-side | Gap, first-page offset, safe-area padding, and per-mode layout defaults |
+| Reader | Reader defaults per mode | `Implemented` | Client metadata | Save layout per mode and restore on mode switch |
+| Reader | Per-device reader profiles | `Implemented` | Metadata/settings | Per-mode layouts stored per device |
 | Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
 | Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
@@ -211,7 +211,7 @@ frontend.
 | Sync | Sync settings (Yomi, intervals, data selection) | `Partial` | Yes | Data toggles, Yomi enablement/host, and interval shown; API key editing absent |
 | Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
-| Settings | Reader defaults and device profiles | `Partial` | Client metadata | `/settings/reader` stores width, gap, background per device; modes/profiles absent |
+| Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
 | Settings | Browse/source/extension-store settings | `Partial` | Yes | Extension stores can be added/removed; source preferences absent |

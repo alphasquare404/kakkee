@@ -5,6 +5,7 @@ import {
   DEFAULT_READER_SETTINGS,
   getReaderSettings,
   resetReaderSettings,
+  saveReaderModeProfile,
   updateReaderSettings,
 } from './readerSettings';
 
@@ -44,10 +45,30 @@ describe('reader settings', () => {
       keepScreenOn: true,
       firstPageOffset: 24,
       skipDuplicates: true,
+      profiles: {},
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(
       '"widthRem":72',
     );
+  });
+
+  it('restores a saved layout when switching back to a mode', () => {
+    updateReaderSettings({
+      mode: 'single',
+      widthRem: 55,
+      filter: 'sepia',
+      scale: 'fit-height',
+    });
+    saveReaderModeProfile();
+    updateReaderSettings({ mode: 'vertical' });
+    updateReaderSettings({ mode: 'single' });
+
+    expect(getReaderSettings()).toMatchObject({
+      mode: 'single',
+      widthRem: 55,
+      filter: 'sepia',
+      scale: 'fit-height',
+    });
   });
 
   it('clamps values and rejects malformed colors', () => {

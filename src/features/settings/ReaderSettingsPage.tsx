@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import {
   READER_FILTER_CSS,
   resetReaderSettings,
+  saveReaderModeProfile,
   updateReaderSettings,
   type ReaderDirection,
   type ReaderFilter,
@@ -56,6 +57,18 @@ export function ReaderSettingsPage() {
                   <option value="double">Double page</option>
                   <option value="horizontal">Continuous horizontal</option>
                 </select>
+              </dd>
+            </div>
+            <div>
+              <dt>Mode profile</dt>
+              <dd>
+                <button
+                  className="button button-secondary"
+                  type="button"
+                  onClick={saveReaderModeProfile}
+                >
+                  Save layout for this mode
+                </button>
               </dd>
             </div>
             <div>

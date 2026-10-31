@@ -23,6 +23,15 @@ export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
   contrast: 'contrast(1.35)',
 };
 
+export interface ReaderModeProfile {
+  readonly widthRem: number;
+  readonly gapPx: number;
+  readonly background: string;
+  readonly filter: ReaderFilter;
+  readonly scale: ReaderScale;
+  readonly direction: ReaderDirection;
+}
+
 export interface ReaderSettings {
   readonly widthRem: number;
   readonly gapPx: number;
@@ -34,6 +43,7 @@ export interface ReaderSettings {
   readonly keepScreenOn: boolean;
   readonly firstPageOffset: number;
   readonly skipDuplicates: boolean;
+  readonly profiles: Partial<Record<ReaderMode, ReaderModeProfile>>;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -47,6 +57,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   keepScreenOn: false,
   firstPageOffset: 0,
   skipDuplicates: false,
+  profiles: {},
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -89,10 +100,53 @@ function load(): ReaderSettings {
         DEFAULT_READER_SETTINGS.firstPageOffset,
       ),
       skipDuplicates: parsed.skipDuplicates === true,
+      profiles: parseProfiles(parsed.profiles),
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
   }
+}
+
+function parseProfiles(
+  value: unknown,
+): Partial<Record<ReaderMode, ReaderModeProfile>> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return {};
+  }
+
+  const profiles: Partial<Record<ReaderMode, ReaderModeProfile>> = {};
+
+  for (const [key, profile] of Object.entries(value)) {
+    if (
+      !isReaderMode(key) ||
+      typeof profile !== 'object' ||
+      profile === null ||
+      Array.isArray(profile)
+    ) {
+      continue;
+    }
+
+    const item = profile as Partial<ReaderModeProfile>;
+
+    profiles[key] = {
+      widthRem: clampNumber(item.widthRem, 42, 100, DEFAULT_READER_SETTINGS.widthRem),
+      gapPx: clampNumber(item.gapPx, 0, 24, DEFAULT_READER_SETTINGS.gapPx),
+      background:
+        typeof item.background === 'string' &&
+        /^#[0-9a-f]{6}$/i.test(item.background)
+          ? item.background
+          : DEFAULT_READER_SETTINGS.background,
+      filter: isReaderFilter(item.filter)
+        ? item.filter
+        : DEFAULT_READER_SETTINGS.filter,
+      scale: isReaderScale(item.scale)
+        ? item.scale
+        : DEFAULT_READER_SETTINGS.scale,
+      direction: item.direction === 'rtl' ? 'rtl' : 'ltr',
+    };
+  }
+
+  return profiles;
 }
 
 function clampNumber(
@@ -161,39 +215,63 @@ export function subscribeReaderSettings(listener: () => void): () => void {
 }
 
 export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
+  const nextMode = isReaderMode(patch.mode) ? patch.mode : state.mode;
+  const profile = nextMode !== state.mode ? state.profiles[nextMode] : undefined;
+  const base = profile ? { ...state, ...profile, mode: nextMode } : state;
+
   state = {
-    ...state,
+    ...base,
     ...patch,
     widthRem: clampNumber(
-      patch.widthRem ?? state.widthRem,
+      patch.widthRem ?? base.widthRem,
       42,
       100,
-      state.widthRem,
+      base.widthRem,
     ),
-    gapPx: clampNumber(patch.gapPx ?? state.gapPx, 0, 24, state.gapPx),
+    gapPx: clampNumber(patch.gapPx ?? base.gapPx, 0, 24, base.gapPx),
     background:
       typeof patch.background === 'string' &&
       /^#[0-9a-f]{6}$/i.test(patch.background)
         ? patch.background
-        : state.background,
-    mode: isReaderMode(patch.mode) ? patch.mode : state.mode,
-    filter: isReaderFilter(patch.filter) ? patch.filter : state.filter,
-    scale: isReaderScale(patch.scale) ? patch.scale : state.scale,
-    direction: patch.direction === 'rtl' ? 'rtl' : patch.direction === 'ltr' ? 'ltr' : state.direction,
+        : base.background,
+    mode: nextMode,
+    filter: isReaderFilter(patch.filter) ? patch.filter : base.filter,
+    scale: isReaderScale(patch.scale) ? patch.scale : base.scale,
+    direction: patch.direction === 'rtl' ? 'rtl' : patch.direction === 'ltr' ? 'ltr' : base.direction,
     keepScreenOn:
       typeof patch.keepScreenOn === 'boolean'
         ? patch.keepScreenOn
-        : state.keepScreenOn,
+        : base.keepScreenOn,
     firstPageOffset: clampNumber(
-      patch.firstPageOffset ?? state.firstPageOffset,
+      patch.firstPageOffset ?? base.firstPageOffset,
       0,
       200,
-      state.firstPageOffset,
+      base.firstPageOffset,
     ),
     skipDuplicates:
       typeof patch.skipDuplicates === 'boolean'
         ? patch.skipDuplicates
-        : state.skipDuplicates,
+        : base.skipDuplicates,
+    profiles: state.profiles,
+  };
+  persist(state);
+  notify();
+}
+
+export function saveReaderModeProfile(): void {
+  state = {
+    ...state,
+    profiles: {
+      ...state.profiles,
+      [state.mode]: {
+        widthRem: state.widthRem,
+        gapPx: state.gapPx,
+        background: state.background,
+        filter: state.filter,
+        scale: state.scale,
+        direction: state.direction,
+      },
+    },
   };
   persist(state);
   notify();
