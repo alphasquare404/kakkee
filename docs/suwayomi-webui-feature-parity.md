@@ -138,7 +138,7 @@ frontend.
 | Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
 | Reader | Skip duplicate chapters | `Partial` | Client-side | Deduplicates loaded chapter numbers for overlay and navigation; unloaded boundaries fall back to server |
 | Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter not preloaded |
-| Reader | Image filters (brightness/contrast/etc.) | `Partial` | Client-side | Grayscale, sepia, invert, and high-contrast presets; per-channel sliders absent |
+| Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
 | Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
 | Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |

@@ -17,7 +17,7 @@ import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
 import { useMangaReaderMode } from '../../shared/useMangaReaderMode';
-import { READER_FILTER_CSS } from '../../core/preferences/readerSettings';
+import { buildReaderFilter } from '../../core/preferences/readerSettings';
 import type { CSSProperties, MouseEvent } from 'react';
 
 export function ReaderPage() {
@@ -77,7 +77,7 @@ function ConnectedReader({
   const readerSettings = mangaMode
     ? { ...globalReaderSettings, mode: mangaMode }
     : globalReaderSettings;
-  const imageFilter = READER_FILTER_CSS[readerSettings.filter];
+  const imageFilter = buildReaderFilter(readerSettings);
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const navigate = useNavigate();

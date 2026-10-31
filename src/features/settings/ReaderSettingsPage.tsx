@@ -190,6 +190,75 @@ export function ReaderSettingsPage() {
             </div>
             <div>
               <dt>
+                <label htmlFor="reader-brightness">Brightness</label>
+              </dt>
+              <dd>
+                <input
+                  id="reader-brightness"
+                  type="range"
+                  min={50}
+                  max={150}
+                  step={5}
+                  value={settings.brightnessPct}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      brightnessPct: Number(event.target.value),
+                    })
+                  }
+                />
+                <span className="settings-save-state">
+                  {settings.brightnessPct}%
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-contrast">Contrast</label>
+              </dt>
+              <dd>
+                <input
+                  id="reader-contrast"
+                  type="range"
+                  min={50}
+                  max={150}
+                  step={5}
+                  value={settings.contrastPct}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      contrastPct: Number(event.target.value),
+                    })
+                  }
+                />
+                <span className="settings-save-state">
+                  {settings.contrastPct}%
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-saturation">Saturation</label>
+              </dt>
+              <dd>
+                <input
+                  id="reader-saturation"
+                  type="range"
+                  min={0}
+                  max={200}
+                  step={5}
+                  value={settings.saturationPct}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      saturationPct: Number(event.target.value),
+                    })
+                  }
+                />
+                <span className="settings-save-state">
+                  {settings.saturationPct}%
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>
                 <label htmlFor="reader-scale">Page scale</label>
               </dt>
               <dd>

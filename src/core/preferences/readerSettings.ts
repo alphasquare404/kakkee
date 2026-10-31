@@ -23,6 +23,23 @@ export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
   contrast: 'contrast(1.35)',
 };
 
+export function buildReaderFilter(settings: {
+  readonly filter: ReaderFilter;
+  readonly brightnessPct: number;
+  readonly contrastPct: number;
+  readonly saturationPct: number;
+}): string {
+  const preset = READER_FILTER_CSS[settings.filter];
+  const parts = [
+    ...(preset === 'none' ? [] : [preset]),
+    `brightness(${settings.brightnessPct}%)`,
+    `contrast(${settings.contrastPct}%)`,
+    `saturate(${settings.saturationPct}%)`,
+  ];
+
+  return parts.join(' ');
+}
+
 export interface ReaderModeProfile {
   readonly widthRem: number;
   readonly gapPx: number;
@@ -38,6 +55,9 @@ export interface ReaderSettings {
   readonly background: string;
   readonly mode: ReaderMode;
   readonly filter: ReaderFilter;
+  readonly brightnessPct: number;
+  readonly contrastPct: number;
+  readonly saturationPct: number;
   readonly scale: ReaderScale;
   readonly direction: ReaderDirection;
   readonly keepScreenOn: boolean;
@@ -56,6 +76,9 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   background: '#05070c',
   mode: 'vertical',
   filter: 'original',
+  brightnessPct: 100,
+  contrastPct: 100,
+  saturationPct: 100,
   scale: 'fit-width',
   direction: 'ltr',
   keepScreenOn: false,
@@ -95,6 +118,24 @@ function load(): ReaderSettings {
       filter: isReaderFilter(parsed.filter)
         ? parsed.filter
         : DEFAULT_READER_SETTINGS.filter,
+      brightnessPct: clampNumber(
+        parsed.brightnessPct,
+        50,
+        150,
+        DEFAULT_READER_SETTINGS.brightnessPct,
+      ),
+      contrastPct: clampNumber(
+        parsed.contrastPct,
+        50,
+        150,
+        DEFAULT_READER_SETTINGS.contrastPct,
+      ),
+      saturationPct: clampNumber(
+        parsed.saturationPct,
+        0,
+        200,
+        DEFAULT_READER_SETTINGS.saturationPct,
+      ),
       scale: isReaderScale(parsed.scale)
         ? parsed.scale
         : DEFAULT_READER_SETTINGS.scale,
@@ -254,6 +295,24 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
         : base.background,
     mode: nextMode,
     filter: isReaderFilter(patch.filter) ? patch.filter : base.filter,
+    brightnessPct: clampNumber(
+      patch.brightnessPct ?? base.brightnessPct,
+      50,
+      150,
+      base.brightnessPct,
+    ),
+    contrastPct: clampNumber(
+      patch.contrastPct ?? base.contrastPct,
+      50,
+      150,
+      base.contrastPct,
+    ),
+    saturationPct: clampNumber(
+      patch.saturationPct ?? base.saturationPct,
+      0,
+      200,
+      base.saturationPct,
+    ),
     scale: isReaderScale(patch.scale) ? patch.scale : base.scale,
     direction: patch.direction === 'rtl' ? 'rtl' : patch.direction === 'ltr' ? 'ltr' : base.direction,
     keepScreenOn:
