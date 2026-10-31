@@ -5,6 +5,7 @@ import {
   DeleteDownloadedChaptersDocument,
   EnqueueChapterDownloadsDocument,
   EnqueueDownloadDocument,
+  RefreshMangaDocument,
   UpdateChaptersStateDocument,
   type MangaDetailQuery,
 } from '../graphql/generated/graphql';
@@ -173,6 +174,28 @@ describe('createMangaRepository', () => {
         variables: { input: { id: 2 } },
       }),
     );
+  });
+
+  it('refreshes manga metadata and chapters', async () => {
+    const mutate = vi.fn(async () => ({
+      data: {
+        fetchMangaAndChapters: {
+          manga: { id: 1, title: 'Alpha', thumbnailUrl: null },
+          chapters: [],
+        },
+      },
+    }));
+    const client = { query: vi.fn(), mutate } as unknown as ApolloClient;
+    const repository = createMangaRepository({ getClient: () => client });
+
+    await repository.refresh(1);
+
+    expect(mutate).toHaveBeenCalledWith({
+      mutation: RefreshMangaDocument,
+      variables: {
+        input: { id: 1, fetchManga: true, fetchChapters: true },
+      },
+    });
   });
 
   it('writes bulk chapter patches through UpdateChapters', async () => {

@@ -26,6 +26,7 @@ export interface MangaDetailController {
   subscribe(listener: (state: MangaDetailState) => void): () => void;
   load(): Promise<void>;
   loadMore(): Promise<void>;
+  refresh(): Promise<void>;
   setOrder(order: MangaChapterOrder): Promise<void>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
   setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
@@ -142,6 +143,14 @@ export function createMangaDetailController(
 
   function load(): Promise<void> {
     return loadFirstPage(state.order);
+  }
+
+  async function refresh(): Promise<void> {
+    await options.repository.refresh(options.mangaId);
+
+    if (state.manga) {
+      await load();
+    }
   }
 
   function setOrder(order: MangaChapterOrder): Promise<void> {
@@ -344,6 +353,7 @@ export function createMangaDetailController(
     },
     load,
     loadMore,
+    refresh,
     setOrder,
     setChapterRead,
     setChapterBookmark,

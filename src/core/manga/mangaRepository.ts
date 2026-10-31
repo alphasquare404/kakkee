@@ -5,6 +5,7 @@ import {
   EnqueueChapterDownloadsDocument,
   EnqueueDownloadDocument,
   MangaDetailDocument,
+  RefreshMangaDocument,
   UpdateChapterProgressDocument,
   UpdateChaptersStateDocument,
   UpdateMangaLibraryDocument,
@@ -37,6 +38,7 @@ export interface MangaDetailInput {
 
 export interface MangaRepository {
   getDetail(input: MangaDetailInput): Promise<MangaDetailPage>;
+  refresh(mangaId: number): Promise<void>;
   setChapterRead(chapterId: number, isRead: boolean): Promise<void>;
   setChapterBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
   setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
@@ -113,8 +115,19 @@ export function createMangaRepository(
         },
       };
     },
-    async setChapterRead(chapterId, isRead) {
+    async refresh(mangaId) {
       const result = await options.getClient().mutate({
+        mutation: RefreshMangaDocument,
+        variables: {
+          input: { id: mangaId, fetchManga: true, fetchChapters: true },
+        },
+      });
+
+      if (!result.data?.fetchMangaAndChapters) {
+        throw new Error('Manga metadata could not be refreshed.');
+      }
+    },
+    async setChapterRead(chapterId, isRead) {      const result = await options.getClient().mutate({
         mutation: UpdateChapterProgressDocument,
         variables: {
           input: {

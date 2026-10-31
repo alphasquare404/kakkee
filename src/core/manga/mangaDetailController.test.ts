@@ -43,6 +43,7 @@ function page(items = [chapter(2)]): MangaDetailPage {
 
 function setup() {
   const getDetail = vi.fn();
+  const refresh = vi.fn();
   const setChapterRead = vi.fn();
   const setChapterBookmark = vi.fn();
   const setChaptersRead = vi.fn();
@@ -54,6 +55,7 @@ function setup() {
   const setInLibrary = vi.fn();
   const repository = {
     getDetail,
+    refresh,
     setChapterRead,
     setChapterBookmark,
     setChaptersRead,
@@ -68,6 +70,7 @@ function setup() {
   return {
     controller,
     getDetail,
+    refresh,
     setChapterRead,
     setChapterBookmark,
     setChaptersRead,
@@ -81,6 +84,18 @@ function setup() {
 }
 
 describe('createMangaDetailController', () => {
+  it('refreshes the source then reloads the detail page', async () => {
+    const { controller, getDetail, refresh } = setup();
+    getDetail.mockResolvedValue(page());
+    refresh.mockResolvedValue(undefined);
+    await controller.load();
+
+    await controller.refresh();
+
+    expect(refresh).toHaveBeenCalledWith(1);
+    expect(getDetail).toHaveBeenCalledTimes(2);
+  });
+
   it('loads and appends chapter pages without duplicates', async () => {
     const { controller, getDetail } = setup();
     getDetail.mockResolvedValueOnce(page([chapter(2)])).mockResolvedValueOnce(

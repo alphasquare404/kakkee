@@ -139,6 +139,8 @@ function ConnectedMangaDetail({
   );
   const [libraryPending, setLibraryPending] = useState(false);
   const [libraryActionError, setLibraryActionError] = useState(false);
+  const [refreshPending, setRefreshPending] = useState(false);
+  const [refreshError, setRefreshError] = useState(false);
   const cover = useImageResource(
     context.resources,
     detail.manga?.thumbnailUrl ?? null,
@@ -352,6 +354,21 @@ function ConnectedMangaDetail({
               >
                 {manga.inLibrary ? 'In library' : 'Add to library'}
               </button>
+              <button
+                className="button button-secondary"
+                type="button"
+                disabled={refreshPending}
+                onClick={() => {
+                  setRefreshError(false);
+                  setRefreshPending(true);
+                  void controller
+                    .refresh()
+                    .catch(() => setRefreshError(true))
+                    .finally(() => setRefreshPending(false));
+                }}
+              >
+                {refreshPending ? 'Refreshing…' : 'Refresh'}
+              </button>
               <Link className="button button-secondary" to="/library">
                 Back to library
               </Link>
@@ -360,6 +377,12 @@ function ConnectedMangaDetail({
             {libraryActionError ? (
               <p className="alert alert-error" role="alert">
                 Couldn&apos;t update the library state.
+              </p>
+            ) : null}
+
+            {refreshError ? (
+              <p className="alert alert-error" role="alert">
+                Couldn&apos;t refresh manga metadata.
               </p>
             ) : null}
 

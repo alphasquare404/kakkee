@@ -1,0 +1,12 @@
+mutation RefreshManga($input: FetchMangaAndChaptersInput!) {
+  fetchMangaAndChapters(input: $input) {
+    manga {
+      id
+      title
+      thumbnailUrl
+    }
+    chapters {
+      id
+    }
+  }
+}

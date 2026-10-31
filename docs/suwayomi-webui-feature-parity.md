@@ -92,8 +92,8 @@ frontend.
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Implemented` | Manga meta mutations | Notes stored in manga meta with save/clear |
 | Manga | Share | `Missing` | Client concern | |
-| Manga | Refresh metadata/chapters from source | `Missing` | Yes | |
-| Manga | Migration entry point | `Missing` | Yes | |
+| Manga | Refresh metadata/chapters from source | `Implemented` | Yes | Refresh button calls fetchMangaAndChapters and reloads detail |
+| Manga | Migration entry point | `Blocked by server` | No | Stable v2.4.2366 schema exposes no migration mutation/query |
 | Manga | Tracker binding/score/status | `Implemented` | Yes | Search/bind/unbind with private option, status and score editing |
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
@@ -187,11 +187,11 @@ frontend.
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Migration | Select manga/source/destination | `Missing` | Yes | |
-| Migration | Bulk search, manual search, match include/exclude | `Missing` | Yes | |
-| Migration | Missing/outdated match filters, local source | `Missing` | Yes | |
-| Migration | Resume/abort via Web Locks | `Missing` | Platform/secure context | |
-| Migration | Client data migration options | `Missing` | Yes | |
+| Migration | Select manga/source/destination | `Blocked by server` | No | No migration API in stable schema |
+| Migration | Bulk search, manual search, match include/exclude | `Blocked by server` | No | No source-search migration endpoint in stable schema |
+| Migration | Missing/outdated match filters, local source | `Blocked by server` | No | No migration/match API in stable schema |
+| Migration | Resume/abort via Web Locks | `Blocked by server` | No | Depends on absent migration job API |
+| Migration | Client data migration options | `Blocked by server` | No | No migration API in stable schema |
 | Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
 | Tracking | Manga search, bind/unbind, private binding | `Implemented` | Yes | Tracker search, bind, private option, unlink, status/score editing |
 | Tracking | Score/progress/status and sync behavior | `Partial` | Yes | Score/status editing and manual progress sync; reading dates and automatic sync behavior absent |
