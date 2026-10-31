@@ -6351,3 +6351,41 @@ button.manga-card-link {
   color: var(--danger);
   border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
 }
+
+/* Phone row actions: full-width page buttons should not stretch inline row
+   actions. Keep repeated actions compact inside their row/card. */
+@media (max-width: 720px) {
+  .extension-card > .button {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 4.75rem;
+  }
+
+  .extension-card {
+    align-items: flex-start;
+  }
+
+  .downloaded-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .downloaded-row .feed-row {
+    flex: 1 1 100%;
+  }
+
+  .downloaded-row > .button {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .downloaded-row .download-cancel {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+.downloaded-row > .button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
