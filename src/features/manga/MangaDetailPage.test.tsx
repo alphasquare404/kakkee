@@ -8,6 +8,7 @@ import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
 import type { MangaDetailQuery } from '../../core/graphql/generated/graphql';
 import { MangaDetailDocument } from '../../core/graphql/generated/graphql';
+import { clearChapterViewPreferences } from '../../core/preferences/chapterViewPreferences';
 import {
   FakeConnectionCoordinator,
   makeConnectedState,
@@ -25,6 +26,8 @@ configure({ asyncUtilTimeout: 5000 });
 
 afterEach(() => {
   cleanup();
+  clearChapterViewPreferences();
+  window.localStorage.clear();
   window.history.replaceState({}, '', '/');
 });
 

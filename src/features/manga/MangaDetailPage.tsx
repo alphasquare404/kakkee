@@ -16,6 +16,11 @@ import { MangaTrackingSection } from './MangaTrackingSection';
 import { MangaNotesSection } from './MangaNotesSection';
 import { MangaCategoryPicker } from './MangaCategoryPicker';
 import { MangaReaderModePicker } from './MangaReaderModePicker';
+import {
+  getChapterViewPreferences,
+  saveChapterViewPreferences,
+  type ChapterFilter,
+} from '../../core/preferences/chapterViewPreferences';
 
 const STATUS_LABEL: Record<string, string> = {
   UNKNOWN: 'Unknown',
@@ -112,19 +117,25 @@ function ConnectedMangaDetail({
     () => createMangaRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
   );
+  const savedView = useRef(getChapterViewPreferences(mangaId)).current;
   const controller = useMemo(
-    () => createMangaDetailController({ repository, mangaId }),
-    [mangaId, repository],
+    () =>
+      createMangaDetailController({
+        repository,
+        mangaId,
+        initialOrder: savedView?.order,
+      }),
+    [mangaId, repository, savedView],
   );
   const detail = useSyncExternalStore(controller.subscribe, controller.getState);
   const loaded = useRef<MangaDetailController | null>(null);
   const [section, setSection] = useState<'overview' | 'chapters'>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterSearch, setChapterSearch] = useState('');
-  const [chapterFilter, setChapterFilter] = useState<
-    'all' | 'unread' | 'read' | 'downloaded' | 'bookmarked'
-  >('all');
-  const [scanlator, setScanlator] = useState('all');
+  const [chapterFilter, setChapterFilter] = useState<ChapterFilter>(
+    savedView?.filter ?? 'all',
+  );
+  const [scanlator, setScanlator] = useState(savedView?.scanlator ?? 'all');
   const [chapterSelectionMode, setChapterSelectionMode] = useState(false);
   const [selectedChapterIds, setSelectedChapterIds] = useState<ReadonlySet<number>>(
     new Set(),
@@ -155,6 +166,14 @@ function ConnectedMangaDetail({
       void controller.load();
     }
   }, [controller]);
+
+  useEffect(() => {
+    saveChapterViewPreferences(mangaId, {
+      order: detail.order,
+      filter: chapterFilter,
+      scanlator,
+    });
+  }, [chapterFilter, detail.order, mangaId, scanlator]);
 
   if (!detail.manga && !detail.error) {
     return (

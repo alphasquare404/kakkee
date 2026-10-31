@@ -114,7 +114,7 @@ frontend.
 | Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation; other bulk actions absent |
 | Chapters | Scanlator filter and duplicate handling | `Missing` | Yes | |
 | Chapters | Missing-chapter separators | `Partial` | Client-side | Gap separators between loaded chapter numbers; unloaded boundaries absent |
-| Chapters | Saved sort/filter preferences | `Missing` | Metadata/settings | |
+| Chapters | Saved sort/filter preferences | `Implemented` | Client metadata | Per-manga order, filter, and scanlator restored from device storage |
 
 ### Reader
 

@@ -47,6 +47,7 @@ export interface MangaDetailController {
 export interface MangaDetailControllerOptions {
   readonly repository: MangaRepository;
   readonly mangaId: number;
+  readonly initialOrder?: MangaChapterOrder;
 }
 
 function initialState(order: MangaChapterOrder = 'newest'): MangaDetailState {
@@ -83,7 +84,7 @@ function appendUnique(
 export function createMangaDetailController(
   options: MangaDetailControllerOptions,
 ): MangaDetailController {
-  let state = initialState();
+  let state = initialState(options.initialOrder);
   let generation = 0;
   const listeners = new Set<(state: MangaDetailState) => void>();
 
