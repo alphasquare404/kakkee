@@ -546,6 +546,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
     try {
       await controller.addToCategory([...selectedIds], Number(categoryChoice));
+      void categoryController.load();
       clearSelection();
       setSelectionMode(false);
     } catch {
@@ -568,6 +569,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         [...selectedIds],
         Number(categoryChoice),
       );
+      void categoryController.load();
       clearSelection();
       setSelectionMode(false);
     } catch {
@@ -644,6 +646,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
     try {
       await controller.removeFromLibrary([...selectedIds]);
+      void categoryController.load();
       clearSelection();
       setSelectionMode(false);
     } catch {

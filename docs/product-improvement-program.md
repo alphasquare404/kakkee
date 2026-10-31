@@ -28,7 +28,7 @@ Status: `Pending` · `In Progress` · `Complete`
 | 18 | Extreme data/stress | Complete | [stress-data-audit.md](stress-data-audit.md) | `Goal 18` |
 | 19 | Preference persistence | Complete | [preference-persistence-audit.md](preference-persistence-audit.md) | `Goal 19` |
 | 20 | Cross-feature coherence | Pending | — | — |
-| 21 | Final product coherence | Pending | — | — |
+| 21 | Final product coherence | In Progress | — | — |
 
 ## Goal 1 — Interaction semantics
 
