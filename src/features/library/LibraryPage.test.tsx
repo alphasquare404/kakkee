@@ -648,6 +648,27 @@ describe('LibraryPage search, filter, and sort', () => {
     expect(await screen.findByRole('option', { name: 'alpha' })).toBeTruthy();
   });
 
+  it('shows duplicate titles in the loaded library', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(
+        page([manga(1, 'Alpha'), manga(2, 'Alpha'), manga(3, 'Beta')]),
+      );
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findAllByRole('heading', { name: 'Alpha' });
+
+    await user.click(screen.getByRole('button', { name: 'Duplicates (1)' }));
+
+    expect(screen.getByRole('heading', { name: 'Possible duplicates' })).toBeTruthy();
+    expect(screen.getByText('#1')).toBeTruthy();
+    expect(screen.getByText('#2')).toBeTruthy();
+  });
+
   it('changes the supported status filter without exposing source filter', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {

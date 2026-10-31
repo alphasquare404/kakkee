@@ -77,7 +77,7 @@ frontend.
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
 | Library | Bulk migrate | `Missing` | Yes | |
 | Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
-| Library | Library duplicate detection/overview | `Missing` | Client-side | |
+| Library | Library duplicate detection/overview | `Partial` | Client-side | Normalized title groups over loaded library items; server-wide scan absent |
 | Library | Sync button | `Implemented` | Yes | Starts `updateLibrary` and shows live job progress via subscription |
 | Library | Show unread/download badges | `Implemented` | Yes | Unread and downloaded chapter counts from `MangaType` |
 | Library | Tab item counts | `Implemented` | Yes | All total plus per-category manga counts |

@@ -23,7 +23,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Global Search: top-level search across server-known manga and matching sources, with recent-search suggestions and library/unread metadata.
 - Updates: recent chapters grouped by day, unread/read filters, per-manga resume, real covers, and a library sync trigger with live progress and auto-refresh.
 - Tracking: service list/login/logout, per-manga search/bind/unbind, private flag, status/score/reading dates, manual sync, and optional auto-sync after finishing a Reader chapter.
-- Library screen: search with recent-search suggestions and optional fuzzy title matching, category tabs with counts, single/OR status filters, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
+- Library screen: search with recent-search suggestions and optional fuzzy title matching, duplicate-title overview, category tabs with counts, single/OR status filters, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
 - Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
 - Browse: installed source catalog plus source manga browsing with Popular/Latest, search, pagination, and quick library add/remove.
 - Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, and delete with confirmation.
@@ -798,7 +798,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (386 test; 7 runtime integration memerlukan env)
+npm run test           lulus (387 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

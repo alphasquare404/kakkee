@@ -7,7 +7,7 @@ import {
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createLibraryController,
@@ -22,6 +22,7 @@ import {
   createLibraryRepository,
   type LibraryCategory,
   type LibraryFilter,
+  type LibraryManga,
   type LibrarySortDirection,
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
@@ -111,8 +112,7 @@ function shuffled<T>(items: readonly T[], seed: number): readonly T[] {
   return result;
 }
 
-function fuzzyMatch(title: string, query: string): boolean {
-  const haystack = title.toLowerCase();
+function fuzzyMatch(title: string, query: string): boolean {  const haystack = title.toLowerCase();
   const needles = query
     .toLowerCase()
     .split(/\s+/)
@@ -139,6 +139,13 @@ function fuzzyMatch(title: string, query: string): boolean {
   }
 
   return false;
+}
+
+function duplicateKey(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\p{L}\p{N}]+/gu, '');
 }
 
 export function LibraryPage() {
@@ -203,6 +210,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [randomOrder, setRandomOrder] = useState(false);
   const [randomSeed, setRandomSeed] = useState(0);
   const [fuzzy, setFuzzy] = useState(false);
+  const [duplicatesOpen, setDuplicatesOpen] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(new Set());
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
@@ -493,6 +501,27 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const displayedItems = randomOrder
     ? shuffled(locallyFiltered, randomSeed)
     : locallyFiltered;
+  const duplicateGroups = useMemo(() => {
+    const groups = new Map<string, LibraryManga[]>();
+
+    for (const manga of library.items) {
+      const key = duplicateKey(manga.title);
+
+      if (!key) {
+        continue;
+      }
+
+      const group = groups.get(key);
+
+      if (group) {
+        group.push(manga);
+      } else {
+        groups.set(key, [manga]);
+      }
+    }
+
+    return [...groups.values()].filter((group) => group.length > 1);
+  }, [library.items]);
 
   const resetAll = () => {
     setSearch('');
@@ -708,6 +737,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               Fuzzy
             </button>
+            <button
+              className={`library-action${duplicatesOpen ? ' is-active' : ''}`}
+              type="button"
+              aria-pressed={duplicatesOpen}
+              disabled={duplicateGroups.length === 0}
+              title="Show duplicate titles in the loaded library"
+              onClick={() => setDuplicatesOpen((value) => !value)}
+            >
+              Duplicates ({duplicateGroups.length})
+            </button>
 
             <button
               ref={filterButton}
@@ -784,6 +823,36 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           </div>
         </div>
       </header>
+
+      {duplicatesOpen && duplicateGroups.length > 0 ? (
+        <section className="library-duplicates" aria-labelledby="duplicates-heading">
+          <div className="section-heading-row">
+            <h2 id="duplicates-heading">Possible duplicates</h2>
+            <button
+              className="library-action"
+              type="button"
+              onClick={() => setDuplicatesOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+          <div className="library-duplicate-groups">
+            {duplicateGroups.map((group) => (
+              <div className="library-duplicate-group" key={group[0]?.id}>
+                <strong>{group[0]?.title}</strong>
+                <ul>
+                  {group.map((manga) => (
+                    <li key={manga.id}>
+                      <Link to={`/manga/${manga.id}`}>{manga.title}</Link>
+                      <span>#{manga.id}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <nav className="category-nav" aria-label="Library categories">
         <div className="category-tabs">
