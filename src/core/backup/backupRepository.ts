@@ -4,13 +4,30 @@ import {
   BackupSettingsDocument,
   CreateBackupDocument,
   RestoreBackupDocument,
+  UpdateBackupSettingsDocument,
   ValidateBackupDocument,
   type BackupSettingsQuery,
   type PartialBackupFlagsInput,
+  type PartialSettingsTypeInput,
   type ValidateBackupQuery,
 } from '../graphql/generated/graphql';
 
 export type BackupSettings = BackupSettingsQuery['settings'];
+
+export type EditableBackupSettings = Pick<
+  BackupSettings,
+  | 'autoBackupIncludeCategories'
+  | 'autoBackupIncludeChapters'
+  | 'autoBackupIncludeClientData'
+  | 'autoBackupIncludeHistory'
+  | 'autoBackupIncludeManga'
+  | 'autoBackupIncludeServerSettings'
+  | 'autoBackupIncludeTracking'
+  | 'backupPath'
+  | 'backupInterval'
+  | 'backupTime'
+  | 'backupTTL'
+>;
 
 export type BackupValidation = ValidateBackupQuery['validateBackup'];
 
@@ -19,6 +36,7 @@ export interface BackupRepository {
   create(flags: PartialBackupFlagsInput): Promise<string>;
   restore(file: File, flags: PartialBackupFlagsInput): Promise<string>;
   validate(file: File): Promise<BackupValidation>;
+  update(patch: Partial<EditableBackupSettings>): Promise<Partial<EditableBackupSettings>>;
 }
 
 export interface BackupRepositoryOptions {
@@ -133,6 +151,18 @@ export function createBackupRepository(
       }
 
       return payload.data.validateBackup;
+    },
+    async update(patch) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateBackupSettingsDocument,
+        variables: { settings: patch as PartialSettingsTypeInput },
+      });
+
+      if (!result.data?.setSettings) {
+        throw new Error('Backup settings could not be saved.');
+      }
+
+      return result.data.setSettings.settings;
     },
   };
 }

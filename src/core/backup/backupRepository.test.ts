@@ -87,7 +87,8 @@ describe('createBackupRepository', () => {
       }),
     })) as unknown as typeof fetch;
     const repository = createBackupRepository({
-      getClient: () => ({ query: vi.fn(), mutate: vi.fn() }) as unknown as ApolloClient,
+      getClient: () =>
+        ({ query: vi.fn(), mutate: vi.fn() }) as unknown as ApolloClient,
       getGraphqlUrl: () => 'https://example.test/api/graphql',
       fetchImpl,
     });
@@ -97,5 +98,39 @@ describe('createBackupRepository', () => {
     ).resolves.toMatchObject({
       missingSources: [{ id: '42', name: 'Source' }],
     });
+  });
+
+  it('updates automatic backup settings', async () => {
+    const mutate = vi.fn(async () => ({
+      data: {
+        setSettings: {
+          settings: {
+            autoBackupIncludeManga: false,
+            autoBackupIncludeChapters: true,
+            autoBackupIncludeCategories: true,
+            autoBackupIncludeClientData: false,
+            autoBackupIncludeHistory: true,
+            autoBackupIncludeServerSettings: false,
+            autoBackupIncludeTracking: false,
+            backupPath: '/new-backups',
+            backupInterval: 12,
+            backupTime: '03:00',
+            backupTTL: 7,
+          },
+        },
+      },
+    }));
+    const repository = createBackupRepository({
+      getClient: () => ({ query: vi.fn(), mutate }) as unknown as ApolloClient,
+    });
+
+    await expect(
+      repository.update({ backupPath: '/new-backups', backupInterval: 12 }),
+    ).resolves.toMatchObject({ backupPath: '/new-backups' });
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { settings: { backupPath: '/new-backups', backupInterval: 12 } },
+      }),
+    );
   });
 });

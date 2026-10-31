@@ -1,0 +1,17 @@
+mutation UpdateBackupSettings($settings: PartialSettingsTypeInput!) {
+  setSettings(input: { settings: $settings }) {
+    settings {
+      autoBackupIncludeCategories
+      autoBackupIncludeChapters
+      autoBackupIncludeClientData
+      autoBackupIncludeHistory
+      autoBackupIncludeManga
+      autoBackupIncludeServerSettings
+      autoBackupIncludeTracking
+      backupPath
+      backupInterval
+      backupTime
+      backupTTL
+    }
+  }
+}

@@ -25,11 +25,16 @@ function setup() {
     missingSources: [],
     missingTrackers: [],
   }));
+  const update = vi.fn(async () => ({
+    backupPath: '/new-backups',
+    backupInterval: 12,
+  }));
   const repository = {
     getSettings,
     create,
     restore,
     validate,
+    update,
   } as unknown as BackupRepository;
   return {
     controller: createBackupController(repository),
@@ -37,6 +42,7 @@ function setup() {
     create,
     restore,
     validate,
+    update,
   };
 }
 
@@ -83,5 +89,18 @@ describe('createBackupController', () => {
       missingTrackers: [],
     });
     expect(controller.getState().validating).toBe(false);
+  });
+
+  it('updates automatic backup settings', async () => {
+    const { controller, update } = setup();
+    await controller.load();
+    await controller.update({ backupPath: '/new-backups', backupInterval: 12 });
+
+    expect(update).toHaveBeenCalledWith({
+      backupPath: '/new-backups',
+      backupInterval: 12,
+    });
+    expect(controller.getState().settings?.backupPath).toBe('/new-backups');
+    expect(controller.getState().saving).toBe(false);
   });
 });

@@ -209,45 +209,140 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
             </p>
           ) : null}
           {backup.settings ? (
-            <dl className="settings-rows">
-              <div>
-                <dt>Backup path</dt>
-                <dd className="settings-endpoint">
-                  {backup.settings.backupPath || 'Not configured'}
-                </dd>
+            <>
+              <div className="settings-field-grid">
+                <TextSetting
+                  label="Backup path"
+                  value={backup.settings.backupPath}
+                  onCommit={(value) => void controller.update({ backupPath: value })}
+                />
+                <NumberSetting
+                  label="Interval (hours)"
+                  value={backup.settings.backupInterval}
+                  min={1}
+                  onCommit={(value) => void controller.update({ backupInterval: value })}
+                />
+                <TextSetting
+                  label="Backup time"
+                  value={backup.settings.backupTime}
+                  onCommit={(value) => void controller.update({ backupTime: value })}
+                />
+                <NumberSetting
+                  label="Retention (backups)"
+                  value={backup.settings.backupTTL}
+                  min={1}
+                  onCommit={(value) => void controller.update({ backupTTL: value })}
+                />
               </div>
-              <div>
-                <dt>Interval</dt>
-                <dd>{backup.settings.backupInterval} hours</dd>
+              <div className="settings-toggle-list">
+                {FLAGS.map((flag) => (
+                  <label className="settings-toggle" key={flag.autoKey}>
+                    <span>{flag.label}</span>
+                    <input
+                      type="checkbox"
+                      checked={backup.settings?.[flag.autoKey] === true}
+                      onChange={(event) =>
+                        void controller.update({
+                          [flag.autoKey]: event.target.checked,
+                        })
+                      }
+                    />
+                  </label>
+                ))}
               </div>
-              <div>
-                <dt>Time</dt>
-                <dd>{backup.settings.backupTime}</dd>
-              </div>
-              <div>
-                <dt>Retention</dt>
-                <dd>{backup.settings.backupTTL} backups</dd>
-              </div>
-              <div>
-                <dt>Included data</dt>
-                <dd>
-                  {FLAGS.filter(
-                    (flag) => backup.settings?.[flag.autoKey] === true,
-                  )
-                    .map((flag) => flag.label)
-                    .join(', ') || 'None'}
-                </dd>
-              </div>
-            </dl>
+              {backup.saveError ? (
+                <p className="settings-inline-error" role="alert">
+                  Automatic backup settings could not be saved.
+                </p>
+              ) : null}
+              <p className="settings-save-state">
+                {backup.saving ? 'Saving…' : 'Changes save automatically'}
+              </p>
+            </>
           ) : null}
-          <p className="settings-save-state">
-            Automatic backup flags can be changed in Server settings.
-          </p>
-          <p className="settings-save-state">
-            Restore backup upload is not implemented yet.
-          </p>
         </section>
       </div>
     </div>
+  );
+}
+
+function TextSetting({
+  label,
+  value,
+  onCommit,
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly onCommit: (value: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  return (
+    <label className="settings-number">
+      <span>{label}</span>
+      <input
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={() => {
+          if (draft !== value) {
+            onCommit(draft);
+          }
+        }}
+      />
+    </label>
+  );
+}
+
+function NumberSetting({
+  label,
+  value,
+  min,
+  onCommit,
+}: {
+  readonly label: string;
+  readonly value: number;
+  readonly min: number;
+  readonly onCommit: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const parsed = Number(draft);
+
+    if (!Number.isFinite(parsed) || parsed < min) {
+      setDraft(String(value));
+      return;
+    }
+
+    if (parsed !== value) {
+      onCommit(parsed);
+    }
+  };
+
+  return (
+    <label className="settings-number">
+      <span>{label}</span>
+      <input
+        type="number"
+        min={min}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            commit();
+            event.currentTarget.blur();
+          }
+        }}
+      />
+    </label>
   );
 }

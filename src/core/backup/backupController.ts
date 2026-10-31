@@ -1,5 +1,10 @@
 import type { PartialBackupFlagsInput } from '../graphql/generated/graphql';
-import type { BackupRepository, BackupSettings, BackupValidation } from './backupRepository';
+import type {
+  BackupRepository,
+  BackupSettings,
+  BackupValidation,
+  EditableBackupSettings,
+} from './backupRepository';
 
 export type BackupStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -12,6 +17,8 @@ export interface BackupState {
   readonly restoredId: string | null;
   readonly validating: boolean;
   readonly validation: BackupValidation | null;
+  readonly saving: boolean;
+  readonly saveError: boolean;
   readonly error: boolean;
   readonly lastAction: 'create' | 'restore' | null;
 }
@@ -23,6 +30,7 @@ export interface BackupController {
   create(flags: PartialBackupFlagsInput): Promise<void>;
   restore(file: File, flags: PartialBackupFlagsInput): Promise<void>;
   validate(file: File): Promise<void>;
+  update(patch: Partial<EditableBackupSettings>): Promise<void>;
 }
 
 export function createBackupController(
@@ -37,6 +45,8 @@ export function createBackupController(
     restoredId: null,
     validating: false,
     validation: null,
+    saving: false,
+    saveError: false,
     error: false,
     lastAction: null,
   };
@@ -99,6 +109,25 @@ export function createBackupController(
     }
   }
 
+  async function update(
+    next: Partial<EditableBackupSettings>,
+  ): Promise<void> {
+    patch({ saving: true, saveError: false });
+
+    try {
+      const saved = await repository.update(next);
+      patch({
+        saving: false,
+        saveError: false,
+        settings: state.settings
+          ? { ...state.settings, ...saved }
+          : state.settings,
+      });
+    } catch {
+      patch({ saving: false, saveError: true });
+    }
+  }
+
   return {
     getState: () => state,
     subscribe(listener) {
@@ -109,5 +138,6 @@ export function createBackupController(
     create,
     restore,
     validate,
+    update,
   };
 }
