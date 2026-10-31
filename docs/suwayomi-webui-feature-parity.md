@@ -227,7 +227,7 @@ frontend.
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
 | Localization | Translated UI | `Partial` | Client concern | Navigation and Appearance strings translated; remaining screens still English |
-| Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited; new parity screens still need audits |
+| Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited with skip-to-content links; new parity screens still need audits |
 
 ## Immediate implementation order
 

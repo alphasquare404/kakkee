@@ -143,16 +143,24 @@ export function AppLayout() {
 
   if (readerActive) {
     return (
-      <div className="app-frame app-frame-reader">
-        <div className="app-frame-main">
-          <Outlet />
+      <>
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <div className="app-frame app-frame-reader">
+          <div className="app-frame-main" id="main-content" tabIndex={-1}>
+            <Outlet />
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
     <div className="app-frame">
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <aside className="app-sidebar">
         <Link className="brand" to="/library" aria-label="Suwayomi Library">
           <BrandMark />
@@ -200,7 +208,7 @@ export function AppLayout() {
         </Link>
       </aside>
 
-      <div className="app-frame-main">
+      <div className="app-frame-main" id="main-content" tabIndex={-1}>
         <Outlet />
       </div>
 

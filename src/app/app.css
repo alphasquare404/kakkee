@@ -657,6 +657,27 @@ h2 {
   border: 0;
 }
 
+.skip-link {
+  position: fixed;
+  z-index: 200;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  color: #fff;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-radius: 7px;
+  background: var(--accent-grad);
+  transform: translateY(-160%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
 /* ==========================================================================
    Library
    Content first: a single compact header line, an understated category row,
