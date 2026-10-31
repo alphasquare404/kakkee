@@ -1,0 +1,8 @@
+mutation DeleteMangaNote($input: DeleteMangaMetaInput!) {
+  deleteMangaMeta(input: $input) {
+    meta {
+      key
+      value
+    }
+  }
+}

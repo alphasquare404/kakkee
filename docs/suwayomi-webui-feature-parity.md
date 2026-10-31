@@ -90,7 +90,7 @@ frontend.
 | Manga | Library add/remove and category picker | `Partial` | Yes | Detail has an in-library toggle; category picker and bulk actions absent |
 | Manga | Continue reading from last page | `Implemented` | Reading progress | Detail links the in-progress chapter with `?page=`; reader resumes that page |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
-| Manga | Manga notes | `Missing` | Manga meta mutations | |
+| Manga | Manga notes | `Implemented` | Manga meta mutations | Notes stored in manga meta with save/clear |
 | Manga | Share | `Missing` | Client concern | |
 | Manga | Refresh metadata/chapters from source | `Missing` | Yes | |
 | Manga | Migration entry point | `Missing` | Yes | |

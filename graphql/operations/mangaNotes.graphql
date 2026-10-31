@@ -1,0 +1,9 @@
+query MangaNotes($mangaId: Int!) {
+  manga(id: $mangaId) {
+    id
+    meta {
+      key
+      value
+    }
+  }
+}

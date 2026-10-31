@@ -3574,6 +3574,36 @@ button.manga-card-link {
   font-size: var(--text-xs);
 }
 
+.manga-notes {
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.manga-notes-field textarea {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: 0.55rem 0.65rem;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.manga-notes-actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.manga-notes-actions .button {
+  min-height: 2rem;
+  padding: 0 0.6rem;
+  font-size: var(--text-xs);
+}
+
 .manga-track-row {
   display: flex;
   flex-wrap: wrap;

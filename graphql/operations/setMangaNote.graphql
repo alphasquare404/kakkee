@@ -1,0 +1,8 @@
+mutation SetMangaNote($input: SetMangaMetaInput!) {
+  setMangaMeta(input: $input) {
+    meta {
+      key
+      value
+    }
+  }
+}
