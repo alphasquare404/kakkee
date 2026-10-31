@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
 import type { MangaDetailQuery } from '../../core/graphql/generated/graphql';
+import { MangaDetailDocument } from '../../core/graphql/generated/graphql';
 import {
   FakeConnectionCoordinator,
   makeConnectedState,
@@ -227,10 +228,18 @@ describe('MangaDetailPage', () => {
   });
 
   it('shows a retryable error without raw error details', async () => {
-    const query = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('internal stack details'))
-      .mockResolvedValueOnce({ data: detailData() });
+    let detailAttempts = 0;
+    const query = vi.fn(({ query: document }: { query: unknown }) => {
+      if (document === MangaDetailDocument) {
+        detailAttempts += 1;
+
+        if (detailAttempts === 1) {
+          return Promise.reject(new Error('internal stack details'));
+        }
+      }
+
+      return Promise.resolve({ data: detailData() });
+    });
     const user = userEvent.setup();
     renderDetail(query);
 

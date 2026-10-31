@@ -1,0 +1,10 @@
+query NavigationBadges {
+  downloadStatus {
+    queue {
+      position
+    }
+  }
+  extensions(filter: { hasUpdate: { equalTo: true } }, first: 1) {
+    totalCount
+  }
+}

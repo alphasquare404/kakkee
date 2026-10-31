@@ -78,7 +78,6 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setHistoryOpen(true)}
           onClick={() => setHistoryOpen(true)}
-          onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
           autoFocus
         />
         <button className="button" type="submit" disabled={!query.trim()}>

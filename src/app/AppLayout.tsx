@@ -1,5 +1,6 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useConnection } from './useConnection';
+import { useNavigationBadges } from '../shared/useNavigationBadges';
 
 function BrandMark() {
   return (
@@ -121,6 +122,10 @@ export function AppLayout() {
   const { state } = useConnection();
   const location = useLocation();
   const readerActive = location.pathname.includes('/chapter/');
+  const badges = useNavigationBadges(
+    state.status === 'connected' ? state.context.graphQL : null,
+    location.pathname,
+  );
 
   if (state.status !== 'connected') {
     return <Navigate to="/" replace />;
@@ -148,6 +153,12 @@ export function AppLayout() {
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active = item.match(location.pathname);
+            const badge =
+              item.to === '/downloads'
+                ? badges.downloads
+                : item.to === '/extensions'
+                  ? badges.extensionUpdates
+                  : 0;
 
             return (
               <Link
@@ -158,6 +169,11 @@ export function AppLayout() {
               >
                 <Icon />
                 <span>{item.label}</span>
+                {badge > 0 ? (
+                  <span className="nav-badge" aria-label={`${badge} pending`}>
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
@@ -182,6 +198,7 @@ export function AppLayout() {
         {NAV_ITEMS.filter((item) => item.mobile).map((item) => {
           const Icon = item.icon;
           const active = item.match(location.pathname);
+          const badge = item.to === '/downloads' ? badges.downloads : 0;
 
           return (
             <Link
@@ -192,6 +209,11 @@ export function AppLayout() {
             >
               <Icon />
               <span>{item.label}</span>
+              {badge > 0 ? (
+                <span className="nav-badge" aria-label={`${badge} pending`}>
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              ) : null}
             </Link>
           );
         })}
