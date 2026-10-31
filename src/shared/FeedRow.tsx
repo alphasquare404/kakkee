@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import type { ResourceService } from '../core/resources/resourceService';
 import type { FeedChapter } from '../core/catalog/catalogRepository';
 import { useImageResource } from './useImageResource';
@@ -9,6 +10,7 @@ interface FeedRowProps {
   readonly detail: string;
   readonly stateLabel?: string;
   readonly to?: string;
+  readonly actions?: ReactNode;
 }
 
 export function FeedRow({
@@ -17,10 +19,10 @@ export function FeedRow({
   detail,
   stateLabel,
   to,
+  actions,
 }: FeedRowProps) {
   const image = useImageResource(resources, chapter.manga.thumbnailUrl);
-
-  return (
+  const row = (
     <Link
       className="feed-row"
       to={to ?? `/manga/${chapter.manga.id}/chapter/${chapter.id}`}
@@ -40,5 +42,16 @@ export function FeedRow({
       </span>
       {stateLabel ? <span className="feed-state">{stateLabel}</span> : null}
     </Link>
+  );
+
+  if (!actions) {
+    return row;
+  }
+
+  return (
+    <div className="feed-row-shell">
+      {row}
+      <div className="feed-row-actions">{actions}</div>
+    </div>
   );
 }

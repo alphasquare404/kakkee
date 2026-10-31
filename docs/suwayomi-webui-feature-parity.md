@@ -156,7 +156,7 @@ frontend.
 |---|---|---|---|---|
 | Updates | Latest chapters from library | `Partial` | Yes | ChapterFeed grouped by day; no "first unread per manga" semantics |
 | Updates | Unread/read filters, scanlator, state | `Partial` | Yes | All/Unread/Read; no scanlator filter |
-| Updates | Chapter/manga actions | `Missing` | Yes | |
+| Updates | Chapter/manga actions | `Partial` | Yes | Mark read/unread and download from feed; broader manga actions absent |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |
 | History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |

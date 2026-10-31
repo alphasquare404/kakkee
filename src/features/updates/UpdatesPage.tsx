@@ -10,6 +10,7 @@ import { feedDay, formatRelativeTime } from '../../shared/feedTime';
 import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
+import { createMangaRepository } from '../../core/manga/mangaRepository';
 
 type FeedFilter = 'all' | 'unread' | 'read';
 
@@ -42,8 +43,17 @@ export function UpdatesPage() {
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
+  const [queuedChapters, setQueuedChapters] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
+  const [actionError, setActionError] = useState(false);
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
+  const mangaRepository = useMemo(
+    () => createMangaRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
   );
   const controller = useMemo(
@@ -151,11 +161,61 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 resources={context.resources}
                 detail={`${formatRelativeTime(chapter.uploadDate)} · ${chapter.pageCount} pages`}
                 stateLabel={chapter.isRead ? 'Read' : 'Unread'}
+                actions={
+                  <>
+                    <button
+                      className="feed-action"
+                      type="button"
+                      disabled={pendingChapterId === chapter.id}
+                      onClick={() => {
+                        setActionError(false);
+                        setPendingChapterId(chapter.id);
+                        void mangaRepository
+                          .setChapterRead(chapter.id, !chapter.isRead)
+                          .then(() => controller.load())
+                          .catch(() => setActionError(true))
+                          .finally(() => setPendingChapterId(null));
+                      }}
+                    >
+                      {chapter.isRead ? 'Unread' : 'Read'}
+                    </button>
+                    <button
+                      className="feed-action"
+                      type="button"
+                      disabled={
+                        queuedChapters.has(chapter.id) ||
+                        pendingChapterId === chapter.id
+                      }
+                      onClick={() => {
+                        setActionError(false);
+                        setPendingChapterId(chapter.id);
+                        void mangaRepository
+                          .enqueueDownload(chapter.id)
+                          .then(() =>
+                            setQueuedChapters((current) => {
+                              const next = new Set(current);
+                              next.add(chapter.id);
+                              return next;
+                            }),
+                          )
+                          .catch(() => setActionError(true))
+                          .finally(() => setPendingChapterId(null));
+                      }}
+                    >
+                      {queuedChapters.has(chapter.id) ? 'Queued' : 'Download'}
+                    </button>
+                  </>
+                }
               />
             ))}
           </div>
         </section>
       ))}
+      {actionError ? (
+        <p className="alert alert-error" role="alert">
+          Could not update this chapter.
+        </p>
+      ) : null}
     </div>
   );
 }

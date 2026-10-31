@@ -3167,6 +3167,32 @@ button.manga-card-link {
     border-color var(--dur-fast) var(--ease-out);
 }
 
+.feed-row-shell {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.feed-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  padding: 0 0.5rem 0.35rem;
+}
+
+.feed-action {
+  padding: 0.2rem 0.45rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+}
+
+.feed-action:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
 .feed-row:hover {
   border-color: var(--border);
   background: rgba(255, 255, 255, 0.04);
