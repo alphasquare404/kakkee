@@ -117,7 +117,9 @@ export function SourceFilterPanel({
       result[String(index)] = initialValue(filter);
 
       if (filter.__typename === 'GroupFilter') {
-        filter.filters.forEach((child, childIndex) => {
+        const children = Array.isArray(filter.filters) ? filter.filters : [];
+
+        children.forEach((child, childIndex) => {
           result[`${index}.${childIndex}`] = initialValue(child);
         });
       }
@@ -139,7 +141,9 @@ export function SourceFilterPanel({
 
     filters.forEach((filter, index) => {
       if (filter.__typename === 'GroupFilter') {
-        filter.filters.forEach((child, childIndex) => {
+        const children = Array.isArray(filter.filters) ? filter.filters : [];
+
+        children.forEach((child, childIndex) => {
           const value = values[`${index}.${childIndex}`] ?? initialValue(child);
           changes.push({
             position: index,
@@ -185,6 +189,8 @@ export function SourceFilterPanel({
     }
 
     if (filter.__typename === 'SelectFilter') {
+      const values = Array.isArray(filter.values) ? filter.values : [];
+
       return (
         <label className="settings-select-field">
           <span>{filter.name}</span>
@@ -192,7 +198,7 @@ export function SourceFilterPanel({
             value={Number(value)}
             onChange={(event) => setValue(key, Number(event.target.value))}
           >
-            {filter.values.map((label, index) => (
+            {values.map((label, index) => (
               <option key={`${label}-${index}`} value={index}>
                 {label}
               </option>
@@ -232,6 +238,8 @@ export function SourceFilterPanel({
     }
 
     if (filter.__typename === 'SortFilter') {
+      const values = Array.isArray(filter.values) ? filter.values : [];
+
       return (
         <label className="settings-select-field">
           <span>{filter.name}</span>
@@ -239,7 +247,7 @@ export function SourceFilterPanel({
             value={Number(value)}
             onChange={(event) => setValue(key, Number(event.target.value))}
           >
-            {filter.values.map((label, index) => (
+            {values.map((label, index) => (
               <option key={`${label}-${index}`} value={index}>
                 {label}
               </option>
@@ -263,10 +271,12 @@ export function SourceFilterPanel({
       <div className="source-filter-grid">
         {filters.map((filter, index) => {
           if (filter.__typename === 'GroupFilter') {
+            const children = Array.isArray(filter.filters) ? filter.filters : [];
+
             return (
               <fieldset className="source-filter-group" key={`${filterLabel(filter)}-${index}`}>
                 <legend>{filter.name}</legend>
-                {filter.filters.map((child, childIndex) => (
+                {children.map((child, childIndex) => (
                   <div key={`${filterLabel(child)}-${childIndex}`}>
                     {renderFilter(child, `${index}.${childIndex}`)}
                   </div>

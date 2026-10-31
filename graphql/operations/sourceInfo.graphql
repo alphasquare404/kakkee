@@ -6,48 +6,75 @@ query SourceInfo($id: LongString!) {
     lang
     contentWarning
     filters {
-      ...SourceFilterLeaf
+      __typename
+      ... on TextFilter {
+        name
+        textDefault: default
+      }
+      ... on SelectFilter {
+        name
+        selectDefault: default
+        values
+      }
+      ... on CheckBoxFilter {
+        name
+        checkDefault: default
+      }
+      ... on TriStateFilter {
+        name
+        triDefault: default
+      }
+      ... on SortFilter {
+        name
+        sortDefault: default {
+          index
+          ascending
+        }
+        values
+      }
+      ... on HeaderFilter {
+        name
+      }
+      ... on SeparatorFilter {
+        name
+      }
       ... on GroupFilter {
         name
         filters {
-          ...SourceFilterLeaf
+          __typename
+          ... on TextFilter {
+            name
+            textDefault: default
+          }
+          ... on SelectFilter {
+            name
+            selectDefault: default
+            values
+          }
+          ... on CheckBoxFilter {
+            name
+            checkDefault: default
+          }
+          ... on TriStateFilter {
+            name
+            triDefault: default
+          }
+          ... on SortFilter {
+            name
+            sortDefault: default {
+              index
+              ascending
+            }
+            values
+          }
+          ... on HeaderFilter {
+            name
+          }
+          ... on SeparatorFilter {
+            name
+          }
         }
       }
     }
-  }
-}
-
-fragment SourceFilterLeaf on Filter {
-  __typename
-  ... on TextFilter {
-    name
-    textDefault: default
-  }
-  ... on SelectFilter {
-    name
-    selectDefault: default
-    values
-  }
-  ... on CheckBoxFilter {
-    name
-    checkDefault: default
-  }
-  ... on TriStateFilter {
-    name
-    triDefault: default
-  }
-  ... on SortFilter {
-    name
-    sortDefault: default {
-      index
-      ascending
-    }
-    values
-  }
-  ... on HeaderFilter {
-    name
-  }
-  ... on SeparatorFilter {
-    name
   }
 }
