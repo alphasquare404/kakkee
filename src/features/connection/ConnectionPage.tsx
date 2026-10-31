@@ -8,6 +8,10 @@ import { Link } from 'react-router-dom';
 import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
+import {
+  getLastServerUrl,
+  saveLastServerUrl,
+} from '../../core/preferences/connectionPreferences';
 
 const ERROR_TEXT: Partial<Record<ConnectionError['code'], string>> = {
   'invalid-server-url': 'Alamat server tidak valid. Periksa format URL, termasuk skema http:// atau https://.',
@@ -50,7 +54,7 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 
 export function ConnectionPage() {
   const { state, connect, login, disconnect } = useConnection();
-  const [serverUrl, setServerUrl] = useState('');
+  const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -60,10 +64,19 @@ export function ConnectionPage() {
   const connectedHeading = useRef<HTMLHeadingElement>(null);
 
   const loginErrorCode = state.status === 'login-required' ? state.error?.code : undefined;
+  const lastServer = getLastServerUrl();
 
   useEffect(() => {
     setLocalError(null);
   }, [state.status]);
+
+  useEffect(() => {
+    if (state.status === 'connected') {
+      saveLastServerUrl(state.context.config.serverBaseUrl);
+    } else if (state.status === 'login-required') {
+      saveLastServerUrl(state.serverBaseUrl);
+    }
+  }, [state]);
 
   useEffect(() => {
     if (state.status === 'login-required') {
@@ -157,6 +170,20 @@ export function ConnectionPage() {
         <button className="button" type="submit" disabled={state.status === 'connecting'}>
           {state.status === 'connecting' ? 'Menghubungkan…' : 'Connect'}
         </button>
+        {lastServer && lastServer !== serverUrl.trim() ? (
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => {
+              setServerUrl(lastServer);
+              void connect(lastServer).catch(() => {
+                setLocalError('Koneksi tidak dapat dimulai.');
+              });
+            }}
+          >
+            Use last server
+          </button>
+        ) : null}
       </div>
     </form>
   );

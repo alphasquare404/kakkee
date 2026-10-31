@@ -46,7 +46,7 @@ frontend.
 | Authentication | NONE | `Implemented` | Yes | |
 | Authentication | UI login, token refresh, logout | `Implemented` | Yes | |
 | Authentication | Basic auth / simple login modes | `Missing` | Yes | ConnectionCoordinator currently exposes NONE/UI_LOGIN only |
-| Connection | Persist server URL and session across reload/PWA relaunch | `Missing` | Client concern | Deliberately deferred; architecture requires a storage decision |
+| Connection | Persist server URL and session across reload/PWA relaunch | `Partial` | Client storage | Last server URL remembered with one-tap reconnect; tokens/authenticated session not persisted |
 | Shell | Desktop sidebar + mobile bottom navigation | `Partial` | Client concern | All seven top-level pages now have routes; mobile uses seven compact tabs |
 | Shell | Mobile "More" overflow destination | `Partial` | Client concern | We expose all pages directly instead of an overflow sheet |
 | Navigation | Download queue badge and extension-update badge | `Partial` | DownloadStatus + extensions | Badges load on route change; no live subscription updates |
@@ -225,7 +225,7 @@ frontend.
 | Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
 | About | About route with versions/update actions | `Partial` | Yes | About data is inside Settings; no `/about` route |
-| Server config | Persist server URL/session | `Missing` | Client concern | |
+| Server config | Persist server URL/session | `Partial` | Client storage | Server URL persisted; authenticated session not persisted |
 | Localization | Translated UI | `Missing` | Client concern | |
 | Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited; new parity screens still need audits |
 
