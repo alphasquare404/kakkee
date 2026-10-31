@@ -779,6 +779,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             <LibrarySyncButton
               context={context}
               className="library-action"
+              onComplete={() => void controller.load()}
             />
           </div>
         </div>

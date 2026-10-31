@@ -78,7 +78,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         subtitle="New chapters from your library"
         count={feed.data ? `Latest ${items.length} of ${feed.data.totalCount.toLocaleString('en-US')}` : undefined}
       >
-        <LibrarySyncButton context={context} />
+        <LibrarySyncButton context={context} onComplete={() => void controller.load()} />
       </PageHeader>
 
       <div className="feed-toolbar">

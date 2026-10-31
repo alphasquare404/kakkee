@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createLibraryUpdateRepository } from '../../core/library/libraryUpdateRepository';
 import type { LibraryUpdateInfo } from '../../core/library/libraryUpdateRepository';
@@ -15,9 +15,11 @@ interface State {
 export function LibrarySyncButton({
   context,
   className = 'button button-secondary',
+  onComplete,
 }: {
   readonly context: ConnectedContext;
   readonly className?: string;
+  readonly onComplete?: () => void;
 }) {
   const store = useMemo(() => {
     let state: State = {
@@ -75,6 +77,15 @@ export function LibrarySyncButton({
     };
   }, [context.graphQL]);
   const state = useSyncExternalStore(store.subscribe, store.getState);
+  const previousRunning = useRef(false);
+
+  useEffect(() => {
+    if (previousRunning.current && !state.running && state.started) {
+      onComplete?.();
+    }
+
+    previousRunning.current = state.running;
+  }, [onComplete, state.running, state.started]);
 
   useEffect(() => {
     if (typeof context.graphQL.subscribe !== 'function') {
