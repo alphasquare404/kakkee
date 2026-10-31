@@ -1,6 +1,9 @@
+import type { ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useConnection } from './useConnection';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
+import { useI18n } from '../shared/useI18n';
+import type { MessageKey } from '../shared/i18n';
 
 function BrandMark() {
   return (
@@ -106,21 +109,28 @@ function SettingsIcon() {
   );
 }
 
-const NAV_ITEMS = [
-  { to: '/library', label: 'Library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
-  { to: '/updates', label: 'Updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
-  { to: '/browse', label: 'Browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' },
-  { to: '/search', label: 'Search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
-  { to: '/extensions', label: 'Extensions', icon: ExtensionsIcon, mobile: false, match: (path: string) => path === '/extensions' },
-  { to: '/categories', label: 'Categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
-  { to: '/history', label: 'History', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
-  { to: '/downloads', label: 'Downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
-  { to: '/settings', label: 'Settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') },
-] as const;
+const NAV_ITEMS: ReadonlyArray<{
+  readonly to: string;
+  readonly labelKey: MessageKey;
+  readonly icon: () => ReactElement;
+  readonly mobile: boolean;
+  readonly match: (path: string) => boolean;
+}> = [
+  { to: '/library', labelKey: 'nav.library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
+  { to: '/updates', labelKey: 'nav.updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
+  { to: '/browse', labelKey: 'nav.browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' },
+  { to: '/search', labelKey: 'nav.search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
+  { to: '/extensions', labelKey: 'nav.extensions', icon: ExtensionsIcon, mobile: false, match: (path: string) => path === '/extensions' },
+  { to: '/categories', labelKey: 'nav.categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
+  { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
+  { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
+  { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') },
+];
 
 export function AppLayout() {
   const { state } = useConnection();
   const location = useLocation();
+  const { t } = useI18n();
   const readerActive = location.pathname.includes('/chapter/');
   const badges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
@@ -168,7 +178,7 @@ export function AppLayout() {
                 aria-current={active ? 'page' : undefined}
               >
                 <Icon />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
                 {badge > 0 ? (
                   <span className="nav-badge" aria-label={`${badge} pending`}>
                     {badge > 99 ? '99+' : badge}
@@ -208,7 +218,7 @@ export function AppLayout() {
               aria-current={active ? 'page' : undefined}
             >
               <Icon />
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
               {badge > 0 ? (
                 <span className="nav-badge" aria-label={`${badge} pending`}>
                   {badge > 99 ? '99+' : badge}

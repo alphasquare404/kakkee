@@ -51,7 +51,7 @@ frontend.
 | Shell | Mobile "More" overflow destination | `Partial` | Client concern | We expose all pages directly instead of an overflow sheet |
 | Navigation | Download queue badge and extension-update badge | `Implemented` | Yes | Download subscription, periodic extension-update refresh, and route-change refresh |
 | App updates | Inform about WebUI/server updates | `Partial` | WebUI update query + subscriptions | PWA shell update prompt exists; server/WebUI update checker does not |
-| Localization | Upstream translations and language selection | `Missing` | Client concern | Current UI is English |
+| Localization | Upstream translations and language selection | `Partial` | Client concern | English/Indonesian locale selection; upstream message catalogs absent |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
 | PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
 | Sharing | Native share of manga/reader | `Implemented` | Client concern | Reader chapter share and manga share with clipboard fallback |
@@ -226,7 +226,7 @@ frontend.
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
 | About | About route with versions/update actions | `Partial` | Yes | About data is inside Settings; no `/about` route |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
-| Localization | Translated UI | `Missing` | Client concern | |
+| Localization | Translated UI | `Partial` | Client concern | Navigation and Appearance strings translated; remaining screens still English |
 | Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited; new parity screens still need audits |
 
 ## Immediate implementation order

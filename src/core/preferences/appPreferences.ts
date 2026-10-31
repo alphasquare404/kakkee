@@ -1,14 +1,17 @@
 export type ThemeMode = 'dark' | 'pure-black';
 export type LibraryDensity = 'compact' | 'comfortable';
+export type Locale = 'en' | 'id';
 
 export interface AppPreferences {
   readonly theme: ThemeMode;
   readonly libraryDensity: LibraryDensity;
+  readonly locale: Locale;
 }
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   theme: 'dark',
   libraryDensity: 'compact',
+  locale: 'en',
 };
 
 const STORAGE_KEY = 'suwayomi.app-preferences.v1';
@@ -30,6 +33,7 @@ function load(): AppPreferences {
       theme: parsed.theme === 'pure-black' ? 'pure-black' : 'dark',
       libraryDensity:
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
+      locale: parsed.locale === 'id' ? 'id' : 'en',
     };
   } catch {
     return DEFAULT_APP_PREFERENCES;
@@ -72,6 +76,7 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
         : patch.libraryDensity === 'compact'
           ? 'compact'
           : state.libraryDensity,
+    locale: patch.locale === 'id' ? 'id' : patch.locale === 'en' ? 'en' : state.locale,
   };
   persist(state);
   notify();
