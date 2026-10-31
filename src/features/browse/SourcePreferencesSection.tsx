@@ -31,9 +31,11 @@ export function SourcePreferencesSection({
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setStatus('loading');
 
     void repository
       .get(sourceId)
@@ -52,7 +54,7 @@ export function SourcePreferencesSection({
     return () => {
       active = false;
     };
-  }, [repository, sourceId]);
+  }, [reloadToken, repository, sourceId]);
 
   const update = (
     position: number,
@@ -78,9 +80,16 @@ export function SourcePreferencesSection({
 
   if (status === 'error') {
     return (
-      <p className="settings-inline-error" role="alert">
-        {t("Couldn't load source preferences.")}
-      </p>
+      <div className="library-state" role="alert">
+        <p>{t("Couldn't load source preferences.")}</p>
+        <button
+          className="button button-secondary"
+          type="button"
+          onClick={() => setReloadToken((value) => value + 1)}
+        >
+          {t('Retry')}
+        </button>
+      </div>
     );
   }
 

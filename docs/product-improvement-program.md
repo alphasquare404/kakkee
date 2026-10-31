@@ -16,8 +16,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 6 | Navigation regression/context | Complete | [navigation-audit.md](navigation-audit.md) | `Goal 6` |
 | 7 | User task flows | Complete | [task-flow-audit.md](task-flow-audit.md) | `Goal 7` |
 | 8 | State and feedback | Complete | [state-feedback-audit.md](state-feedback-audit.md) | `Goal 8` |
-| 9 | Error recovery | In Progress | — | — |
-| 10 | Empty states | Pending | — | — |
+| 9 | Error recovery | Complete | [error-recovery-audit.md](error-recovery-audit.md) | `Goal 9` |
+| 10 | Empty states | In Progress | — | — |
 | 11 | Accessibility | Pending | — | — |
 | 12 | Reader UX | Pending | — | — |
 | 13 | Performance/resources | Pending | — | — |
