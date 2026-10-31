@@ -160,6 +160,21 @@ export function AppLayout() {
   useEffect(() => {
     setMoreOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!moreOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMoreOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [moreOpen]);
   const readerActive = location.pathname.includes('/chapter/');
   const badges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
@@ -177,7 +192,7 @@ export function AppLayout() {
           Skip to content
         </a>
         <div className="app-frame app-frame-reader">
-          <div className="app-frame-main" id="main-content" tabIndex={-1}>
+          <div className="app-frame-main" id="main-content" tabIndex={-1} aria-label="Main content">
             <Outlet />
           </div>
         </div>
@@ -237,7 +252,7 @@ export function AppLayout() {
         </Link>
       </aside>
 
-      <div className="app-frame-main" id="main-content" tabIndex={-1}>
+      <div className="app-frame-main" id="main-content" tabIndex={-1} aria-label="Main content">
         <Outlet />
       </div>
 

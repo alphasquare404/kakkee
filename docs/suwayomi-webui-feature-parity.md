@@ -139,7 +139,7 @@ frontend.
 | Reader | Progress write / read state | `Implemented` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
 | Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
-| Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
+| Reader | Infinite chapter scrolling and transition pages | `Implemented` | Client-side | Inline next-chapter append with transition headings and chained scroll loading when auto-advance is off |
 | Reader | Skip duplicate chapters | `Implemented` | Client-side | Full chapter scan deduplicates numbers across pagination boundaries |
 | Reader | Preload pages and next chapter | `Implemented` | Client-side | Current ±1 eager pages, next chapter manifest prefetch, and first three next-chapter images prefetched |
 | Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
@@ -239,7 +239,7 @@ frontend.
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
 | Localization | Translated UI | `Partial` | Client concern | Navigation and Appearance strings translated; remaining screens still English |
-| Accessibility | Keyboard/focus/labels on implemented screens | `Partial` | Client concern | Core screens audited with skip-to-content links; new parity screens still need audits |
+| Accessibility | Keyboard/focus/labels on implemented screens | `Implemented` | Client concern | Skip-to-content, main landmark, focus-visible styles, locale lang, labelled controls, and Escape-closable More menu |
 
 ## Immediate implementation order
 

@@ -2853,6 +2853,40 @@ button.manga-card-link {
   object-fit: contain;
 }
 
+.reader-appended {
+  display: grid;
+  gap: var(--reader-gap, 2px);
+}
+
+.reader-appended-heading {
+  display: grid;
+  gap: 0.25rem;
+  place-items: center;
+  margin: var(--sp-5) 0 var(--sp-3);
+  padding: var(--sp-4);
+  text-align: center;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.reader-appended-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.reader-appended-heading h2 {
+  margin: 0;
+  font-size: var(--text-md);
+}
+
+.reader-appended-heading a {
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+
 .reader-pages.scale-original .reader-page img {
   width: auto;
   max-width: none;

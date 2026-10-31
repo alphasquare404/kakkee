@@ -20,6 +20,10 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
   }, [preferences.theme]);
 
   useEffect(() => {
+    document.documentElement.lang = preferences.locale;
+  }, [preferences.locale]);
+
+  useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--accent', preferences.accent);
     root.style.setProperty(

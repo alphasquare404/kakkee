@@ -81,12 +81,16 @@ function ConnectedReader({
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const preloadedNext = useRef<number | null>(null);
+  const loadingExtraChapter = useRef(false);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const swipeHandled = useRef(false);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [autoWebtoon, setAutoWebtoon] = useState(false);
+  const [appended, setAppended] = useState<
+    readonly { id: number; name: string; pages: readonly string[] }[]
+  >([]);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
@@ -101,6 +105,7 @@ function ConnectedReader({
       loadedChapter.current = chapterId;
       setCurrentPage(1);
       setAutoWebtoon(false);
+      setAppended([]);
       preloadedNext.current = null;
       setNextDownloadQueued(false);
       void controller.load(chapterId);
@@ -173,6 +178,91 @@ function ConnectedReader({
     reader.pages.length,
     safeCurrentPage,
   ]);
+
+  useEffect(() => {
+    const next = reader.nextChapter;
+
+    if (
+      readerSettings.autoAdvance ||
+      !next ||
+      appended.length > 0 ||
+      reader.pages.length === 0 ||
+      safeCurrentPage < reader.pages.length
+    ) {
+      return;
+    }
+
+    let active = true;
+    void controller.preload(next.id).then((pages) => {
+      if (active && pages.length > 0) {
+        setAppended([{ id: next.id, name: next.name, pages }]);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [
+    appended.length,
+    controller,
+    reader.nextChapter,
+    reader.pages.length,
+    readerSettings.autoAdvance,
+    safeCurrentPage,
+  ]);
+
+  useEffect(() => {
+    if (appended.length === 0) {
+      return;
+    }
+
+    const appendNext = () => {
+      if (loadingExtraChapter.current) {
+        return;
+      }
+
+      const nearBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 700;
+
+      if (!nearBottom) {
+        return;
+      }
+
+      const last = appended[appended.length - 1];
+
+      if (!last) {
+        return;
+      }
+
+      const index = reader.chapters.findIndex((item) => item.id === last.id);
+      const next = index >= 0 ? reader.chapters[index + 1] : undefined;
+
+      if (!next || appended.some((item) => item.id === next.id)) {
+        return;
+      }
+
+      loadingExtraChapter.current = true;
+      void controller
+        .preload(next.id)
+        .then((pages) => {
+          if (pages.length > 0) {
+            setAppended((current) =>
+              current.some((item) => item.id === next.id)
+                ? current
+                : [...current, { id: next.id, name: next.name, pages }],
+            );
+          }
+        })
+        .finally(() => {
+          loadingExtraChapter.current = false;
+        });
+    };
+
+    window.addEventListener('scroll', appendNext, { passive: true });
+
+    return () => window.removeEventListener('scroll', appendNext);
+  }, [appended, controller, reader.chapters]);
   const uniqueChapters = readerSettings.skipDuplicates
     ? [
         ...new Map(
@@ -846,6 +936,28 @@ function ConnectedReader({
               />
             ) : null;
           })}
+          {appended.map((extra) => (
+            <section className="reader-appended" key={extra.id}>
+              <div className="reader-appended-heading">
+                <p>Next chapter</p>
+                <h2>{extra.name}</h2>
+                <Link to={`/manga/${mangaId}/chapter/${extra.id}`}>
+                  Open chapter
+                </Link>
+              </div>
+              {extra.pages.map((path, index) => (
+                <ReaderPageImage
+                  key={path}
+                  resources={context.resources}
+                  path={path}
+                  pageNumber={extra.id * 1000 + index + 1}
+                  eager={false}
+                  filter={imageFilter}
+                  onVisible={noopVisible}
+                />
+              ))}
+            </section>
+          ))}
         </main>
       ) : null}
 
