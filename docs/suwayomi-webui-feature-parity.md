@@ -98,7 +98,7 @@ frontend.
 | Manga | Chapter filters and scanlator filter | `Implemented` | Yes | Search, read/download/bookmark filter, scanlator, newest/oldest; saved preferences absent |
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
 | Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
-| Manga | Per-manga reader settings | `Missing` | Client concern | |
+| Manga | Per-manga reader settings | `Partial` | Client concern | Per-manga reading-mode override; other reader settings remain global |
 | Manga | Mark all previous chapters read | `Implemented` | Yes | Per-chapter Prev action marks older unread chapters read |
 
 ### Chapters

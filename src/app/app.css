@@ -3757,6 +3757,15 @@ button.manga-card-link {
   border-bottom: 1px solid var(--border);
 }
 
+.manga-reader-override {
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.manga-reader-override .settings-select-field {
+  max-width: 20rem;
+}
+
 .manga-category-list {
   display: flex;
   flex-wrap: wrap;

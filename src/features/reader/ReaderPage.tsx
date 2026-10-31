@@ -16,6 +16,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
+import { useMangaReaderMode } from '../../shared/useMangaReaderMode';
 import { READER_FILTER_CSS } from '../../core/preferences/readerSettings';
 import type { CSSProperties, MouseEvent } from 'react';
 
@@ -71,7 +72,11 @@ function ConnectedReader({
     [context.graphQL],
   );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
-  const readerSettings = useReaderSettings();
+  const globalReaderSettings = useReaderSettings();
+  const mangaMode = useMangaReaderMode(mangaId);
+  const readerSettings = mangaMode
+    ? { ...globalReaderSettings, mode: mangaMode }
+    : globalReaderSettings;
   const imageFilter = READER_FILTER_CSS[readerSettings.filter];
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
