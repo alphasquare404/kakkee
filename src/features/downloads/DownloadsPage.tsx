@@ -383,7 +383,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                     {progress}%
                   </span>
                   <button
-                    className="library-action"
+                    className="library-action is-danger"
                     type="button"
                     disabled={downloads.isActing}
                     onClick={() =>

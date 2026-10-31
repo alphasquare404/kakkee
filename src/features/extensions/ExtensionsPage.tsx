@@ -244,7 +244,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
                 <strong>{store.name}</strong>
                 <span>{store.badgeLabel}</span>
                 <button
-                  className="library-action"
+                  className="library-action is-danger"
                   type="button"
                   disabled={extensions.storeBusy === store.indexUrl}
                   onClick={() => void controller.removeStore(store.indexUrl)}

@@ -238,10 +238,22 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             type="button"
             aria-haspopup="dialog"
             aria-expanded={filtersOpen}
+            aria-label={
+              activeFilterCount > 0
+                ? `${t('Filters')}, ${activeFilterCount} active`
+                : t('Filters')
+            }
             onClick={() => setFiltersOpen(true)}
           >
             {t('Filters')}
-            {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            {activeFilterCount > 0 ? (
+              <span className="library-action-count" aria-hidden="true">
+                {activeFilterCount}
+              </span>
+            ) : null}
+            {activeFilterCount > 0 ? (
+              <span className="sr-only">, {activeFilterCount} active</span>
+            ) : null}
           </button>
         </div>
         <form

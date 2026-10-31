@@ -6326,3 +6326,28 @@ button.manga-card-link {
   position: relative;
   z-index: 12;
 }
+
+/* Shared interaction states ---------------------------------------------- */
+
+.action-menu > summary:focus-visible,
+.category-more-trigger:focus-visible,
+.filter-option:focus-visible,
+.browse-language-select select:focus-visible,
+.library-source-filter input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filter-checkbox input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filter-option[aria-pressed="true"] {
+  font-weight: 600;
+}
+
+.library-action.is-danger:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
+}
