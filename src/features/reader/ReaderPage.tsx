@@ -10,6 +10,8 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-r
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createReaderController } from '../../core/reader/readerController';
 import { createReaderRepository } from '../../core/reader/readerRepository';
+import { createTrackingSyncRepository } from '../../core/tracking/trackingSyncRepository';
+import { getTrackingPreferences } from '../../core/preferences/trackingPreferences';
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
@@ -64,6 +66,10 @@ function ConnectedReader({
     () => createReaderController({ repository }),
     [repository],
   );
+  const trackingSync = useMemo(
+    () => createTrackingSyncRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
   const readerSettings = useReaderSettings();
   const imageFilter = READER_FILTER_CSS[readerSettings.filter];
@@ -74,6 +80,7 @@ function ConnectedReader({
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
+  const syncedChapter = useRef(0);
 
   useEffect(() => {
     if (loadedChapter.current !== chapterId) {
@@ -229,11 +236,28 @@ function ConnectedReader({
           currentPage - 1,
           currentPage >= reader.pages.length,
         )
+        .then(() => {
+          if (
+            currentPage >= reader.pages.length &&
+            getTrackingPreferences().autoSync &&
+            syncedChapter.current !== activeChapterId
+          ) {
+            syncedChapter.current = activeChapterId;
+            void trackingSync.sync(mangaId).catch(() => undefined);
+          }
+        })
         .catch(() => undefined);
     }, 900);
 
     return () => window.clearTimeout(timer);
-  }, [activeChapterId, controller, currentPage, reader.pages.length]);
+  }, [
+    activeChapterId,
+    controller,
+    currentPage,
+    mangaId,
+    reader.pages.length,
+    trackingSync,
+  ]);
 
   useEffect(
     () => () => {

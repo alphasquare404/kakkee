@@ -8,6 +8,8 @@ import {
   type Tracker,
 } from '../../core/tracking/trackingRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { useTrackingPreferences } from '../../shared/useTrackingPreferences';
+import { setAutoSyncTracking } from '../../core/preferences/trackingPreferences';
 import { PageHeader } from '../../shared/PageHeader';
 
 export function TrackingSettingsPage() {
@@ -29,6 +31,7 @@ function TrackingContent({ context }: { readonly context: ConnectedContext }) {
     return createTrackingController(repository);
   }, [context.graphQL]);
   const tracking = useSyncExternalStore(controller.subscribe, controller.getState);
+  const preferences = useTrackingPreferences();
 
   useEffect(() => {
     void controller.load();
@@ -81,6 +84,22 @@ function TrackingContent({ context }: { readonly context: ConnectedContext }) {
       ) : null}
 
       {tracking.items.length > 0 ? (
+        <div className="settings-group">
+          <div className="settings-group-heading">
+            <h2>Behaviour</h2>
+          </div>
+          <label className="settings-inline-toggle">
+            <input
+              type="checkbox"
+              checked={preferences.autoSync}
+              onChange={(event) => setAutoSyncTracking(event.target.checked)}
+            />
+            Sync tracker progress after finishing a chapter in the Reader
+          </label>
+        </div>
+      ) : null}
+
+      {tracking.items.length > 0 ? (
         <div className="tracker-list">
           {tracking.items.map((tracker) => (
             <TrackerCard
@@ -95,8 +114,8 @@ function TrackingContent({ context }: { readonly context: ConnectedContext }) {
       ) : null}
 
       <p className="settings-save-state">
-        OAuth login opens the tracker authorization page. Manga-to-tracker binding
-        is not implemented yet.
+        OAuth login opens the tracker authorization page. Per-manga binding is
+        available on each Manga Detail page.
       </p>
     </div>
   );
