@@ -79,6 +79,7 @@ export interface LibraryRepository {
   getCategories(): Promise<readonly LibraryCategory[]>;
   setLibrary(ids: readonly number[], inLibrary: boolean): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
+  removeFromCategory(ids: readonly number[], categoryId: number): Promise<void>;
   getChapterIds(mangaId: number): Promise<readonly number[]>;
   setChaptersRead(ids: readonly number[], isRead: boolean): Promise<void>;
   enqueueChapterDownloads(ids: readonly number[]): Promise<void>;
@@ -260,6 +261,21 @@ export function createLibraryRepository(
 
       if (!result.data?.updateMangasCategories) {
         throw new Error('Kategori manga tidak dapat disimpan.');
+      }
+    },
+    async removeFromCategory(ids, categoryId) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateMangasCategoriesDocument,
+        variables: {
+          input: {
+            ids: [...ids],
+            patch: { removeFromCategories: [categoryId] },
+          },
+        },
+      });
+
+      if (!result.data?.updateMangasCategories) {
+        throw new Error('Kategori manga tidak dapat dihapus.');
       }
     },
     async getChapterIds(mangaId) {

@@ -446,6 +446,28 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
+  const removeCategory = async () => {
+    if (!categoryChoice || selectedIds.size === 0) {
+      return;
+    }
+
+    setBulkBusy(true);
+    setBulkError(false);
+
+    try {
+      await controller.removeFromCategory(
+        [...selectedIds],
+        Number(categoryChoice),
+      );
+      clearSelection();
+      setSelectionMode(false);
+    } catch {
+      setBulkError(true);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const markSelectedRead = async (isRead: boolean) => {
     if (selectedIds.size === 0) {
       return;
@@ -1085,6 +1107,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 onClick={() => void applyCategory()}
               >
                 Apply category
+              </button>
+              <button
+                className="library-action"
+                type="button"
+                disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
+                onClick={() => void removeCategory()}
+              >
+                Remove from category
               </button>
               <button
                 className="library-action is-danger"

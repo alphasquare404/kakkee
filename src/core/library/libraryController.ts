@@ -57,6 +57,7 @@ export interface LibraryController {
   setCategory(categoryId: number | null): Promise<void>;
   removeFromLibrary(ids: readonly number[]): Promise<void>;
   addToCategory(ids: readonly number[], categoryId: number): Promise<void>;
+  removeFromCategory(ids: readonly number[], categoryId: number): Promise<void>;
   markRead(ids: readonly number[], isRead: boolean): Promise<void>;
   downloadMangas(ids: readonly number[]): Promise<void>;
   deleteMangaDownloads(ids: readonly number[]): Promise<void>;
@@ -302,6 +303,17 @@ export function createLibraryController(
     await options.repository.addToCategory(ids, categoryId);
   }
 
+  async function removeFromCategory(
+    ids: readonly number[],
+    categoryId: number,
+  ): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+
+    await options.repository.removeFromCategory(ids, categoryId);
+  }
+
   async function markRead(
     ids: readonly number[],
     isRead: boolean,
@@ -379,6 +391,7 @@ export function createLibraryController(
     setCategory,
     removeFromLibrary,
     addToCategory,
+    removeFromCategory,
     markRead,
     downloadMangas,
     deleteMangaDownloads,

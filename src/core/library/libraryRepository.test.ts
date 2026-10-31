@@ -414,6 +414,7 @@ describe('LibraryInputError', () => {
 
     await repository.setLibrary([1, 2], false);
     await repository.addToCategory([1], 7);
+    await repository.removeFromCategory([2], 7);
 
     expect(mutate).toHaveBeenNthCalledWith(
       1,
@@ -428,6 +429,15 @@ describe('LibraryInputError', () => {
         mutation: UpdateMangasCategoriesDocument,
         variables: {
           input: { ids: [1], patch: { addToCategories: [7] } },
+        },
+      }),
+    );
+    expect(mutate).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
+        mutation: UpdateMangasCategoriesDocument,
+        variables: {
+          input: { ids: [2], patch: { removeFromCategories: [7] } },
         },
       }),
     );

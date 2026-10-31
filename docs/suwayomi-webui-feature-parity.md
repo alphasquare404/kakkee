@@ -74,7 +74,7 @@ frontend.
 | Library | Continue-reading button / tooltip | `Implemented` | Reading progress | Progress chip, tooltip, and direct resume button with saved page |
 | Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
 | Library | Bulk download, delete downloads, mark read/unread | `Implemented` | Yes | All four bulk actions implemented with confirmation for delete |
-| Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
+| Library | Bulk category assignment | `Implemented` | Yes | Add to and remove from a selected category for selected manga |
 | Library | Bulk migrate | `Blocked by server` | No | No migration API in stable schema; single/bulk migration impossible without inventing mutations |
 | Library | Remove from library (single/bulk) | `Implemented` | Yes | Single-manga toggle on Detail and bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Partial` | Client-side | Normalized title groups over loaded library items; server-wide scan absent |
