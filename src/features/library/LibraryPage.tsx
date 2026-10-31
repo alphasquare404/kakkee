@@ -37,6 +37,7 @@ import {
 } from '../../core/preferences/libraryPreferences';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
+import { LibrarySyncButton } from './LibrarySyncButton';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
 
 type LibraryStatus = NonNullable<LibraryFilter['status']>;
@@ -775,6 +776,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               Save defaults
             </button>
+            <LibrarySyncButton
+              context={context}
+              className="library-action"
+            />
           </div>
         </div>
       </header>

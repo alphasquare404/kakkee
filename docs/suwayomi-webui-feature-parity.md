@@ -78,7 +78,7 @@ frontend.
 | Library | Bulk migrate | `Missing` | Yes | |
 | Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Missing` | Client-side | |
-| Library | Sync button | `Missing` | StartSync mutation | |
+| Library | Sync button | `Partial` | Yes | Starts `updateLibrary`; live job progress absent |
 | Library | Show unread/download badges | `Implemented` | Yes | Unread and downloaded chapter counts from `MangaType` |
 | Library | Tab item counts | `Implemented` | Yes | All total plus per-category manga counts |
 
@@ -157,7 +157,7 @@ frontend.
 | Updates | Latest chapters from library | `Partial` | Yes | ChapterFeed grouped by day; no "first unread per manga" semantics |
 | Updates | Unread/read filters, scanlator, state | `Partial` | Yes | All/Unread/Read; no scanlator filter |
 | Updates | Chapter/manga actions | `Missing` | Yes | |
-| Updates | Sync button and refresh | `Missing` | StartSync | |
+| Updates | Sync button and refresh | `Partial` | Yes | Starts library update and shows queued job count; live refresh absent |
 | History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
 | History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |

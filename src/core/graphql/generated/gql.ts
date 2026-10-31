@@ -58,6 +58,7 @@ type Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": typeof types.SourceCatalogDocument,
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": typeof types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StartDownloaderDocument,
+    "mutation StartLibraryUpdate($input: UpdateLibraryInput!) {\n  updateLibrary(input: $input) {\n    updateStatus {\n      jobsInfo {\n        isRunning\n        totalJobs\n        finishedJobs\n        skippedCategoriesCount\n        skippedMangasCount\n      }\n    }\n  }\n}": typeof types.StartLibraryUpdateDocument,
     "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": typeof types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
     "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": typeof types.SyncSettingsDocument,
@@ -121,6 +122,7 @@ const documents: Documents = {
     "query SourceCatalog($first: Int!) {\n  sources(first: $first, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      displayName\n      lang\n      isNsfw\n      contentWarning\n      supportsLatest\n      iconUrl\n    }\n    totalCount\n  }\n}": types.SourceCatalogDocument,
     "query SourceInfo($id: LongString!) {\n  source(id: $id) {\n    id\n    displayName\n    name\n    lang\n    contentWarning\n  }\n}": types.SourceInfoDocument,
     "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StartDownloaderDocument,
+    "mutation StartLibraryUpdate($input: UpdateLibraryInput!) {\n  updateLibrary(input: $input) {\n    updateStatus {\n      jobsInfo {\n        isRunning\n        totalJobs\n        finishedJobs\n        skippedCategoriesCount\n        skippedMangasCount\n      }\n    }\n  }\n}": types.StartLibraryUpdateDocument,
     "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
     "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": types.SyncSettingsDocument,
@@ -330,6 +332,10 @@ export function graphql(source: "query SourceInfo($id: LongString!) {\n  source(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"): (typeof documents)["mutation StartDownloader {\n  startDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation StartLibraryUpdate($input: UpdateLibraryInput!) {\n  updateLibrary(input: $input) {\n    updateStatus {\n      jobsInfo {\n        isRunning\n        totalJobs\n        finishedJobs\n        skippedCategoriesCount\n        skippedMangasCount\n      }\n    }\n  }\n}"): (typeof documents)["mutation StartLibraryUpdate($input: UpdateLibraryInput!) {\n  updateLibrary(input: $input) {\n    updateStatus {\n      jobsInfo {\n        isRunning\n        totalJobs\n        finishedJobs\n        skippedCategoriesCount\n        skippedMangasCount\n      }\n    }\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

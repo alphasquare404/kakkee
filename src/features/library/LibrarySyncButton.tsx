@@ -1,0 +1,84 @@
+import { useMemo, useSyncExternalStore } from 'react';
+import type { ConnectedContext } from '../../core/server/connectionCoordinator';
+import { createLibraryUpdateRepository } from '../../core/library/libraryUpdateRepository';
+
+interface State {
+  readonly running: boolean;
+  readonly started: boolean;
+  readonly total: number;
+  readonly finished: number;
+  readonly error: boolean;
+}
+
+export function LibrarySyncButton({
+  context,
+  className = 'button button-secondary',
+}: {
+  readonly context: ConnectedContext;
+  readonly className?: string;
+}) {
+  const store = useMemo(() => {
+    let state: State = {
+      running: false,
+      started: false,
+      total: 0,
+      finished: 0,
+      error: false,
+    };
+    const listeners = new Set<() => void>();
+    const repository = createLibraryUpdateRepository({
+      getClient: () => context.graphQL,
+    });
+    const notify = () => {
+      for (const listener of [...listeners]) {
+        listener();
+      }
+    };
+
+    return {
+      subscribe(listener: () => void) {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+      getState: () => state,
+      async start() {
+        state = { ...state, running: true, error: false };
+        notify();
+
+        try {
+          const info = await repository.start();
+          state = {
+            running: false,
+            started: true,
+            total: info.totalJobs,
+            finished: info.finishedJobs,
+            error: false,
+          };
+        } catch {
+          state = { ...state, running: false, error: true };
+        }
+
+        notify();
+      },
+    };
+  }, [context.graphQL]);
+  const state = useSyncExternalStore(store.subscribe, store.getState);
+
+  return (
+    <button
+      className={className}
+      type="button"
+      disabled={state.running}
+      onClick={() => void store.start()}
+      title={state.started ? `Update queued: ${state.total} jobs` : 'Update library'}
+    >
+      {state.running
+        ? 'Starting…'
+        : state.error
+          ? 'Retry sync'
+          : state.started
+            ? `Sync queued (${state.total})`
+            : 'Sync library'}
+    </button>
+  );
+}

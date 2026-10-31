@@ -9,6 +9,7 @@ import { createLoadableController } from '../../core/catalog/loadableController'
 import { feedDay, formatRelativeTime } from '../../shared/feedTime';
 import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
+import { LibrarySyncButton } from '../library/LibrarySyncButton';
 
 type FeedFilter = 'all' | 'unread' | 'read';
 
@@ -76,7 +77,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         title="Updates"
         subtitle="New chapters from your library"
         count={feed.data ? `Latest ${items.length} of ${feed.data.totalCount.toLocaleString('en-US')}` : undefined}
-      />
+      >
+        <LibrarySyncButton context={context} />
+      </PageHeader>
 
       <div className="feed-toolbar">
         <div className="feed-filters" role="group" aria-label="Filter updates">
