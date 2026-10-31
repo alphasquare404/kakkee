@@ -369,7 +369,9 @@ function ConnectedReader({
         return;
       }
 
-      if (event.key === 'Escape') {
+      if (event.key === readerSettings.backKey) {
+        event.preventDefault();
+
         if (chaptersOpen) {
           setChaptersOpen(false);
           return;
@@ -379,13 +381,20 @@ function ConnectedReader({
         return;
       }
 
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      const isPrevious = event.key === readerSettings.pagePrevKey;
+      const isNext = event.key === readerSettings.pageNextKey;
+
+      if (!isPrevious && !isNext) {
         return;
+      }
+
+      if (event.key === 'PageUp' || event.key === 'PageDown' || event.key === 'Backspace') {
+        event.preventDefault();
       }
 
       if (isPaged && !event.shiftKey) {
         const step = readingMode === 'double' ? 2 : 1;
-        const delta = event.key === 'ArrowRight' ? step : -step;
+        const delta = isNext ? step : -step;
 
         setCurrentPage((page) =>
           Math.min(
@@ -396,11 +405,11 @@ function ConnectedReader({
         return;
       }
 
-      if (event.key === 'ArrowLeft' && previousChapter) {
+      if (isPrevious && previousChapter) {
         navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`);
       }
 
-      if (event.key === 'ArrowRight' && nextChapter) {
+      if (isNext && nextChapter) {
         navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`);
       }
     };
@@ -415,6 +424,9 @@ function ConnectedReader({
     navigate,
     nextChapter,
     reader.pages.length,
+    readerSettings.backKey,
+    readerSettings.pageNextKey,
+    readerSettings.pagePrevKey,
     previousChapter,
     readingMode,
   ]);

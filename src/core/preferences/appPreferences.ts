@@ -9,6 +9,7 @@ export interface AppPreferences {
   readonly libraryView: LibraryView;
   readonly libraryBadges: boolean;
   readonly libraryContinue: boolean;
+  readonly accent: string;
   readonly locale: Locale;
 }
 
@@ -18,6 +19,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   libraryView: 'grid',
   libraryBadges: true,
   libraryContinue: true,
+  accent: '#5b7cff',
   locale: 'en',
 };
 
@@ -43,6 +45,11 @@ function load(): AppPreferences {
       libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
       libraryBadges: parsed.libraryBadges !== false,
       libraryContinue: parsed.libraryContinue !== false,
+      accent:
+        typeof parsed.accent === 'string' &&
+        /^#[0-9a-f]{6}$/i.test(parsed.accent)
+          ? parsed.accent
+          : DEFAULT_APP_PREFERENCES.accent,
       locale: parsed.locale === 'id' ? 'id' : 'en',
     };
   } catch {
@@ -100,6 +107,10 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
       typeof patch.libraryContinue === 'boolean'
         ? patch.libraryContinue
         : state.libraryContinue,
+    accent:
+      typeof patch.accent === 'string' && /^#[0-9a-f]{6}$/i.test(patch.accent)
+        ? patch.accent
+        : state.accent,
     locale: patch.locale === 'id' ? 'id' : patch.locale === 'en' ? 'en' : state.locale,
   };
   persist(state);

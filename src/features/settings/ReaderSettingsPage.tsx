@@ -7,6 +7,7 @@ import {
   updateReaderSettings,
   type ReaderDirection,
   type ReaderFilter,
+  type ReaderKey,
   type ReaderScale,
   type ReaderSettings,
 } from '../../core/preferences/readerSettings';
@@ -388,6 +389,71 @@ export function ReaderSettingsPage() {
                 <span className="settings-save-state">
                   {settings.autoScrollSpeed}×
                 </span>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-prev-key">Previous page key</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-prev-key"
+                  className="settings-select"
+                  value={settings.pagePrevKey}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      pagePrevKey: event.target.value as ReaderKey,
+                    })
+                  }
+                >
+                  <option value="ArrowLeft">Left arrow</option>
+                  <option value="PageUp">Page up</option>
+                  <option value="Escape">Escape</option>
+                  <option value="Backspace">Backspace</option>
+                </select>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-next-key">Next page key</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-next-key"
+                  className="settings-select"
+                  value={settings.pageNextKey}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      pageNextKey: event.target.value as ReaderKey,
+                    })
+                  }
+                >
+                  <option value="ArrowRight">Right arrow</option>
+                  <option value="PageDown">Page down</option>
+                  <option value="Escape">Escape</option>
+                  <option value="Backspace">Backspace</option>
+                </select>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-back-key">Back key</label>
+              </dt>
+              <dd>
+                <select
+                  id="reader-back-key"
+                  className="settings-select"
+                  value={settings.backKey}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      backKey: event.target.value as ReaderKey,
+                    })
+                  }
+                >
+                  <option value="Escape">Escape</option>
+                  <option value="Backspace">Backspace</option>
+                  <option value="ArrowLeft">Left arrow</option>
+                </select>
               </dd>
             </div>
             <div>

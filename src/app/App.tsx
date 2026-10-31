@@ -19,6 +19,23 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
     document.documentElement.dataset.theme = preferences.theme;
   }, [preferences.theme]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--accent', preferences.accent);
+    root.style.setProperty(
+      '--accent-strong',
+      `color-mix(in srgb, ${preferences.accent} 60%, #c4b5fd)`,
+    );
+    root.style.setProperty(
+      '--accent-soft',
+      `color-mix(in srgb, ${preferences.accent} 14%, transparent)`,
+    );
+    root.style.setProperty(
+      '--accent-grad',
+      `linear-gradient(135deg, ${preferences.accent} 0%, color-mix(in srgb, ${preferences.accent} 55%, #8b5cf6) 100%)`,
+    );
+  }, [preferences.accent]);
+
   return (
     <ConnectionProvider
       frontendBasePath={basePath}

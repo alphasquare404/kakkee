@@ -71,9 +71,25 @@ export function AppearanceSettingsPage() {
           <dl className="settings-rows">
             <div>
               <dt>Accent color</dt>
-              <dd>
-                <span className="settings-swatch" aria-hidden="true" />
-                Blue-violet (fixed)
+              <dd className="settings-accent-editor">
+                <input
+                  type="color"
+                  aria-label="Accent color"
+                  value={preferences.accent}
+                  onChange={(event) =>
+                    updateAppPreferences({ accent: event.target.value })
+                  }
+                />
+                <code>{preferences.accent}</code>
+                <button
+                  className="library-action"
+                  type="button"
+                  onClick={() =>
+                    updateAppPreferences({ accent: '#5b7cff' })
+                  }
+                >
+                  Reset
+                </button>
               </dd>
             </div>
             <div>

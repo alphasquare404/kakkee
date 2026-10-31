@@ -3543,6 +3543,21 @@ button.manga-card-link {
   margin-bottom: var(--sp-3);
 }
 
+.source-filter-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.source-filter-toggles label {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
 .source-preferences {
   margin-bottom: var(--sp-3);
   padding: var(--sp-3);
@@ -3610,6 +3625,29 @@ button.manga-card-link {
   font-size: var(--text-xs) !important;
   border-top: 1px solid var(--border) !important;
   border-radius: 0 !important;
+}
+
+.source-preferred-languages {
+  margin-bottom: var(--sp-3);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.source-preferred-languages summary {
+  cursor: pointer;
+}
+
+.source-preferred-languages > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.source-preferred-languages label {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
 }
 
 .source-search input {
@@ -4604,6 +4642,28 @@ button.manga-card-link {
   border: 1px solid var(--border);
   border-radius: 7px;
   background: var(--surface-sunken);
+}
+
+.settings-accent-editor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.settings-accent-editor input[type='color'] {
+  width: 2.6rem;
+  height: 2.2rem;
+  padding: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
+.settings-accent-editor code {
+  color: var(--muted);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-xs);
 }
 
 .settings-select-field select {

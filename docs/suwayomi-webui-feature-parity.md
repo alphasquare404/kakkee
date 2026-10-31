@@ -141,7 +141,7 @@ frontend.
 | Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
 | Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
-| Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |
+| Reader | Custom keybindings | `Implemented` | Client-side | Configurable previous/next page and back keys, with Shift chapter navigation |
 | Reader | Tap zones and touch drag scrolling | `Implemented` | Client-side | Left/right tap zones plus horizontal swipe paging in paged modes |
 | Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
 | Reader | Auto background color | `Implemented` | Client-side | Samples the current page and tints the Reader background when enabled |
@@ -174,8 +174,8 @@ frontend.
 |---|---|---|---|---|
 | Browse | Source catalog and language filter | `Implemented` | Yes | Real source list with language filter and source catalog navigation |
 | Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
-| Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Partial` | Metadata | Pin/last-used, saved language filter, and NSFW toggle; multi-language preference list absent |
-| Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
+| Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Implemented` | Metadata | Pin/last-used, multi-language preference list, saved language filter, and NSFW toggle |
+| Browse | Hide in-library manga, quick add/remove, duplicate check | `Implemented` | Yes | Quick add/remove plus hide-in-library and duplicate-only filters |
 | Browse | Saved source searches and global search | `Partial` | Client metadata + server | Per-source search history and `/search` page; live search across all sources absent |
 | Browse | WebView/open-in-WebView | `Platform limitation` | Platform/server | Browser frontend cannot host the server-side WebView integration |
 | Extensions | Installed/available extensions, stores, language filters | `Implemented` | Yes | Catalog, installed/available sections, language filter, name/package search, updates-only filter, store add/remove |
@@ -210,7 +210,7 @@ frontend.
 | Sync | Sync button and sync status | `Implemented` | Yes | Start sync, result state, and live `syncStatusChanged` status |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Implemented` | Yes | Data toggles, Yomi enablement/host, interval, and API key editing |
 | Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
-| Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
+| Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark and pure-black themes plus persisted custom accent color |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Implemented` | Metadata | Density, grid/list, badges, continue-reading visibility, and fuzzy filter |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, conversion lists, and cache clearing; image processing absent |
@@ -222,7 +222,7 @@ frontend.
 | Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
 | Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources with source filter and in-library counts; live fetch across every source absent |
 | Global search | Search history/suggestions | `Partial` | Client metadata | Recent global searches stored per device; remote suggestions absent |
-| Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
+| Hotkeys | Configurable app/reader hotkeys | `Implemented` | Client concern | Reader page/back keys configurable; Shift preserves chapter navigation |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |

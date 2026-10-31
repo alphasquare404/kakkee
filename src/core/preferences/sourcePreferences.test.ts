@@ -14,6 +14,7 @@ beforeEach(() => {
     pinned: [],
     lastSourceId: null,
     language: 'all',
+    preferredLanguages: [],
     showNsfw: false,
   });
 });
@@ -28,6 +29,7 @@ describe('source preferences', () => {
       pinned: ['42'],
       lastSourceId: '42',
       language: 'en',
+      preferredLanguages: [],
       showNsfw: true,
     });
 

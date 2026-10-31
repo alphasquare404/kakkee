@@ -14,6 +14,20 @@ export type ReaderFilter =
 
 export type ReaderScale = 'fit-width' | 'fit-height' | 'screen' | 'original';
 export type ReaderDirection = 'ltr' | 'rtl';
+export type ReaderKey = 'ArrowLeft' | 'ArrowRight' | 'PageUp' | 'PageDown' | 'Escape' | 'Backspace';
+
+const READER_KEYS: readonly ReaderKey[] = [
+  'ArrowLeft',
+  'ArrowRight',
+  'PageUp',
+  'PageDown',
+  'Escape',
+  'Backspace',
+];
+
+function isReaderKey(value: unknown): value is ReaderKey {
+  return typeof value === 'string' && READER_KEYS.includes(value as ReaderKey);
+}
 
 export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
   original: 'none',
@@ -66,6 +80,9 @@ export interface ReaderSettings {
   readonly autoAdvance: boolean;
   readonly autoDetectWebtoon: boolean;
   readonly autoScrollSpeed: number;
+  readonly pagePrevKey: ReaderKey;
+  readonly pageNextKey: ReaderKey;
+  readonly backKey: ReaderKey;
   readonly deleteAfterReading: boolean;
   readonly autoBackground: boolean;
   readonly profiles: Partial<Record<ReaderMode, ReaderModeProfile>>;
@@ -88,6 +105,9 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   autoAdvance: false,
   autoDetectWebtoon: false,
   autoScrollSpeed: 1,
+  pagePrevKey: 'ArrowLeft',
+  pageNextKey: 'ArrowRight',
+  backKey: 'Escape',
   deleteAfterReading: false,
   autoBackground: false,
   profiles: {},
@@ -159,6 +179,15 @@ function load(): ReaderSettings {
         10,
         DEFAULT_READER_SETTINGS.autoScrollSpeed,
       ),
+      pagePrevKey: isReaderKey(parsed.pagePrevKey)
+        ? parsed.pagePrevKey
+        : DEFAULT_READER_SETTINGS.pagePrevKey,
+      pageNextKey: isReaderKey(parsed.pageNextKey)
+        ? parsed.pageNextKey
+        : DEFAULT_READER_SETTINGS.pageNextKey,
+      backKey: isReaderKey(parsed.backKey)
+        ? parsed.backKey
+        : DEFAULT_READER_SETTINGS.backKey,
       deleteAfterReading: parsed.deleteAfterReading === true,
       autoBackground: parsed.autoBackground === true,
       profiles: parseProfiles(parsed.profiles),
@@ -346,6 +375,13 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       10,
       base.autoScrollSpeed,
     ),
+    pagePrevKey: isReaderKey(patch.pagePrevKey)
+      ? patch.pagePrevKey
+      : base.pagePrevKey,
+    pageNextKey: isReaderKey(patch.pageNextKey)
+      ? patch.pageNextKey
+      : base.pageNextKey,
+    backKey: isReaderKey(patch.backKey) ? patch.backKey : base.backKey,
     deleteAfterReading:
       typeof patch.deleteAfterReading === 'boolean'
         ? patch.deleteAfterReading

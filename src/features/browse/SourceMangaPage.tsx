@@ -18,8 +18,14 @@ import {
   clearSourceSearchHistory,
 } from '../../core/preferences/sourceSearchHistory';
 
-export function SourceMangaPage() {
-  const { state } = useConnection();
+function normalizeTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^\p{L}\p{N}]+/gu, '');
+}
+
+export function SourceMangaPage() {  const { state } = useConnection();
 
   if (state.status !== 'connected') {
     return null;
@@ -41,6 +47,8 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const source = useSyncExternalStore(controller.subscribe, controller.getState);
   const [search, setSearch] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [hideInLibrary, setHideInLibrary] = useState(false);
+  const [duplicatesOnly, setDuplicatesOnly] = useState(false);
   const searchHistory = useSourceSearchHistory(sourceId);
 
   const runSearch = (value: string) => {
@@ -54,6 +62,29 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     void controller.search(query);
   };
 
+  const titleCounts = new Map<string, number>();
+
+  for (const manga of source.mangas) {
+    const key = normalizeTitle(manga.title);
+
+    if (key) {
+      titleCounts.set(key, (titleCounts.get(key) ?? 0) + 1);
+    }
+  }
+
+  const visibleMangas = source.mangas.filter((manga) => {
+    if (hideInLibrary && manga.inLibrary) {
+      return false;
+    }
+
+    if (duplicatesOnly) {
+      const key = normalizeTitle(manga.title);
+      return Boolean(key) && (titleCounts.get(key) ?? 0) > 1;
+    }
+
+    return true;
+  });
+
   useEffect(() => {
     void controller.load(sourceId);
   }, [controller, sourceId]);
@@ -63,7 +94,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
       <PageHeader
         title={source.source?.displayName ?? 'Source'}
         subtitle={source.source?.name ?? 'Source manga catalog'}
-        count={source.status === 'ready' ? `${source.mangas.length} loaded` : undefined}
+        count={source.status === 'ready' ? `${visibleMangas.length} loaded` : undefined}
       >
         <Link className="button button-secondary" to="/browse">
           All sources
@@ -88,6 +119,24 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           >
             Latest
           </button>
+        </div>
+        <div className="source-filter-toggles">
+          <label>
+            <input
+              type="checkbox"
+              checked={hideInLibrary}
+              onChange={(event) => setHideInLibrary(event.target.checked)}
+            />
+            Hide in library
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={duplicatesOnly}
+              onChange={(event) => setDuplicatesOnly(event.target.checked)}
+            />
+            Duplicates only
+          </label>
         </div>
         <form
           className="source-search"
@@ -172,10 +221,17 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         </div>
       ) : null}
 
-      {source.mangas.length > 0 ? (
+      {source.status === 'ready' && source.mangas.length > 0 && visibleMangas.length === 0 ? (
+        <div className="library-state">
+          <h1>No manga match these filters</h1>
+          <p>Turn off a filter or load more catalog pages.</p>
+        </div>
+      ) : null}
+
+      {visibleMangas.length > 0 ? (
         <>
           <div className="source-manga-grid">
-            {source.mangas.map((manga) => (
+            {visibleMangas.map((manga) => (
               <SourceMangaCard
                 key={manga.id}
                 manga={manga}

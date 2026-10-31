@@ -5,6 +5,7 @@ export interface SourcePreferences {
   readonly pinned: readonly string[];
   readonly lastSourceId: string | null;
   readonly language: string;
+  readonly preferredLanguages: readonly string[];
   readonly showNsfw: boolean;
 }
 
@@ -19,6 +20,7 @@ function load(): SourcePreferences {
         pinned: [],
         lastSourceId: null,
         language: 'all',
+        preferredLanguages: [],
         showNsfw: false,
       };
     }
@@ -32,6 +34,11 @@ function load(): SourcePreferences {
       lastSourceId:
         typeof parsed.lastSourceId === 'string' ? parsed.lastSourceId : null,
       language: typeof parsed.language === 'string' ? parsed.language : 'all',
+      preferredLanguages: Array.isArray(parsed.preferredLanguages)
+        ? parsed.preferredLanguages.filter(
+            (value): value is string => typeof value === 'string',
+          )
+        : [],
       showNsfw: parsed.showNsfw === true,
     };
   } catch {
@@ -39,6 +46,7 @@ function load(): SourcePreferences {
       pinned: [],
       lastSourceId: null,
       language: 'all',
+      preferredLanguages: [],
       showNsfw: false,
     };
   }

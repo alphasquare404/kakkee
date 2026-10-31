@@ -88,6 +88,7 @@ function SourceCard({
 function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const preferences = useSourcePreferences();
   const [language, setLanguage] = useState(preferences.language);
+  const [preferredOnly, setPreferredOnly] = useState(false);
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -128,7 +129,12 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const filtered = preferences.showNsfw
     ? visible
     : visible.filter((source) => source.contentWarning !== 'NSFW');
-  const ordered = [...filtered].sort((left, right) => {
+  const preferred = preferredOnly
+    ? filtered.filter((source) =>
+        preferences.preferredLanguages.includes(source.lang.toLowerCase()),
+      )
+    : filtered;
+  const ordered = [...preferred].sort((left, right) => {
     const leftPinned = preferences.pinned.includes(left.id) ? 1 : 0;
     const rightPinned = preferences.pinned.includes(right.id) ? 1 : 0;
 
@@ -192,7 +198,40 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         >
           NSFW
         </button>
+        <button
+          className={preferredOnly ? 'is-active' : undefined}
+          type="button"
+          aria-pressed={preferredOnly}
+          disabled={preferences.preferredLanguages.length === 0}
+          onClick={() => setPreferredOnly((value) => !value)}
+        >
+          Preferred
+        </button>
       </div>
+
+      <details className="source-preferred-languages">
+        <summary>Preferred languages</summary>
+        <div>
+          {languages
+            .filter((entry) => entry.value !== 'all' && entry.value !== 'multi')
+            .map((entry) => (
+              <label key={entry.value}>
+                <input
+                  type="checkbox"
+                  checked={preferences.preferredLanguages.includes(entry.value)}
+                  onChange={(event) => {
+                    const current = preferences.preferredLanguages;
+                    const next = event.target.checked
+                      ? [...current, entry.value]
+                      : current.filter((value) => value !== entry.value);
+                    updateSourcePreferences({ preferredLanguages: next });
+                  }}
+                />
+                {entry.label}
+              </label>
+            ))}
+        </div>
+      </details>
 
       {sources.isLoading && !sources.data ? (
         <div className="source-grid" aria-hidden="true">

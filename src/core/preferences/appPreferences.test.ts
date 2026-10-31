@@ -31,6 +31,7 @@ describe('app preferences', () => {
       libraryView: 'grid',
       libraryBadges: true,
       libraryContinue: true,
+      accent: '#5b7cff',
       locale: 'en',
     });
     expect(getReaderSettings()).toBeDefined();
