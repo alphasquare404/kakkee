@@ -18,8 +18,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 8 | State and feedback | Complete | [state-feedback-audit.md](state-feedback-audit.md) | `Goal 8` |
 | 9 | Error recovery | Complete | [error-recovery-audit.md](error-recovery-audit.md) | `Goal 9` |
 | 10 | Empty states | Complete | [empty-state-audit.md](empty-state-audit.md) | `Goal 10` |
-| 11 | Accessibility | In Progress | — | — |
-| 12 | Reader UX | Pending | — | — |
+| 11 | Accessibility | Complete | [accessibility-audit.md](accessibility-audit.md) | `Goal 11` |
+| 12 | Reader UX | In Progress | — | — |
 | 13 | Performance/resources | Pending | — | — |
 | 14 | PWA/offline | Pending | — | — |
 | 15 | Visual hierarchy | Pending | — | — |

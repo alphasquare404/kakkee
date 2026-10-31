@@ -6404,3 +6404,39 @@ button.manga-card-link {
 .download-empty p {
   margin: 0;
 }
+
+/* Touch targets on phone: repeated item actions should remain reachable
+   without forcing the desktop density everywhere. */
+@media (max-width: 720px) {
+  .chapter-icon-button,
+  .chapter-read-toggle,
+  .chapter-select-check {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .chapter-actions {
+    gap: 0.15rem;
+  }
+
+  .filter-option,
+  .filter-checkbox {
+    min-height: 2.75rem;
+  }
+
+  .category-more-trigger,
+  .source-library-button,
+  .feed-action,
+  .download-cancel {
+    min-height: 2.5rem;
+  }
+
+  .feed-action {
+    padding-inline: 0.6rem;
+  }
+
+  .action-menu-panel :is(a, button) {
+    min-height: 2.75rem;
+  }
+}
+
