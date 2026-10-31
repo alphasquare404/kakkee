@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { ApolloClient } from '@apollo/client';
+import { DownloadStatusChangedDocument } from '../core/graphql/generated/graphql';
 import {
   createNavigationController,
   type NavigationController,
@@ -34,6 +35,30 @@ export function useNavigationBadges(
   useEffect(() => {
     void controller?.load();
   }, [controller, pathname]);
+
+  useEffect(() => {
+    if (!graphQL || typeof graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const observable = graphQL.subscribe({
+      query: DownloadStatusChangedDocument,
+    });
+    const subscription = observable.subscribe({
+      next: () => {
+        void controller?.load();
+      },
+      error: () => undefined,
+    });
+    const interval = window.setInterval(() => {
+      void controller?.load();
+    }, 60_000);
+
+    return () => {
+      subscription.unsubscribe();
+      window.clearInterval(interval);
+    };
+  }, [controller, graphQL]);
 
   return useSyncExternalStore(
     controller?.subscribe ?? emptySubscribe,

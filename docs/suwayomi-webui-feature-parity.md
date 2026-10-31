@@ -49,7 +49,7 @@ frontend.
 | Connection | Persist server URL and session across reload/PWA relaunch | `Partial` | Client storage | Last server URL remembered with one-tap reconnect; tokens/authenticated session not persisted |
 | Shell | Desktop sidebar + mobile bottom navigation | `Partial` | Client concern | All seven top-level pages now have routes; mobile uses seven compact tabs |
 | Shell | Mobile "More" overflow destination | `Partial` | Client concern | We expose all pages directly instead of an overflow sheet |
-| Navigation | Download queue badge and extension-update badge | `Partial` | DownloadStatus + extensions | Badges load on route change; no live subscription updates |
+| Navigation | Download queue badge and extension-update badge | `Implemented` | Yes | Download subscription, periodic extension-update refresh, and route-change refresh |
 | App updates | Inform about WebUI/server updates | `Partial` | WebUI update query + subscriptions | PWA shell update prompt exists; server/WebUI update checker does not |
 | Localization | Upstream translations and language selection | `Missing` | Client concern | Current UI is English |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
