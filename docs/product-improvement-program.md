@@ -14,8 +14,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 4 | UI consistency | Complete | [ui-consistency-audit.md](ui-consistency-audit.md) | `Goal 4` |
 | 5 | Responsive/adaptive layout | Complete | [responsive-layout-audit.md](responsive-layout-audit.md) | `Goal 5` |
 | 6 | Navigation regression/context | Complete | [navigation-audit.md](navigation-audit.md) | `Goal 6` |
-| 7 | User task flows | In Progress | — | — |
-| 8 | State and feedback | Pending | — | — |
+| 7 | User task flows | Complete | [task-flow-audit.md](task-flow-audit.md) | `Goal 7` |
+| 8 | State and feedback | In Progress | — | — |
 | 9 | Error recovery | Pending | — | — |
 | 10 | Empty states | Pending | — | — |
 | 11 | Accessibility | Pending | — | — |

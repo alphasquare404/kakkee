@@ -55,6 +55,7 @@ registerMessages('id', {
   'Load more': 'Muat lebih banyak',
   'In library': 'Di perpustakaan',
   'Add to library': 'Tambahkan ke perpustakaan',
+  'Remove from library': 'Hapus dari perpustakaan',
 });
 import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
 import {
@@ -469,6 +470,7 @@ function SourceMangaCard({
         type="button"
         disabled={busy}
         aria-pressed={manga.inLibrary}
+        title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
         onClick={onToggleLibrary}
       >
         {manga.inLibrary ? t('In library') : t('Add to library')}

@@ -77,8 +77,8 @@ export function MangaTrackingSection({
 
       {tracking.status === 'ready' && tracking.records.length === 0 ? (
         <p className="settings-save-state">
-          No tracker is linked to this manga. Search-and-bind is not implemented
-          yet.
+          No tracker is linked to this manga. Search for it below or log in to a
+          tracker in Settings.
         </p>
       ) : null}
 
