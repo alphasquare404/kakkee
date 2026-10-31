@@ -3392,6 +3392,19 @@ button.manga-card-link {
   margin-bottom: var(--sp-3);
 }
 
+.source-preferences {
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.source-preference-list {
+  display: grid;
+  gap: var(--sp-2);
+}
+
 .source-search {
   display: flex;
   flex: 1 1 18rem;

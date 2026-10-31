@@ -1,0 +1,53 @@
+query SourcePreferences($sourceId: LongString!) {
+  source(id: $sourceId) {
+    id
+    displayName
+    preferences {
+      __typename
+      ... on CheckBoxPreference {
+        key
+        title
+        summary
+        checkValue: currentValue
+        enabled
+        visible
+      }
+      ... on SwitchPreference {
+        key
+        title
+        summary
+        switchValue: currentValue
+        enabled
+        visible
+      }
+      ... on EditTextPreference {
+        key
+        title
+        summary
+        textValue: currentValue
+        enabled
+        visible
+      }
+      ... on ListPreference {
+        key
+        title
+        summary
+        listValue: currentValue
+        entries
+        entryValues
+        enabled
+        visible
+      }
+      ... on MultiSelectListPreference {
+        key
+        title
+        summary
+        multiValue: currentValue
+        entries
+        entryValues
+        enabled
+        visible
+      }
+    }
+  }
+}

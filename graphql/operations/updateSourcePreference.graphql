@@ -1,0 +1,27 @@
+mutation UpdateSourcePreference($input: UpdateSourcePreferenceInput!) {
+  updateSourcePreference(input: $input) {
+    preferences {
+      __typename
+      ... on CheckBoxPreference {
+        key
+        checkValue: currentValue
+      }
+      ... on SwitchPreference {
+        key
+        switchValue: currentValue
+      }
+      ... on EditTextPreference {
+        key
+        textValue: currentValue
+      }
+      ... on ListPreference {
+        key
+        listValue: currentValue
+      }
+      ... on MultiSelectListPreference {
+        key
+        multiValue: currentValue
+      }
+    }
+  }
+}

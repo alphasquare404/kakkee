@@ -11,6 +11,7 @@ import {
 } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { SourcePreferencesSection } from './SourcePreferencesSection';
 
 export function SourceMangaPage() {
   const { state } = useConnection();
@@ -89,6 +90,8 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           </button>
         </form>
       </div>
+
+      <SourcePreferencesSection context={context} sourceId={sourceId} />
 
       {source.actionError ? (
         <p className="settings-inline-error" role="alert">
