@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useConnection } from './useConnection';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
@@ -109,6 +109,16 @@ function SettingsIcon() {
   );
 }
 
+function MoreIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="4.5" cy="10" r="1.2" fill="currentColor" />
+      <circle cx="10" cy="10" r="1.2" fill="currentColor" />
+      <circle cx="15.5" cy="10" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
 const NAV_ITEMS: ReadonlyArray<{
   readonly to: string;
   readonly labelKey: MessageKey;
@@ -127,10 +137,29 @@ const NAV_ITEMS: ReadonlyArray<{
   { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') },
 ];
 
+const MOBILE_PRIMARY_ROUTES = new Set([
+  '/library',
+  '/updates',
+  '/browse',
+  '/search',
+]);
+
 export function AppLayout() {
   const { state } = useConnection();
   const location = useLocation();
   const { t } = useI18n();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const mobilePrimaryItems = NAV_ITEMS.filter(
+    (item) => item.mobile && MOBILE_PRIMARY_ROUTES.has(item.to),
+  );
+  const mobileMoreItems = NAV_ITEMS.filter(
+    (item) => item.mobile && !MOBILE_PRIMARY_ROUTES.has(item.to),
+  );
+  const moreActive = mobileMoreItems.some((item) => item.match(location.pathname));
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [location.pathname]);
   const readerActive = location.pathname.includes('/chapter/');
   const badges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
@@ -213,10 +242,9 @@ export function AppLayout() {
       </div>
 
       <nav className="mobile-nav" aria-label="Primary navigation">
-        {NAV_ITEMS.filter((item) => item.mobile).map((item) => {
+        {mobilePrimaryItems.map((item) => {
           const Icon = item.icon;
           const active = item.match(location.pathname);
-          const badge = item.to === '/downloads' ? badges.downloads : 0;
 
           return (
             <Link
@@ -227,15 +255,59 @@ export function AppLayout() {
             >
               <Icon />
               <span>{t(item.labelKey)}</span>
-              {badge > 0 ? (
-                <span className="nav-badge" aria-label={`${badge} pending`}>
-                  {badge > 99 ? '99+' : badge}
-                </span>
-              ) : null}
             </Link>
           );
         })}
+        <button
+          className={`mobile-nav-item mobile-more-trigger${
+            moreActive || moreOpen ? ' is-active' : ''
+          }`}
+          type="button"
+          aria-expanded={moreOpen}
+          aria-controls="mobile-more-menu"
+          onClick={() => setMoreOpen((value) => !value)}
+        >
+          <MoreIcon />
+          <span>{t('nav.more')}</span>
+          {badges.downloads > 0 ? (
+            <span className="nav-badge" aria-label={`${badges.downloads} pending`}>
+              {badges.downloads > 99 ? '99+' : badges.downloads}
+            </span>
+          ) : null}
+        </button>
       </nav>
+
+      {moreOpen ? (
+        <div
+          className="mobile-more-menu"
+          id="mobile-more-menu"
+          role="dialog"
+          aria-label="More navigation"
+        >
+          {mobileMoreItems.map((item) => {
+            const Icon = item.icon;
+            const active = item.match(location.pathname);
+            const badge = item.to === '/downloads' ? badges.downloads : 0;
+
+            return (
+              <Link
+                className={`mobile-more-link${active ? ' is-active' : ''}`}
+                key={item.to}
+                to={item.to}
+                aria-current={active ? 'page' : undefined}
+              >
+                <Icon />
+                <span>{t(item.labelKey)}</span>
+                {badge > 0 ? (
+                  <span className="nav-badge" aria-label={`${badge} pending`}>
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                ) : null}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
     </div>
   );
 }

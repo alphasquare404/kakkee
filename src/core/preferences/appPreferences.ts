@@ -7,6 +7,8 @@ export interface AppPreferences {
   readonly theme: ThemeMode;
   readonly libraryDensity: LibraryDensity;
   readonly libraryView: LibraryView;
+  readonly libraryBadges: boolean;
+  readonly libraryContinue: boolean;
   readonly locale: Locale;
 }
 
@@ -14,6 +16,8 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   theme: 'dark',
   libraryDensity: 'compact',
   libraryView: 'grid',
+  libraryBadges: true,
+  libraryContinue: true,
   locale: 'en',
 };
 
@@ -37,6 +41,8 @@ function load(): AppPreferences {
       libraryDensity:
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
       libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
+      libraryBadges: parsed.libraryBadges !== false,
+      libraryContinue: parsed.libraryContinue !== false,
       locale: parsed.locale === 'id' ? 'id' : 'en',
     };
   } catch {
@@ -86,6 +92,14 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
         : patch.libraryView === 'grid'
           ? 'grid'
           : state.libraryView,
+    libraryBadges:
+      typeof patch.libraryBadges === 'boolean'
+        ? patch.libraryBadges
+        : state.libraryBadges,
+    libraryContinue:
+      typeof patch.libraryContinue === 'boolean'
+        ? patch.libraryContinue
+        : state.libraryContinue,
     locale: patch.locale === 'id' ? 'id' : patch.locale === 'en' ? 'en' : state.locale,
   };
   persist(state);

@@ -370,6 +370,10 @@ h2[tabindex="-1"]:focus {
   display: none;
 }
 
+.mobile-more-menu {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .app-frame {
     display: block;
@@ -425,6 +429,48 @@ h2[tabindex="-1"]:focus {
 
   .mobile-nav-item.is-active {
     color: var(--accent);
+  }
+
+  .mobile-more-trigger {
+    position: relative;
+    border: 0;
+    background: transparent;
+  }
+
+  .mobile-more-menu {
+    position: fixed;
+    right: max(0.5rem, env(safe-area-inset-right));
+    bottom: calc(var(--mobile-nav-height) + 0.5rem);
+    z-index: 31;
+    display: grid;
+    width: min(17rem, calc(100vw - 1rem));
+    padding: 0.4rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface-glass);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+  }
+
+  .mobile-more-link {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: center;
+    padding: 0.65rem 0.7rem;
+    color: var(--text);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    border-radius: 8px;
+  }
+
+  .mobile-more-link svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-more-link.is-active {
+    color: var(--accent);
+    background: var(--accent-soft);
   }
 }
 

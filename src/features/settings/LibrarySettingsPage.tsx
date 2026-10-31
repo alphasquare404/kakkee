@@ -48,6 +48,38 @@ export function LibrarySettingsPage() {
           </div>
         </section>
 
+        <section className="settings-section" aria-labelledby="library-cards-heading">
+          <div className="section-heading-row">
+            <h2 id="library-cards-heading">Cards</h2>
+          </div>
+          <div className="settings-toggle-list">
+            <label className="settings-toggle">
+              <span>Show unread and download badges</span>
+              <input
+                type="checkbox"
+                checked={preferences.libraryBadges}
+                onChange={(event) =>
+                  updateAppPreferences({
+                    libraryBadges: event.target.checked,
+                  })
+                }
+              />
+            </label>
+            <label className="settings-toggle">
+              <span>Show continue-reading progress and shortcut</span>
+              <input
+                type="checkbox"
+                checked={preferences.libraryContinue}
+                onChange={(event) =>
+                  updateAppPreferences({
+                    libraryContinue: event.target.checked,
+                  })
+                }
+              />
+            </label>
+          </div>
+        </section>
+
         <section className="settings-section" aria-labelledby="library-info-heading">
           <div className="section-heading-row">
             <h2 id="library-info-heading">Display</h2>

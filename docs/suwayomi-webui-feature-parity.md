@@ -47,8 +47,8 @@ frontend.
 | Authentication | UI login, token refresh, logout | `Implemented` | Yes | |
 | Authentication | Basic auth / simple login modes | `Missing` | Yes | ConnectionCoordinator currently exposes NONE/UI_LOGIN only |
 | Connection | Persist server URL and session across reload/PWA relaunch | `Implemented` | Client storage | Opt-in refresh-token persistence plus server URL/auto-connect; access token stays in memory |
-| Shell | Desktop sidebar + mobile bottom navigation | `Partial` | Client concern | All seven top-level pages now have routes; mobile uses seven compact tabs |
-| Shell | Mobile "More" overflow destination | `Partial` | Client concern | We expose all pages directly instead of an overflow sheet |
+| Shell | Desktop sidebar + mobile bottom navigation | `Implemented` | Client concern | Desktop sidebar plus five primary mobile tabs and a More sheet |
+| Shell | Mobile "More" overflow destination | `Implemented` | Client concern | More sheet contains Categories, History, Downloads, and Settings with badges/active state |
 | Navigation | Download queue badge and extension-update badge | `Implemented` | Yes | Download subscription, periodic extension-update refresh, and route-change refresh |
 | App updates | Inform about WebUI/server updates | `Implemented` | WebUI update query + subscriptions | PWA update prompt, WebUI update check, and server update check on `/about` |
 | Localization | Upstream translations and language selection | `Partial` | Client concern | English/Indonesian locale selection; upstream message catalogs absent |
@@ -62,7 +62,7 @@ frontend.
 |---|---|---|---|---|
 | Library | Poster grid with authenticated thumbnails | `Implemented` | Yes | Real ResourceService thumbnails |
 | Library | List / comfortable grid / compact grid | `Implemented` | Client concern | Grid/list toggle plus compact/comfortable density |
-| Library | Categories and category counts | `Partial` | Yes | Category tabs and counts on Categories page; library tab counts not shown |
+| Library | Categories and category counts | `Implemented` | Yes | Category tabs in Library and the Categories page both show real manga counts |
 | Library | Search | `Implemented` | Yes | Server-side search |
 | Library | Fuzzy search | `Partial` | Client-side/upstream metadata | Token/subsequence fuzzy filter over loaded titles; not a server-wide fuzzy query |
 | Library | Search autocomplete and search history | `Partial` | Client-side | Recent-search suggestions and history stored per device; remote autocomplete absent |
@@ -87,7 +87,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Manga | Cover, title, author/artist, status, source, genres, description | `Implemented` | Yes | Ambient hero from real cover |
-| Manga | Library add/remove and category picker | `Partial` | Yes | In-library toggle and category picker; bulk library actions absent |
+| Manga | Library add/remove and category picker | `Implemented` | Yes | In-library toggle, category picker, and Library bulk add/remove/category actions |
 | Manga | Continue reading from last page | `Implemented` | Reading progress | Detail links the in-progress chapter with `?page=`; reader resumes that page |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Implemented` | Manga meta mutations | Notes stored in manga meta with save/clear |
@@ -212,7 +212,7 @@ frontend.
 | Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
-| Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
+| Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Implemented` | Metadata | Density, grid/list, badges, continue-reading visibility, and fuzzy filter |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, conversion lists, and cache clearing; image processing absent |
 | Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |

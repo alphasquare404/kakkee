@@ -10,6 +10,7 @@ type MessageKey =
   | 'nav.history'
   | 'nav.downloads'
   | 'nav.settings'
+  | 'nav.more'
   | 'common.allSettings'
   | 'appearance.title'
   | 'appearance.subtitle'
@@ -28,6 +29,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.history': 'History',
     'nav.downloads': 'Downloads',
     'nav.settings': 'Settings',
+    'nav.more': 'More',
     'common.allSettings': 'All settings',
     'appearance.title': 'Appearance',
     'appearance.subtitle': 'Theme and application surface',
@@ -45,6 +47,7 @@ const MESSAGES: Record<Locale, Record<MessageKey, string>> = {
     'nav.history': 'Riwayat',
     'nav.downloads': 'Unduhan',
     'nav.settings': 'Pengaturan',
+    'nav.more': 'Lainnya',
     'common.allSettings': 'Semua pengaturan',
     'appearance.title': 'Tampilan',
     'appearance.subtitle': 'Tema dan permukaan aplikasi',

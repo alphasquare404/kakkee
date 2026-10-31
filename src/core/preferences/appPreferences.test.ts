@@ -29,6 +29,8 @@ describe('app preferences', () => {
       theme: 'dark',
       libraryDensity: 'comfortable',
       libraryView: 'grid',
+      libraryBadges: true,
+      libraryContinue: true,
       locale: 'en',
     });
     expect(getReaderSettings()).toBeDefined();
