@@ -398,7 +398,7 @@ function ConnectedReader({
     }
 
     const timer = window.setInterval(() => {
-      window.scrollBy(0, 1);
+      window.scrollBy(0, readerSettings.autoScrollSpeed);
     }, 45);
 
     const stop = () => setAutoScrolling(false);
@@ -410,7 +410,7 @@ function ConnectedReader({
       window.removeEventListener('wheel', stop);
       window.removeEventListener('touchstart', stop);
     };
-  }, [autoScrolling]);
+  }, [autoScrolling, readerSettings.autoScrollSpeed]);
 
   const selectPageFromTap = (event: MouseEvent<HTMLElement>) => {
     if (!isPaged) {

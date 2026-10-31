@@ -46,6 +46,7 @@ describe('reader settings', () => {
       firstPageOffset: 24,
       skipDuplicates: true,
       autoAdvance: false,
+      autoScrollSpeed: 1,
       deleteAfterReading: false,
       autoBackground: false,
       profiles: {},

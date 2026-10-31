@@ -205,6 +205,7 @@ export function ReaderSettingsPage() {
                 >
                   <option value="fit-width">Fit width</option>
                   <option value="fit-height">Fit height</option>
+                  <option value="screen">Fit screen</option>
                   <option value="original">Original size</option>
                 </select>
               </dd>
@@ -278,6 +279,29 @@ export function ReaderSettingsPage() {
                   />
                   Open the next chapter after the last page
                 </label>
+              </dd>
+            </div>
+            <div>
+              <dt>
+                <label htmlFor="reader-auto-scroll-speed">Auto-scroll speed</label>
+              </dt>
+              <dd>
+                <input
+                  id="reader-auto-scroll-speed"
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={settings.autoScrollSpeed}
+                  onChange={(event) =>
+                    updateReaderSettings({
+                      autoScrollSpeed: Number(event.target.value),
+                    })
+                  }
+                />
+                <span className="settings-save-state">
+                  {settings.autoScrollSpeed}×
+                </span>
               </dd>
             </div>
             <div>

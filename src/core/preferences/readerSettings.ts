@@ -12,7 +12,7 @@ export type ReaderFilter =
   | 'invert'
   | 'contrast';
 
-export type ReaderScale = 'fit-width' | 'fit-height' | 'original';
+export type ReaderScale = 'fit-width' | 'fit-height' | 'screen' | 'original';
 export type ReaderDirection = 'ltr' | 'rtl';
 
 export const READER_FILTER_CSS: Record<ReaderFilter, string> = {
@@ -44,6 +44,7 @@ export interface ReaderSettings {
   readonly firstPageOffset: number;
   readonly skipDuplicates: boolean;
   readonly autoAdvance: boolean;
+  readonly autoScrollSpeed: number;
   readonly deleteAfterReading: boolean;
   readonly autoBackground: boolean;
   readonly profiles: Partial<Record<ReaderMode, ReaderModeProfile>>;
@@ -61,6 +62,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   firstPageOffset: 0,
   skipDuplicates: false,
   autoAdvance: false,
+  autoScrollSpeed: 1,
   deleteAfterReading: false,
   autoBackground: false,
   profiles: {},
@@ -107,6 +109,12 @@ function load(): ReaderSettings {
       ),
       skipDuplicates: parsed.skipDuplicates === true,
       autoAdvance: parsed.autoAdvance === true,
+      autoScrollSpeed: clampNumber(
+        parsed.autoScrollSpeed,
+        1,
+        10,
+        DEFAULT_READER_SETTINGS.autoScrollSpeed,
+      ),
       deleteAfterReading: parsed.deleteAfterReading === true,
       autoBackground: parsed.autoBackground === true,
       profiles: parseProfiles(parsed.profiles),
@@ -193,6 +201,7 @@ function isReaderScale(value: unknown): value is ReaderScale {
   return (
     value === 'fit-width' ||
     value === 'fit-height' ||
+    value === 'screen' ||
     value === 'original'
   );
 }
@@ -265,6 +274,12 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       typeof patch.autoAdvance === 'boolean'
         ? patch.autoAdvance
         : base.autoAdvance,
+    autoScrollSpeed: clampNumber(
+      patch.autoScrollSpeed ?? base.autoScrollSpeed,
+      1,
+      10,
+      base.autoScrollSpeed,
+    ),
     deleteAfterReading:
       typeof patch.deleteAfterReading === 'boolean'
         ? patch.deleteAfterReading

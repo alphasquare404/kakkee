@@ -127,7 +127,7 @@ frontend.
 | Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
 | Reader | Webtoon mode + auto detection | `Partial` | Client-side | Webtoon layout exists; auto detection absent |
 | Reader | Reading direction (LTR/RTL) | `Partial` | Client-side | Direction setting applied to double-page order and horizontal flow |
-| Reader | Page scale modes (width/height/screen/original) | `Partial` | Client-side | Fit width, fit height, and original size |
+| Reader | Page scale modes (width/height/screen/original) | `Implemented` | Client-side | Fit width, fit height, fit screen, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
 | Reader | Page gap, first-page offset, safe-area inset | `Implemented` | Client-side | Gap, first-page offset, safe-area padding, and per-mode layout defaults |
 | Reader | Reader defaults per mode | `Implemented` | Client metadata | Save layout per mode and restore on mode switch |
@@ -140,7 +140,7 @@ frontend.
 | Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter not preloaded |
 | Reader | Image filters (brightness/contrast/etc.) | `Partial` | Client-side | Grayscale, sepia, invert, and high-contrast presets; per-channel sliders absent |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
-| Reader | Auto-scroll and custom scroll amount | `Partial` | Client-side | Auto-scroll toggle with wheel/touch stop; speed control absent |
+| Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
 | Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |
 | Reader | Tap zones and touch drag scrolling | `Partial` | Client-side | Left/right tap zones in paged modes; drag scrolling not customized |
 | Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
