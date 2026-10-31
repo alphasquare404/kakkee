@@ -25,8 +25,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 15 | Visual hierarchy | Complete | [visual-hierarchy-audit.md](visual-hierarchy-audit.md) | `Goal 15` |
 | 16 | Motion/microinteractions | Complete | [motion-audit.md](motion-audit.md) | `Goal 16` |
 | 17 | Content/copy | Complete | [content-copy-audit.md](content-copy-audit.md) | `Goal 17` |
-| 18 | Extreme data/stress | In Progress | — | — |
-| 19 | Preference persistence | Pending | — | — |
+| 18 | Extreme data/stress | Complete | [stress-data-audit.md](stress-data-audit.md) | `Goal 18` |
+| 19 | Preference persistence | In Progress | — | — |
 | 20 | Cross-feature coherence | Pending | — | — |
 | 21 | Final product coherence | Pending | — | — |
 

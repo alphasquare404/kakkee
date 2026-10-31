@@ -6502,3 +6502,19 @@ button.manga-card-link {
     animation: none;
   }
 }
+
+/* Stress safety: long labels and large repeated lists. */
+.page-title-row h1,
+.manga-hero-body h1,
+.manga-card-title,
+.source-manga-card h2,
+.extension-copy h3 {
+  overflow-wrap: anywhere;
+}
+
+.chapter-item,
+.downloaded-row,
+.extension-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 72px;
+}
