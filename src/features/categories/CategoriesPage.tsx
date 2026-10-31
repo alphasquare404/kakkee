@@ -9,6 +9,39 @@ import {
   type Category,
 } from '../../core/categories/categoryRepository';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Categories: 'Kategori',
+  'Organize your library': 'Atur perpustakaan Anda',
+  '{count} categories': '{count} kategori',
+  'New category': 'Kategori baru',
+  'Category name': 'Nama kategori',
+  Create: 'Buat',
+  Cancel: 'Batal',
+  'The last category change was rejected by the server.':
+    'Perubahan kategori terakhir ditolak server.',
+  'Couldn’t load categories': 'Tidak dapat memuat kategori',
+  'The categories could not be loaded from your server.':
+    'Kategori tidak dapat dimuat dari server Anda.',
+  Retry: 'Coba lagi',
+  'No categories': 'Belum ada kategori',
+  'Create a category to organize your library.':
+    'Buat kategori untuk mengatur perpustakaan Anda.',
+  Save: 'Simpan',
+  '{count} manga': '{count} manga',
+  'Default': 'Default',
+  'Include in updates': 'Sertakan dalam update',
+  'Include in downloads': 'Sertakan dalam unduhan',
+  'Delete this category?': 'Hapus kategori ini?',
+  Confirm: 'Konfirmasi',
+  Rename: 'Ubah nama',
+  'Move up': 'Naikkan',
+  'Move down': 'Turunkan',
+  'Set default': 'Jadikan default',
+  Delete: 'Hapus',
+});
 
 export function CategoriesPage() {
   const { state } = useConnection();
@@ -21,6 +54,7 @@ export function CategoriesPage() {
 }
 
 function CategoriesContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(() => {
     const repository = createCategoryRepository({
       getClient: () => context.graphQL,
@@ -81,16 +115,20 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
   return (
     <div className="app-shell page-shell categories-shell">
       <PageHeader
-        title="Categories"
-        subtitle="Organize your library"
-        count={categories.status === 'ready' ? `${items.length} categories` : undefined}
+        title={t('Categories')}
+        subtitle={t('Organize your library')}
+        count={
+          categories.status === 'ready'
+            ? t('{count} categories', { count: items.length })
+            : undefined
+        }
       >
         <button
           className="button"
           type="button"
           onClick={() => setCreating((value) => !value)}
         >
-          New category
+          {t('New category')}
         </button>
       </PageHeader>
 
@@ -103,12 +141,12 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
           }}
         >
           <label>
-            <span className="sr-only">Category name</span>
+            <span className="sr-only">{t('Category name')}</span>
             <input
               autoFocus
               value={newName}
               maxLength={120}
-              placeholder="Category name"
+              placeholder={t('Category name')}
               onChange={(event) => setNewName(event.target.value)}
             />
           </label>
@@ -117,7 +155,7 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
             type="submit"
             disabled={categories.busy || !newName.trim()}
           >
-            Create
+            {t('Create')}
           </button>
           <button
             className="button button-secondary"
@@ -127,14 +165,14 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
               setNewName('');
             }}
           >
-            Cancel
+            {t('Cancel')}
           </button>
         </form>
       ) : null}
 
       {categories.actionError ? (
         <p className="settings-inline-error" role="alert">
-          The last category change was rejected by the server.
+          {t('The last category change was rejected by the server.')}
         </p>
       ) : null}
 
@@ -148,18 +186,18 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
 
       {categories.status === 'error' && items.length === 0 ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load categories</h1>
-          <p>The categories could not be loaded from your server.</p>
+          <h1>{t('Couldn’t load categories')}</h1>
+          <p>{t('The categories could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.retry()}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       {categories.status === 'ready' && items.length === 0 ? (
         <div className="library-state">
-          <h1>No categories</h1>
-          <p>Create a category to organize your library.</p>
+          <h1>{t('No categories')}</h1>
+          <p>{t('Create a category to organize your library.')}</p>
         </div>
       ) : null}
 
@@ -265,6 +303,7 @@ function CategoryCard({
   readonly onToggleUpdate: () => void;
   readonly onToggleDownload: () => void;
 }) {
+  const { t } = useI18n();
   const isDefault = category.default || category.isDefaultCategory;
 
   return (
@@ -289,18 +328,20 @@ function CategoryCard({
               onChange={(event) => onRenameChange(event.target.value)}
             />
             <button className="button" type="submit" disabled={busy || !renameValue.trim()}>
-              Save
+              {t('Save')}
             </button>
             <button className="button button-secondary" type="button" onClick={onCancelRename}>
-              Cancel
+              {t('Cancel')}
             </button>
           </form>
         ) : (
           <h2>{category.name}</h2>
         )}
         <p>
-          {category.mangas.totalCount.toLocaleString('en-US')} manga
-          {isDefault ? ' · Default' : ''}
+          {t('{count} manga', {
+            count: category.mangas.totalCount.toLocaleString('en-US'),
+          })}
+          {isDefault ? ` · ${t('Default')}` : ''}
         </p>
         <div className="category-flags">
           <label>
@@ -310,7 +351,7 @@ function CategoryCard({
               disabled={busy}
               onChange={onToggleUpdate}
             />
-            Include in updates
+            {t('Include in updates')}
           </label>
           <label>
             <input
@@ -319,32 +360,32 @@ function CategoryCard({
               disabled={busy}
               onChange={onToggleDownload}
             />
-            Include in downloads
+            {t('Include in downloads')}
           </label>
         </div>
         {deleting ? (
           <div className="category-delete-confirm" role="alert">
-            <span>Delete this category?</span>
+            <span>{t('Delete this category?')}</span>
             <button className="button button-danger" type="button" disabled={busy} onClick={onConfirmDelete}>
-              Confirm
+              {t('Confirm')}
             </button>
             <button className="button button-secondary" type="button" onClick={onCancelDelete}>
-              Cancel
+              {t('Cancel')}
             </button>
           </div>
         ) : (
           <div className="category-actions">
             <button disabled={busy} type="button" onClick={onStartRename}>
-              Rename
+              {t('Rename')}
             </button>
             <button disabled={busy || !canMoveUp} type="button" onClick={onMoveUp}>
-              Move up
+              {t('Move up')}
             </button>
             <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
-              Move down
+              {t('Move down')}
             </button>
             <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
-              Set default
+              {t('Set default')}
             </button>
             <button
               className="is-danger"
@@ -352,7 +393,7 @@ function CategoryCard({
               type="button"
               onClick={onStartDelete}
             >
-              Delete
+              {t('Delete')}
             </button>
           </div>
         )}

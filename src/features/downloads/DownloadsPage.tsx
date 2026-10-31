@@ -18,6 +18,46 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import { useImageResource } from '../../shared/useImageResource';
 import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Downloads: 'Unduhan',
+  'Manage the download queue on your server':
+    'Kelola antrean unduhan di server Anda',
+  '{count} queued': '{count} dalam antrean',
+  'Resume downloads': 'Lanjutkan unduhan',
+  'Pause downloads': 'Jeda unduhan',
+  Refresh: 'Muat ulang',
+  'Retry failed': 'Ulangi yang gagal',
+  'In queue': 'Dalam antrean',
+  Downloaded: 'Terunduh',
+  'Downloaded pages': 'Halaman terunduh',
+  Paused: 'Dijeda',
+  Running: 'Berjalan',
+  Downloader: 'Pengunduh',
+  'The download action failed.': 'Aksi unduhan gagal.',
+  'Couldn’t load downloads': 'Tidak dapat memuat unduhan',
+  'The download queue could not be loaded from your server.':
+    'Antrean unduhan tidak dapat dimuat dari server Anda.',
+  Retry: 'Coba lagi',
+  Queue: 'Antrean',
+  'The download queue is empty.': 'Antrean unduhan kosong.',
+  '{count} chapters': '{count} chapter',
+  'Cancel series': 'Batalkan seri',
+  'Downloaded chapters': 'Chapter terunduh',
+  '{shown} of {total}': '{shown} dari {total}',
+  'No downloaded chapters on this server.':
+    'Tidak ada chapter terunduh di server ini.',
+  '{count} pages': '{count} halaman',
+  Queued: 'Dalam antrean',
+  Downloading: 'Mengunduh',
+  Finished: 'Selesai',
+  Failed: 'Gagal',
+  Cancel: 'Batalkan',
+  Delete: 'Hapus',
+  'try {count}': 'percobaan {count}',
+});
 
 const DOWNLOADED_FEED = {
   filter: { isDownloaded: { equalTo: true } },
@@ -43,6 +83,7 @@ export function DownloadsPage() {
 }
 
 function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () => createDownloadRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -127,9 +168,13 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   return (
     <div className="app-shell page-shell downloads-shell">
       <PageHeader
-        title="Downloads"
-        subtitle="Manage the download queue on your server"
-        count={downloads.queue ? `${queue.length} queued` : undefined}
+        title={t('Downloads')}
+        subtitle={t('Manage the download queue on your server')}
+        count={
+          downloads.queue
+            ? t('{count} queued', { count: queue.length })
+            : undefined
+        }
       >
         <button
           className="button button-secondary"
@@ -137,7 +182,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           disabled={downloads.isActing || !downloads.queue}
           onClick={() => void controller.togglePaused()}
         >
-          {isPaused ? 'Resume downloads' : 'Pause downloads'}
+          {isPaused ? t('Resume downloads') : t('Pause downloads')}
         </button>
         <button
           className="button button-secondary"
@@ -145,7 +190,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           disabled={downloads.isLoading}
           onClick={() => void controller.load()}
         >
-          Refresh
+          {t('Refresh')}
         </button>
         <button
           className="button button-secondary"
@@ -153,48 +198,49 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           disabled={downloads.isActing || failedCount === 0}
           onClick={() => void controller.retryFailed()}
         >
-          Retry failed{failedCount > 0 ? ` (${failedCount})` : ''}
+          {t('Retry failed')}
+          {failedCount > 0 ? ` (${failedCount})` : ''}
         </button>
       </PageHeader>
 
       <div className="download-stats">
         <div>
           <strong>{queue.length}</strong>
-          <span>In queue</span>
+          <span>{t('In queue')}</span>
         </div>
         <div>
           <strong>{downloaded.data?.totalCount ?? '—'}</strong>
-          <span>Downloaded</span>
+          <span>{t('Downloaded')}</span>
         </div>
         <div>
           <strong>{pages.toLocaleString('en-US')}</strong>
-          <span>Downloaded pages</span>
+          <span>{t('Downloaded pages')}</span>
         </div>
         <div>
-          <strong>{isPaused ? 'Paused' : 'Running'}</strong>
-          <span>Downloader</span>
+          <strong>{isPaused ? t('Paused') : t('Running')}</strong>
+          <span>{t('Downloader')}</span>
         </div>
       </div>
 
       {downloads.actionError ? (
         <p className="alert alert-error" role="alert">
-          The download action failed.
+          {t('The download action failed.')}
         </p>
       ) : null}
 
       {downloads.error ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load downloads</h1>
-          <p>The download queue could not be loaded from your server.</p>
+          <h1>{t('Couldn’t load downloads')}</h1>
+          <p>{t('The download queue could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       <section className="download-section" aria-labelledby="download-queue-heading">
         <div className="section-heading-row">
-          <h2 id="download-queue-heading">Queue</h2>
+          <h2 id="download-queue-heading">{t('Queue')}</h2>
           <span>{queue.length}</span>
         </div>
 
@@ -207,7 +253,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
 
         {!downloads.isLoading && queue.length === 0 ? (
-          <p className="download-empty">The download queue is empty.</p>
+          <p className="download-empty">{t('The download queue is empty.')}</p>
         ) : null}
 
         <div className="download-list">
@@ -223,7 +269,8 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                 <div className="download-group-heading">
                   <strong>{group.manga.title}</strong>
                   <span>
-                    {group.items.length} chapters · {progress}%
+                    {t('{count} chapters', { count: group.items.length })} ·{' '}
+                    {progress}%
                   </span>
                   <button
                     className="library-action"
@@ -235,7 +282,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                       )
                     }
                   >
-                    Cancel series
+                    {t('Cancel series')}
                   </button>
                 </div>
                 <div className="download-group-rows">
@@ -257,10 +304,13 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
 
       <section className="download-section" aria-labelledby="downloaded-heading">
         <div className="section-heading-row">
-          <h2 id="downloaded-heading">Downloaded chapters</h2>
+          <h2 id="downloaded-heading">{t('Downloaded chapters')}</h2>
           <span>
             {downloaded.data
-              ? `${downloaded.data.items.length} of ${downloaded.data.totalCount}`
+              ? t('{shown} of {total}', {
+                  shown: downloaded.data.items.length,
+                  total: downloaded.data.totalCount,
+                })
               : 0}
           </span>
         </div>
@@ -274,7 +324,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
 
         {!downloaded.isLoading && (downloaded.data?.items.length ?? 0) === 0 ? (
-          <p className="download-empty">No downloaded chapters on this server.</p>
+          <p className="download-empty">{t('No downloaded chapters on this server.')}</p>
         ) : null}
 
         {downloaded.data && downloaded.data.items.length > 0 ? (
@@ -284,7 +334,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                 <FeedRow
                   chapter={chapter}
                   resources={context.resources}
-                  detail={`${chapter.pageCount} pages · Downloaded`}
+                  detail={`${t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
                 />
                 <button
                   className="download-cancel"
@@ -293,7 +343,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   aria-label={`Delete download for ${chapter.name}`}
                   onClick={() => void controller.deleteDownloaded(chapter.id)}
                 >
-                  Delete
+                  {t('Delete')}
                 </button>
               </div>
             ))}
@@ -315,6 +365,7 @@ function DownloadRow({
   readonly controller: DownloadController;
   readonly disabled: boolean;
 }) {
+  const { t } = useI18n();
   const image = useImageResource(resources, item.manga.thumbnailUrl);
   const progress = Math.max(0, Math.min(100, Math.round(item.progress * 100)));
 
@@ -331,7 +382,7 @@ function DownloadRow({
         <div className="download-title-row">
           <span className="download-title">{item.manga.title}</span>
           <span className={`download-state is-${item.state.toLowerCase()}`}>
-            {STATE_LABEL[item.state]}
+            {t(STATE_LABEL[item.state])}
           </span>
         </div>
         <span className="download-chapter">{item.chapter.name}</span>
@@ -346,7 +397,8 @@ function DownloadRow({
           <span style={{ width: `${progress}%` }} />
         </div>
         <span className="download-meta">
-          {progress}% · {item.chapter.pageCount} pages · try {item.tries + 1}
+          {progress}% · {t('{count} pages', { count: item.chapter.pageCount })} ·{' '}
+          {t('try {count}', { count: item.tries + 1 })}
         </span>
       </div>
       <button
@@ -356,7 +408,7 @@ function DownloadRow({
         aria-label={`Cancel download for ${item.chapter.name}`}
         onClick={() => void controller.dequeue(item.chapter.id)}
       >
-        Cancel
+        {t('Cancel')}
       </button>
     </div>
   );

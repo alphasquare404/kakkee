@@ -8,6 +8,18 @@ import { feedDay } from '../../shared/feedTime';
 import { useConnection } from '../../app/useConnection';
 import { createCatalogRepository } from '../../core/catalog/catalogRepository';
 import { useSyncExternalStore } from 'react';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Latest {shown} of {total}': 'Terbaru {shown} dari {total}',
+  'Couldn’t load {title}': 'Tidak dapat memuat {title}',
+  'The request to your server failed.': 'Permintaan ke server gagal.',
+  Retry: 'Coba lagi',
+  Today: 'Hari ini',
+  Yesterday: 'Kemarin',
+  Earlier: 'Sebelumnya',
+});
 
 export interface ActivityPageProps {
   readonly title: string;
@@ -49,6 +61,7 @@ function ActivityContent({
   rowTo,
   itemFilter,
 }: ActivityPageProps & { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -104,7 +117,10 @@ function ActivityContent({
           feed.data
             ? summary
               ? summary(items)
-              : `Latest ${items.length} of ${feed.data.totalCount.toLocaleString('en-US')}`
+              : t('Latest {shown} of {total}', {
+                  shown: items.length,
+                  total: feed.data.totalCount.toLocaleString('en-US'),
+                })
             : undefined
         }
       />
@@ -119,10 +135,12 @@ function ActivityContent({
 
       {feed.error && !feed.data ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load {title.toLowerCase()}</h1>
-          <p>The request to your server failed.</p>
+          <h1>
+            {t('Couldn’t load {title}', { title: title.toLowerCase() })}
+          </h1>
+          <p>{t('The request to your server failed.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
@@ -138,7 +156,7 @@ function ActivityContent({
         <div className="feed-groups">
           {groups.map((group) => (
             <section className="feed-group" key={group.label || 'all'}>
-              {group.label ? <h2>{group.label}</h2> : null}
+              {group.label ? <h2>{t(group.label)}</h2> : null}
               <div className="feed-list">
                 {group.items.map((chapter) => (
                   <FeedRow
