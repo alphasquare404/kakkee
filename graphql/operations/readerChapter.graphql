@@ -7,11 +7,13 @@ query ReaderChapter($chapterId: Int!) {
     sourceOrder
     isRead
     isDownloaded
+    isBookmarked
     lastPageRead
     manga {
       id
       title
       thumbnailUrl
+      inLibrary
     }
   }
 }

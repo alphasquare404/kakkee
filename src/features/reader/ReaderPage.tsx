@@ -514,6 +514,42 @@ function ConnectedReader({
                 ? 'Delete download'
                 : 'Download'}
           </button>
+          <button
+            className={`reader-quick-action${activeChapter?.isBookmarked ? ' is-active' : ''}`}
+            type="button"
+            disabled={!activeChapter || downloadBusy}
+            onClick={() => {
+              if (!activeChapter) {
+                return;
+              }
+
+              setDownloadBusy(true);
+              void controller
+                .setBookmark(!activeChapter.isBookmarked)
+                .catch(() => setDownloadError(true))
+                .finally(() => setDownloadBusy(false));
+            }}
+          >
+            {activeChapter?.isBookmarked ? 'Bookmarked' : 'Bookmark'}
+          </button>
+          <button
+            className={`reader-quick-action${activeChapter?.manga.inLibrary ? ' is-active' : ''}`}
+            type="button"
+            disabled={!activeChapter || downloadBusy}
+            onClick={() => {
+              if (!activeChapter) {
+                return;
+              }
+
+              setDownloadBusy(true);
+              void controller
+                .setInLibrary(!activeChapter.manga.inLibrary)
+                .catch(() => setDownloadError(true))
+                .finally(() => setDownloadBusy(false));
+            }}
+          >
+            {activeChapter?.manga.inLibrary ? 'In library' : 'Add to library'}
+          </button>
           {nextChapter ? (
             <button
               className="reader-quick-action"

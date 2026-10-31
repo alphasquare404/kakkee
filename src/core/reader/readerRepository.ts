@@ -7,6 +7,7 @@ import {
   ReaderChapterListDocument,
   ReaderNeighborsDocument,
   UpdateChapterProgressDocument,
+  UpdateMangaLibraryDocument,
   type ReaderChapterListQuery,
   type ReaderChapterQuery,
   type ReaderNeighborsQuery,
@@ -29,6 +30,8 @@ export interface ReaderRepository {
   ): Promise<void>;
   enqueueDownload(chapterId: number): Promise<void>;
   deleteDownload(chapterId: number): Promise<void>;
+  setBookmark(chapterId: number, isBookmarked: boolean): Promise<void>;
+  setInLibrary(mangaId: number, inLibrary: boolean): Promise<void>;
 }
 
 export interface ReaderRepositoryOptions {
@@ -126,6 +129,26 @@ export function createReaderRepository(
 
       if (!result.data?.deleteDownloadedChapter) {
         throw new Error('Download chapter tidak dapat dihapus.');
+      }
+    },
+    async setBookmark(chapterId, isBookmarked) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateChapterProgressDocument,
+        variables: { input: { id: chapterId, patch: { isBookmarked } } },
+      });
+
+      if (!result.data?.updateChapter) {
+        throw new Error('Bookmark chapter tidak dapat disimpan.');
+      }
+    },
+    async setInLibrary(mangaId, inLibrary) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateMangaLibraryDocument,
+        variables: { input: { id: mangaId, patch: { inLibrary } } },
+      });
+
+      if (!result.data?.updateManga) {
+        throw new Error('Status library tidak dapat disimpan.');
       }
     },
   };

@@ -11,12 +11,14 @@ const chapter: ReaderChapter = {
   sourceOrder: 10,
   isRead: false,
   isDownloaded: false,
+  isBookmarked: false,
   lastPageRead: 0,
   manga: {
     __typename: 'MangaType',
     id: 1,
     title: 'Manga',
     thumbnailUrl: null,
+    inLibrary: true,
   },
 };
 
@@ -28,6 +30,8 @@ function setup() {
   const updateProgress = vi.fn();
   const enqueueDownload = vi.fn(async () => undefined);
   const deleteDownload = vi.fn(async () => undefined);
+  const setBookmark = vi.fn(async () => undefined);
+  const setInLibrary = vi.fn(async () => undefined);
   const repository = {
     getChapter,
     getNeighbors,
@@ -36,6 +40,8 @@ function setup() {
     updateProgress,
     enqueueDownload,
     deleteDownload,
+    setBookmark,
+    setInLibrary,
   } as unknown as ReaderRepository;
   const controller = createReaderController({ repository });
   return {
@@ -47,6 +53,8 @@ function setup() {
     updateProgress,
     enqueueDownload,
     deleteDownload,
+    setBookmark,
+    setInLibrary,
   };
 }
 
@@ -154,5 +162,19 @@ describe('createReaderController', () => {
     expect(controller.getState().chapter?.isDownloaded).toBe(false);
     expect(enqueueDownload).toHaveBeenCalledWith(10);
     expect(deleteDownload).toHaveBeenCalledWith(10);
+  });
+
+  it('toggles bookmark and library state from the reader', async () => {
+    const { controller, getChapter, getNeighbors, getPages } = setup();
+    getChapter.mockResolvedValue(chapter);
+    getNeighbors.mockResolvedValue({ previous: { nodes: [] }, next: { nodes: [] } });
+    getPages.mockResolvedValue(['/page/0']);
+    await controller.load(10);
+
+    await controller.setBookmark(true);
+    await controller.setInLibrary(false);
+
+    expect(controller.getState().chapter?.isBookmarked).toBe(true);
+    expect(controller.getState().chapter?.manga.inLibrary).toBe(false);
   });
 });

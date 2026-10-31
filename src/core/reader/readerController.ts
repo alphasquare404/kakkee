@@ -28,6 +28,8 @@ export interface ReaderController {
   ): Promise<void>;
   downloadChapter(chapterId: number): Promise<void>;
   deleteDownload(chapterId: number): Promise<void>;
+  setBookmark(isBookmarked: boolean): Promise<void>;
+  setInLibrary(inLibrary: boolean): Promise<void>;
 }
 
 export interface ReaderControllerOptions {
@@ -175,6 +177,39 @@ export function createReaderController(
     }
   }
 
+  async function setBookmark(isBookmarked: boolean): Promise<void> {
+    const chapter = state.chapter;
+
+    if (!chapter) {
+      return;
+    }
+
+    await options.repository.setBookmark(chapter.id, isBookmarked);
+
+    if (state.chapter?.id === chapter.id) {
+      patch({ chapter: { ...state.chapter, isBookmarked } });
+    }
+  }
+
+  async function setInLibrary(inLibrary: boolean): Promise<void> {
+    const chapter = state.chapter;
+
+    if (!chapter) {
+      return;
+    }
+
+    await options.repository.setInLibrary(chapter.manga.id, inLibrary);
+
+    if (state.chapter?.id === chapter.id) {
+      patch({
+        chapter: {
+          ...state.chapter,
+          manga: { ...state.chapter.manga, inLibrary },
+        },
+      });
+    }
+  }
+
   async function saveProgress(
     chapterId: number,
     lastPageRead: number,
@@ -223,5 +258,7 @@ export function createReaderController(
     saveProgress,
     downloadChapter,
     deleteDownload,
+    setBookmark,
+    setInLibrary,
   };
 }
