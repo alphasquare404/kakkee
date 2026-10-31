@@ -6,6 +6,9 @@ mutation UpdateTrack($input: UpdateTrackInput!) {
       score
       displayScore
       trackerId
+      startDate
+      finishDate
+      private
     }
   }
 }

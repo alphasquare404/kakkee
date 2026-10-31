@@ -11,10 +11,13 @@ query MangaTracking($mangaId: Int!) {
         displayScore
         private
         remoteUrl
+        startDate
+        finishDate
         tracker {
           id
           name
           scores
+          supportsReadingDates
           statuses {
             name
             value

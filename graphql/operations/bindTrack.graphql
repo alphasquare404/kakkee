@@ -9,10 +9,13 @@ mutation BindTrack($input: BindTrackInput!) {
       displayScore
       private
       remoteUrl
+      startDate
+      finishDate
       tracker {
         id
         name
         scores
+        supportsReadingDates
         statuses {
           name
           value

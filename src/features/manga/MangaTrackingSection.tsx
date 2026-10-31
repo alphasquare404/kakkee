@@ -183,6 +183,29 @@ export function MangaTrackingSection({
   );
 }
 
+function readingDateInput(value: string): string {
+  const numeric = Number(value);
+
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return '';
+  }
+
+  const milliseconds = numeric < 1_000_000_000_000 ? numeric * 1000 : numeric;
+
+  return new Date(milliseconds).toISOString().slice(0, 10);
+}
+
+function readingDateEpoch(value: string): string {
+  if (!value) {
+    return '0';
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+  const milliseconds = Date.UTC(year, month - 1, day);
+
+  return String(Math.floor(milliseconds / 1000));
+}
+
 function TrackRecordRow({
   record,
   busy,
@@ -194,6 +217,8 @@ function TrackRecordRow({
   readonly onUpdate: (patch: {
     status?: number;
     scoreString?: string;
+    startDate?: string;
+    finishDate?: string;
   }) => void;
   readonly onUnbind: () => void;
 }) {
@@ -245,6 +270,34 @@ function TrackRecordRow({
           }}
         />
       </label>
+      {record.tracker.supportsReadingDates ? (
+        <>
+          <label className="manga-track-field">
+            <span>Started</span>
+            <input
+              type="date"
+              value={readingDateInput(record.startDate)}
+              disabled={busy}
+              aria-label={`${record.tracker.name} start date`}
+              onChange={(event) =>
+                onUpdate({ startDate: readingDateEpoch(event.target.value) })
+              }
+            />
+          </label>
+          <label className="manga-track-field">
+            <span>Finished</span>
+            <input
+              type="date"
+              value={readingDateInput(record.finishDate)}
+              disabled={busy}
+              aria-label={`${record.tracker.name} finish date`}
+              onChange={(event) =>
+                onUpdate({ finishDate: readingDateEpoch(event.target.value) })
+              }
+            />
+          </label>
+        </>
+      ) : null}
       <button
         className="library-action"
         type="button"
