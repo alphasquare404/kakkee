@@ -67,7 +67,7 @@ frontend.
 | Library | Fuzzy search | `Partial` | Client-side/upstream metadata | Token/subsequence fuzzy filter over loaded titles; not a server-wide fuzzy query |
 | Library | Search autocomplete and search history | `Partial` | Client-side | Recent-search suggestions and history stored per device; remote autocomplete absent |
 | Library | Reset all filters | `Implemented` | Client concern | Resets search, status, category, random mode, and default sort |
-| Library | Status, source, tracker, unread, started, downloaded, bookmarked filters | `Partial` | Yes | Status filter implemented; source/tracker/unread/started/downloaded/bookmarked missing |
+| Library | Status, source, tracker, unread, started, downloaded, bookmarked filters | `Partial` | Yes | Status, source, unread, started, and downloaded filters; tracker/bookmarked filters absent |
 | Library | Filter AND/OR mode and saved defaults | `Implemented` | Yes | Status OR set, AND with source/category, saved defaults include the OR set |
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
 | Library | Random manga / random sort | `Partial` | Client concern | Shuffles loaded cards; not a server-wide random query |

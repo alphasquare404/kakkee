@@ -3051,6 +3051,35 @@ button.manga-card-link {
   gap: 0.3rem;
 }
 
+.library-quick-filters {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: var(--sp-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.library-quick-filters button {
+  flex: 0 0 auto;
+  min-height: 2.15rem;
+  padding: 0 0.7rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+}
+
+.library-quick-filters button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.library-quick-filters button.is-active {
+  color: #fff;
+  background: var(--accent-grad);
+}
+
 .browse-filters {
   flex-wrap: nowrap;
   max-width: 100%;

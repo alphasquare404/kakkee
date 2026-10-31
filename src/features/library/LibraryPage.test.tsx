@@ -669,7 +669,31 @@ describe('LibraryPage search, filter, and sort', () => {
     expect(screen.getByText('#2')).toBeTruthy();
   });
 
-  it('changes the supported status filter without exposing source filter', async () => {
+  it('filters loaded manga by unread and downloaded state', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(
+        page([manga(1, 'Alpha', 2), manga(2, 'Beta', 0, 1)]),
+      );
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+    await screen.findByRole('heading', { name: 'Beta' });
+
+    await user.click(screen.getByRole('button', { name: 'Unread' }));
+    expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Downloaded' }));
+    expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
+  });
+
+  it('changes the supported status filter and exposes the source filter', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -680,10 +704,9 @@ describe('LibraryPage search, filter, and sort', () => {
     const user = userEvent.setup();
     renderLibrary(query);
 
-    expect(screen.queryByLabelText(/source/i)).toBeNull();
-
     await openMenu(user, 'Filter');
-    expect(screen.getAllByRole('menuitemradio')).toHaveLength(8);
+    expect(screen.getByRole('group', { name: 'Source' })).toBeTruthy();
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(9);
     await user.click(screen.getByRole('menuitemradio', { name: 'Ongoing' }));
 
     expect(screen.getByRole('button', { name: 'Filter, active' })).toBeTruthy();
@@ -742,7 +765,7 @@ describe('LibraryPage search, filter, and sort', () => {
 
     const filter = screen.getByRole('button', { name: 'Filter' });
     await user.click(filter);
-    expect(screen.getAllByRole('menuitemradio')).toHaveLength(8);
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(9);
     expect(document.activeElement).toBe(
       screen.getByRole('menuitemradio', { name: 'All statuses' }),
     );
