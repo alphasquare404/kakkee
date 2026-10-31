@@ -280,6 +280,23 @@ export function ReaderSettingsPage() {
                 </label>
               </dd>
             </div>
+            <div>
+              <dt>Downloaded chapters</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.deleteAfterReading}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        deleteAfterReading: event.target.checked,
+                      })
+                    }
+                  />
+                  Delete the downloaded chapter after finishing it
+                </label>
+              </dd>
+            </div>
           </dl>
         </section>
 

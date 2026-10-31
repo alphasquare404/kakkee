@@ -10,6 +10,7 @@ const chapter: ReaderChapter = {
   chapterNumber: 10,
   sourceOrder: 10,
   isRead: false,
+  isDownloaded: false,
   lastPageRead: 0,
   manga: {
     __typename: 'MangaType',
@@ -25,12 +26,16 @@ function setup() {
   const getChapterList = vi.fn(async () => []);
   const getPages = vi.fn();
   const updateProgress = vi.fn();
+  const enqueueDownload = vi.fn(async () => undefined);
+  const deleteDownload = vi.fn(async () => undefined);
   const repository = {
     getChapter,
     getNeighbors,
     getChapterList,
     getPages,
     updateProgress,
+    enqueueDownload,
+    deleteDownload,
   } as unknown as ReaderRepository;
   const controller = createReaderController({ repository });
   return {
@@ -40,6 +45,8 @@ function setup() {
     getChapterList,
     getPages,
     updateProgress,
+    enqueueDownload,
+    deleteDownload,
   };
 }
 
@@ -131,5 +138,21 @@ describe('createReaderController', () => {
     await oldLoad;
 
     expect(controller.getState().chapter?.id).toBe(11);
+  });
+
+  it('downloads and deletes the active chapter', async () => {
+    const { controller, getChapter, getNeighbors, getPages, enqueueDownload, deleteDownload } =
+      setup();
+    getChapter.mockResolvedValue(chapter);
+    getNeighbors.mockResolvedValue({ previous: { nodes: [] }, next: { nodes: [] } });
+    getPages.mockResolvedValue(['/page/0']);
+    await controller.load(10);
+
+    await controller.downloadChapter(10);
+    expect(controller.getState().chapter?.isDownloaded).toBe(true);
+    await controller.deleteDownload(10);
+    expect(controller.getState().chapter?.isDownloaded).toBe(false);
+    expect(enqueueDownload).toHaveBeenCalledWith(10);
+    expect(deleteDownload).toHaveBeenCalledWith(10);
   });
 });

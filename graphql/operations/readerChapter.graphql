@@ -6,6 +6,7 @@ query ReaderChapter($chapterId: Int!) {
     chapterNumber
     sourceOrder
     isRead
+    isDownloaded
     lastPageRead
     manga {
       id

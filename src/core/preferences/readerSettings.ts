@@ -44,6 +44,7 @@ export interface ReaderSettings {
   readonly firstPageOffset: number;
   readonly skipDuplicates: boolean;
   readonly autoAdvance: boolean;
+  readonly deleteAfterReading: boolean;
   readonly profiles: Partial<Record<ReaderMode, ReaderModeProfile>>;
 }
 
@@ -59,6 +60,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   firstPageOffset: 0,
   skipDuplicates: false,
   autoAdvance: false,
+  deleteAfterReading: false,
   profiles: {},
 };
 
@@ -103,6 +105,7 @@ function load(): ReaderSettings {
       ),
       skipDuplicates: parsed.skipDuplicates === true,
       autoAdvance: parsed.autoAdvance === true,
+      deleteAfterReading: parsed.deleteAfterReading === true,
       profiles: parseProfiles(parsed.profiles),
     };
   } catch {
@@ -259,6 +262,10 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       typeof patch.autoAdvance === 'boolean'
         ? patch.autoAdvance
         : base.autoAdvance,
+    deleteAfterReading:
+      typeof patch.deleteAfterReading === 'boolean'
+        ? patch.deleteAfterReading
+        : base.deleteAfterReading,
     profiles: state.profiles,
   };
   persist(state);

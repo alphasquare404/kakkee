@@ -79,8 +79,11 @@ function ConnectedReader({
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [downloadBusy, setDownloadBusy] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const syncedChapter = useRef(0);
+  const deletedAfterReading = useRef(0);
 
   useEffect(() => {
     if (loadedChapter.current !== chapterId) {
@@ -134,6 +137,27 @@ function ConnectedReader({
     uniqueChapters && currentChapterIndex >= 0
       ? uniqueChapters[currentChapterIndex - 1] ?? null
       : reader.nextChapter;
+
+  useEffect(() => {
+    if (
+      !readerSettings.deleteAfterReading ||
+      !activeChapter?.isDownloaded ||
+      reader.pages.length === 0 ||
+      currentPage < reader.pages.length ||
+      deletedAfterReading.current === activeChapter.id
+    ) {
+      return;
+    }
+
+    deletedAfterReading.current = activeChapter.id;
+    void controller.deleteDownload(activeChapter.id).catch(() => undefined);
+  }, [
+    activeChapter,
+    controller,
+    currentPage,
+    reader.pages.length,
+    readerSettings.deleteAfterReading,
+  ]);
 
   useEffect(() => {
     if (
@@ -450,6 +474,38 @@ function ConnectedReader({
             onClick={() => setChaptersOpen(true)}
           >
             Chapters
+          </button>
+          <button
+            className="reader-quick-action"
+            type="button"
+            disabled={!activeChapter || downloadBusy}
+            title={
+              downloadError
+                ? 'Download action failed'
+                : activeChapter?.isDownloaded
+                  ? 'Delete downloaded chapter'
+                  : 'Download chapter'
+            }
+            onClick={() => {
+              if (!activeChapter) {
+                return;
+              }
+
+              setDownloadError(false);
+              setDownloadBusy(true);
+              const action = activeChapter.isDownloaded
+                ? controller.deleteDownload(activeChapter.id)
+                : controller.downloadChapter(activeChapter.id);
+              void action
+                .catch(() => setDownloadError(true))
+                .finally(() => setDownloadBusy(false));
+            }}
+          >
+            {downloadBusy
+              ? 'Working…'
+              : activeChapter?.isDownloaded
+                ? 'Delete download'
+                : 'Download'}
           </button>
           <button
             className="reader-quick-action"

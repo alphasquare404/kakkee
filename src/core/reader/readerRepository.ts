@@ -1,5 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  DeleteDownloadedChapterDocument,
+  EnqueueDownloadDocument,
   FetchChapterPagesDocument,
   ReaderChapterDocument,
   ReaderChapterListDocument,
@@ -25,6 +27,8 @@ export interface ReaderRepository {
     lastPageRead: number,
     isRead?: boolean,
   ): Promise<void>;
+  enqueueDownload(chapterId: number): Promise<void>;
+  deleteDownload(chapterId: number): Promise<void>;
 }
 
 export interface ReaderRepositoryOptions {
@@ -102,6 +106,26 @@ export function createReaderRepository(
 
       if (!result.data?.updateChapter) {
         throw new Error('Progress chapter tidak dapat disimpan.');
+      }
+    },
+    async enqueueDownload(chapterId) {
+      const result = await options.getClient().mutate({
+        mutation: EnqueueDownloadDocument,
+        variables: { input: { id: chapterId } },
+      });
+
+      if (!result.data?.enqueueChapterDownload) {
+        throw new Error('Chapter tidak dapat diunduh.');
+      }
+    },
+    async deleteDownload(chapterId) {
+      const result = await options.getClient().mutate({
+        mutation: DeleteDownloadedChapterDocument,
+        variables: { input: { id: chapterId } },
+      });
+
+      if (!result.data?.deleteDownloadedChapter) {
+        throw new Error('Download chapter tidak dapat dihapus.');
       }
     },
   };

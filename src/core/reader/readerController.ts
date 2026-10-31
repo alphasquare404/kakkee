@@ -26,6 +26,8 @@ export interface ReaderController {
     lastPageRead: number,
     isRead?: boolean,
   ): Promise<void>;
+  downloadChapter(chapterId: number): Promise<void>;
+  deleteDownload(chapterId: number): Promise<void>;
 }
 
 export interface ReaderControllerOptions {
@@ -157,6 +159,22 @@ export function createReaderController(
     }
   }
 
+  async function downloadChapter(chapterId: number): Promise<void> {
+    await options.repository.enqueueDownload(chapterId);
+
+    if (state.chapter?.id === chapterId) {
+      patch({ chapter: { ...state.chapter, isDownloaded: true } });
+    }
+  }
+
+  async function deleteDownload(chapterId: number): Promise<void> {
+    await options.repository.deleteDownload(chapterId);
+
+    if (state.chapter?.id === chapterId) {
+      patch({ chapter: { ...state.chapter, isDownloaded: false } });
+    }
+  }
+
   async function saveProgress(
     chapterId: number,
     lastPageRead: number,
@@ -203,5 +221,7 @@ export function createReaderController(
     load,
     retryPages,
     saveProgress,
+    downloadChapter,
+    deleteDownload,
   };
 }
