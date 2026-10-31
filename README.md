@@ -201,6 +201,33 @@ Jika perangkat lain masih tidak bisa membuka, izinkan Node.js/Vite pada port `41
 
 Catatan: PWA/service worker memerlukan HTTPS atau `localhost`. Preview HTTP lewat alamat LAN tetap bisa dipakai untuk menguji UI, tetapi instalasi PWA dan cache offline tidak aktif sampai disajikan lewat HTTPS.
 
+### Cloudflare Tunnel untuk `kakkee.alphasquare.my.id`
+
+Vite preview sudah mengizinkan host:
+
+```text
+kakkee.alphasquare.my.id
+```
+
+Gunakan satu hostname dengan dua route:
+
+```text
+https://kakkee.alphasquare.my.id/api/*  -> http://localhost:4567
+https://kakkee.alphasquare.my.id/*      -> http://localhost:4174
+```
+
+Route `/api/*` harus diperiksa lebih dulu. Dengan pola ini frontend dan server berada di origin yang sama, sehingga tidak perlu konfigurasi CORS tambahan.
+
+DNS `kakkee.alphasquare.my.id` saat ini mengarah ke `151.242.116.229`. Jika memakai Cloudflare Tunnel, record tersebut harus diganti dengan CNAME tunnel Cloudflare (dashboard biasanya membuatnya otomatis). Hapus record A lama terlebih dahulu jika `cloudflared tunnel route dns` menolak karena record sudah ada.
+
+Setelah tunnel aktif, isi server URL di aplikasi dengan:
+
+```text
+https://kakkee.alphasquare.my.id
+```
+
+Jangan memakai `localhost:4567` dari perangkat lain. Lindungi hostname dengan Cloudflare Access atau aktifkan autentikasi Suwayomi sebelum membukanya ke internet.
+
 Deployment subpath:
 
 ```bash

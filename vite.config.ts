@@ -42,10 +42,14 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
     },
+    server: {
+      allowedHosts: ['kakkee.alphasquare.my.id'],
+    },
     preview: {
       host: '0.0.0.0',
       port: 4174,
       strictPort: true,
+      allowedHosts: ['kakkee.alphasquare.my.id'],
     },
   };
 });
