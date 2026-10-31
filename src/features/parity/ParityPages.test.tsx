@@ -500,6 +500,7 @@ describe('parity pages', () => {
               name: 'Example',
               lang: 'en',
               contentWarning: 'SAFE',
+              filters: [],
             },
           },
         };

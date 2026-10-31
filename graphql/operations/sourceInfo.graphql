@@ -5,5 +5,49 @@ query SourceInfo($id: LongString!) {
     name
     lang
     contentWarning
+    filters {
+      ...SourceFilterLeaf
+      ... on GroupFilter {
+        name
+        filters {
+          ...SourceFilterLeaf
+        }
+      }
+    }
+  }
+}
+
+fragment SourceFilterLeaf on Filter {
+  __typename
+  ... on TextFilter {
+    name
+    textDefault: default
+  }
+  ... on SelectFilter {
+    name
+    selectDefault: default
+    values
+  }
+  ... on CheckBoxFilter {
+    name
+    checkDefault: default
+  }
+  ... on TriStateFilter {
+    name
+    triDefault: default
+  }
+  ... on SortFilter {
+    name
+    sortDefault: default {
+      index
+      ascending
+    }
+    values
+  }
+  ... on HeaderFilter {
+    name
+  }
+  ... on SeparatorFilter {
+    name
   }
 }

@@ -181,7 +181,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Browse | Source catalog and language filter | `Implemented` | Yes | Real source list with language filter and source catalog navigation |
-| Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
+| Browse | Source manga browsing, search, filters, pagination | `Implemented` | Yes | Popular/Latest, search, pagination, and dynamic text/select/checkbox/tri-state/sort filters including one group level |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Implemented` | Metadata | Pin/last-used, multi-language preference list, saved language filter, and NSFW toggle |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Implemented` | Yes | Quick add/remove plus hide-in-library and duplicate-only filters |
 | Browse | Saved source searches and global search | `Implemented` | Client metadata + server | Per-source history, `/search`, and on-demand live search across installed sources |

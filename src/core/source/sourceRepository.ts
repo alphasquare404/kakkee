@@ -5,6 +5,7 @@ import {
   UpdateMangasLibraryDocument,
   type FetchSourceMangaMutation,
   type FetchSourceMangaType,
+  type FilterChangeInput,
   type SourceInfoQuery,
 } from '../graphql/generated/graphql';
 
@@ -18,6 +19,7 @@ export interface SourceRepository {
     readonly sourceId: string;
     readonly type: FetchSourceMangaType;
     readonly query?: string;
+    readonly filters?: readonly FilterChangeInput[];
     readonly page: number;
   }): Promise<{
     readonly mangas: readonly SourceManga[];
@@ -43,7 +45,7 @@ export function createSourceRepository(options: {
 
       return result.data.source;
     },
-    async fetchManga({ sourceId, type, query, page }) {
+    async fetchManga({ sourceId, type, query, filters, page }) {
       const result = await options.getClient().mutate({
         mutation: FetchSourceMangaDocument,
         variables: {
@@ -52,6 +54,7 @@ export function createSourceRepository(options: {
             type,
             page,
             ...(query ? { query } : {}),
+            ...(filters && filters.length > 0 ? { filters: [...filters] } : {}),
           },
         },
       });

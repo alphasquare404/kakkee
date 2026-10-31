@@ -1,5 +1,6 @@
 import type {
   FetchSourceMangaType,
+  FilterChangeInput,
 } from '../graphql/generated/graphql';
 import type {
   SourceInfo,
@@ -14,6 +15,7 @@ export interface SourceState {
   readonly mangas: readonly SourceManga[];
   readonly type: FetchSourceMangaType;
   readonly query: string;
+  readonly filters: readonly FilterChangeInput[];
   readonly page: number;
   readonly hasNextPage: boolean;
   readonly status: SourceLoadState;
@@ -28,6 +30,7 @@ export interface SourceController {
   load(sourceId: string): Promise<void>;
   setType(type: FetchSourceMangaType): Promise<void>;
   search(query: string): Promise<void>;
+  setFilters(filters: readonly FilterChangeInput[]): Promise<void>;
   loadMore(): Promise<void>;
   toggleLibrary(manga: SourceManga): Promise<void>;
 }
@@ -41,6 +44,7 @@ export function createSourceController(
     mangas: [],
     type: 'POPULAR',
     query: '',
+    filters: [],
     page: 1,
     hasNextPage: false,
     status: 'idle',
@@ -94,6 +98,7 @@ export function createSourceController(
         sourceId,
         type,
         query: query || undefined,
+        filters: state.filters,
         page,
       });
 
@@ -121,7 +126,7 @@ export function createSourceController(
 
   async function load(nextSourceId: string): Promise<void> {
     sourceId = nextSourceId;
-    patch({ status: 'loading', error: false, source: null });
+    patch({ status: 'loading', error: false, source: null, filters: [] });
 
     try {
       const source = await repository.getInfo(nextSourceId);
@@ -144,6 +149,10 @@ export function createSourceController(
     },
     async search(query) {
       await fetchPage(query ? 'SEARCH' : 'POPULAR', query.trim(), 1, false);
+    },
+    async setFilters(filters) {
+      patch({ filters });
+      await fetchPage(state.type, state.query, 1, false);
     },
     async loadMore() {
       if (!state.hasNextPage || state.loadingMore) {

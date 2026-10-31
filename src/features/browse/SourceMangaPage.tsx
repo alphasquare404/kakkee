@@ -12,6 +12,7 @@ import {
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
+import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
 import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
 import {
   addSourceSearch,
@@ -189,6 +190,14 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
       </div>
 
       <SourcePreferencesSection context={context} sourceId={sourceId} />
+
+      {source.source ? (
+        <SourceFilterPanel
+          filters={source.source.filters as unknown as readonly SourceFilterData[]}
+          busy={source.status === 'loading'}
+          onApply={(changes) => void controller.setFilters(changes)}
+        />
+      ) : null}
 
       {source.actionError ? (
         <p className="settings-inline-error" role="alert">

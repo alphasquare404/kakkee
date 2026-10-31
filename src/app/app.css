@@ -3781,6 +3781,52 @@ button.manga-card-link {
   align-items: center;
 }
 
+.source-filter-panel {
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.source-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--sp-3);
+  align-items: end;
+}
+
+.source-filter-heading {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--text);
+  font-size: var(--text-md);
+}
+
+.source-filter-separator {
+  grid-column: 1 / -1;
+  width: 100%;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.source-filter-group {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.source-filter-group legend {
+  padding: 0 0.25rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 .source-search input {
   flex: 1 1 auto;
   min-width: 0;
