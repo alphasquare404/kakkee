@@ -162,7 +162,7 @@ frontend.
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
 | History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
 | History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
-| Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
+| Downloads | Download queue, active/queued/failed states | `Implemented` | DownloadStatus + subscriptions | Queue, state, progress, tries, pause/resume/cancel, grouping, and live subscription refresh |
 | Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
 | Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Manga grouping, series cancel, and progress; speed absent |
 | Downloads | List downloaded chapters | `Implemented` | Yes | Real `isDownloaded` feed with delete action |

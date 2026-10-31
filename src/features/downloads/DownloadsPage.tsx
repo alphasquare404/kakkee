@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
+import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
 import {
   createCatalogRepository,
 } from '../../core/catalog/catalogRepository';
@@ -66,6 +67,39 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     void controller.load();
     void feedController.load();
   }, [controller, feedController]);
+
+  const reloadTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (typeof context.graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const subscription = context.graphQL
+      .subscribe({ query: DownloadStatusChangedDocument })
+      .subscribe({
+        next: () => {
+          if (reloadTimer.current !== null) {
+            window.clearTimeout(reloadTimer.current);
+          }
+
+          reloadTimer.current = window.setTimeout(() => {
+            reloadTimer.current = null;
+            void controller.load();
+          }, 350);
+        },
+        error: () => undefined,
+      });
+
+    return () => {
+      subscription.unsubscribe();
+
+      if (reloadTimer.current !== null) {
+        window.clearTimeout(reloadTimer.current);
+        reloadTimer.current = null;
+      }
+    };
+  }, [context.graphQL, controller]);
 
   const queue = downloads.queue?.queue ?? [];
   const pages = (downloaded.data?.items ?? []).reduce(

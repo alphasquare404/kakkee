@@ -31,7 +31,7 @@ type Documents = {
     "mutation DeleteMangaNote($input: DeleteMangaMetaInput!) {\n  deleteMangaMeta(input: $input) {\n    meta {\n      key\n      value\n    }\n  }\n}": typeof types.DeleteMangaNoteDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.DequeueDownloadDocument,
     "query DownloadQueue {\n  downloadStatus {\n    state\n    queue {\n      position\n      progress\n      state\n      tries\n      chapter {\n        id\n        name\n        pageCount\n      }\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n  }\n}": typeof types.DownloadQueueDocument,
-    "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": typeof types.DownloadStatusChangedDocument,
+    "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {maxUpdates: 1}) {\n    state\n    omittedUpdates\n  }\n}": typeof types.DownloadStatusChangedDocument,
     "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.EnqueueDownloadDocument,
     "query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}": typeof types.ExtensionsCatalogDocument,
@@ -108,7 +108,7 @@ const documents: Documents = {
     "mutation DeleteMangaNote($input: DeleteMangaMetaInput!) {\n  deleteMangaMeta(input: $input) {\n    meta {\n      key\n      value\n    }\n  }\n}": types.DeleteMangaNoteDocument,
     "mutation DequeueDownload($input: DequeueChapterDownloadInput!) {\n  dequeueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.DequeueDownloadDocument,
     "query DownloadQueue {\n  downloadStatus {\n    state\n    queue {\n      position\n      progress\n      state\n      tries\n      chapter {\n        id\n        name\n        pageCount\n      }\n      manga {\n        id\n        title\n        thumbnailUrl\n      }\n    }\n  }\n}": types.DownloadQueueDocument,
-    "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}": types.DownloadStatusChangedDocument,
+    "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {maxUpdates: 1}) {\n    state\n    omittedUpdates\n  }\n}": types.DownloadStatusChangedDocument,
     "mutation EnqueueChapterDownloads($input: EnqueueChapterDownloadsInput!) {\n  enqueueChapterDownloads(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueChapterDownloadsDocument,
     "mutation EnqueueDownload($input: EnqueueChapterDownloadInput!) {\n  enqueueChapterDownload(input: $input) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.EnqueueDownloadDocument,
     "query ExtensionsCatalog {\n  extensions(first: 500, order: [{by: NAME, byType: ASC}]) {\n    totalCount\n    nodes {\n      pkgName\n      name\n      versionName\n      lang\n      isInstalled\n      hasUpdate\n      isObsolete\n      iconUrl\n      contentWarning\n      extensionStore {\n        name\n      }\n    }\n  }\n}": types.ExtensionsCatalogDocument,
@@ -253,7 +253,7 @@ export function graphql(source: "query DownloadQueue {\n  downloadStatus {\n    
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}"): (typeof documents)["subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {}) {\n    state\n    initial {\n      chapter {\n        id\n      }\n      manga {\n        id\n      }\n      state\n      progress\n    }\n    updates {\n      type\n    }\n  }\n}"];
+export function graphql(source: "subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {maxUpdates: 1}) {\n    state\n    omittedUpdates\n  }\n}"): (typeof documents)["subscription DownloadStatusChanged {\n  downloadStatusChanged(input: {maxUpdates: 1}) {\n    state\n    omittedUpdates\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
