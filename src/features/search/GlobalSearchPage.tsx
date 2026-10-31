@@ -2,11 +2,12 @@ import { useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
-import { addSearchHistory } from '../../core/preferences/searchHistory';
+import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import { createSearchController } from '../../core/search/searchController';
 import { createSearchRepository } from '../../core/search/searchRepository';
 import type { SearchManga } from '../../core/search/searchRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { useSearchHistory } from '../../shared/useSearchHistory';
 import { PageHeader } from '../../shared/PageHeader';
 
 export function GlobalSearchPage() {
@@ -29,15 +30,22 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   );
   const search = useSyncExternalStore(controller.subscribe, controller.getState);
   const [query, setQuery] = useState('');
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const history = useSearchHistory();
 
-  const submit = () => {
-    const value = query.trim();
+  const runSearch = (value: string) => {
+    const trimmed = value.trim();
 
-    if (value) {
-      addSearchHistory(value);
+    if (trimmed) {
+      addSearchHistory(trimmed);
     }
 
-    void controller.search(value);
+    setHistoryOpen(false);
+    void controller.search(trimmed);
+  };
+
+  const submit = () => {
+    runSearch(query);
   };
 
   const mangas = search.results?.mangas.nodes ?? [];
@@ -68,11 +76,41 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
           placeholder="Search all manga and sources…"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          onFocus={() => setHistoryOpen(true)}
+          onClick={() => setHistoryOpen(true)}
+          onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
           autoFocus
         />
         <button className="button" type="submit" disabled={!query.trim()}>
           Search
         </button>
+        {historyOpen && history.length > 0 ? (
+          <div className="global-search-history" role="listbox" aria-label="Recent searches">
+            {history.map((term) => (
+              <button
+                key={term}
+                type="button"
+                role="option"
+                aria-selected={false}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  setQuery(term);
+                  runSearch(term);
+                }}
+              >
+                {term}
+              </button>
+            ))}
+            <button
+              className="global-search-history-clear"
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => clearSearchHistory()}
+            >
+              Clear history
+            </button>
+          </div>
+        ) : null}
       </form>
 
       {search.status === 'idle' ? (

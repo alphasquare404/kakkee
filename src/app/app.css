@@ -3369,10 +3369,46 @@ button.manga-card-link {
 }
 
 .global-search-form {
+  position: relative;
   display: flex;
   gap: var(--sp-2);
   max-width: 42rem;
   margin-bottom: var(--sp-4);
+}
+
+.global-search-history {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  display: grid;
+  width: min(100%, 34rem);
+  padding: 0.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+}
+
+.global-search-history button {
+  padding: 0.45rem 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-align: left;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.global-search-history button:hover {
+  background: var(--accent-soft);
+}
+
+.global-search-history-clear {
+  color: var(--muted) !important;
+  font-size: var(--text-xs) !important;
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0 !important;
 }
 
 .global-search-form input {

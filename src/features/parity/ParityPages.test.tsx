@@ -220,6 +220,8 @@ describe('parity pages', () => {
 
     expect(await screen.findByText('Alpha')).toBeTruthy();
     expect(screen.getByText('Example Source')).toBeTruthy();
+    await user.click(input);
+    expect(await screen.findByRole('option', { name: 'alpha' })).toBeTruthy();
   });
 
   it('toggles hide-read history preference', async () => {

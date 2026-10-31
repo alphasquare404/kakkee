@@ -18,7 +18,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library data layer terpusat dengan pagination/filter/sort stable.
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
-- Global Search: top-level search across server-known manga and matching sources, with library/unread metadata.
+- Global Search: top-level search across server-known manga and matching sources, with recent-search suggestions and library/unread metadata.
 - Library screen: search with recent-search suggestions and optional fuzzy title matching, category tabs with counts, status filter, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
 - Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
 - Updates: latest library chapters grouped by day, read state, and real covers.
