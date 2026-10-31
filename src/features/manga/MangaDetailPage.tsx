@@ -825,6 +825,38 @@ function ConnectedMangaDetail({
                       >
                         {chapter.isRead ? 'Read' : 'Unread'}
                       </button>
+                      <button
+                        className="chapter-icon-button"
+                        type="button"
+                        disabled={
+                          pendingChapterId === chapter.id ||
+                          !detail.chapters.some(
+                            (item) =>
+                              item.sourceOrder < chapter.sourceOrder &&
+                              !item.isRead,
+                          )
+                        }
+                        title={`Mark chapters before ${chapter.name} as read`}
+                        aria-label={`Mark chapters before ${chapter.name} as read`}
+                        onClick={() => {
+                          const ids = detail.chapters
+                            .filter(
+                              (item) =>
+                                item.sourceOrder < chapter.sourceOrder &&
+                                !item.isRead,
+                            )
+                            .map((item) => item.id);
+
+                          setChapterActionError(false);
+                          setPendingChapterId(chapter.id);
+                          void controller
+                            .setChaptersRead(ids, true)
+                            .catch(() => setChapterActionError(true))
+                            .finally(() => setPendingChapterId(null));
+                        }}
+                      >
+                        Prev
+                      </button>
                     </div>
                   </li>
                 );

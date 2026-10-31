@@ -99,7 +99,7 @@ frontend.
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
 | Manga | Page/tab organization (overview, chapters, related) | `Partial` | Client concern | Overview/Chapters anchor tabs; no related/recommendations |
 | Manga | Per-manga reader settings | `Missing` | Client concern | |
-| Manga | Mark all previous chapters read | `Missing` | Yes | |
+| Manga | Mark all previous chapters read | `Implemented` | Yes | Per-chapter Prev action marks older unread chapters read |
 
 ### Chapters
 
