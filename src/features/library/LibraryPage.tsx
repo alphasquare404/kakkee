@@ -62,6 +62,7 @@ registerMessages('id', {
   'Save defaults': 'Simpan default',
   'All titles': 'Semua judul',
   Unread: 'Belum dibaca',
+  'Working…': 'Memproses…',
   Started: 'Sudah dimulai',
   Downloaded: 'Terunduh',
   Bookmarked: 'Ditandai',
@@ -1206,8 +1207,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       </nav>
 
       {selectionMode ? (
-        <div className="library-selection-bar" role="toolbar" aria-label="Bulk manga actions">
+        <div
+          className="library-selection-bar"
+          role="toolbar"
+          aria-label="Bulk manga actions"
+          aria-busy={bulkBusy}
+        >
           <strong>{selectedIds.size} selected</strong>
+          <span className="library-bulk-status" role="status">
+            {bulkBusy ? 'Working…' : ''}
+          </span>
 
           {confirmRemove ? (
             <div className="library-selection-confirm">

@@ -22,6 +22,7 @@ export interface SourceState {
   readonly loadingMore: boolean;
   readonly error: boolean;
   readonly actionError: boolean;
+  readonly pendingLibraryId: number | null;
 }
 
 export interface SourceController {
@@ -51,6 +52,7 @@ export function createSourceController(
     loadingMore: false,
     error: false,
     actionError: false,
+    pendingLibraryId: null,
   };
   let generation = 0;
   const listeners = new Set<() => void>();
@@ -162,7 +164,11 @@ export function createSourceController(
       await fetchPage(state.type, state.query, state.page + 1, true);
     },
     async toggleLibrary(manga) {
-      patch({ actionError: false });
+      if (state.pendingLibraryId !== null) {
+        return;
+      }
+
+      patch({ actionError: false, pendingLibraryId: manga.id });
 
       try {
         await repository.setLibrary([manga.id], !manga.inLibrary);
@@ -173,6 +179,8 @@ export function createSourceController(
         });
       } catch {
         patch({ actionError: true });
+      } finally {
+        patch({ pendingLibraryId: null });
       }
     },
   };

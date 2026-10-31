@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+﻿import { describe, expect, it, vi } from 'vitest';
 import { createSourceController } from './sourceController';
 import type { SourceRepository } from './sourceRepository';
 
@@ -24,7 +24,7 @@ function setup() {
     ],
     hasNextPage: true,
   }));
-  const setLibrary = vi.fn(async () => undefined);
+  const setLibrary = vi.fn(async (): Promise<void> => undefined);
   const repository = {
     getInfo,
     fetchManga,
@@ -39,6 +39,28 @@ function setup() {
 }
 
 describe('createSourceController', () => {
+  it('tracks the library action while it is pending', async () => {
+    const { controller, setLibrary } = setup();
+    await controller.load('42');
+    let finish!: () => void;
+    setLibrary.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+
+    const pending = controller.toggleLibrary(controller.getState().mangas[0]!);
+    expect(controller.getState().pendingLibraryId).toBe(1);
+    await controller.toggleLibrary(controller.getState().mangas[0]!);
+    expect(setLibrary).toHaveBeenCalledTimes(1);
+
+    finish();
+    await pending;
+    expect(controller.getState().pendingLibraryId).toBeNull();
+    expect(controller.getState().mangas[0]?.inLibrary).toBe(true);
+  });
+
   it('loads popular manga, searches, loads more, and toggles library', async () => {
     const { controller, fetchManga, setLibrary } = setup();
     await controller.load('42');
@@ -59,3 +81,4 @@ describe('createSourceController', () => {
     expect(controller.getState().mangas[0]?.inLibrary).toBe(true);
   });
 });
+

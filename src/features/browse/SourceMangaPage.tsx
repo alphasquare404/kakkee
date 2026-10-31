@@ -56,6 +56,8 @@ registerMessages('id', {
   'In library': 'Di perpustakaan',
   'Add to library': 'Tambahkan ke perpustakaan',
   'Remove from library': 'Hapus dari perpustakaan',
+  'Adding…': 'Menambahkan…',
+  'Removing…': 'Menghapus…',
 });
 import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
 import {
@@ -411,7 +413,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 manga={manga}
                 resources={context.resources}
                 origin={origin}
-                busy={source.loadingMore}
+                busy={source.pendingLibraryId === manga.id}
                 onToggleLibrary={() => void controller.toggleLibrary(manga)}
               />
             ))}
@@ -473,7 +475,13 @@ function SourceMangaCard({
         title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
         onClick={onToggleLibrary}
       >
-        {manga.inLibrary ? t('In library') : t('Add to library')}
+        {busy
+          ? manga.inLibrary
+            ? t('Removing…')
+            : t('Adding…')
+          : manga.inLibrary
+            ? t('In library')
+            : t('Add to library')}
       </button>
     </article>
   );

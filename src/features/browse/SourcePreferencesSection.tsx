@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createSourcePreferenceRepository,
@@ -71,7 +71,7 @@ export function SourcePreferencesSection({
   if (status === 'loading') {
     return (
       <p className="library-note" role="status">
-        {t('Loading source preferences…')}
+        {t('Loading source preferencesâ€¦')}
       </p>
     );
   }
@@ -96,8 +96,12 @@ export function SourcePreferencesSection({
     <section className="source-preferences" aria-labelledby="source-preferences-heading">
       <div className="section-heading-row">
         <h2 id="source-preferences-heading">{t('Source preferences')}</h2>
-        {saving ? <span>Saving…</span> : null}
       </div>
+      {saving ? (
+        <p className="settings-save-state" role="status">
+          {t('Saving…')}
+        </p>
+      ) : null}
       <div className="source-preference-list">
         {preferences.map((preference, position) => {
           if (!preference.visible || !preference.enabled) {
@@ -202,3 +206,4 @@ export function SourcePreferencesSection({
     </section>
   );
 }
+

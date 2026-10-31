@@ -50,6 +50,7 @@ registerMessages('id', {
   'Read first chapter': 'Baca chapter pertama',
   'Read latest chapter': 'Baca chapter terbaru',
   'Remove from library': 'Hapus dari perpustakaan',
+  'Saving…': 'Menyimpan…',
   'Add to library': 'Tambahkan ke perpustakaan',
   'In library': 'Di perpustakaan',
   'Refreshing…': 'Menyegarkan…',
@@ -708,7 +709,11 @@ function ConnectedMangaDetail({
                     .finally(() => setLibraryPending(false));
                 }}
               >
-                {manga.inLibrary ? t('In library') : t('Add to library')}
+                {libraryPending
+                  ? t('Saving…')
+                  : manga.inLibrary
+                    ? t('In library')
+                    : t('Add to library')}
               </button>
               <ActionMenu
                 label={t('More')}

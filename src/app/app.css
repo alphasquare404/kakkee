@@ -6389,3 +6389,8 @@ button.manga-card-link {
   flex: 0 0 auto;
   white-space: nowrap;
 }
+
+.library-bulk-status {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
