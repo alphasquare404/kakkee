@@ -23,6 +23,7 @@ export interface CategoryController {
     flags: Partial<{
       includeInUpdate: 'INCLUDE' | 'EXCLUDE';
       includeInDownload: 'INCLUDE' | 'EXCLUDE';
+      default: boolean;
     }>,
   ): Promise<boolean>;
 }

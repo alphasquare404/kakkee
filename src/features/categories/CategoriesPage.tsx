@@ -197,6 +197,9 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
               }}
               onMoveUp={() => moveCategory(category, -1)}
               onMoveDown={() => moveCategory(category, 1)}
+              onSetDefault={() =>
+                void controller.setFlags(category.id, { default: true })
+              }
               onToggleUpdate={() =>
                 void controller.setFlags(category.id, {
                   includeInUpdate:
@@ -238,6 +241,7 @@ function CategoryCard({
   onConfirmDelete,
   onMoveUp,
   onMoveDown,
+  onSetDefault,
   onToggleUpdate,
   onToggleDownload,
 }: {
@@ -257,6 +261,7 @@ function CategoryCard({
   readonly onConfirmDelete: () => void;
   readonly onMoveUp: () => void;
   readonly onMoveDown: () => void;
+  readonly onSetDefault: () => void;
   readonly onToggleUpdate: () => void;
   readonly onToggleDownload: () => void;
 }) {
@@ -337,6 +342,9 @@ function CategoryCard({
             </button>
             <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
               Move down
+            </button>
+            <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
+              Set default
             </button>
             <button
               className="is-danger"

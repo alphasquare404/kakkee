@@ -75,7 +75,7 @@ frontend.
 | Library | Manga selection, shift-click, long-press | `Implemented` | Client concern | Selection mode, shift range, and 500 ms long-press on posters |
 | Library | Bulk download, delete downloads, mark read/unread | `Implemented` | Yes | All four bulk actions implemented with confirmation for delete |
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
-| Library | Bulk migrate | `Missing` | Yes | |
+| Library | Bulk migrate | `Blocked by server` | No | No migration API in stable schema; single/bulk migration impossible without inventing mutations |
 | Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Partial` | Client-side | Normalized title groups over loaded library items; server-wide scan absent |
 | Library | Sync button | `Implemented` | Yes | Starts `updateLibrary` and shows live job progress via subscription |
@@ -177,7 +177,7 @@ frontend.
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Partial` | Metadata | Pin/last-used, saved language filter, and NSFW toggle; multi-language preference list absent |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
 | Browse | Saved source searches and global search | `Partial` | Client metadata + server | Per-source search history and `/search` page; live search across all sources absent |
-| Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
+| Browse | WebView/open-in-WebView | `Platform limitation` | Platform/server | Browser frontend cannot host the server-side WebView integration |
 | Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
 | Extensions | Update badges/info pages | `Implemented` | Yes | Update section/badge and per-extension detail page with install/update/uninstall |
@@ -197,7 +197,7 @@ frontend.
 | Tracking | Score/progress/status and sync behavior | `Implemented` | Yes | Score/status, reading dates, manual sync, and optional auto-sync after finishing a Reader chapter |
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
 | Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
-| Categories | Assignment and default-category behavior | `Missing` | Yes | |
+| Categories | Assignment and default-category behavior | `Implemented` | Yes | Per-manga category picker plus Set default action |
 | Categories | Category update/download inclusion flags | `Implemented` | Yes | Per-category include in updates/downloads toggles |
 
 ### Backup / Sync / Settings / Global behavior

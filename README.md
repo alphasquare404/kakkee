@@ -26,7 +26,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library screen: search with recent-search suggestions and optional fuzzy title matching, duplicate-title overview, category tabs with counts, single/OR status filters, sort, random loaded-page shuffle, reset refinements, saved filter defaults, responsive grid, real thumbnails, unread/download badges, continue-reading chip/tooltip and direct resume button, selection mode, shift-range and long-press selection, bulk category assignment/removal, bulk mark read/unread, bulk download/delete, empty/error/load-more states.
 - Reference-driven cinematic shell with desktop sidebar and mobile tab bar.
 - Browse: installed source catalog with language/NSFW filters, pin/last-used sources, source preferences, plus source manga browsing with Popular/Latest, search with per-source history, pagination, and quick library add/remove.
-- Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, and delete with confirmation.
+- Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, set default, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
 - Downloads: real queue/state/progress, pause/resume, retry-all-failed, cancel/delete, manga grouping with series cancel, downloaded-chapter list, and server image conversion lists.
 - Extensions: installed/available extension catalog, language filter, store add/remove, external JAR upload, per-extension detail pages, install/uninstall/update, and update checking.

@@ -22,6 +22,7 @@ export interface CategoryRepository {
     flags: Partial<{
       includeInUpdate: IncludeOrExclude;
       includeInDownload: IncludeOrExclude;
+      default: boolean;
     }>,
   ): Promise<void>;
 }
