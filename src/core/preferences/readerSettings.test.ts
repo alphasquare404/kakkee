@@ -30,6 +30,7 @@ describe('reader settings', () => {
       direction: 'rtl',
       keepScreenOn: true,
       firstPageOffset: 24,
+      skipDuplicates: true,
     });
 
     expect(getReaderSettings()).toEqual({
@@ -42,6 +43,7 @@ describe('reader settings', () => {
       direction: 'rtl',
       keepScreenOn: true,
       firstPageOffset: 24,
+      skipDuplicates: true,
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(
       '"widthRem":72',

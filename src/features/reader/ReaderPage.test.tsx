@@ -121,9 +121,10 @@ function renderReader(failFirstImage = false, page?: number, progress = 0) {
         data: {
           chapters: {
             nodes: [
-              { __typename: 'ChapterType', id: 9, name: 'Chapter 9', chapterNumber: 9, isRead: true },
-              { __typename: 'ChapterType', id: 10, name: 'Chapter 10', chapterNumber: 10, isRead: false },
               { __typename: 'ChapterType', id: 11, name: 'Chapter 11', chapterNumber: 11, isRead: false },
+              { __typename: 'ChapterType', id: 10, name: 'Chapter 10', chapterNumber: 10, isRead: false },
+              { __typename: 'ChapterType', id: 9, name: 'Chapter 9', chapterNumber: 9, isRead: true },
+              { __typename: 'ChapterType', id: 12, name: 'Chapter 9', chapterNumber: 9, isRead: false },
             ],
           },
         },
@@ -254,8 +255,24 @@ describe('ReaderPage', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Chapter list' });
     expect(dialog).toBeTruthy();
-    expect(within(dialog).getByRole('link', { name: /Chapter 9/ })).toBeTruthy();
+    expect(
+      within(dialog).getAllByRole('link', { name: /Chapter 9/ }),
+    ).toHaveLength(2);
     expect(within(dialog).getByRole('link', { name: /Chapter 11/ })).toBeTruthy();
+  });
+
+  it('skips duplicate chapter numbers in the chapter list when enabled', async () => {
+    updateReaderSettings({ skipDuplicates: true });
+    renderReader();
+    await screen.findByRole('heading', { name: 'Chapter 10' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Chapters' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Chapter list' });
+    expect(within(dialog).getAllByRole('link')).toHaveLength(3);
+    expect(
+      within(dialog).getAllByRole('link', { name: /Chapter 9/ }),
+    ).toHaveLength(1);
   });
 
   it('resumes at the requested page', async () => {

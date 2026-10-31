@@ -32,7 +32,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Backup: create backup with selectable data categories and automatic-backup summary.
 - Settings: real server/application information, server update/download/system settings, dark/pure-black theme, and library grid density.
 - Manga Detail: metadata, cover, chapter search/filter/scanlator, missing-chapter separators, chapter order, read/bookmark/download toggles, shift-range bulk read/bookmark/download/delete, tracker search/bind/unbind with status/score/private controls and progress sync, in-library toggle, load more, and reader navigation.
-- Reader: vertical, webtoon, single-page, double-page, and horizontal modes; authenticated lazy pages, neighbor preload, progress write, saved-page resume, image filter presets, LTR/RTL direction, page scaling, first-page offset, safe-area insets, keep-screen-on, fullscreen, share, tap zones, keyboard paging, auto-scroll, chapter navigation, and a chapter-list overlay.
+- Reader: vertical, webtoon, single-page, double-page, and horizontal modes; authenticated lazy pages, neighbor preload, progress write, saved-page resume, image filter presets, LTR/RTL direction, page scaling, first-page offset, safe-area insets, keep-screen-on, fullscreen, share, tap zones, keyboard paging, auto-scroll, duplicate-chapter skipping, chapter navigation, and a chapter-list overlay.
 - PWA installable dengan shell-only cache dan update prompt.
 
 Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia, termasuk progress baca (`lastPageRead`/`isRead`) dan Continue reading dari Detail. Exact page resume, library continue-reading, source browsing, extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work.
@@ -794,7 +794,7 @@ Validasi visual/parity terbaru (30 Oktober 2026):
 npm run codegen:check  lulus
 npm run lint           lulus
 npm run typecheck      lulus
-npm run test           lulus (351 test; 7 runtime integration memerlukan env)
+npm run test           lulus (352 test; 7 runtime integration memerlukan env)
 npm run build          lulus
 ```
 

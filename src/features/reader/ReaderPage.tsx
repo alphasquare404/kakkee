@@ -110,6 +110,23 @@ function ConnectedReader({
         : [safeCurrentPage - 1, safeCurrentPage]
     : reader.pages.map((_, index) => index);
   const noopVisible = useCallback(() => undefined, []);
+  const uniqueChapters = readerSettings.skipDuplicates
+    ? [
+        ...new Map(
+          reader.chapters.map((chapter) => [chapter.chapterNumber, chapter]),
+        ).values(),
+      ]
+    : null;
+  const currentChapterIndex =
+    uniqueChapters?.findIndex((chapter) => chapter.id === chapterId) ?? -1;
+  const previousChapter =
+    uniqueChapters && currentChapterIndex >= 0
+      ? uniqueChapters[currentChapterIndex + 1] ?? null
+      : reader.previousChapter;
+  const nextChapter =
+    uniqueChapters && currentChapterIndex >= 0
+      ? uniqueChapters[currentChapterIndex - 1] ?? null
+      : reader.nextChapter;
 
   useEffect(() => {
     if (!readerSettings.keepScreenOn) {
@@ -272,12 +289,12 @@ function ConnectedReader({
         return;
       }
 
-      if (event.key === 'ArrowLeft' && reader.previousChapter) {
-        navigate(`/manga/${mangaId}/chapter/${reader.previousChapter.id}`);
+      if (event.key === 'ArrowLeft' && previousChapter) {
+        navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`);
       }
 
-      if (event.key === 'ArrowRight' && reader.nextChapter) {
-        navigate(`/manga/${mangaId}/chapter/${reader.nextChapter.id}`);
+      if (event.key === 'ArrowRight' && nextChapter) {
+        navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`);
       }
     };
 
@@ -289,9 +306,9 @@ function ConnectedReader({
     isPaged,
     mangaId,
     navigate,
-    reader.nextChapter,
+    nextChapter,
     reader.pages.length,
-    reader.previousChapter,
+    previousChapter,
     readingMode,
   ]);
 
@@ -365,15 +382,15 @@ function ConnectedReader({
         </div>
 
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">
-          {reader.previousChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${reader.previousChapter.id}`}>
+          {previousChapter ? (
+            <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`}>
               Previous
             </Link>
           ) : (
             <span aria-disabled="true">Previous</span>
           )}
-          {reader.nextChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${reader.nextChapter.id}`}>
+          {nextChapter ? (
+            <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`}>
               Next
             </Link>
           ) : (
@@ -539,17 +556,17 @@ function ConnectedReader({
       {activeChapter ? (
         <footer className="reader-footer">
           <nav className="reader-chapter-nav" aria-label="Chapter navigation">
-            {reader.previousChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${reader.previousChapter.id}`}>
-                Previous: {reader.previousChapter.name}
+            {previousChapter ? (
+              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`}>
+                Previous: {previousChapter.name}
               </Link>
             ) : (
               <span aria-disabled="true">Previous</span>
             )}
             <span>{activeChapter.pageCount} pages</span>
-            {reader.nextChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${reader.nextChapter.id}`}>
-                Next: {reader.nextChapter.name}
+            {nextChapter ? (
+              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`}>
+                Next: {nextChapter.name}
               </Link>
             ) : (
               <span aria-disabled="true">Next</span>
@@ -582,7 +599,7 @@ function ConnectedReader({
               </button>
             </header>
             <ol>
-              {reader.chapters.map((chapter) => (
+              {(uniqueChapters ?? reader.chapters).map((chapter) => (
                 <li key={chapter.id}>
                   <Link
                     className={chapter.id === activeChapter.id ? 'is-current' : undefined}

@@ -233,6 +233,23 @@ export function ReaderSettingsPage() {
                 </label>
               </dd>
             </div>
+            <div>
+              <dt>Duplicate chapters</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.skipDuplicates}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        skipDuplicates: event.target.checked,
+                      })
+                    }
+                  />
+                  Skip duplicate chapter numbers in navigation
+                </label>
+              </dd>
+            </div>
           </dl>
         </section>
 

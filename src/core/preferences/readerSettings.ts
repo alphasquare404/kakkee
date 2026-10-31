@@ -33,6 +33,7 @@ export interface ReaderSettings {
   readonly direction: ReaderDirection;
   readonly keepScreenOn: boolean;
   readonly firstPageOffset: number;
+  readonly skipDuplicates: boolean;
 }
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -45,6 +46,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   direction: 'ltr',
   keepScreenOn: false,
   firstPageOffset: 0,
+  skipDuplicates: false,
 };
 
 const STORAGE_KEY = 'suwayomi.reader-settings.v1';
@@ -86,6 +88,7 @@ function load(): ReaderSettings {
         200,
         DEFAULT_READER_SETTINGS.firstPageOffset,
       ),
+      skipDuplicates: parsed.skipDuplicates === true,
     };
   } catch {
     return DEFAULT_READER_SETTINGS;
@@ -187,6 +190,10 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       200,
       state.firstPageOffset,
     ),
+    skipDuplicates:
+      typeof patch.skipDuplicates === 'boolean'
+        ? patch.skipDuplicates
+        : state.skipDuplicates,
   };
   persist(state);
   notify();
