@@ -1,0 +1,9 @@
+subscription SyncStatusChanged {
+  syncStatusChanged {
+    state
+    startDate
+    endDate
+    errorMessage
+    backupRestoreId
+  }
+}

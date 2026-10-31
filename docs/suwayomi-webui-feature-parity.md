@@ -207,7 +207,7 @@ frontend.
 | Backup | Create backup and select data | `Implemented` | Yes | Create backup with include flags and returned URL |
 | Backup | Restore/validate backup | `Implemented` | Yes | Multipart validate and restore with auth; missing sources/trackers shown before restore |
 | Backup | Automatic backup settings | `Implemented` | Yes | Editable auto-backup path/interval/time/TTL and include flags |
-| Sync | Sync button and sync status | `Partial` | Yes | Start sync and result state; live progress/subscription absent |
+| Sync | Sync button and sync status | `Implemented` | Yes | Start sync, result state, and live `syncStatusChanged` status |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Partial` | Yes | Data toggles, Yomi enablement/host, and interval shown; API key editing absent |
 | Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |

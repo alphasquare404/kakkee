@@ -32,7 +32,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Extensions: installed/available extension catalog, language filter, store add/remove, external JAR upload, per-extension detail pages, install/uninstall/update, and update checking.
 - Localization foundation: English/Indonesian locale selection with translated navigation and Appearance screen.
 - Settings extras: hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
-- Sync settings: start sync, sync result, Yomi status, and data-selection toggles.
+- Sync settings: start sync, live sync status, Yomi status, and data-selection toggles.
 - Tracking settings: real tracker services, login links, token/expiry state, private/reading-date support, and logout.
 - Backup: create backup with selectable data categories, upload/validate/restore a backup archive, and edit automatic-backup settings.
 - Settings: real server/application information, server update/download/system settings, dark/pure-black theme, and library grid density.

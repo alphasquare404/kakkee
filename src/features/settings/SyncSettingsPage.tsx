@@ -1,11 +1,17 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createSyncController } from '../../core/sync/syncController';
 import { createSyncRepository } from '../../core/sync/syncRepository';
 import type { EditableSyncSettings } from '../../core/sync/syncRepository';
+import {
+  SyncStatusChangedDocument,
+  type SyncStatusChangedSubscription,
+} from '../../core/graphql/generated/graphql';
 import { PageHeader } from '../../shared/PageHeader';
+
+type SyncStatus = SyncStatusChangedSubscription['syncStatusChanged'];
 
 const SYNC_RESULT_LABEL: Record<string, string> = {
   SUCCESS: 'Sync started',
@@ -43,10 +49,30 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
     return createSyncController(repository);
   }, [context.graphQL]);
   const sync = useSyncExternalStore(controller.subscribe, controller.getState);
+  const [liveStatus, setLiveStatus] = useState<SyncStatus | null>(null);
 
   useEffect(() => {
     void controller.load();
   }, [controller]);
+
+  useEffect(() => {
+    if (typeof context.graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const subscription = context.graphQL
+      .subscribe({ query: SyncStatusChangedDocument })
+      .subscribe({
+        next: (result) => {
+          if (result.data?.syncStatusChanged) {
+            setLiveStatus(result.data.syncStatusChanged);
+          }
+        },
+        error: () => undefined,
+      });
+
+    return () => subscription.unsubscribe();
+  }, [context.graphQL]);
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -78,6 +104,32 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
             <p className="settings-save-state" role="status">
               {SYNC_RESULT_LABEL[sync.result] ?? sync.result}
             </p>
+          ) : null}
+          {liveStatus ? (
+            <dl className="settings-rows" aria-label="Live sync status">
+              <div>
+                <dt>State</dt>
+                <dd>{liveStatus.state}</dd>
+              </div>
+              {liveStatus.startDate ? (
+                <div>
+                  <dt>Started</dt>
+                  <dd>{liveStatus.startDate}</dd>
+                </div>
+              ) : null}
+              {liveStatus.endDate ? (
+                <div>
+                  <dt>Finished</dt>
+                  <dd>{liveStatus.endDate}</dd>
+                </div>
+              ) : null}
+              {liveStatus.errorMessage ? (
+                <div>
+                  <dt>Error</dt>
+                  <dd>{liveStatus.errorMessage}</dd>
+                </div>
+              ) : null}
+            </dl>
           ) : null}
           {sync.error ? (
             <p className="settings-inline-error" role="alert">

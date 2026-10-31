@@ -68,6 +68,7 @@ type Documents = {
     "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": typeof types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": typeof types.StopDownloaderDocument,
     "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": typeof types.SyncSettingsDocument,
+    "subscription SyncStatusChanged {\n  syncStatusChanged {\n    state\n    startDate\n    endDate\n    errorMessage\n    backupRestoreId\n  }\n}": typeof types.SyncStatusChangedDocument,
     "mutation TrackProgress($input: TrackProgressInput!) {\n  trackProgress(input: $input) {\n    trackRecords {\n      id\n      trackerId\n      title\n      status\n      score\n      displayScore\n      private\n      remoteUrl\n      startDate\n      finishDate\n      tracker {\n        id\n        name\n        scores\n        supportsReadingDates\n        statuses {\n          name\n          value\n        }\n      }\n    }\n  }\n}": typeof types.TrackProgressDocument,
     "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n      scores\n      statuses {\n        name\n        value\n      }\n    }\n  }\n}": typeof types.TrackingServicesDocument,
     "mutation UnbindTrack($input: UnbindTrackInput!) {\n  unbindTrack(input: $input) {\n    trackRecord {\n      id\n    }\n  }\n}": typeof types.UnbindTrackDocument,
@@ -141,6 +142,7 @@ const documents: Documents = {
     "mutation StartSync {\n  startSync(input: {}) {\n    result\n  }\n}": types.StartSyncDocument,
     "mutation StopDownloader {\n  stopDownloader(input: {}) {\n    downloadStatus {\n      state\n    }\n  }\n}": types.StopDownloaderDocument,
     "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}": types.SyncSettingsDocument,
+    "subscription SyncStatusChanged {\n  syncStatusChanged {\n    state\n    startDate\n    endDate\n    errorMessage\n    backupRestoreId\n  }\n}": types.SyncStatusChangedDocument,
     "mutation TrackProgress($input: TrackProgressInput!) {\n  trackProgress(input: $input) {\n    trackRecords {\n      id\n      trackerId\n      title\n      status\n      score\n      displayScore\n      private\n      remoteUrl\n      startDate\n      finishDate\n      tracker {\n        id\n        name\n        scores\n        supportsReadingDates\n        statuses {\n          name\n          value\n        }\n      }\n    }\n  }\n}": types.TrackProgressDocument,
     "query TrackingServices {\n  trackers(first: 50, order: [{by: NAME, byType: ASC}]) {\n    nodes {\n      id\n      name\n      icon\n      isLoggedIn\n      isTokenExpired\n      authUrl\n      supportsPrivateTracking\n      supportsReadingDates\n      supportsTrackDeletion\n      scores\n      statuses {\n        name\n        value\n      }\n    }\n  }\n}": types.TrackingServicesDocument,
     "mutation UnbindTrack($input: UnbindTrackInput!) {\n  unbindTrack(input: $input) {\n    trackRecord {\n      id\n    }\n  }\n}": types.UnbindTrackDocument,
@@ -390,6 +392,10 @@ export function graphql(source: "mutation StopDownloader {\n  stopDownloader(inp
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}"): (typeof documents)["query SyncSettings {\n  settings {\n    syncInterval\n    syncDataCategories\n    syncDataChapters\n    syncDataHistory\n    syncDataManga\n    syncDataTracking\n    syncYomiEnabled\n    syncYomiHost\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "subscription SyncStatusChanged {\n  syncStatusChanged {\n    state\n    startDate\n    endDate\n    errorMessage\n    backupRestoreId\n  }\n}"): (typeof documents)["subscription SyncStatusChanged {\n  syncStatusChanged {\n    state\n    startDate\n    endDate\n    errorMessage\n    backupRestoreId\n  }\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
