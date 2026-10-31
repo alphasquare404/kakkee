@@ -141,6 +141,7 @@ function ConnectedMangaDetail({
   const [libraryActionError, setLibraryActionError] = useState(false);
   const [refreshPending, setRefreshPending] = useState(false);
   const [refreshError, setRefreshError] = useState(false);
+  const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle');
   const cover = useImageResource(
     context.resources,
     detail.manga?.thumbnailUrl ?? null,
@@ -368,6 +369,31 @@ function ConnectedMangaDetail({
                 }}
               >
                 {refreshPending ? 'Refreshing…' : 'Refresh'}
+              </button>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => {
+                  const url = window.location.href;
+
+                  if (typeof navigator.share === 'function') {
+                    void navigator
+                      .share({ title: manga.title, text: manga.title, url })
+                      .catch(() => undefined);
+                    return;
+                  }
+
+                  void navigator.clipboard
+                    ?.writeText(url)
+                    .then(() => setShareState('copied'))
+                    .catch(() => setShareState('error'));
+                }}
+              >
+                {shareState === 'copied'
+                  ? 'Link copied'
+                  : shareState === 'error'
+                    ? 'Copy failed'
+                    : 'Share'}
               </button>
               <Link className="button button-secondary" to="/library">
                 Back to library

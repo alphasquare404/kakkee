@@ -91,7 +91,7 @@ frontend.
 | Manga | Continue reading from last page | `Implemented` | Reading progress | Detail links the in-progress chapter with `?page=`; reader resumes that page |
 | Manga | Read from start/latest chapter | `Implemented` | Yes | Primary CTA uses actual first loaded chapter |
 | Manga | Manga notes | `Implemented` | Manga meta mutations | Notes stored in manga meta with save/clear |
-| Manga | Share | `Missing` | Client concern | |
+| Manga | Share | `Implemented` | Client concern | Web Share API with clipboard fallback |
 | Manga | Refresh metadata/chapters from source | `Implemented` | Yes | Refresh button calls fetchMangaAndChapters and reloads detail |
 | Manga | Migration entry point | `Blocked by server` | No | Stable v2.4.2366 schema exposes no migration mutation/query |
 | Manga | Tracker binding/score/status | `Implemented` | Yes | Search/bind/unbind with private option, status and score editing |

@@ -188,7 +188,7 @@ npm run test           PASS — 364 passed, 7 skipped (371 total)
 npm run build          PASS
 ```
 
-Build code-splits Manga Detail, Reader, and secondary pages. Main JS 592.78 kB (gzip 163.80 kB), CSS 70.01 kB (gzip 12.70 kB), detail 29.13 kB, reader 15.02 kB, updates 3.14 kB, global search 4.89 kB, server settings 9.98 kB, categories 7.53 kB, downloads 7.71 kB, extension detail 2.83 kB, extensions 5.72 kB, source manga 5.86 kB, backup 4.89 kB, sync 4.33 kB, tracking settings 4.57 kB, device 2.90 kB, history settings 1.17 kB, reader settings 7.01 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
+Build code-splits Manga Detail, Reader, and secondary pages. Main JS 592.78 kB (gzip 163.80 kB), CSS 70.01 kB (gzip 12.70 kB), detail 29.53 kB, reader 15.02 kB, updates 3.14 kB, global search 4.89 kB, server settings 9.98 kB, categories 7.53 kB, downloads 7.71 kB, extension detail 2.83 kB, extensions 5.72 kB, source manga 5.86 kB, backup 4.89 kB, sync 4.33 kB, tracking settings 4.57 kB, device 2.90 kB, history settings 1.17 kB, reader settings 7.01 kB, appearance 1.81 kB, library settings 2.08 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
 
 PWA production preview at root:
 
