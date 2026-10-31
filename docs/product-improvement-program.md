@@ -21,8 +21,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 11 | Accessibility | Complete | [accessibility-audit.md](accessibility-audit.md) | `Goal 11` |
 | 12 | Reader UX | Complete | [reader-ux-audit.md](reader-ux-audit.md) | `Goal 12` |
 | 13 | Performance/resources | Complete | [performance-audit.md](performance-audit.md) | `Goal 13` |
-| 14 | PWA/offline | In Progress | — | — |
-| 15 | Visual hierarchy | Pending | — | — |
+| 14 | PWA/offline | Complete | [pwa-offline-audit.md](pwa-offline-audit.md) | `Goal 14` |
+| 15 | Visual hierarchy | In Progress | — | — |
 | 16 | Motion/microinteractions | Pending | — | — |
 | 17 | Content/copy | Pending | — | — |
 | 18 | Extreme data/stress | Pending | — | — |
