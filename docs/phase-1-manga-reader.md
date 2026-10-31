@@ -188,13 +188,13 @@ npm run test           PASS — 383 passed, 7 skipped (390 total)
 npm run build          PASS
 ```
 
-Build code-splits Manga Detail, Reader, and secondary pages. Main JS 616.18 kB (gzip 165.04 kB), CSS 79.30 kB (gzip 13.93 kB), detail 35.59 kB, reader 18.48 kB, updates 5.90 kB, browse 6.61 kB, source manga 11.12 kB, global search 5.63 kB, server settings 14.02 kB, categories 7.71 kB, downloads 9.11 kB, backup 9.82 kB, sync 5.65 kB, about 9.71 kB, extension detail 2.86 kB, extensions 7.07 kB, tracking settings 4.61 kB, device 2.94 kB, history settings 1.20 kB, reader settings 11.24 kB, appearance 2.75 kB, library settings 2.90 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
+Build code-splits Manga Detail, Reader, and secondary pages. Main JS 617.20 kB (gzip 165.16 kB), CSS 80.52 kB (gzip 14.07 kB), detail 35.59 kB, reader 18.62 kB, updates 5.99 kB, browse 6.61 kB, source manga 10.42 kB, global search 7.50 kB, server settings 16.28 kB, categories 7.71 kB, downloads 9.11 kB, backup 9.82 kB, sync 5.65 kB, about 9.71 kB, extension detail 2.86 kB, extensions 7.07 kB, tracking settings 5.94 kB, device 2.94 kB, history settings 1.20 kB, reader settings 11.24 kB, appearance 2.75 kB, library settings 2.90 kB. Vite emits the standard >500 kB main-chunk warning; no functional blocker.
 
 PWA production preview at root:
 
 - manifest errors: none
 - installability errors: none
-- CacheStorage only Workbox shell (43 entries): index, JS/CSS, workbox-window, icons, manifest, dynamic route chunks
+- CacheStorage only Workbox shell (44 entries): index, JS/CSS, workbox-window, icons, manifest, dynamic route chunks
 - private entries (`/api`, GraphQL, thumbnail/page): none
 - console errors: none
 

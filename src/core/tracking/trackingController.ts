@@ -13,6 +13,11 @@ export interface TrackingController {
   getState(): TrackingState;
   subscribe(listener: () => void): () => void;
   load(): Promise<void>;
+  loginCredentials(
+    trackerId: number,
+    username: string,
+    password: string,
+  ): Promise<void>;
   logout(trackerId: number): Promise<void>;
 }
 
@@ -49,6 +54,30 @@ export function createTrackingController(
     }
   }
 
+  async function loginCredentials(
+    trackerId: number,
+    username: string,
+    password: string,
+  ): Promise<void> {
+    patch({ busyId: trackerId, error: false });
+
+    try {
+      const isLoggedIn = await repository.loginCredentials(
+        trackerId,
+        username,
+        password,
+      );
+      patch({
+        items: state.items.map((tracker) =>
+          tracker.id === trackerId ? { ...tracker, isLoggedIn } : tracker,
+        ),
+        busyId: null,
+      });
+    } catch {
+      patch({ busyId: null, error: true });
+    }
+  }
+
   async function logout(trackerId: number): Promise<void> {
     patch({ busyId: trackerId, error: false });
 
@@ -72,6 +101,7 @@ export function createTrackingController(
       return () => listeners.delete(listener);
     },
     load,
+    loginCredentials,
     logout,
   };
 }

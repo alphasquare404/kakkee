@@ -1,5 +1,6 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  LoginTrackerCredentialsDocument,
   LogoutTrackerDocument,
   TrackingServicesDocument,
   type TrackingServicesQuery,
@@ -9,6 +10,11 @@ export type Tracker = TrackingServicesQuery['trackers']['nodes'][number];
 
 export interface TrackingRepository {
   getTrackers(): Promise<readonly Tracker[]>;
+  loginCredentials(
+    trackerId: number,
+    username: string,
+    password: string,
+  ): Promise<boolean>;
   logout(trackerId: number): Promise<void>;
 }
 
@@ -27,6 +33,20 @@ export function createTrackingRepository(options: {
       }
 
       return result.data.trackers.nodes;
+    },
+    async loginCredentials(trackerId, username, password) {
+      const result = await options.getClient().mutate({
+        mutation: LoginTrackerCredentialsDocument,
+        variables: {
+          input: { trackerId, username, password },
+        },
+      });
+
+      if (!result.data?.loginTrackerCredentials) {
+        throw new Error('Tracker login failed.');
+      }
+
+      return result.data.loginTrackerCredentials.isLoggedIn;
     },
     async logout(trackerId) {
       const result = await options.getClient().mutate({

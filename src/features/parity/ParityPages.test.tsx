@@ -132,7 +132,12 @@ function serverSettings(): ServerSettingsQuery {
     settings: {
       __typename: 'SettingsType',
       authMode: 'NONE',
+      authUsername: '',
+      authPassword: '',
       databaseType: 'H2',
+      databaseUrl: '',
+      databaseUsername: '',
+      databasePassword: '',
       updateMangas: true,
       autoDownloadNewChapters: false,
       autoDownloadNewChaptersLimit: 5,

@@ -395,6 +395,102 @@ function ServerSettingsForm({
         </div>
       </section>
 
+      <section className="settings-section" aria-labelledby="server-auth">
+        <div className="section-heading-row">
+          <h2 id="server-auth">Authentication</h2>
+        </div>
+        <p className="settings-inline-warning">
+          Changing authentication can require a reconnect. BASIC_AUTH and
+          SIMPLE_LOGIN are not supported by this frontend; keep NONE or UI_LOGIN.
+        </p>
+        <div className="settings-field-grid">
+          <label className="settings-select-field">
+            <span>Mode</span>
+            <select
+              value={settings.authMode}
+              onChange={(event) =>
+                update({
+                  authMode: event.target
+                    .value as EditableServerSettings['authMode'],
+                })
+              }
+            >
+              <option value="NONE">No authentication</option>
+              <option value="UI_LOGIN">UI login</option>
+            </select>
+          </label>
+          <label className="settings-text-field">
+            <span>Username</span>
+            <input
+              defaultValue={settings.authUsername}
+              autoComplete="off"
+              onBlur={(event) => update({ authUsername: event.target.value })}
+            />
+          </label>
+          <label className="settings-text-field">
+            <span>Password</span>
+            <input
+              type="password"
+              defaultValue={settings.authPassword}
+              autoComplete="new-password"
+              onBlur={(event) => update({ authPassword: event.target.value })}
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="settings-section" aria-labelledby="server-database">
+        <div className="section-heading-row">
+          <h2 id="server-database">Database</h2>
+        </div>
+        <div className="settings-field-grid">
+          <label className="settings-select-field">
+            <span>Type</span>
+            <select
+              value={settings.databaseType}
+              onChange={(event) =>
+                update({
+                  databaseType: event.target
+                    .value as EditableServerSettings['databaseType'],
+                })
+              }
+            >
+              <option value="H2">H2</option>
+              <option value="POSTGRESQL">PostgreSQL</option>
+            </select>
+          </label>
+          <label className="settings-text-field">
+            <span>URL</span>
+            <input
+              defaultValue={settings.databaseUrl}
+              autoComplete="off"
+              onBlur={(event) => update({ databaseUrl: event.target.value })}
+            />
+          </label>
+          <label className="settings-text-field">
+            <span>Username</span>
+            <input
+              defaultValue={settings.databaseUsername}
+              autoComplete="off"
+              onBlur={(event) =>
+                update({ databaseUsername: event.target.value })
+              }
+            />
+          </label>
+          <label className="settings-text-field">
+            <span>Password</span>
+            <input
+              type="password"
+              defaultValue={settings.databasePassword}
+              autoComplete="new-password"
+              onBlur={(event) =>
+                update({ databasePassword: event.target.value })
+              }
+            />
+          </label>
+        </div>
+      </section>
+
       <section className="settings-section" aria-labelledby="server-system">
         <div className="section-heading-row">
           <h2 id="server-system">System</h2>
@@ -419,14 +515,6 @@ function ServerSettingsForm({
               {settings.backupInterval}{' '}
               {settings.backupInterval === 1 ? 'hour' : 'hours'}
             </dd>
-          </div>
-          <div>
-            <dt>Authentication mode</dt>
-            <dd>{settings.authMode === 'NONE' ? 'No authentication' : settings.authMode}</dd>
-          </div>
-          <div>
-            <dt>Database</dt>
-            <dd>{settings.databaseType}</dd>
           </div>
         </dl>
       </section>

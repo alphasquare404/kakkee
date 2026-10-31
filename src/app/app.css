@@ -3900,6 +3900,39 @@ button.manga-card-link {
   background: var(--surface-sunken);
 }
 
+.live-source-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  align-items: center;
+  max-width: 42rem;
+  margin-bottom: var(--sp-3);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.live-source-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--sp-2);
+}
+
+.live-source-result {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.55rem 0.65rem;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.live-source-result span {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
 .global-search-history {
   position: absolute;
   z-index: 30;
@@ -4161,12 +4194,40 @@ button.manga-card-link {
 
 .tracker-card {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-3);
   align-items: center;
   padding: 0.8rem;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: rgba(17, 24, 39, 0.52);
+}
+
+.tracker-credentials {
+  flex: 1 0 100%;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.tracker-credentials summary {
+  cursor: pointer;
+}
+
+.tracker-credentials form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--sp-2);
+  align-items: center;
+  margin-top: var(--sp-2);
+}
+
+.tracker-credentials input {
+  min-height: 2.1rem;
+  padding: 0 0.55rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
 }
 
 .tracker-icon {
@@ -4703,6 +4764,16 @@ button.manga-card-link {
   margin: 0 0 var(--sp-2);
   color: var(--muted);
   font-size: var(--text-xs);
+}
+
+.settings-inline-warning {
+  margin: 0 0 var(--sp-3);
+  padding: 0.55rem 0.7rem;
+  color: var(--warning);
+  font-size: var(--text-xs);
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--border));
+  border-radius: 7px;
+  background: var(--warning-soft);
 }
 
 .settings-inline-error {

@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type FormEvent,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -107,6 +113,13 @@ function TrackingContent({ context }: { readonly context: ConnectedContext }) {
               tracker={tracker}
               resources={context.resources}
               busy={tracking.busyId === tracker.id}
+              onLogin={(username, password) =>
+                void controller.loginCredentials(
+                  tracker.id,
+                  username,
+                  password,
+                )
+              }
               onLogout={() => void controller.logout(tracker.id)}
             />
           ))}
@@ -125,14 +138,30 @@ function TrackerCard({
   tracker,
   resources,
   busy,
+  onLogin,
   onLogout,
 }: {
   readonly tracker: Tracker;
   readonly resources: ConnectedContext['resources'];
   readonly busy: boolean;
+  readonly onLogin: (username: string, password: string) => void;
   readonly onLogout: () => void;
 }) {
   const icon = useImageResource(resources, tracker.icon.startsWith('http') ? tracker.icon : null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [credentialsOpen, setCredentialsOpen] = useState(false);
+
+  const submitCredentials = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!username.trim() || !password) {
+      return;
+    }
+
+    onLogin(username.trim(), password);
+    setPassword('');
+  };
 
   return (
     <article className="tracker-card">
@@ -176,6 +205,41 @@ function TrackerCard({
       ) : (
         <span className="settings-save-state">Login unavailable</span>
       )}
+      {!tracker.isLoggedIn ? (
+        <details
+          className="tracker-credentials"
+          open={credentialsOpen}
+          onToggle={(event) =>
+            setCredentialsOpen(event.currentTarget.open)
+          }
+        >
+          <summary>Use username/password</summary>
+          <form onSubmit={submitCredentials}>
+            <input
+              aria-label={`${tracker.name} username`}
+              placeholder="Username"
+              value={username}
+              autoComplete="username"
+              onChange={(event) => setUsername(event.target.value)}
+            />
+            <input
+              aria-label={`${tracker.name} password`}
+              type="password"
+              placeholder="Password"
+              value={password}
+              autoComplete="current-password"
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <button
+              className="button button-secondary"
+              type="submit"
+              disabled={busy || !username.trim() || !password}
+            >
+              {busy ? 'Connecting…' : 'Connect'}
+            </button>
+          </form>
+        </details>
+      ) : null}
     </article>
   );
 }

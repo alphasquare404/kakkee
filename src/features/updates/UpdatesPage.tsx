@@ -285,6 +285,12 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                     >
                       {queuedChapters.has(chapter.id) ? 'Queued' : 'Download'}
                     </button>
+                    <Link
+                      className="feed-action"
+                      to={`/manga/${chapter.manga.id}`}
+                    >
+                      Manga
+                    </Link>
                   </>
                 }
               />

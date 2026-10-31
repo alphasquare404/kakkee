@@ -1,7 +1,12 @@
 query ServerSettings {
   settings {
     authMode
+    authUsername
+    authPassword
     databaseType
+    databaseUrl
+    databaseUsername
+    databasePassword
     updateMangas
     autoDownloadNewChapters
     autoDownloadNewChaptersLimit

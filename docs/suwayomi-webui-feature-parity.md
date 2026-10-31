@@ -127,7 +127,7 @@ frontend.
 | Reader | Vertical continuous reader | `Implemented` | Yes | Current reader |
 | Reader | Desktop/mobile chrome | `Implemented` | Client concern | Distraction-free shell, previous/next, page count, and desktop chapter rail |
 | Reader | Single page mode | `Implemented` | Client-side | Single-page layout with tap, swipe, and keyboard page controls |
-| Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
+| Reader | Double page mode | `Implemented` | Client-side | Two-page layout with direction-aware pairing and page controls |
 | Reader | Horizontal continuous mode | `Implemented` | Client-side | Horizontal scroll-snap canvas with page tracking |
 | Reader | Webtoon mode + auto detection | `Implemented` | Client-side | Webtoon layout plus optional first-page height/width auto detection |
 | Reader | Reading direction (LTR/RTL) | `Implemented` | Client-side | Direction setting applied to double-page order and horizontal flow |
@@ -141,7 +141,7 @@ frontend.
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
 | Reader | Skip duplicate chapters | `Implemented` | Client-side | Full chapter scan deduplicates numbers across pagination boundaries |
-| Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter manifest prefetched near the end, page images not prefetched |
+| Reader | Preload pages and next chapter | `Implemented` | Client-side | Current ±1 eager pages, next chapter manifest prefetch, and first three next-chapter images prefetched |
 | Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
 | Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
@@ -160,7 +160,7 @@ frontend.
 |---|---|---|---|---|
 | Updates | Latest chapters from library | `Implemented` | Yes | Day-grouped ChapterFeed plus a Continue reading section driven by firstUnreadChapter |
 | Updates | Unread/read filters, scanlator, state | `Implemented` | Yes | All/Unread/Read filters plus scanlator filter derived from the feed |
-| Updates | Chapter/manga actions | `Partial` | Yes | Mark read/unread and download from feed; broader manga actions absent |
+| Updates | Chapter/manga actions | `Implemented` | Yes | Mark read/unread, download, open chapter, and open Manga Detail from the feed |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |
 | History | Reading history entries | `Implemented` | Yes | Real lastReadAt feed; reader progress writes populate it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
@@ -184,7 +184,7 @@ frontend.
 | Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Implemented` | Metadata | Pin/last-used, multi-language preference list, saved language filter, and NSFW toggle |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Implemented` | Yes | Quick add/remove plus hide-in-library and duplicate-only filters |
-| Browse | Saved source searches and global search | `Partial` | Client metadata + server | Per-source search history and `/search` page; live search across all sources absent |
+| Browse | Saved source searches and global search | `Implemented` | Client metadata + server | Per-source history, `/search`, and on-demand live search across installed sources |
 | Browse | WebView/open-in-WebView | `Platform limitation` | Platform/server | Browser frontend cannot host the server-side WebView integration |
 | Extensions | Installed/available extensions, stores, language filters | `Implemented` | Yes | Catalog, installed/available sections, language filter, name/package search, updates-only filter, store add/remove |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
@@ -200,7 +200,7 @@ frontend.
 | Migration | Missing/outdated match filters, local source | `Blocked by server` | No | No migration/match API in stable schema |
 | Migration | Resume/abort via Web Locks | `Blocked by server` | No | Depends on absent migration job API |
 | Migration | Client data migration options | `Blocked by server` | No | No migration API in stable schema |
-| Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
+| Tracking | Tracker auth/config and services | `Implemented` | Yes | OAuth login links, username/password login mutation, token state, and logout |
 | Tracking | Manga search, bind/unbind, private binding | `Implemented` | Yes | Tracker search, bind, private option, unlink, status/score editing |
 | Tracking | Score/progress/status and sync behavior | `Implemented` | Yes | Score/status, reading dates, manual sync, and optional auto-sync after finishing a Reader chapter |
 | Categories | List categories and counts | `Implemented` | Yes | Categories page with real manga counts |
@@ -226,12 +226,12 @@ frontend.
 | Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
 | Settings | Client hide-read preference | `Implemented` | Metadata | Hide-read preference stored per device |
 | Settings | Server history retention | `Blocked by server` | Server metadata | No retention/history-recording setting in the stable schema |
-| Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
-| Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | Update/download/system plus OPDS and KOReader sync editing; auth/database remain read-only |
+| Settings | Tracking settings | `Implemented` | Yes | Service auth/login/logout, auto-sync, and per-manga binding/score controls on Manga Detail |
+| Settings | Server settings, authentication, database, OPDS/KOReader | `Implemented` | Yes | Update/download/system, auth mode/credentials, database, OPDS, and KOReader sync editing |
 | Settings | WebUI channel/flavor/update settings | `Implemented` | Yes | Channel/flavor/interface shown plus WebUI update action and live status on About |
 | Settings | Local device information | `Implemented` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities |
 | Settings | Remote device management | `Blocked by server` | Server metadata | Stable schema exposes no device-management query or mutation |
-| Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources with source filter and in-library counts; live fetch across every source absent |
+| Global search | Search all sources, global source filter, library counts | `Implemented` | Yes | Server-known results plus on-demand live source search, source filter, and in-library counts |
 | Global search | Local search history | `Implemented` | Client metadata | Recent global searches stored per device |
 | Global search | Remote search suggestions | `Blocked by server` | Server metadata | No suggestion/autocomplete endpoint in the stable schema |
 | Hotkeys | Configurable app/reader hotkeys | `Implemented` | Client concern | Reader page/back keys configurable; Shift preserves chapter navigation |

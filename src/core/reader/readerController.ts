@@ -20,7 +20,7 @@ export interface ReaderController {
   getState(): ReaderState;
   subscribe(listener: (state: ReaderState) => void): () => void;
   load(chapterId: number): Promise<void>;
-  preload(chapterId: number): Promise<void>;
+  preload(chapterId: number): Promise<readonly string[]>;
   retryPages(): Promise<void>;
   saveProgress(
     chapterId: number,
@@ -178,11 +178,12 @@ export function createReaderController(
     }
   }
 
-  async function preload(chapterId: number): Promise<void> {
+  async function preload(chapterId: number): Promise<readonly string[]> {
     try {
-      await options.repository.getPages(chapterId);
+      return await options.repository.getPages(chapterId);
     } catch {
       // Preloading is best-effort; the normal load path reports errors.
+      return [];
     }
   }
 

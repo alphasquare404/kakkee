@@ -158,8 +158,16 @@ function ConnectedReader({
     }
 
     preloadedNext.current = next.id;
-    void controller.preload(next.id);
+    void controller.preload(next.id).then((pages) => {
+      for (const path of pages.slice(0, 3)) {
+        void context.resources
+          .loadImageResource(path)
+          .then((resource) => resource.dispose())
+          .catch(() => undefined);
+      }
+    });
   }, [
+    context.resources,
     controller,
     reader.nextChapter,
     reader.pages.length,

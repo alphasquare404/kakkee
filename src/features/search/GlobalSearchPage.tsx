@@ -6,6 +6,8 @@ import { addSearchHistory, clearSearchHistory } from '../../core/preferences/sea
 import { createSearchController } from '../../core/search/searchController';
 import { createSearchRepository } from '../../core/search/searchRepository';
 import type { SearchManga } from '../../core/search/searchRepository';
+import { createCatalogRepository } from '../../core/catalog/catalogRepository';
+import { createSourceRepository } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { useSearchHistory } from '../../shared/useSearchHistory';
 import { PageHeader } from '../../shared/PageHeader';
@@ -32,7 +34,22 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const [query, setQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error'
+  >('idle');
+  const [liveResults, setLiveResults] = useState<
+    readonly { id: number; title: string; sourceName: string }[]
+  >([]);
+  const [liveProgress, setLiveProgress] = useState({ done: 0, total: 0 });
   const history = useSearchHistory();
+  const catalogRepository = useMemo(
+    () => createCatalogRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
+  const sourceRepository = useMemo(
+    () => createSourceRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
 
   const runSearch = (value: string) => {
     const trimmed = value.trim();
@@ -47,6 +64,71 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
   const submit = () => {
     runSearch(query);
+  };
+
+  const searchAllSources = async () => {
+    const value = (query.trim() || search.query).trim();
+
+    if (!value) {
+      return;
+    }
+
+    setLiveStatus('loading');
+    setLiveResults([]);
+    setLiveProgress({ done: 0, total: 0 });
+
+    try {
+      const sources = await catalogRepository.getSources();
+      const queue = [...sources.items];
+      const found = new Map<number, { id: number; title: string; sourceName: string }>();
+      let done = 0;
+      setLiveProgress({ done: 0, total: sources.items.length });
+
+      const worker = async () => {
+        for (;;) {
+          const source = queue.shift();
+
+          if (!source) {
+            return;
+          }
+
+          try {
+            const page = await sourceRepository.fetchManga({
+              sourceId: source.id,
+              type: 'SEARCH',
+              query: value,
+              page: 1,
+            });
+
+            for (const manga of page.mangas.slice(0, 6)) {
+              if (!found.has(manga.id)) {
+                found.set(manga.id, {
+                  id: manga.id,
+                  title: manga.title,
+                  sourceName: source.displayName,
+                });
+              }
+            }
+          } catch {
+            // A failed source must not stop the whole search.
+          }
+
+          done += 1;
+          setLiveProgress({ done, total: sources.items.length });
+        }
+      };
+
+      await Promise.all(
+        Array.from(
+          { length: Math.min(4, sources.items.length) },
+          () => worker(),
+        ),
+      );
+      setLiveResults([...found.values()]);
+      setLiveStatus('ready');
+    } catch {
+      setLiveStatus('error');
+    }
   };
 
   const mangas = search.results?.mangas.nodes ?? [];
@@ -130,6 +212,49 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
           </div>
         ) : null}
       </form>
+
+      <div className="live-source-search">
+        <button
+          className="button button-secondary"
+          type="button"
+          disabled={liveStatus === 'loading' || !(query.trim() || search.query)}
+          onClick={() => void searchAllSources()}
+        >
+          {liveStatus === 'loading'
+            ? `Searching sources ${liveProgress.done}/${liveProgress.total}…`
+            : 'Search installed sources'}
+        </button>
+        {liveStatus === 'ready' ? (
+          <span>
+            {liveResults.length} live result
+            {liveResults.length === 1 ? '' : 's'}
+          </span>
+        ) : null}
+        {liveStatus === 'error' ? (
+          <span role="alert">Live source search failed.</span>
+        ) : null}
+      </div>
+
+      {liveResults.length > 0 ? (
+        <section className="search-section" aria-labelledby="live-search-heading">
+          <div className="section-heading-row">
+            <h2 id="live-search-heading">Live source results</h2>
+            <span>{liveResults.length} manga</span>
+          </div>
+          <div className="live-source-results">
+            {liveResults.map((manga) => (
+              <Link
+                className="live-source-result"
+                key={manga.id}
+                to={`/manga/${manga.id}`}
+              >
+                <strong>{manga.title}</strong>
+                <span>{manga.sourceName}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {mangaSources.length > 1 ? (
         <div className="search-source-filter">
