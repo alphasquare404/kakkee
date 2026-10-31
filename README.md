@@ -28,7 +28,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Browse: installed source catalog plus source manga browsing with Popular/Latest, search, pagination, and quick library add/remove.
 - Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
-- Downloads: real queue/state/progress, pause/resume, cancel/delete, and downloaded-chapter list.
+- Downloads: real queue/state/progress, pause/resume, retry-all-failed, cancel/delete, and downloaded-chapter list.
 - Extensions: installed/available extension catalog, language filter, store add/remove, per-extension detail pages, install/uninstall/update, and update checking.
 - Settings extras: hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
 - Sync settings: start sync, sync result, Yomi status, and data-selection toggles.

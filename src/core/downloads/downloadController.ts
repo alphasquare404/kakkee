@@ -16,6 +16,7 @@ export interface DownloadController {
   togglePaused(): Promise<void>;
   dequeue(chapterId: number): Promise<void>;
   deleteDownloaded(chapterId: number): Promise<void>;
+  retryFailed(): Promise<void>;
 }
 
 export function createDownloadController(
@@ -91,5 +92,13 @@ export function createDownloadController(
     dequeue: (chapterId) => action(() => repository.dequeue(chapterId)),
     deleteDownloaded: (chapterId) =>
       action(() => repository.deleteDownloaded(chapterId)),
+    retryFailed: () => {
+      const failed =
+        state.queue?.queue
+          .filter((item) => item.state === 'ERROR')
+          .map((item) => item.chapter.id) ?? [];
+
+      return action(() => repository.retry(failed));
+    },
   };
 }

@@ -163,7 +163,7 @@ frontend.
 | History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
 | History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
 | Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
-| Downloads | Pause/resume, retry, cancel, delete | `Partial` | Yes | Pause/resume, cancel, and delete are implemented; retry-all-failed is absent |
+| Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
 | Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Progress and per-row actions; no grouping/bulk/speed |
 | Downloads | List downloaded chapters | `Partial` | Yes | Real `isDownloaded` feed |
 | Downloads | Download/conversion/image settings | `Missing` | Yes | |

@@ -73,6 +73,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     0,
   );
   const isPaused = downloads.queue?.state === 'STOPPED';
+  const failedCount = queue.filter((item) => item.state === 'ERROR').length;
 
   return (
     <div className="app-shell page-shell downloads-shell">
@@ -96,6 +97,14 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           onClick={() => void controller.load()}
         >
           Refresh
+        </button>
+        <button
+          className="button button-secondary"
+          type="button"
+          disabled={downloads.isActing || failedCount === 0}
+          onClick={() => void controller.retryFailed()}
+        >
+          Retry failed{failedCount > 0 ? ` (${failedCount})` : ''}
         </button>
       </PageHeader>
 

@@ -3,6 +3,7 @@ import {
   DeleteDownloadedChapterDocument,
   DequeueDownloadDocument,
   DownloadQueueDocument,
+  EnqueueChapterDownloadsDocument,
   StartDownloaderDocument,
   StopDownloaderDocument,
   type DownloadQueueQuery,
@@ -16,6 +17,7 @@ export interface DownloadRepository {
   setPaused(paused: boolean): Promise<void>;
   dequeue(chapterId: number): Promise<void>;
   deleteDownloaded(chapterId: number): Promise<void>;
+  retry(chapterIds: readonly number[]): Promise<void>;
 }
 
 export function createDownloadRepository(options: {
@@ -61,6 +63,20 @@ export function createDownloadRepository(options: {
 
       if (!result.data?.deleteDownloadedChapter) {
         throw new Error('Download chapter tidak dapat dihapus.');
+      }
+    },
+    async retry(chapterIds) {
+      if (chapterIds.length === 0) {
+        return;
+      }
+
+      const result = await options.getClient().mutate({
+        mutation: EnqueueChapterDownloadsDocument,
+        variables: { input: { ids: [...chapterIds] } },
+      });
+
+      if (!result.data?.enqueueChapterDownloads) {
+        throw new Error('Download gagal tidak dapat diulang.');
       }
     },
   };
