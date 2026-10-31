@@ -16,7 +16,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
-import { useMangaReaderMode } from '../../shared/useMangaReaderMode';
+import { useMangaReaderOverride } from '../../shared/useMangaReaderOverride';
 import { buildReaderFilter } from '../../core/preferences/readerSettings';
 import type { CSSProperties, MouseEvent, PointerEvent } from 'react';
 
@@ -73,9 +73,9 @@ function ConnectedReader({
   );
   const reader = useSyncExternalStore(controller.subscribe, controller.getState);
   const globalReaderSettings = useReaderSettings();
-  const mangaMode = useMangaReaderMode(mangaId);
-  const readerSettings = mangaMode
-    ? { ...globalReaderSettings, mode: mangaMode }
+  const mangaOverride = useMangaReaderOverride(mangaId);
+  const readerSettings = mangaOverride
+    ? { ...globalReaderSettings, ...mangaOverride }
     : globalReaderSettings;
   const imageFilter = buildReaderFilter(readerSettings);
   const [searchParams] = useSearchParams();

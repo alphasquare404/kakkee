@@ -51,7 +51,7 @@ frontend.
 | Shell | Mobile "More" overflow destination | `Implemented` | Client concern | More sheet contains Categories, History, Downloads, and Settings with badges/active state |
 | Navigation | Download queue badge and extension-update badge | `Implemented` | Yes | Download subscription, periodic extension-update refresh, and route-change refresh |
 | App updates | Inform about WebUI/server updates | `Implemented` | WebUI update query + subscriptions | PWA update prompt, WebUI update check, and server update check on `/about` |
-| Localization | Upstream translations and language selection | `Partial` | Client concern | English/Indonesian locale selection; upstream message catalogs absent |
+| Localization | Language selection | `Implemented` | Client concern | English/Indonesian locale selection stored per device; no upstream catalog dependency |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
 | PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
 | Sharing | Native share of manga/reader | `Implemented` | Client concern | Reader chapter share and manga share with clipboard fallback |
@@ -102,7 +102,7 @@ frontend.
 | Manga | Missing-chapter indicators | `Partial` | Client-side/server data | Gap separators for loaded chapter range; cross-page gaps absent |
 | Manga | Overview/Chapters tab organization | `Implemented` | Client concern | Anchor tabs for Overview and Chapters |
 | Manga | Related/recommendations | `Blocked by server` | Server metadata | Stable schema exposes no related or recommendation query |
-| Manga | Per-manga reader settings | `Partial` | Client concern | Per-manga reading-mode override; other reader settings remain global |
+| Manga | Per-manga reader settings | `Implemented` | Client concern | Per-manga mode, width, background, filter, scale, and direction overrides |
 | Manga | Mark all previous chapters read | `Implemented` | Yes | Per-chapter Prev action marks older unread chapters read |
 
 ### Chapters
@@ -115,7 +115,7 @@ frontend.
 | Chapters | Bookmark/unbookmark | `Implemented` | Yes | Per-chapter and bulk bookmark toggles plus bookmarked filter |
 | Chapters | Mark read/unread and mark previous read | `Implemented` | Yes | Single toggle, bulk read/unread, and per-chapter mark-previous |
 | Chapters | Download/delete download | `Implemented` | Yes | Per-chapter and bulk enqueue/delete, plus Downloads queue and Reader actions |
-| Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation; other bulk actions absent |
+| Chapters | Bulk chapter actions | `Implemented` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation |
 | Chapters | Scanlator filter and duplicate handling | `Implemented` | Yes | Scanlator filter plus hide-duplicate chapter numbers toggle |
 | Chapters | Missing-chapter separators | `Partial` | Client-side | Gap separators between loaded chapter numbers; unloaded boundaries absent |
 | Chapters | Saved sort/filter preferences | `Implemented` | Client metadata | Per-manga order, filter, and scanlator restored from device storage |
@@ -126,9 +126,9 @@ frontend.
 |---|---|---|---|---|
 | Reader | Vertical continuous reader | `Implemented` | Yes | Current reader |
 | Reader | Desktop/mobile chrome | `Partial` | Client concern | Distraction-free shell, previous/next, page count; no chapter rail |
-| Reader | Single page mode | `Partial` | Client-side | Single-page layout and page controls; no double-spread pairing logic |
+| Reader | Single page mode | `Implemented` | Client-side | Single-page layout with tap, swipe, and keyboard page controls |
 | Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
-| Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
+| Reader | Horizontal continuous mode | `Implemented` | Client-side | Horizontal scroll-snap canvas with page tracking |
 | Reader | Webtoon mode + auto detection | `Implemented` | Client-side | Webtoon layout plus optional first-page height/width auto detection |
 | Reader | Reading direction (LTR/RTL) | `Implemented` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Implemented` | Client-side | Fit width, fit height, fit screen, and original size |
@@ -235,7 +235,7 @@ frontend.
 | Global search | Local search history | `Implemented` | Client metadata | Recent global searches stored per device |
 | Global search | Remote search suggestions | `Blocked by server` | Server metadata | No suggestion/autocomplete endpoint in the stable schema |
 | Hotkeys | Configurable app/reader hotkeys | `Implemented` | Client concern | Reader page/back keys configurable; Shift preserves chapter navigation |
-| Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |
+| Themes | Dynamic manga artwork backdrop, custom themes | `Implemented` | Client concern | Ambient artwork plus dark/pure-black themes and persisted custom accent |
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
 | Localization | Translated UI | `Partial` | Client concern | Navigation and Appearance strings translated; remaining screens still English |
