@@ -15,6 +15,41 @@ import { getTrackingPreferences } from '../../core/preferences/trackingPreferenc
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Manga: 'Manga',
+  Reader: 'Reader',
+  Previous: 'Sebelumnya',
+  Next: 'Berikutnya',
+  Chapters: 'Chapter',
+  'Download action failed': 'Aksi unduhan gagal',
+  'Delete downloaded chapter': 'Hapus chapter terunduh',
+  'Download chapter': 'Unduh chapter',
+  'Delete download': 'Hapus unduhan',
+  Download: 'Unduh',
+  Bookmarked: 'Ditandai',
+  Bookmark: 'Tandai',
+  'In library': 'Di perpustakaan',
+  'Add to library': 'Tambahkan ke perpustakaan',
+  'Next queued': 'Berikutnya dalam antrean',
+  'Download next': 'Unduh berikutnya',
+  Fullscreen: 'Layar penuh',
+  'Auto-scroll': 'Gulir otomatis',
+  Share: 'Bagikan',
+  "Couldn't load chapter": 'Tidak dapat memuat chapter',
+  'The chapter request failed. Try again.':
+    'Permintaan chapter gagal. Coba lagi.',
+  "Couldn't load pages": 'Tidak dapat memuat halaman',
+  'Chapter metadata loaded, but the page request failed.':
+    'Metadata chapter dimuat, tetapi permintaan halaman gagal.',
+  'Next chapter': 'Chapter berikutnya',
+  'No pages': 'Tidak ada halaman',
+  'This chapter returned no readable pages.':
+    'Chapter ini tidak mengembalikan halaman yang bisa dibaca.',
+  Read: 'Sudah dibaca',
+});
 import { useReaderSettings } from '../../shared/useReaderSettings';
 import { useMangaReaderOverride } from '../../shared/useMangaReaderOverride';
 import { buildReaderFilter } from '../../core/preferences/readerSettings';
@@ -59,6 +94,7 @@ function ConnectedReader({
   readonly mangaId: number;
   readonly chapterId: number;
 }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () => createReaderRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -641,7 +677,7 @@ function ConnectedReader({
         </Link>
 
         <div className="reader-title">
-          <p>{activeChapter?.manga.title ?? 'Reader'}</p>
+          <p>{activeChapter?.manga.title ?? t('Reader')}</p>
           <h1>{activeChapter?.name ?? 'Loading chapter…'}</h1>
           {activeChapter && reader.pages.length > 0 ? (
             <span className="reader-page-total">
@@ -653,24 +689,24 @@ function ConnectedReader({
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">
           {previousChapter ? (
             <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`}>
-              Previous
+              {t('Previous')}
             </Link>
           ) : (
-            <span aria-disabled="true">Previous</span>
+            <span aria-disabled="true">{t('Previous')}</span>
           )}
           {nextChapter ? (
             <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`}>
-              Next
+              {t('Next')}
             </Link>
           ) : (
-            <span aria-disabled="true">Next</span>
+            <span aria-disabled="true">{t('Next')}</span>
           )}
           <button
             className="reader-quick-action"
             type="button"
             onClick={() => setChaptersOpen(true)}
           >
-            Chapters
+            {t('Chapters')}
           </button>
           <button
             className="reader-quick-action"
@@ -678,10 +714,10 @@ function ConnectedReader({
             disabled={!activeChapter || downloadBusy}
             title={
               downloadError
-                ? 'Download action failed'
+                ? t('Download action failed')
                 : activeChapter?.isDownloaded
-                  ? 'Delete downloaded chapter'
-                  : 'Download chapter'
+                  ? t('Delete downloaded chapter')
+                  : t('Download chapter')
             }
             onClick={() => {
               if (!activeChapter) {
@@ -720,7 +756,7 @@ function ConnectedReader({
                 .finally(() => setDownloadBusy(false));
             }}
           >
-            {activeChapter?.isBookmarked ? 'Bookmarked' : 'Bookmark'}
+            {activeChapter?.isBookmarked ? t('Bookmarked') : t('Bookmark')}
           </button>
           <button
             className={`reader-quick-action${activeChapter?.manga.inLibrary ? ' is-active' : ''}`}
@@ -738,7 +774,7 @@ function ConnectedReader({
                 .finally(() => setDownloadBusy(false));
             }}
           >
-            {activeChapter?.manga.inLibrary ? 'In library' : 'Add to library'}
+            {activeChapter?.manga.inLibrary ? t('In library') : t('Add to library')}
           </button>
           {nextChapter ? (
             <button
@@ -755,7 +791,7 @@ function ConnectedReader({
                   .finally(() => setDownloadBusy(false));
               }}
             >
-              {nextDownloadQueued ? 'Next queued' : 'Download next'}
+              {nextDownloadQueued ? t('Next queued') : t('Download next')}
             </button>
           ) : null}
           <button
@@ -763,7 +799,7 @@ function ConnectedReader({
             type="button"
             onClick={toggleFullscreen}
           >
-            Fullscreen
+            {t('Fullscreen')}
           </button>
           <button
             className={`reader-quick-action${autoScrolling ? ' is-active' : ''}`}
@@ -771,7 +807,7 @@ function ConnectedReader({
             aria-pressed={autoScrolling}
             onClick={() => setAutoScrolling((value) => !value)}
           >
-            Auto-scroll
+            {t('Auto-scroll')}
           </button>
           {typeof navigator.share === 'function' ? (
             <button
@@ -779,7 +815,7 @@ function ConnectedReader({
               type="button"
               onClick={shareChapter}
             >
-              Share
+              {t('Share')}
             </button>
           ) : null}
         </nav>
@@ -848,8 +884,8 @@ function ConnectedReader({
 
       {reader.error ? (
         <div className="library-state reader-state" role="alert">
-          <h2>Couldn&apos;t load chapter</h2>
-          <p>The chapter request failed. Try again.</p>
+          <h2>{t("Couldn't load chapter")}</h2>
+          <p>{t('The chapter request failed. Try again.')}</p>
           <div className="actions">
             <button
               className="button"
@@ -878,8 +914,8 @@ function ConnectedReader({
 
       {activeChapter && reader.pagesError ? (
         <div className="library-state reader-state" role="alert">
-          <h2>Couldn&apos;t load pages</h2>
-          <p>Chapter metadata loaded, but the page request failed.</p>
+          <h2>{t("Couldn't load pages")}</h2>
+          <p>{t('Chapter metadata loaded, but the page request failed.')}</p>
           <button
             className="button"
             type="button"
@@ -939,7 +975,7 @@ function ConnectedReader({
           {appended.map((extra) => (
             <section className="reader-appended" key={extra.id}>
               <div className="reader-appended-heading">
-                <p>Next chapter</p>
+                <p>{t('Next chapter')}</p>
                 <h2>{extra.name}</h2>
                 <Link to={`/manga/${mangaId}/chapter/${extra.id}`}>
                   Open chapter
@@ -966,8 +1002,8 @@ function ConnectedReader({
       !reader.pagesError &&
       reader.pages.length === 0 ? (
         <div className="library-state reader-state">
-          <h2>No pages</h2>
-          <p>This chapter returned no readable pages.</p>
+          <h2>{t('No pages')}</h2>
+          <p>{t('This chapter returned no readable pages.')}</p>
         </div>
       ) : null}
 
@@ -1007,7 +1043,7 @@ function ConnectedReader({
             onClick={(event) => event.stopPropagation()}
           >
             <header>
-              <h2>Chapters</h2>
+              <h2>{t('Chapters')}</h2>
               <button
                 className="button button-secondary"
                 type="button"
@@ -1025,7 +1061,7 @@ function ConnectedReader({
                     onClick={() => setChaptersOpen(false)}
                   >
                     <span>{chapter.name}</span>
-                    {chapter.isRead ? <small>Read</small> : null}
+                    {chapter.isRead ? <small>{t('Read')}</small> : null}
                   </Link>
                 </li>
               ))}
