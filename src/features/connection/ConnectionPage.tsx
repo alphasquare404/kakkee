@@ -9,8 +9,10 @@ import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
 import {
+  getAutoConnect,
   getLastServerUrl,
   saveLastServerUrl,
+  setAutoConnect,
 } from '../../core/preferences/connectionPreferences';
 
 const ERROR_TEXT: Partial<Record<ConnectionError['code'], string>> = {
@@ -55,6 +57,7 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 export function ConnectionPage() {
   const { state, connect, login, disconnect } = useConnection();
   const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
+  const [autoConnect, setAutoConnectState] = useState(() => getAutoConnect());
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
@@ -158,6 +161,17 @@ export function ConnectionPage() {
         <p className="hint" id="server-url-hint">
           Masukkan alamat server tanpa path GraphQL. Contoh: https://manga.example.com
         </p>
+        <label className="settings-inline-toggle">
+          <input
+            type="checkbox"
+            checked={autoConnect}
+            onChange={(event) => {
+              setAutoConnectState(event.target.checked);
+              setAutoConnect(event.target.checked);
+            }}
+          />
+          Reconnect automatically on this device
+        </label>
       </div>
 
       {localError ? (

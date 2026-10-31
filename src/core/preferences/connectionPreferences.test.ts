@@ -3,8 +3,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   clearLastServerUrl,
+  getAutoConnect,
   getLastServerUrl,
   saveLastServerUrl,
+  setAutoConnect,
 } from './connectionPreferences';
 
 beforeEach(() => {
@@ -18,5 +20,11 @@ describe('connection preferences', () => {
     expect(getLastServerUrl()).toBe('https://manga.example.com');
     clearLastServerUrl();
     expect(getLastServerUrl()).toBe('');
+  });
+
+  it('stores the auto-connect preference', () => {
+    expect(getAutoConnect()).toBe(false);
+    setAutoConnect(true);
+    expect(getAutoConnect()).toBe(true);
   });
 });

@@ -15,6 +15,10 @@ import {
   ConnectionContext,
   type ConnectionContextValue,
 } from './useConnection';
+import {
+  getAutoConnect,
+  getLastServerUrl,
+} from '../core/preferences/connectionPreferences';
 
 export interface ConnectionProviderProps {
   readonly children: ReactNode;
@@ -45,6 +49,25 @@ export function ConnectionProvider({
   const [state, setState] = useState<ConnectionState>(() => coordinator.getState());
   const mounted = useRef(true);
   const disposeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attemptedAutoConnect = useRef(false);
+
+  useEffect(() => {
+    if (attemptedAutoConnect.current) {
+      return;
+    }
+
+    attemptedAutoConnect.current = true;
+
+    if (!getAutoConnect()) {
+      return;
+    }
+
+    const serverUrl = getLastServerUrl();
+
+    if (serverUrl && coordinator.getState().status === 'disconnected') {
+      void coordinator.connect(serverUrl).catch(() => undefined);
+    }
+  }, [coordinator]);
 
   useEffect(() => {
     mounted.current = true;
