@@ -4,6 +4,13 @@ import {
   createSourcePreferenceRepository,
   type SourcePreference,
 } from '../../core/source/sourcePreferenceRepository';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Source preferences': 'Preferensi source',
+  'Saving…': 'Menyimpan…',
+});
 
 export function SourcePreferencesSection({
   context,
@@ -12,6 +19,7 @@ export function SourcePreferencesSection({
   readonly context: ConnectedContext;
   readonly sourceId: string;
 }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () =>
       createSourcePreferenceRepository({
@@ -67,7 +75,7 @@ export function SourcePreferencesSection({
   return (
     <section className="source-preferences" aria-labelledby="source-preferences-heading">
       <div className="section-heading-row">
-        <h2 id="source-preferences-heading">Source preferences</h2>
+        <h2 id="source-preferences-heading">{t('Source preferences')}</h2>
         {saving ? <span>Saving…</span> : null}
       </div>
       <div className="source-preference-list">

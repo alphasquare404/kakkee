@@ -22,6 +22,66 @@ import {
   saveChapterViewPreferences,
   type ChapterFilter,
 } from '../../core/preferences/chapterViewPreferences';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Library: 'Perpustakaan',
+  "Couldn't load manga": 'Tidak dapat memuat manga',
+  'The manga request failed. Try again.':
+    'Permintaan manga gagal. Coba lagi.',
+  'Continue reading': 'Lanjut membaca',
+  'Read first chapter': 'Baca chapter pertama',
+  'Read latest chapter': 'Baca chapter terbaru',
+  'Remove from library': 'Hapus dari perpustakaan',
+  'Add to library': 'Tambahkan ke perpustakaan',
+  'In library': 'Di perpustakaan',
+  'Refreshing…': 'Menyegarkan…',
+  Refresh: 'Segarkan',
+  'Link copied': 'Tautan disalin',
+  'Copy failed': 'Gagal menyalin',
+  Share: 'Bagikan',
+  'Back to library': 'Kembali ke perpustakaan',
+  'Couldn’t update the library state.':
+    'Tidak dapat memperbarui status perpustakaan.',
+  'Couldn’t refresh manga metadata.':
+    'Tidak dapat menyegarkan metadata manga.',
+  'Show less': 'Tampilkan lebih sedikit',
+  'Show more': 'Tampilkan lebih banyak',
+  'No description.': 'Tidak ada deskripsi.',
+  Overview: 'Ringkasan',
+  Chapters: 'Chapter',
+  '{count} chapters': '{count} chapter',
+  Order: 'Urutan',
+  'Newest first': 'Terbaru dulu',
+  'Oldest first': 'Terlama dulu',
+  'Chapter order': 'Urutan chapter',
+  Select: 'Pilih',
+  Done: 'Selesai',
+  'Scan all': 'Pindai semua',
+  'Scanning…': 'Memindai…',
+  'Search chapters': 'Cari chapter',
+  'All chapters': 'Semua chapter',
+  Unread: 'Belum dibaca',
+  Read: 'Sudah dibaca',
+  Downloaded: 'Terunduh',
+  Bookmarked: 'Ditandai',
+  'Hide duplicates': 'Sembunyikan duplikat',
+  'All scanlators': 'Semua scanlator',
+  '{count} selected': '{count} dipilih',
+  'Mark read': 'Tandai dibaca',
+  'Mark unread': 'Tandai belum dibaca',
+  Bookmark: 'Tandai',
+  'Remove bookmark': 'Hapus tanda',
+  Download: 'Unduh',
+  'Confirm delete': 'Konfirmasi hapus',
+  'Delete download': 'Hapus unduhan',
+  Cancel: 'Batal',
+  Clear: 'Bersihkan',
+  'No chapters available.': 'Tidak ada chapter.',
+  'No chapters match these filters.':
+    'Tidak ada chapter yang cocok dengan filter ini.',
+});
 
 const STATUS_LABEL: Record<string, string> = {
   UNKNOWN: 'Unknown',
@@ -114,6 +174,7 @@ function ConnectedMangaDetail({
   readonly context: ConnectedContext;
   readonly mangaId: number;
 }) {
+  const { t } = useI18n();
   const repository = useMemo(
     () => createMangaRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -206,8 +267,8 @@ function ConnectedMangaDetail({
     return (
       <div className="app-shell detail-shell">
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load manga</h1>
-          <p>The manga request failed. Try again.</p>
+          <h1>{t("Couldn't load manga")}</h1>
+          <p>{t('The manga request failed. Try again.')}</p>
           <div className="actions">
             <button className="button" type="button" onClick={() => void controller.load()}>
               Retry
@@ -390,7 +451,7 @@ function ConnectedMangaDetail({
     <div className="app-shell detail-shell">
       <AmbientArt imageUrl={cover.objectUrl} className="detail-ambient" />
       <nav className="page-nav" aria-label="Breadcrumb">
-        <Link to="/library">Library</Link>
+        <Link to="/library">{t('Library')}</Link>
         <span aria-hidden="true">/</span>
         <span>{manga.title}</span>
       </nav>
@@ -430,10 +491,10 @@ function ConnectedMangaDetail({
                   }`}
                 >
                   {inProgressChapter
-                    ? 'Continue reading'
+                    ? t('Continue reading')
                     : detail.order === 'oldest'
-                      ? 'Read first chapter'
-                      : 'Read latest chapter'}
+                      ? t('Read first chapter')
+                      : t('Read latest chapter')}
                 </Link>
               ) : null}
               <button
@@ -441,7 +502,7 @@ function ConnectedMangaDetail({
                 type="button"
                 aria-pressed={manga.inLibrary}
                 disabled={libraryPending}
-                title={manga.inLibrary ? 'Remove from library' : 'Add to library'}
+                title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
                 onClick={() => {
                   setLibraryActionError(false);
                   setLibraryPending(true);
@@ -451,7 +512,7 @@ function ConnectedMangaDetail({
                     .finally(() => setLibraryPending(false));
                 }}
               >
-                {manga.inLibrary ? 'In library' : 'Add to library'}
+                {manga.inLibrary ? t('In library') : t('Add to library')}
               </button>
               <button
                 className="button button-secondary"
@@ -488,25 +549,25 @@ function ConnectedMangaDetail({
                 }}
               >
                 {shareState === 'copied'
-                  ? 'Link copied'
+                  ? t('Link copied')
                   : shareState === 'error'
-                    ? 'Copy failed'
-                    : 'Share'}
+                    ? t('Copy failed')
+                    : t('Share')}
               </button>
               <Link className="button button-secondary" to="/library">
-                Back to library
+                {t('Back to library')}
               </Link>
             </div>
 
             {libraryActionError ? (
               <p className="alert alert-error" role="alert">
-                Couldn&apos;t update the library state.
+                {t('Couldn’t update the library state.')}
               </p>
             ) : null}
 
             {refreshError ? (
               <p className="alert alert-error" role="alert">
-                Couldn&apos;t refresh manga metadata.
+                {t('Couldn’t refresh manga metadata.')}
               </p>
             ) : null}
 
@@ -528,13 +589,13 @@ function ConnectedMangaDetail({
                     aria-expanded={descriptionExpanded}
                     onClick={() => setDescriptionExpanded((value) => !value)}
                   >
-                    {descriptionExpanded ? 'Show less' : 'Show more'}
+                    {descriptionExpanded ? t('Show less') : t('Show more')}
                   </button>
                 ) : null}
               </>
             ) : (
               <p className="manga-description manga-description-empty">
-                No description.
+                {t('No description.')}
               </p>
             )}
           </div>
@@ -560,7 +621,7 @@ function ConnectedMangaDetail({
               document.getElementById('overview')?.scrollIntoView({ block: 'start' });
             }}
           >
-            Overview
+            {t('Overview')}
           </button>
           <button
             className={section === 'chapters' ? 'is-active' : undefined}
@@ -571,21 +632,23 @@ function ConnectedMangaDetail({
               document.getElementById('chapters')?.scrollIntoView({ block: 'start' });
             }}
           >
-            Chapters
+            {t('Chapters')}
           </button>
         </nav>
 
         <section className="chapter-section" id="chapters" aria-labelledby="chapters-heading">
           <div className="chapter-section-header">
             <div>
-              <h2 id="chapters-heading">Chapters</h2>
+              <h2 id="chapters-heading">{t('Chapters')}</h2>
               <p className="chapter-section-count">
-                {detail.totalCount.toLocaleString('en-US')} chapters
+                {t('{count} chapters', {
+                  count: detail.totalCount,
+                })}
               </p>
             </div>
 
             <label className="chapter-order">
-              <span>Order</span>
+              <span>{t('Order')}</span>
               <select
                 aria-label="Chapter order"
                 value={detail.order}
@@ -593,8 +656,8 @@ function ConnectedMangaDetail({
                   void controller.setOrder(event.target.value as MangaChapterOrder)
                 }
               >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
+                <option value="newest">{t('Newest first')}</option>
+                <option value="oldest">{t('Oldest first')}</option>
               </select>
             </label>
           </div>
@@ -613,7 +676,7 @@ function ConnectedMangaDetail({
                 setChapterSelectionMode((value) => !value);
               }}
             >
-              {chapterSelectionMode ? 'Done' : 'Select'}
+              {chapterSelectionMode ? t('Done') : t('Select')}
             </button>
 
             <button
@@ -641,7 +704,7 @@ function ConnectedMangaDetail({
             </label>
 
             <label className="chapter-select">
-              <span className="sr-only">Filter chapters</span>
+              <span className="sr-only">{t('Chapters')}</span>
               <select
                 aria-label="Filter chapters"
                 value={chapterFilter}
@@ -656,11 +719,11 @@ function ConnectedMangaDetail({
                   )
                 }
               >
-                <option value="all">All chapters</option>
-                <option value="unread">Unread</option>
-                <option value="read">Read</option>
-                <option value="downloaded">Downloaded</option>
-                <option value="bookmarked">Bookmarked</option>
+                <option value="all">{t('All chapters')}</option>
+                <option value="unread">{t('Unread')}</option>
+                <option value="read">{t('Read')}</option>
+                <option value="downloaded">{t('Downloaded')}</option>
+                <option value="bookmarked">{t('Bookmarked')}</option>
               </select>
             </label>
 
@@ -670,7 +733,7 @@ function ConnectedMangaDetail({
               aria-pressed={hideDuplicates}
               onClick={() => setHideDuplicates((value) => !value)}
             >
-              Hide duplicates
+              {t('Hide duplicates')}
             </button>
 
             {scanlators.length > 0 ? (
@@ -681,7 +744,7 @@ function ConnectedMangaDetail({
                   value={scanlator}
                   onChange={(event) => setScanlator(event.target.value)}
                 >
-                  <option value="all">All scanlators</option>
+                  <option value="all">{t('All scanlators')}</option>
                   {scanlators.map((name) => (
                     <option key={name} value={name}>
                       {name}
@@ -694,7 +757,9 @@ function ConnectedMangaDetail({
 
           {chapterSelectionMode ? (
             <div className="chapter-bulk-bar" role="toolbar" aria-label="Bulk chapter actions">
-              <strong>{selectedChapterIds.size} selected</strong>
+              <strong>
+                {t('{count} selected', { count: selectedChapterIds.size })}
+              </strong>
               <button
                 className="library-action"
                 type="button"
@@ -705,7 +770,7 @@ function ConnectedMangaDetail({
                   )
                 }
               >
-                Mark read
+                {t('Mark read')}
               </button>
               <button
                 className="library-action"
@@ -717,7 +782,7 @@ function ConnectedMangaDetail({
                   )
                 }
               >
-                Mark unread
+                {t('Mark unread')}
               </button>
               <button
                 className="library-action"
@@ -729,7 +794,7 @@ function ConnectedMangaDetail({
                   )
                 }
               >
-                Bookmark
+                {t('Bookmark')}
               </button>
               <button
                 className="library-action"
@@ -741,7 +806,7 @@ function ConnectedMangaDetail({
                   )
                 }
               >
-                Remove bookmark
+                {t('Remove bookmark')}
               </button>
               <button
                 className="library-action"
@@ -759,7 +824,7 @@ function ConnectedMangaDetail({
                   );
                 }}
               >
-                Download
+                {t('Download')}
               </button>
               <button
                 className="library-action"
@@ -775,7 +840,7 @@ function ConnectedMangaDetail({
                   );
                 }}
               >
-                {chapterDeleteConfirm ? 'Confirm delete' : 'Delete download'}
+                {chapterDeleteConfirm ? t('Confirm delete') : t('Delete download')}
               </button>
               {chapterDeleteConfirm ? (
                 <button
@@ -783,7 +848,7 @@ function ConnectedMangaDetail({
                   type="button"
                   onClick={() => setChapterDeleteConfirm(false)}
                 >
-                  Cancel
+                  {t('Cancel')}
                 </button>
               ) : null}
               <button
@@ -794,15 +859,15 @@ function ConnectedMangaDetail({
                   setLastSelectedChapterIndex(null);
                 }}
               >
-                Clear
+                {t('Clear')}
               </button>
             </div>
           ) : null}
 
           {detail.chapters.length === 0 ? (
-            <p className="chapter-empty">No chapters available.</p>
+            <p className="chapter-empty">{t('No chapters available.')}</p>
           ) : visibleChapters.length === 0 ? (
-            <p className="chapter-empty">No chapters match these filters.</p>
+            <p className="chapter-empty">{t('No chapters match these filters.')}</p>
           ) : (
             <ol className="chapter-list">
               {chapterEntries(visibleChapters).map((entry) => {

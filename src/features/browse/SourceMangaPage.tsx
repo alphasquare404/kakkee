@@ -13,6 +13,37 @@ import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Source: 'Source',
+  'Source manga catalog': 'Katalog manga source',
+  '{count} loaded': '{count} dimuat',
+  'All sources': 'Semua source',
+  Popular: 'Populer',
+  Latest: 'Terbaru',
+  'Hide in library': 'Sembunyikan yang ada di perpustakaan',
+  'Duplicates only': 'Hanya duplikat',
+  'Search source': 'Cari di source',
+  'Search this source…': 'Cari di source ini…',
+  'Clear history': 'Hapus riwayat',
+  'Library change was rejected by the server.':
+    'Perubahan perpustakaan ditolak server.',
+  'Couldn’t load this source': 'Tidak dapat memuat source ini',
+  'The source catalog could not be loaded.':
+    'Katalog source tidak dapat dimuat.',
+  Retry: 'Coba lagi',
+  'No manga found': 'Tidak ada manga',
+  'Try another search or catalog type.':
+    'Coba pencarian atau tipe katalog lain.',
+  'No manga match these filters': 'Tidak ada manga yang cocok',
+  'Turn off a filter or load more catalog pages.':
+    'Matikan filter atau muat lebih banyak halaman katalog.',
+  'Load more': 'Muat lebih banyak',
+  'In library': 'Di perpustakaan',
+  'Add to library': 'Tambahkan ke perpustakaan',
+});
 import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
 import {
   addSourceSearch,
@@ -36,6 +67,7 @@ export function SourceMangaPage() {  const { state } = useConnection();
 }
 
 function SourceMangaContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const { sourceId = '' } = useParams();
   const repository = useMemo(
     () => createSourceRepository({ getClient: () => context.graphQL }),
@@ -93,12 +125,16 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   return (
     <div className="app-shell page-shell browse-shell">
       <PageHeader
-        title={source.source?.displayName ?? 'Source'}
-        subtitle={source.source?.name ?? 'Source manga catalog'}
-        count={source.status === 'ready' ? `${visibleMangas.length} loaded` : undefined}
+        title={source.source?.displayName ?? t('Source')}
+        subtitle={source.source?.name ?? t('Source manga catalog')}
+        count={
+          source.status === 'ready'
+            ? t('{count} loaded', { count: visibleMangas.length })
+            : undefined
+        }
       >
         <Link className="button button-secondary" to="/browse">
-          All sources
+          {t('All sources')}
         </Link>
       </PageHeader>
 
@@ -110,7 +146,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             aria-pressed={source.type === 'POPULAR' && !source.query}
             onClick={() => void controller.setType('POPULAR')}
           >
-            Popular
+            {t('Popular')}
           </button>
           <button
             className={source.type === 'LATEST' ? 'is-active' : undefined}
@@ -118,7 +154,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             aria-pressed={source.type === 'LATEST'}
             onClick={() => void controller.setType('LATEST')}
           >
-            Latest
+            {t('Latest')}
           </button>
         </div>
         <div className="source-filter-toggles">
@@ -128,7 +164,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
               checked={hideInLibrary}
               onChange={(event) => setHideInLibrary(event.target.checked)}
             />
-            Hide in library
+            {t('Hide in library')}
           </label>
           <label>
             <input
@@ -136,7 +172,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
               checked={duplicatesOnly}
               onChange={(event) => setDuplicatesOnly(event.target.checked)}
             />
-            Duplicates only
+            {t('Duplicates only')}
           </label>
         </div>
         <form
@@ -157,7 +193,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
           />
           <button className="button" type="submit" disabled={source.status === 'loading'}>
-            Search
+            {t('Search source')}
           </button>
           {historyOpen && searchHistory.length > 0 ? (
             <div className="source-search-history" role="listbox" aria-label="Recent source searches">
@@ -182,7 +218,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => clearSourceSearchHistory(sourceId)}
               >
-                Clear history
+                {t('Clear history')}
               </button>
             </div>
           ) : null}
@@ -201,7 +237,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
 
       {source.actionError ? (
         <p className="settings-inline-error" role="alert">
-          Library change was rejected by the server.
+          {t('Library change was rejected by the server.')}
         </p>
       ) : null}
 
@@ -215,25 +251,25 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
 
       {source.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load this source</h1>
-          <p>The source catalog could not be loaded.</p>
+          <h1>{t('Couldn’t load this source')}</h1>
+          <p>{t('The source catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load(sourceId)}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       {source.status === 'ready' && source.mangas.length === 0 ? (
         <div className="library-state">
-          <h1>No manga found</h1>
-          <p>Try another search or catalog type.</p>
+          <h1>{t('No manga found')}</h1>
+          <p>{t('Try another search or catalog type.')}</p>
         </div>
       ) : null}
 
       {source.status === 'ready' && source.mangas.length > 0 && visibleMangas.length === 0 ? (
         <div className="library-state">
-          <h1>No manga match these filters</h1>
-          <p>Turn off a filter or load more catalog pages.</p>
+          <h1>{t('No manga match these filters')}</h1>
+          <p>{t('Turn off a filter or load more catalog pages.')}</p>
         </div>
       ) : null}
 
@@ -258,7 +294,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 disabled={source.loadingMore}
                 onClick={() => void controller.loadMore()}
               >
-                {source.loadingMore ? 'Loading…' : 'Load more'}
+                {source.loadingMore ? t('Loading…') : t('Load more')}
               </button>
             </div>
           ) : null}
@@ -279,6 +315,7 @@ function SourceMangaCard({
   readonly busy: boolean;
   readonly onToggleLibrary: () => void;
 }) {
+  const { t } = useI18n();
   const image = useImageResource(resources, manga.thumbnailUrl);
 
   return (
@@ -302,7 +339,7 @@ function SourceMangaCard({
         aria-pressed={manga.inLibrary}
         onClick={onToggleLibrary}
       >
-        {manga.inLibrary ? 'In library' : 'Add to library'}
+        {manga.inLibrary ? t('In library') : t('Add to library')}
       </button>
     </article>
   );
