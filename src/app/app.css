@@ -6440,3 +6440,16 @@ button.manga-card-link {
   }
 }
 
+
+/* Visual hierarchy: keep operational summaries secondary to content. */
+.download-stats > div {
+  padding: 0.55rem 0.65rem;
+}
+
+.download-stats strong {
+  font-size: 1.05rem;
+}
+
+.manga-description {
+  line-height: 1.45;
+}
