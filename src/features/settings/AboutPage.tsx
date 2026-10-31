@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client/react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
@@ -6,9 +6,15 @@ import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   AboutPageDocument,
   ServerUpdateCheckDocument,
+  UpdateWebUiDocument,
+  WebUiUpdateStatusChangeDocument,
   type ServerUpdateCheckQuery,
+  type WebUiUpdateStatusChangeSubscription,
 } from '../../core/graphql/generated/graphql';
 import { PageHeader } from '../../shared/PageHeader';
+
+type WebUIUpdateStatus =
+  WebUiUpdateStatusChangeSubscription['webUIUpdateStatusChange'];
 
 export function AboutPage() {
   const { state } = useConnection();
@@ -27,6 +33,44 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
   >(null);
   const [checking, setChecking] = useState(false);
   const [checkError, setCheckError] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<WebUIUpdateStatus | null>(
+    null,
+  );
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(false);
+
+  useEffect(() => {
+    if (typeof context.graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const subscription = context.graphQL
+      .subscribe({ query: WebUiUpdateStatusChangeDocument })
+      .subscribe({
+        next: (result) => {
+          if (result.data?.webUIUpdateStatusChange) {
+            setUpdateStatus(result.data.webUIUpdateStatusChange);
+          }
+        },
+        error: () => undefined,
+      });
+
+    return () => subscription.unsubscribe();
+  }, [context.graphQL]);
+
+  const startUpdate = () => {
+    setUpdating(true);
+    setUpdateError(false);
+    void context.graphQL
+      .mutate({ mutation: UpdateWebUiDocument })
+      .then((result) => {
+        if (result.data?.updateWebUI?.updateStatus) {
+          setUpdateStatus(result.data.updateWebUI.updateStatus);
+        }
+      })
+      .catch(() => setUpdateError(true))
+      .finally(() => setUpdating(false));
+  };
 
   const checkServer = () => {
     setChecking(true);
@@ -106,8 +150,18 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
             </div>
           </dl>
           <div className="settings-actions">
+            {about.data?.checkForWebUIUpdate.updateAvailable ? (
+              <button
+                className="button"
+                type="button"
+                disabled={updating}
+                onClick={startUpdate}
+              >
+                {updating ? 'Starting update…' : 'Update WebUI'}
+              </button>
+            ) : null}
             <button
-              className="button"
+              className="button button-secondary"
               type="button"
               disabled={checking}
               onClick={checkServer}
@@ -115,6 +169,29 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
               {checking ? 'Checking…' : 'Check server updates'}
             </button>
           </div>
+          {updateStatus ? (
+            <dl className="settings-rows" aria-label="WebUI update status">
+              <div>
+                <dt>State</dt>
+                <dd>{updateStatus.state}</dd>
+              </div>
+              <div>
+                <dt>Progress</dt>
+                <dd>{updateStatus.progress}%</dd>
+              </div>
+              <div>
+                <dt>Target</dt>
+                <dd>
+                  {updateStatus.info.channel} · {updateStatus.info.tag}
+                </dd>
+              </div>
+            </dl>
+          ) : null}
+          {updateError ? (
+            <p className="settings-inline-error" role="alert">
+              WebUI update could not be started.
+            </p>
+          ) : null}
           {checkError ? (
             <p className="settings-inline-error" role="alert">
               Server update check failed.

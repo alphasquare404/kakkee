@@ -88,6 +88,7 @@ type Documents = {
     "mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}": typeof types.UpdateSyncSettingsDocument,
     "mutation UpdateTrack($input: UpdateTrackInput!) {\n  updateTrack(input: $input) {\n    trackRecord {\n      id\n      status\n      score\n      displayScore\n      trackerId\n      startDate\n      finishDate\n      private\n    }\n  }\n}": typeof types.UpdateTrackDocument,
     "query ValidateBackup($input: ValidateBackupInput!) {\n  validateBackup(input: $input) {\n    missingSources {\n      id\n      name\n    }\n    missingTrackers {\n      name\n    }\n  }\n}": typeof types.ValidateBackupDocument,
+    "mutation UpdateWebUI {\n  updateWebUI(input: {}) {\n    updateStatus {\n      info {\n        channel\n        tag\n      }\n      progress\n      state\n    }\n  }\n}\n\nsubscription WebUIUpdateStatusChange {\n  webUIUpdateStatusChange {\n    info {\n      channel\n      tag\n    }\n    progress\n    state\n  }\n}": typeof types.UpdateWebUiDocument,
 };
 const documents: Documents = {
     "query AboutPage {\n  aboutServer {\n    name\n    version\n    buildType\n    buildTime\n  }\n  aboutWebUI {\n    channel\n    tag\n    updateTimestamp\n  }\n  checkForWebUIUpdate {\n    channel\n    tag\n    updateAvailable\n  }\n}\n\nquery ServerUpdateCheck {\n  checkForServerUpdates {\n    channel\n    tag\n    url\n  }\n}": types.AboutPageDocument,
@@ -164,6 +165,7 @@ const documents: Documents = {
     "mutation UpdateSyncSettings($settings: PartialSettingsTypeInput!) {\n  setSettings(input: {settings: $settings}) {\n    settings {\n      syncDataCategories\n      syncDataChapters\n      syncDataHistory\n      syncDataManga\n      syncDataTracking\n      syncYomiEnabled\n    }\n  }\n}": types.UpdateSyncSettingsDocument,
     "mutation UpdateTrack($input: UpdateTrackInput!) {\n  updateTrack(input: $input) {\n    trackRecord {\n      id\n      status\n      score\n      displayScore\n      trackerId\n      startDate\n      finishDate\n      private\n    }\n  }\n}": types.UpdateTrackDocument,
     "query ValidateBackup($input: ValidateBackupInput!) {\n  validateBackup(input: $input) {\n    missingSources {\n      id\n      name\n    }\n    missingTrackers {\n      name\n    }\n  }\n}": types.ValidateBackupDocument,
+    "mutation UpdateWebUI {\n  updateWebUI(input: {}) {\n    updateStatus {\n      info {\n        channel\n        tag\n      }\n      progress\n      state\n    }\n  }\n}\n\nsubscription WebUIUpdateStatusChange {\n  webUIUpdateStatusChange {\n    info {\n      channel\n      tag\n    }\n    progress\n    state\n  }\n}": types.UpdateWebUiDocument,
 };
 
 /**
@@ -476,6 +478,10 @@ export function graphql(source: "mutation UpdateTrack($input: UpdateTrackInput!)
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "query ValidateBackup($input: ValidateBackupInput!) {\n  validateBackup(input: $input) {\n    missingSources {\n      id\n      name\n    }\n    missingTrackers {\n      name\n    }\n  }\n}"): (typeof documents)["query ValidateBackup($input: ValidateBackupInput!) {\n  validateBackup(input: $input) {\n    missingSources {\n      id\n      name\n    }\n    missingTrackers {\n      name\n    }\n  }\n}"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "mutation UpdateWebUI {\n  updateWebUI(input: {}) {\n    updateStatus {\n      info {\n        channel\n        tag\n      }\n      progress\n      state\n    }\n  }\n}\n\nsubscription WebUIUpdateStatusChange {\n  webUIUpdateStatusChange {\n    info {\n      channel\n      tag\n    }\n    progress\n    state\n  }\n}"): (typeof documents)["mutation UpdateWebUI {\n  updateWebUI(input: {}) {\n    updateStatus {\n      info {\n        channel\n        tag\n      }\n      progress\n      state\n    }\n  }\n}\n\nsubscription WebUIUpdateStatusChange {\n  webUIUpdateStatusChange {\n    info {\n      channel\n      tag\n    }\n    progress\n    state\n  }\n}"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

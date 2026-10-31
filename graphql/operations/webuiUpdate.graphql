@@ -1,0 +1,23 @@
+mutation UpdateWebUI {
+  updateWebUI(input: {}) {
+    updateStatus {
+      info {
+        channel
+        tag
+      }
+      progress
+      state
+    }
+  }
+}
+
+subscription WebUIUpdateStatusChange {
+  webUIUpdateStatusChange {
+    info {
+      channel
+      tag
+    }
+    progress
+    state
+  }
+}
