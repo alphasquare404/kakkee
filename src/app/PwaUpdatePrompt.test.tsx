@@ -37,14 +37,13 @@ describe('PwaUpdatePrompt', () => {
     expect(pwaState.updateServiceWorker).toHaveBeenCalledWith(true);
   });
 
-  it('shows a dismissible shell-ready message without claiming offline data', () => {
+  it('does not show a technical shell-ready notice', () => {
     pwaState.needRefresh = false;
     pwaState.offlineReady = true;
-    render(<PwaUpdatePrompt />);
+    const { container } = render(<PwaUpdatePrompt />);
 
-    expect(screen.getByText(/The app shell is ready/)).toBeTruthy();
-    expect(screen.getByText(/Server data still requires a connection/)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Update dan reload' })).toBeNull();
+    expect(container.children).toHaveLength(0);
+    expect(screen.queryByText(/app shell is ready/i)).toBeNull();
   });
 
   it('renders nothing when there is no update or offline-ready state', () => {

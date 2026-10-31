@@ -15,42 +15,34 @@ export function PwaUpdatePrompt() {
   const { t } = useI18n();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
-    offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = usePwaUpdate();
 
-  if (!needRefresh && !offlineReady) {
+  if (!needRefresh) {
     return null;
   }
 
   const dismiss = () => {
     setNeedRefresh(false);
-    setOfflineReady(false);
   };
 
   return (
     <aside className="pwa-update" role="status" aria-live="polite">
       <p>
-        {needRefresh
-          ? t(
-              'A new version of the app is available. Reload to use the latest shell.',
-            )
-          : t(
-              'The app shell is ready. Server data still requires a connection.',
-            )}
+        {t(
+          'A new version of the app is available. Reload to use the latest shell.',
+        )}
       </p>
       <div className="actions">
-        {needRefresh ? (
-          <button
-            className="button"
-            type="button"
-            onClick={() => {
-              void updateServiceWorker(true);
-            }}
-          >
-            {t('Update and reload')}
-          </button>
-        ) : null}
+        <button
+          className="button"
+          type="button"
+          onClick={() => {
+            void updateServiceWorker(true);
+          }}
+        >
+          {t('Update and reload')}
+        </button>
         <button className="button button-secondary" type="button" onClick={dismiss}>
           {t('Close')}
         </button>

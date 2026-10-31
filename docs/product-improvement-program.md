@@ -28,7 +28,7 @@ Status: `Pending` · `In Progress` · `Complete`
 | 18 | Extreme data/stress | Complete | [stress-data-audit.md](stress-data-audit.md) | `Goal 18` |
 | 19 | Preference persistence | Complete | [preference-persistence-audit.md](preference-persistence-audit.md) | `Goal 19` |
 | 20 | Cross-feature coherence | Pending | — | — |
-| 21 | Final product coherence | In Progress | — | — |
+| 21 | Final product coherence | Complete | [final-product-coherence-audit.md](final-product-coherence-audit.md) | `Goal 21` |
 
 ## Goal 1 — Interaction semantics
 
@@ -48,3 +48,13 @@ Status: `Pending` · `In Progress` · `Complete`
 - **Tests:** Library filter drawer tests (dialog, checkboxes, source search, Escape, Done, focus return); typecheck/lint.
 - **Runtime:** 1280×900: Library filter drawer shows searchable 107-source list, status, loaded filters, sticky Reset/Done; source search reduced list to 2. 390×844: full-screen drawer verified. Source preferences open in their own contextual drawer.
 - **Remaining concerns:** Search result models, chapter download target placement, Downloads stats hierarchy, migration route visibility.
+
+
+## Goal 21 — Final product coherence
+
+- **Status:** Complete
+- **Findings:** product feels coherent across desktop/tablet/phone; PWA shell-ready notice was technical, blocking, and could reappear after navigation.
+- **Fixes:** removed the technical shell-ready notice; update prompt remains persistent.
+- **Tests:** PwaUpdatePrompt tests 3 passed; typecheck/lint.
+- **Runtime:** final browser at 1280×900 and 390×844; shell-ready toast no longer renders.
+- **Remaining concerns:** Extensions list length, Updates density, Reader chrome, migration route, auth expiry, route restoration, measured contrast/screen reader.

@@ -37,7 +37,7 @@ Fokus: installability, standalone, relaunch, safe area, service worker, offline 
 - SW menyajikan shell statis saat offline.
 - API tidak di-fallback ke HTML.
 - Data server tetap memerlukan koneksi.
-- PwaUpdatePrompt membedakan “shell siap” dari “data server siap”; copy tidak menjanjikan data offline.
+- Notice shell-ready teknis tidak lagi ditampilkan; update prompt tetap tersedia untuk versi baru.
 
 ### 4. Offline downloads
 
