@@ -126,7 +126,7 @@ frontend.
 | Reader | Double page mode | `Partial` | Client-side | Two-page layout and page controls |
 | Reader | Horizontal continuous mode | `Partial` | Client-side | Horizontal scroll-snap canvas |
 | Reader | Webtoon mode + auto detection | `Partial` | Client-side | Webtoon layout exists; auto detection absent |
-| Reader | Reading direction (LTR/RTL) | `Partial` | Client-side | Direction setting applied to double-page order and horizontal flow |
+| Reader | Reading direction (LTR/RTL) | `Implemented` | Client-side | Direction setting applied to double-page order and horizontal flow |
 | Reader | Page scale modes (width/height/screen/original) | `Implemented` | Client-side | Fit width, fit height, fit screen, and original size |
 | Reader | Stretch/scale small pages and custom width | `Partial` | Client-side | Reader width/gap/background preferences exist |
 | Reader | Page gap, first-page offset, safe-area inset | `Implemented` | Client-side | Gap, first-page offset, safe-area padding, and per-mode layout defaults |
@@ -220,7 +220,7 @@ frontend.
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | Update/download/system plus OPDS and KOReader sync editing; auth/database remain read-only |
 | Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
 | Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
-| Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources; live fetch across every source and source filter absent |
+| Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources with source filter and in-library counts; live fetch across every source absent |
 | Global search | Search history/suggestions | `Partial` | Client metadata | Recent global searches stored per device; remote suggestions absent |
 | Hotkeys | Configurable app/reader hotkeys | `Partial` | Client concern | Arrow page paging, Shift+Arrow chapter navigation, Escape back; not configurable |
 | Themes | Dynamic manga artwork backdrop, custom themes | `Partial` | Client concern | Ambient art exists; no theme system |

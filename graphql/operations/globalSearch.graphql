@@ -11,6 +11,10 @@ query GlobalSearch($search: String!) {
       thumbnailUrl
       inLibrary
       unreadCount
+      source {
+        id
+        displayName
+      }
     }
   }
   sources(filter: { name: { includesInsensitive: $search } }, first: 20) {

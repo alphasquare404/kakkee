@@ -3621,6 +3621,32 @@ button.manga-card-link {
   margin-bottom: var(--sp-4);
 }
 
+.search-source-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: center;
+  max-width: 42rem;
+  margin-bottom: var(--sp-3);
+}
+
+.search-source-filter label {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.search-source-filter select {
+  min-height: 2.25rem;
+  padding: 0 0.6rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
 .global-search-history {
   position: absolute;
   z-index: 30;

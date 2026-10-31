@@ -30,6 +30,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   );
   const search = useSyncExternalStore(controller.subscribe, controller.getState);
   const [query, setQuery] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [historyOpen, setHistoryOpen] = useState(false);
   const history = useSearchHistory();
 
@@ -50,6 +51,24 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
   const mangas = search.results?.mangas.nodes ?? [];
   const sources = search.results?.sources.nodes ?? [];
+  const mangaSources = [
+    ...new Map(
+      mangas
+        .filter((manga) => manga.source !== null)
+        .map((manga) => [
+          manga.source?.id ?? '',
+          {
+            id: manga.source?.id ?? '',
+            displayName: manga.source?.displayName ?? '',
+          },
+        ]),
+    ).values(),
+  ].filter((source) => source.id);
+  const filteredMangas =
+    sourceFilter === 'all'
+      ? mangas
+      : mangas.filter((manga) => manga.source?.id === sourceFilter);
+  const libraryCount = filteredMangas.filter((manga) => manga.inLibrary).length;
 
   return (
     <div className="app-shell page-shell browse-shell">
@@ -112,6 +131,28 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
       </form>
 
+      {mangaSources.length > 1 ? (
+        <div className="search-source-filter">
+          <label>
+            <span>Source</span>
+            <select
+              value={sourceFilter}
+              onChange={(event) => setSourceFilter(event.target.value)}
+            >
+              <option value="all">All sources</option>
+              {mangaSources.map((source) => (
+                <option key={source.id} value={source.id}>
+                  {source.displayName}
+                </option>
+              ))}
+            </select>
+          </label>
+          <span className="settings-save-state">
+            {filteredMangas.length} shown · {libraryCount} in library
+          </span>
+        </div>
+      ) : null}
+
       {search.status === 'idle' ? (
         <div className="library-state">
           <h2>Search the server</h2>
@@ -169,16 +210,16 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
         </section>
       ) : null}
 
-      {mangas.length > 0 ? (
+      {filteredMangas.length > 0 ? (
         <section className="search-section" aria-labelledby="search-manga">
           <div className="section-heading-row">
             <h2 id="search-manga">Manga</h2>
             <span>
-              {search.results?.mangas.totalCount} total, showing {mangas.length}
+              {filteredMangas.length} shown · {libraryCount} in library
             </span>
           </div>
           <div className="search-manga-grid">
-            {mangas.map((manga) => (
+            {filteredMangas.map((manga) => (
               <SearchMangaCard
                 key={manga.id}
                 manga={manga}
