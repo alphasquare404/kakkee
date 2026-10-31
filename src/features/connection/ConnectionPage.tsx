@@ -19,25 +19,111 @@ import {
   getRememberedSession,
   saveRememberedSession,
 } from '../../core/preferences/sessionPreferences';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Suwayomi server address': 'Alamat server Suwayomi',
+  'Enter the server address without the GraphQL path. Example: https://manga.example.com':
+    'Masukkan alamat server tanpa path GraphQL. Contoh: https://manga.example.com',
+  'Reconnect automatically on this device':
+    'Hubungkan ulang otomatis di perangkat ini',
+  'Connecting…': 'Menghubungkan…',
+  Connect: 'Hubungkan',
+  'Use last server': 'Gunakan server terakhir',
+  'Suwayomi · Library & Reader': 'Suwayomi · Perpustakaan & Reader',
+  'Connect to your server and continue reading from your Library.':
+    'Hubungkan ke server Anda dan lanjutkan membaca dari Perpustakaan.',
+  Connection: 'Koneksi',
+  'Connection failed': 'Koneksi gagal',
+  'Connect server': 'Hubungkan server',
+  'Enter the Suwayomi Server address reachable by this browser.':
+    'Masukkan alamat Suwayomi Server yang dapat diakses browser ini.',
+  'Checking {server} and server information.':
+    'Memeriksa {server} dan informasi server.',
+  Cancel: 'Batal',
+  'Login required': 'Login diperlukan',
+  'Server {server} requires authentication.':
+    'Server {server} meminta autentikasi.',
+  'Remember login on this device': 'Ingat login di perangkat ini',
+  Login: 'Masuk',
+  'Change server': 'Ganti server',
+  'Verifying login…': 'Memverifikasi login…',
+  'Checking session and access to {server}.':
+    'Memeriksa sesi dan akses ke {server}.',
+  Connected: 'Terhubung',
+  'The connection to Suwayomi Server is active. Library and Reader are available.':
+    'Koneksi ke Suwayomi Server aktif. Perpustakaan dan Reader tersedia.',
+  'Server compatibility is not fully verified.':
+    'Kompatibilitas server belum sepenuhnya terverifikasi.',
+  'Server URL': 'URL server',
+  'Build type': 'Tipe build',
+  Platform: 'Platform',
+  Architecture: 'Arsitektur',
+  'Auth mode': 'Mode auth',
+  Compatibility: 'Kompatibilitas',
+  'Open library': 'Buka perpustakaan',
+  Disconnect: 'Putuskan',
+  'Unsupported authentication mode': 'Mode autentikasi belum didukung',
+  'Server uses BASIC_AUTH. This frontend does not support Basic login; no Basic form is shown.':
+    'Server menggunakan BASIC_AUTH. Frontend ini belum mendukung login Basic; tidak ada form Basic yang ditampilkan.',
+  'Server requires an authentication mode that this frontend cannot prove or support.':
+    'Server memerlukan mode autentikasi yang belum dapat dibuktikan atau didukung frontend ini.',
+  'Contact the server administrator or use a supported authentication configuration (NONE or UI_LOGIN).':
+    'Hubungi administrator server atau gunakan konfigurasi autentikasi yang didukung (NONE atau UI_LOGIN).',
+  'Back to connection form': 'Kembali ke form koneksi',
+  'Library · Reader · Suwayomi Server':
+    'Perpustakaan · Reader · Suwayomi Server',
+  'A connection error occurred.': 'Terjadi kesalahan koneksi.',
+  'Invalid server address. Check the URL format, including http:// or https://.':
+    'Alamat server tidak valid. Periksa format URL, termasuk http:// atau https://.',
+  'Server unreachable. Check the server address, network, and CORS configuration.':
+    'Server tidak dapat dijangkau. Periksa alamat server, jaringan, dan konfigurasi CORS.',
+  'Server version is older than the supported v2.4.2366 baseline.':
+    'Versi server lebih lama dari baseline v2.4.2366 yang didukung.',
+  'Server requires authentication, but the session is not valid.':
+    'Server meminta autentikasi, tetapi sesi belum valid.',
+  'Invalid username or password.': 'Username atau password tidak cocok.',
+  'The server authentication mode is not supported by this frontend.':
+    'Mode autentikasi server belum didukung frontend ini.',
+  'The server returned an error that could not be processed.':
+    'Server mengembalikan error yang tidak dapat diproses.',
+  'This action cannot be performed in the current connection state.':
+    'Tindakan ini tidak dapat dilakukan pada status koneksi saat ini.',
+  'Connection stopped.': 'Koneksi sudah dihentikan.',
+  'Server address is required.': 'Alamat server wajib diisi.',
+  'Connection could not be started.': 'Koneksi tidak dapat dimulai.',
+  'Username and password are required.': 'Username dan password wajib diisi.',
+  'Login could not be processed.': 'Login tidak dapat diproses.',
+});
 
 const ERROR_TEXT: Partial<Record<ConnectionError['code'], string>> = {
-  'invalid-server-url': 'Alamat server tidak valid. Periksa format URL, termasuk skema http:// atau https://.',
-  unreachable: 'Server tidak dapat dijangkau. Periksa alamat server, jaringan, dan konfigurasi CORS.',
-  'incompatible-server': 'Versi server lebih lama dari baseline v2.4.2366 yang didukung.',
-  'authentication-required': 'Server meminta autentikasi, tetapi sesi belum valid.',
-  'invalid-credentials': 'Username atau password tidak cocok.',
-  'unsupported-auth': 'Mode autentikasi server belum didukung oleh frontend Phase 0.',
-  'server-error': 'Server mengembalikan error yang tidak dapat diproses.',
-  'invalid-state': 'Tindakan ini tidak dapat dilakukan pada status koneksi saat ini.',
-  disposed: 'Koneksi sudah dihentikan.',
+  'invalid-server-url':
+    'Invalid server address. Check the URL format, including http:// or https://.',
+  unreachable:
+    'Server unreachable. Check the server address, network, and CORS configuration.',
+  'incompatible-server':
+    'Server version is older than the supported v2.4.2366 baseline.',
+  'authentication-required':
+    'Server requires authentication, but the session is not valid.',
+  'invalid-credentials': 'Invalid username or password.',
+  'unsupported-auth':
+    'The server authentication mode is not supported by this frontend.',
+  'server-error': 'The server returned an error that could not be processed.',
+  'invalid-state':
+    'This action cannot be performed in the current connection state.',
+  disposed: 'Connection stopped.',
 };
 
-function errorText(error?: ConnectionError): string {
+function errorText(
+  error: ConnectionError | undefined,
+  t: (key: string) => string,
+): string {
   if (!error) {
-    return 'Terjadi kesalahan koneksi.';
+    return t('A connection error occurred.');
   }
 
-  return ERROR_TEXT[error.code] ?? 'Terjadi kesalahan koneksi.';
+  return t(ERROR_TEXT[error.code] ?? 'A connection error occurred.');
 }
 
 function serverAddress(state: ConnectionState, fallback: string): string {
@@ -60,6 +146,7 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 }
 
 export function ConnectionPage() {
+  const { t } = useI18n();
   const { state, connect, login, restoreSession, disconnect } = useConnection();
   const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
   const [autoConnect, setAutoConnectState] = useState(() => getAutoConnect());
@@ -135,14 +222,14 @@ export function ConnectionPage() {
     const value = serverUrl.trim();
 
     if (!value) {
-      setLocalError('Alamat server wajib diisi.');
+      setLocalError(t('Server address is required.'));
       serverInput.current?.focus();
       return;
     }
 
     setLocalError(null);
     void connect(value).catch(() => {
-      setLocalError('Koneksi tidak dapat dimulai.');
+      setLocalError(t('Connection could not be started.'));
     });
   };
 
@@ -151,7 +238,7 @@ export function ConnectionPage() {
     const user = username.trim();
 
     if (!user || !password) {
-      setLocalError('Username dan password wajib diisi.');
+      setLocalError(t('Username and password are required.'));
       (user ? passwordInput : usernameInput).current?.focus();
       return;
     }
@@ -160,7 +247,7 @@ export function ConnectionPage() {
     setLocalError(null);
     setPassword('');
     void login(user, submittedPassword).catch(() => {
-      setLocalError('Login tidak dapat diproses.');
+      setLocalError(t('Login could not be processed.'));
     });
   };
 
@@ -175,7 +262,7 @@ export function ConnectionPage() {
   const serverForm = (
     <form className="connection-form" onSubmit={handleConnect} noValidate>
       <div className="field">
-        <label htmlFor="server-url">Alamat server Suwayomi</label>
+        <label htmlFor="server-url">{t('Suwayomi server address')}</label>
         <input
           ref={serverInput}
           id="server-url"
@@ -191,7 +278,9 @@ export function ConnectionPage() {
           aria-describedby={localError ? 'server-url-error' : 'server-url-hint'}
         />
         <p className="hint" id="server-url-hint">
-          Masukkan alamat server tanpa path GraphQL. Contoh: https://manga.example.com
+          {t(
+            'Enter the server address without the GraphQL path. Example: https://manga.example.com',
+          )}
         </p>
         <label className="settings-inline-toggle">
           <input
@@ -202,7 +291,7 @@ export function ConnectionPage() {
               setAutoConnect(event.target.checked);
             }}
           />
-          Reconnect automatically on this device
+          {t('Reconnect automatically on this device')}
         </label>
       </div>
 
@@ -214,7 +303,7 @@ export function ConnectionPage() {
 
       <div className="actions">
         <button className="button" type="submit" disabled={state.status === 'connecting'}>
-          {state.status === 'connecting' ? 'Menghubungkan…' : 'Connect'}
+          {state.status === 'connecting' ? t('Connecting…') : t('Connect')}
         </button>
         {lastServer && lastServer !== serverUrl.trim() ? (
           <button
@@ -223,11 +312,11 @@ export function ConnectionPage() {
             onClick={() => {
               setServerUrl(lastServer);
               void connect(lastServer).catch(() => {
-                setLocalError('Koneksi tidak dapat dimulai.');
+                setLocalError(t('Connection could not be started.'));
               });
             }}
           >
-            Use last server
+            {t('Use last server')}
           </button>
         ) : null}
       </div>
@@ -237,28 +326,34 @@ export function ConnectionPage() {
   return (
     <div className="app-shell connection-shell">
       <header className="app-header">
-        <p className="eyebrow">Suwayomi · Library &amp; Reader</p>
+        <p className="eyebrow">{t('Suwayomi · Library & Reader')}</p>
         <h1>Suwayomi</h1>
         <p className="lede">
-          Connect to your server and continue reading from your Library.
+          {t(
+            'Connect to your server and continue reading from your Library.',
+          )}
         </p>
       </header>
 
       <main className="app-main">
         {state.status === 'disconnected' || state.status === 'failed' ? (
           <section className="panel" aria-labelledby="connection-heading">
-            <p className="panel-kicker">Connection</p>
+            <p className="panel-kicker">{t('Connection')}</p>
             <h2 id="connection-heading">
-              {state.status === 'failed' ? 'Koneksi gagal' : 'Hubungkan server'}
+              {state.status === 'failed'
+                ? t('Connection failed')
+                : t('Connect server')}
             </h2>
 
             {state.status === 'failed' ? (
               <p className="alert alert-error" role="alert">
-                {errorText(state.error)}
+                {errorText(state.error, t)}
               </p>
             ) : (
               <p className="panel-copy">
-                Masukkan alamat Suwayomi Server yang dapat diakses oleh browser ini.
+                {t(
+                  'Enter the Suwayomi Server address reachable by this browser.',
+                )}
               </p>
             )}
 
@@ -269,13 +364,15 @@ export function ConnectionPage() {
         {state.status === 'connecting' ? (
           <section className="panel" aria-labelledby="connecting-heading">
             <p className="panel-kicker">Connection</p>
-            <h2 id="connecting-heading">Menghubungkan…</h2>
+            <h2 id="connecting-heading">{t('Connecting…')}</h2>
             <p className="status-line" role="status" aria-live="polite">
-              Memeriksa {serverAddress(state, serverUrl)} dan informasi server.
+              {t('Checking {server} and server information.', {
+                server: serverAddress(state, serverUrl),
+              })}
             </p>
             <div className="actions">
               <button className="button button-secondary" type="button" onClick={handleDisconnect}>
-                Batalkan
+                {t('Cancel')}
               </button>
             </div>
           </section>
@@ -284,14 +381,16 @@ export function ConnectionPage() {
         {state.status === 'login-required' ? (
           <section className="panel" aria-labelledby="login-heading">
             <p className="panel-kicker">UI_LOGIN</p>
-            <h2 id="login-heading">Login diperlukan</h2>
+            <h2 id="login-heading">{t('Login required')}</h2>
             <p className="panel-copy">
-              Server <strong>{state.serverBaseUrl}</strong> meminta autentikasi.
+              {t('Server {server} requires authentication.', {
+                server: state.serverBaseUrl,
+              })}
             </p>
 
             {state.error ? (
               <p className="alert alert-error" role="alert">
-                {errorText(state.error)}
+                {errorText(state.error, t)}
               </p>
             ) : null}
 
@@ -331,7 +430,7 @@ export function ConnectionPage() {
                   checked={rememberLogin}
                   onChange={(event) => setRememberLogin(event.target.checked)}
                 />
-                Remember login on this device
+                {t('Remember login on this device')}
               </label>
 
               {localError ? (
@@ -342,10 +441,10 @@ export function ConnectionPage() {
 
               <div className="actions">
                 <button className="button" type="submit">
-                  Login
+                  {t('Login')}
                 </button>
                 <button className="button button-secondary" type="button" onClick={handleDisconnect}>
-                  Ganti server
+                  {t('Change server')}
                 </button>
               </div>
             </form>
@@ -355,9 +454,11 @@ export function ConnectionPage() {
         {state.status === 'authenticating' ? (
           <section className="panel" aria-labelledby="authenticating-heading">
             <p className="panel-kicker">UI_LOGIN</p>
-            <h2 id="authenticating-heading">Memverifikasi login…</h2>
+            <h2 id="authenticating-heading">{t('Verifying login…')}</h2>
             <p className="status-line" role="status" aria-live="polite">
-              Memeriksa sesi dan akses ke {state.serverBaseUrl}.
+              {t('Checking session and access to {server}.', {
+                server: state.serverBaseUrl,
+              })}
             </p>
           </section>
         ) : null}
@@ -367,7 +468,7 @@ export function ConnectionPage() {
             <div className="status-heading">
               <span className="status-dot" aria-hidden="true" />
               <div>
-                <p className="panel-kicker">Connected</p>
+                <p className="panel-kicker">{t('Connected')}</p>
                 <h2 id="connected-heading" ref={connectedHeading} tabIndex={-1}>
                   {state.context.serverInfo.name}
                 </h2>
@@ -375,58 +476,59 @@ export function ConnectionPage() {
             </div>
 
             <p className="panel-copy">
-              Koneksi ke Suwayomi Server sudah aktif. Library tersedia; reader belum
-              termasuk pada tahap ini.
+              {t(
+                'The connection to Suwayomi Server is active. Library and Reader are available.',
+              )}
             </p>
 
             {state.context.compatibility.status !== 'compatible' ? (
               <p className="alert alert-warning" role="status">
                 {state.context.compatibility.warning ??
-                  'Kompatibilitas server belum sepenuhnya terverifikasi.'}
+                  t('Server compatibility is not fully verified.')}
               </p>
             ) : null}
 
             <dl className="info-grid">
               <div className="info-item">
-                <dt>Server URL</dt>
+                <dt>{t('Server URL')}</dt>
                 <dd className="breakable">{state.context.config.serverBaseUrl}</dd>
               </div>
               <div className="info-item">
-                <dt>Server</dt>
+                <dt>{t('Server')}</dt>
                 <dd>{state.context.serverInfo.name}</dd>
               </div>
               <div className="info-item">
-                <dt>Version</dt>
+                <dt>{t('Version')}</dt>
                 <dd>{state.context.serverInfo.version}</dd>
               </div>
               <div className="info-item">
-                <dt>Build type</dt>
+                <dt>{t('Build type')}</dt>
                 <dd>{state.context.serverInfo.buildType}</dd>
               </div>
               <div className="info-item">
-                <dt>Platform</dt>
+                <dt>{t('Platform')}</dt>
                 <dd>{platformLabel(state)}</dd>
               </div>
               <div className="info-item">
-                <dt>Architecture</dt>
+                <dt>{t('Architecture')}</dt>
                 <dd>{state.context.serverInfo.platformInfo.arch}</dd>
               </div>
               <div className="info-item">
-                <dt>Auth mode</dt>
+                <dt>{t('Auth mode')}</dt>
                 <dd>{state.context.authMode}</dd>
               </div>
               <div className="info-item">
-                <dt>Compatibility</dt>
+                <dt>{t('Compatibility')}</dt>
                 <dd>{state.context.compatibility.status}</dd>
               </div>
             </dl>
 
             <div className="actions">
               <Link className="button" to="/library">
-                Open library
+                {t('Open library')}
               </Link>
               <button className="button button-secondary" type="button" onClick={handleDisconnect}>
-                Disconnect
+                {t('Disconnect')}
               </button>
             </div>
           </section>
@@ -435,19 +537,24 @@ export function ConnectionPage() {
         {state.status === 'unsupported-auth' ? (
           <section className="panel" aria-labelledby="unsupported-heading">
             <p className="panel-kicker">Authentication</p>
-            <h2 id="unsupported-heading">Mode autentikasi belum didukung</h2>
+            <h2 id="unsupported-heading">{t('Unsupported authentication mode')}</h2>
             <p className="alert alert-warning" role="alert">
               {state.authMode === 'BASIC_AUTH'
-                ? 'Server menggunakan BASIC_AUTH. Frontend Phase 0 belum mendukung login Basic; tidak ada form Basic yang ditampilkan.'
-                : 'Server memerlukan mode autentikasi yang belum dapat dibuktikan atau didukung oleh frontend Phase 0.'}
+                ? t(
+                    'Server uses BASIC_AUTH. This frontend does not support Basic login; no Basic form is shown.',
+                  )
+                : t(
+                    'Server requires an authentication mode that this frontend cannot prove or support.',
+                  )}
             </p>
             <p className="panel-copy">
-              Hubungi administrator server atau gunakan konfigurasi autentikasi yang didukung
-              (NONE atau UI_LOGIN).
+              {t(
+                'Contact the server administrator or use a supported authentication configuration (NONE or UI_LOGIN).',
+              )}
             </p>
             <div className="actions">
               <button className="button" type="button" onClick={handleDisconnect}>
-                Kembali ke form koneksi
+                {t('Back to connection form')}
               </button>
             </div>
           </section>
@@ -455,7 +562,7 @@ export function ConnectionPage() {
       </main>
 
       <footer className="app-footer">
-        <p>Library · Reader · Suwayomi Server</p>
+        <p>{t('Library · Reader · Suwayomi Server')}</p>
       </footer>
     </div>
   );

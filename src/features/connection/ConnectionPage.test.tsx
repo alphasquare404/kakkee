@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -44,7 +44,7 @@ describe('ConnectionPage disconnected', () => {
     const coordinator = renderPage();
 
     expect(screen.getByRole('heading', { name: 'Suwayomi' })).toBeTruthy();
-    const input = screen.getByLabelText('Alamat server Suwayomi');
+    const input = screen.getByLabelText('Suwayomi server address');
 
     await user.type(input, 'https://manga.example.com/suwayomi');
     await user.click(screen.getByRole('button', { name: 'Connect' }));
@@ -59,7 +59,7 @@ describe('ConnectionPage disconnected', () => {
       config: makeLoginRequiredState().config,
     });
 
-    expect(screen.getByRole('heading', { name: 'Menghubungkan…' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Connecting…' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Connect' })).toBeNull();
   });
 });
@@ -101,7 +101,7 @@ describe('ConnectionPage login', () => {
     });
 
     expect(screen.getByRole('alert').textContent).toContain(
-      'Username atau password tidak cocok.',
+      'Invalid username or password.',
     );
     expect(screen.getByLabelText('Username')).toHaveProperty('value', 'reader');
     expect(screen.getByLabelText('Password')).toHaveProperty('value', '');
@@ -121,7 +121,7 @@ describe('ConnectionPage login', () => {
       });
     });
 
-    expect(screen.getByRole('heading', { name: 'Memverifikasi login…' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Verifying login…' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Login' })).toBeNull();
   });
 
@@ -147,7 +147,7 @@ describe('ConnectionPage login', () => {
       error: new ConnectionError('unsupported-auth', 'basic-challenge'),
     });
 
-    expect(screen.getByRole('heading', { name: 'Mode autentikasi belum didukung' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Unsupported authentication mode' })).toBeTruthy();
     expect(screen.getByRole('alert').textContent).toContain('BASIC_AUTH');
     expect(screen.queryByLabelText('Password')).toBeNull();
   });
@@ -185,9 +185,9 @@ describe('ConnectionPage connected', () => {
       error: new ConnectionError('server-error', 'java.lang.RuntimeException: raw-stack'),
     });
 
-    expect(screen.getByRole('heading', { name: 'Koneksi gagal' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Connection failed' })).toBeTruthy();
     expect(screen.getByRole('alert').textContent).toContain(
-      'Server mengembalikan error yang tidak dapat diproses.',
+      'The server returned an error that could not be processed.',
     );
     expect(screen.queryByText(/raw-stack/)).toBeNull();
   });
@@ -198,6 +198,6 @@ describe('ConnectionPage connected', () => {
       error: new ConnectionError('invalid-server-url'),
     });
 
-    expect(screen.getByRole('alert').textContent).toContain('Alamat server tidak valid');
+    expect(screen.getByRole('alert').textContent).toContain('Invalid server address');
   });
 });

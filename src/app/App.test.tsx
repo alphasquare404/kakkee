@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -25,7 +25,7 @@ describe('App', () => {
     render(<App createCoordinator={() => coordinator} />);
 
     expect(screen.getByRole('heading', { name: 'Suwayomi' })).toBeTruthy();
-    expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
+    expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
   });
 
   it('respects a frontend base path for a subpath deployment', () => {
@@ -39,7 +39,7 @@ describe('App', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
+    expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
     expect(window.location.pathname).toBe('/app/');
   });
 
@@ -55,7 +55,7 @@ describe('App', () => {
     );
 
     await waitFor(() => expect(window.location.pathname).toBe('/app'));
-    expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
+    expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
   });
 
   it('returns a protected page to the connection screen when disconnected', async () => {
@@ -65,6 +65,6 @@ describe('App', () => {
     render(<App createCoordinator={() => coordinator} />);
 
     await waitFor(() => expect(window.location.pathname).toBe('/'));
-    expect(screen.getByLabelText('Alamat server Suwayomi')).toBeTruthy();
+    expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
   });
 });

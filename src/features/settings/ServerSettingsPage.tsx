@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -83,6 +83,12 @@ registerMessages('id', {
   'Conflict strategy (backward)': 'Strategi konflik (mundur)',
   'Percentage tolerance': 'Toleransi persentase',
   'Enable debug logs': 'Aktifkan log debug',
+  'Clear cached pages or thumbnails stored by the server.':
+    'Hapus halaman atau thumbnail ter-cache yang disimpan server.',
+  'Clear selected caches': 'Hapus cache terpilih',
+  'Selected image caches cleared.': 'Cache gambar terpilih dihapus.',
+  'Image cache could not be cleared.':
+    'Cache gambar tidak dapat dihapus.',
 });
 
 export function ServerSettingsPage() {
@@ -717,6 +723,7 @@ function NumberField({
 }
 
 function ImageCacheSection({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const [cachedPages, setCachedPages] = useState(true);
   const [cachedThumbnails, setCachedThumbnails] = useState(true);
   const [downloadedThumbnails, setDownloadedThumbnails] = useState(false);
@@ -742,7 +749,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
         cachedThumbnails,
         downloadedThumbnails,
       })
-      .then(() => setMessage('Selected image caches cleared.'))
+      .then(() => setMessage(t('Selected image caches cleared.')))
       .catch(() => setFailed(true))
       .finally(() => setBusy(false));
   };
@@ -750,14 +757,14 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
   return (
     <section className="settings-section" aria-labelledby="server-image-cache">
       <div className="section-heading-row">
-        <h2 id="server-image-cache">Image cache</h2>
+        <h2 id="server-image-cache">{t('Image cache')}</h2>
       </div>
       <p className="settings-save-state">
-        Clear cached pages or thumbnails stored by the server.
+        {t('Clear cached pages or thumbnails stored by the server.')}
       </p>
       <div className="settings-toggle-list">
         <label className="settings-toggle">
-          <span>Cached pages</span>
+          <span>{t('Cached pages')}</span>
           <input
             type="checkbox"
             checked={cachedPages}
@@ -766,7 +773,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
           />
         </label>
         <label className="settings-toggle">
-          <span>Cached thumbnails</span>
+          <span>{t('Cached thumbnails')}</span>
           <input
             type="checkbox"
             checked={cachedThumbnails}
@@ -775,7 +782,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
           />
         </label>
         <label className="settings-toggle">
-          <span>Downloaded thumbnails</span>
+          <span>{t('Downloaded thumbnails')}</span>
           <input
             type="checkbox"
             checked={downloadedThumbnails}
@@ -794,7 +801,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
           }
           onClick={clear}
         >
-          {busy ? 'Clearingâ€¦' : 'Clear selected caches'}
+          {busy ? t('Saving…') : t('Clear selected caches')}
         </button>
       </div>
       {message ? (
@@ -804,7 +811,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
       ) : null}
       {failed ? (
         <p className="settings-inline-error" role="alert">
-          Image cache could not be cleared.
+          {t('Image cache could not be cleared.')}
         </p>
       ) : null}
     </section>
