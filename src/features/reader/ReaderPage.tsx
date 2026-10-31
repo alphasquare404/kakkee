@@ -43,6 +43,7 @@ registerMessages('id', {
   'Next queued': 'Berikutnya dalam antrean',
   'Download next': 'Unduh berikutnya',
   Fullscreen: 'Layar penuh',
+  'Reader settings': 'Pengaturan reader',
   'Auto-scroll': 'Gulir otomatis',
   Share: 'Bagikan',
   "Couldn't load chapter": 'Tidak dapat memuat chapter',
@@ -865,6 +866,14 @@ function ConnectedReader({
               {nextDownloadQueued ? t('Next queued') : t('Download next')}
             </button>
           ) : null}
+          <Link
+            className="reader-quick-action"
+            to="/settings/reader"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {t('Reader settings')}
+          </Link>
           <button
             className="reader-quick-action"
             type="button"

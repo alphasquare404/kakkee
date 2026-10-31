@@ -191,6 +191,19 @@ function renderReader(
 }
 
 describe('ReaderPage', () => {
+  it('keeps reader settings in the overflow instead of the header', async () => {
+    renderReader();
+    expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+
+    const menu = screen.getByLabelText('Reader actions').closest('details');
+    expect(menu?.open).toBe(false);
+    fireEvent.click(screen.getByLabelText('Reader actions'));
+
+    expect(
+      screen.getByRole('link', { name: 'Reader settings' }).getAttribute('href'),
+    ).toBe('/settings/reader');
+  });
+
   it('shows the origin context in the back control', async () => {
     renderReader(false, undefined, 0, {
       origin: createSectionOrigin('history', {
