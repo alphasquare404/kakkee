@@ -1,4 +1,4 @@
-﻿// @vitest-environment jsdom
+// @vitest-environment jsdom
 
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -80,6 +80,48 @@ describe('ConnectionPage login', () => {
     );
   });
 
+  it('submits HTTP Basic credentials through the Basic login path', async () => {
+    const user = userEvent.setup();
+    const coordinator = renderPage({
+      ...makeLoginRequiredState(),
+      authMode: 'BASIC_AUTH',
+    });
+
+    expect(
+      screen.getByRole('heading', { name: 'Basic authentication' }),
+    ).toBeTruthy();
+
+    await user.type(screen.getByLabelText('Username'), 'reader');
+    await user.type(screen.getByLabelText('Password'), 'secret');
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+
+    expect(coordinator.basicLoginCalls).toEqual([
+      { username: 'reader', password: 'secret' },
+    ]);
+    expect(coordinator.loginCalls).toEqual([]);
+  });
+
+  it('submits SIMPLE_LOGIN credentials through the session login path', async () => {
+    const user = userEvent.setup();
+    const coordinator = renderPage({
+      ...makeLoginRequiredState(),
+      authMode: 'SIMPLE_LOGIN',
+    });
+
+    expect(
+      screen.getByRole('heading', { name: 'Server session login' }),
+    ).toBeTruthy();
+
+    await user.type(screen.getByLabelText('Username'), 'reader');
+    await user.type(screen.getByLabelText('Password'), 'secret');
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+
+    expect(coordinator.simpleLoginCalls).toEqual([
+      { username: 'reader', password: 'secret' },
+    ]);
+    expect(coordinator.loginCalls).toEqual([]);
+  });
+
   it('submits username/password, shows invalid credentials, and clears password', async () => {
     const user = userEvent.setup();
     const initial = makeLoginRequiredState();
@@ -116,8 +158,8 @@ describe('ConnectionPage login', () => {
         status: 'authenticating',
         serverBaseUrl: 'https://server.example/suwayomi',
         config: makeLoginRequiredState().config,
-        serverInfo: makeLoginRequiredState().serverInfo,
-        compatibility: makeLoginRequiredState().compatibility,
+        serverInfo: makeLoginRequiredState().serverInfo!,
+        compatibility: makeLoginRequiredState().compatibility!,
       });
     });
 
@@ -140,15 +182,17 @@ describe('ConnectionPage login', () => {
     expect(coordinator.loginCalls[0]?.username).toBe('reader');
   });
 
-  it('shows a clear message and no Basic password form when auth is unsupported', () => {
+  it('shows a clear message and no password form when auth cannot be negotiated', () => {
     renderPage({
       status: 'unsupported-auth',
-      authMode: 'BASIC_AUTH',
-      error: new ConnectionError('unsupported-auth', 'basic-challenge'),
+      authMode: 'UNKNOWN',
+      error: new ConnectionError('unsupported-auth', 'unknown-challenge'),
     });
 
     expect(screen.getByRole('heading', { name: 'Unsupported authentication mode' })).toBeTruthy();
-    expect(screen.getByRole('alert').textContent).toContain('BASIC_AUTH');
+    expect(screen.getByRole('alert').textContent).toContain(
+      'cannot prove or support',
+    );
     expect(screen.queryByLabelText('Password')).toBeNull();
   });
 });

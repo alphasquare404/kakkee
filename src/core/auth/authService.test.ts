@@ -270,6 +270,31 @@ describe('AuthService errors and observers', () => {
   });
 });
 
+describe('basic and simple sessions', () => {
+  it('exposes an HTTP Basic authorization header without a JWT', () => {
+    const service = new AuthService();
+    service.setBasicSession('reader', 'pässword');
+
+    expect(service.getAuthorizationHeader()).toBe(
+      `Basic ${btoa(
+        String.fromCharCode(...new TextEncoder().encode('reader:pässword')),
+      )}`,
+    );
+    expect(service.getAccessToken()).toBeNull();
+    expect(service.getCredentialsMode()).toBe('omit');
+    expect(service.getUsername()).toBe('reader');
+  });
+
+  it('uses cookies for a simple-login session', () => {
+    const service = new AuthService();
+    service.setSimpleSession('reader');
+
+    expect(service.getAuthorizationHeader()).toBeNull();
+    expect(service.getCredentialsMode()).toBe('include');
+    expect(service.getUsername()).toBe('reader');
+  });
+});
+
 describe('session expiry helpers', () => {
   const now = 1_700_000_000_000;
   const expiry = 1_700_000_000;

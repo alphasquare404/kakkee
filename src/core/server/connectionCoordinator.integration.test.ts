@@ -80,17 +80,16 @@ describeRuntime('stable v2.4.2366 connection coordinator', () => {
     }
   });
 
-  it('BASIC_AUTH: detects the Basic challenge and reports unsupported-auth', async () => {
+  it('BASIC_AUTH: detects the Basic challenge and requests credentials', async () => {
     const coordinator = createCoordinator();
 
     try {
       await coordinator.connect(basicUrl!);
       const state = coordinator.getState();
 
-      expect(state.status).toBe('unsupported-auth');
-      if (state.status === 'unsupported-auth') {
+      expect(state.status).toBe('login-required');
+      if (state.status === 'login-required') {
         expect(state.authMode).toBe('BASIC_AUTH');
-        expect(state.error.code).toBe('unsupported-auth');
       }
     } finally {
       await coordinator.dispose();

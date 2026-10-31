@@ -481,8 +481,9 @@ function ServerSettingsForm({
           <h2 id="server-auth">{t('Authentication')}</h2>
         </div>
         <p className="settings-inline-warning">
-          Changing authentication can require a reconnect. BASIC_AUTH and
-          SIMPLE_LOGIN are not supported by this frontend; keep NONE or UI_LOGIN.
+          Changing authentication can require a reconnect. BASIC_AUTH uses HTTP
+          Basic credentials; SIMPLE_LOGIN uses the server session; UI_LOGIN uses
+          the JWT login form.
         </p>
         <div className="settings-field-grid">
           <label className="settings-select-field">

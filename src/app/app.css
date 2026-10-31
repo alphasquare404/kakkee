@@ -2858,6 +2858,26 @@ button.manga-card-link {
   gap: var(--reader-gap, 2px);
 }
 
+.offline-reader {
+  min-height: 100vh;
+  background: var(--reader-background, #05070c);
+  color: var(--text);
+}
+
+.offline-reader-pages {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.offline-reader-pages .reader-page img {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  object-fit: contain;
+}
+
 .reader-appended-heading {
   display: grid;
   gap: 0.25rem;

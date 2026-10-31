@@ -19,10 +19,15 @@ import {
   getRememberedSession,
   saveRememberedSession,
 } from '../../core/preferences/sessionPreferences';
+import {
+  createOfflineStorage,
+  isOfflineStorageSupported,
+} from '../../core/offline/offlineStorage';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
+  'Offline downloads': 'Unduhan offline',
   'Suwayomi server address': 'Alamat server Suwayomi',
   'Enter the server address without the GraphQL path. Example: https://manga.example.com':
     'Masukkan alamat server tanpa path GraphQL. Contoh: https://manga.example.com',
@@ -49,6 +54,12 @@ registerMessages('id', {
   Login: 'Masuk',
   'Change server': 'Ganti server',
   'Verifying login…': 'Memverifikasi login…',
+  'Basic authentication': 'Autentikasi Basic',
+  'Server session login': 'Login sesi server',
+  'Enter the HTTP Basic credentials configured on the server.':
+    'Masukkan kredensial HTTP Basic yang dikonfigurasi di server.',
+  'Signs in to the server session so API and WebSocket requests share the same login.':
+    'Masuk ke sesi server agar permintaan API dan WebSocket memakai login yang sama.',
   'Checking session and access to {server}.':
     'Memeriksa sesi dan akses ke {server}.',
   Connected: 'Terhubung',
@@ -147,7 +158,15 @@ function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>)
 
 export function ConnectionPage() {
   const { t } = useI18n();
-  const { state, connect, login, restoreSession, disconnect } = useConnection();
+  const {
+    state,
+    connect,
+    login,
+    loginBasic,
+    loginSimple,
+    restoreSession,
+    disconnect,
+  } = useConnection();
   const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
   const [autoConnect, setAutoConnectState] = useState(() => getAutoConnect());
   const [rememberLogin, setRememberLogin] = useState(
@@ -157,6 +176,7 @@ export function ConnectionPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
+  const [offlineCount, setOfflineCount] = useState(0);
   const serverInput = useRef<HTMLInputElement>(null);
   const usernameInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
@@ -168,6 +188,17 @@ export function ConnectionPage() {
   useEffect(() => {
     setLocalError(null);
   }, [state.status]);
+
+  useEffect(() => {
+    if (!isOfflineStorageSupported()) {
+      return;
+    }
+
+    void createOfflineStorage()
+      .list()
+      .then((records) => setOfflineCount(records.length))
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (state.status === 'connected') {
@@ -187,6 +218,10 @@ export function ConnectionPage() {
 
   useEffect(() => {
     if (state.status !== 'login-required' || attemptedRestore.current) {
+      return;
+    }
+
+    if (state.authMode !== 'UNKNOWN' && state.authMode !== 'UI_LOGIN') {
       return;
     }
 
@@ -246,7 +281,16 @@ export function ConnectionPage() {
     const submittedPassword = password;
     setLocalError(null);
     setPassword('');
-    void login(user, submittedPassword).catch(() => {
+    const authMode =
+      state.status === 'login-required' ? state.authMode : 'UI_LOGIN';
+    const action =
+      authMode === 'BASIC_AUTH'
+        ? loginBasic
+        : authMode === 'SIMPLE_LOGIN'
+          ? loginSimple
+          : login;
+
+    void action(user, submittedPassword).catch(() => {
       setLocalError(t('Login could not be processed.'));
     });
   };
@@ -333,6 +377,11 @@ export function ConnectionPage() {
             'Connect to your server and continue reading from your Library.',
           )}
         </p>
+        {offlineCount > 0 ? (
+          <Link className="button button-secondary" to="/offline">
+            {t('Offline downloads')} ({offlineCount})
+          </Link>
+        ) : null}
       </header>
 
       <main className="app-main">
@@ -380,12 +429,26 @@ export function ConnectionPage() {
 
         {state.status === 'login-required' ? (
           <section className="panel" aria-labelledby="login-heading">
-            <p className="panel-kicker">UI_LOGIN</p>
-            <h2 id="login-heading">{t('Login required')}</h2>
+            <p className="panel-kicker">{state.authMode}</p>
+            <h2 id="login-heading">
+              {state.authMode === 'BASIC_AUTH'
+                ? t('Basic authentication')
+                : state.authMode === 'SIMPLE_LOGIN'
+                  ? t('Server session login')
+                  : t('Login required')}
+            </h2>
             <p className="panel-copy">
-              {t('Server {server} requires authentication.', {
-                server: state.serverBaseUrl,
-              })}
+              {state.authMode === 'BASIC_AUTH'
+                ? t(
+                    'Enter the HTTP Basic credentials configured on the server.',
+                  )
+                : state.authMode === 'SIMPLE_LOGIN'
+                  ? t(
+                      'Signs in to the server session so API and WebSocket requests share the same login.',
+                    )
+                  : t('Server {server} requires authentication.', {
+                      server: state.serverBaseUrl,
+                    })}
             </p>
 
             {state.error ? (
@@ -424,14 +487,16 @@ export function ConnectionPage() {
                 />
               </div>
 
-              <label className="settings-inline-toggle">
-                <input
-                  type="checkbox"
-                  checked={rememberLogin}
-                  onChange={(event) => setRememberLogin(event.target.checked)}
-                />
-                {t('Remember login on this device')}
-              </label>
+              {state.authMode === 'UNKNOWN' || state.authMode === 'UI_LOGIN' ? (
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={rememberLogin}
+                    onChange={(event) => setRememberLogin(event.target.checked)}
+                  />
+                  {t('Remember login on this device')}
+                </label>
+              ) : null}
 
               {localError ? (
                 <p className="alert alert-error" role="alert">
@@ -539,13 +604,9 @@ export function ConnectionPage() {
             <p className="panel-kicker">Authentication</p>
             <h2 id="unsupported-heading">{t('Unsupported authentication mode')}</h2>
             <p className="alert alert-warning" role="alert">
-              {state.authMode === 'BASIC_AUTH'
-                ? t(
-                    'Server uses BASIC_AUTH. This frontend does not support Basic login; no Basic form is shown.',
-                  )
-                : t(
-                    'Server requires an authentication mode that this frontend cannot prove or support.',
-                  )}
+              {t(
+                'Server requires an authentication mode that this frontend cannot prove or support.',
+              )}
             </p>
             <p className="panel-copy">
               {t(

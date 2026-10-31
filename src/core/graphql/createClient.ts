@@ -49,14 +49,24 @@ export function createGraphQLTransport(options: GraphQLTransportOptions): GraphQ
 
   const httpLink = new HttpLink({
     uri: options.config.graphqlHttpUrl,
-    credentials: 'omit',
-    fetch: options.fetchImpl,
+    fetch: (input, init) => {
+      const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+
+      if (!fetchImpl) {
+        return Promise.reject(new Error('Fetch API tidak tersedia.'));
+      }
+
+      return fetchImpl(input, {
+        ...init,
+        credentials: authService.getCredentialsMode(),
+      });
+    },
   });
 
   const authLink = new SetContextLink((prevContext) => {
-    const accessToken = authService.getAccessToken();
+    const authorization = authService.getAuthorizationHeader();
 
-    if (!accessToken) {
+    if (!authorization) {
       return prevContext;
     }
 
@@ -64,7 +74,7 @@ export function createGraphQLTransport(options: GraphQLTransportOptions): GraphQ
       ...prevContext,
       headers: {
         ...(prevContext.headers as Record<string, string> | undefined),
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: authorization,
       },
     };
   });

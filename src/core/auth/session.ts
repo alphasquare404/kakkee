@@ -56,16 +56,45 @@ export interface UiLoginFailedSession {
   readonly error: AuthError;
 }
 
+export interface BasicAuthenticatedSession {
+  readonly status: 'authenticated';
+  readonly mode: 'basic';
+  readonly username: string;
+  readonly authorization: string;
+}
+
+export interface SimpleAuthenticatedSession {
+  readonly status: 'authenticated';
+  readonly mode: 'simple';
+  readonly username: string;
+}
+
 export type AuthSession =
   | DisconnectedSession
   | NoneSession
   | UiLoginUnauthenticatedSession
   | UiLoginAuthenticatedSession
   | UiLoginRefreshingSession
-  | UiLoginFailedSession;
+  | UiLoginFailedSession
+  | BasicAuthenticatedSession
+  | SimpleAuthenticatedSession;
+
+export function isUiLoginSession(
+  session: AuthSession,
+): session is
+  | UiLoginUnauthenticatedSession
+  | UiLoginAuthenticatedSession
+  | UiLoginRefreshingSession
+  | UiLoginFailedSession {
+  return 'mode' in session && session.mode === 'ui-login';
+}
 
 function getAccessTokenExpiry(session: AuthSession): number | null {
-  if (session.status === 'authenticated' || session.status === 'refreshing') {
+  if (isUiLoginSession(session) && session.status === 'authenticated') {
+    return session.accessTokenExpiresAt;
+  }
+
+  if (isUiLoginSession(session) && session.status === 'refreshing') {
     return session.accessTokenExpiresAt;
   }
 
@@ -74,7 +103,10 @@ function getAccessTokenExpiry(session: AuthSession): number | null {
 
 export function isAuthenticatedSession(
   session: AuthSession,
-): session is UiLoginAuthenticatedSession {
+): session is
+  | UiLoginAuthenticatedSession
+  | BasicAuthenticatedSession
+  | SimpleAuthenticatedSession {
   return session.status === 'authenticated';
 }
 

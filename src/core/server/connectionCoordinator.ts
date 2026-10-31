@@ -30,8 +30,12 @@ import {
   type CompatibilityInfo,
 } from './versionCompatibility';
 
-export type SupportedAuthMode = 'NONE' | 'UI_LOGIN';
-export type DetectedAuthMode = SupportedAuthMode | 'BASIC_AUTH' | 'SIMPLE_LOGIN' | 'UNKNOWN';
+export type SupportedAuthMode =
+  | 'NONE'
+  | 'UI_LOGIN'
+  | 'BASIC_AUTH'
+  | 'SIMPLE_LOGIN';
+export type DetectedAuthMode = SupportedAuthMode | 'UNKNOWN';
 
 export type ServerInfo = AboutServerQuery['aboutServer'];
 
@@ -62,10 +66,9 @@ export interface LoginRequiredState {
   readonly status: 'login-required';
   readonly serverBaseUrl: string;
   readonly config: DeploymentConfig;
-  readonly serverInfo: ServerInfo;
-  readonly compatibility: CompatibilityInfo;
-  /** Protected probe requires auth; the concrete server auth mode is not yet proven. */
-  readonly authMode: 'UNKNOWN';
+  readonly serverInfo?: ServerInfo;
+  readonly compatibility?: CompatibilityInfo;
+  readonly authMode: DetectedAuthMode;
   readonly error?: ConnectionError;
 }
 
@@ -124,7 +127,7 @@ interface ActiveServices {
 }
 
 type ProbeResult =
-  | { readonly kind: 'ok' }
+  | { readonly kind: 'ok'; readonly authMode: 'NONE' | 'SIMPLE_LOGIN' | 'UI_LOGIN' }
   | { readonly kind: 'authentication-required' }
   | { readonly kind: 'basic' }
   | { readonly kind: 'failure'; readonly error: ConnectionError };
@@ -132,6 +135,8 @@ type ProbeResult =
 export interface ConnectionCoordinator {
   connect(serverUrl: string): Promise<void>;
   login(username: string, password: string): Promise<void>;
+  loginBasic(username: string, password: string): Promise<void>;
+  loginSimple(username: string, password: string): Promise<void>;
   restoreSession(refreshToken: string): Promise<void>;
   disconnect(): Promise<void>;
   dispose(): Promise<void>;
@@ -257,15 +262,24 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
 
       const connectionError = this.toConnectionError(error, 'aboutServer');
 
-      if (connectionError.code === 'unsupported-auth') {
+      if (hasBasicAuthChallenge(asErrorLike(error))) {
         this.publish(generation, {
-          status: 'unsupported-auth',
+          status: 'login-required',
           serverBaseUrl: config.serverBaseUrl,
           config,
           authMode: 'BASIC_AUTH',
+        });
+        return;
+      }
+
+      if (connectionError.code === 'unsupported-auth') {
+        this.publish(generation, {
+          status: 'login-required',
+          serverBaseUrl: config.serverBaseUrl,
+          config,
+          authMode: 'UNKNOWN',
           error: connectionError,
         });
-        await this.disposeServices();
         return;
       }
 
@@ -317,6 +331,18 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
     }
 
     if (probe.kind === 'ok') {
+      if (probe.authMode === 'SIMPLE_LOGIN') {
+        this.publish(generation, {
+          status: 'login-required',
+          serverBaseUrl: config.serverBaseUrl,
+          config,
+          serverInfo,
+          compatibility,
+          authMode: 'SIMPLE_LOGIN',
+        });
+        return;
+      }
+
       services.authService.setNoneSession();
       this.publish(generation, {
         status: 'connected',
@@ -341,21 +367,20 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
         config,
         serverInfo,
         compatibility,
-        authMode: 'UNKNOWN',
+        authMode: 'UI_LOGIN',
       });
       return;
     }
 
     if (probe.kind === 'basic') {
       this.publish(generation, {
-        status: 'unsupported-auth',
+        status: 'login-required',
         serverBaseUrl: config.serverBaseUrl,
         config,
         serverInfo,
+        compatibility,
         authMode: 'BASIC_AUTH',
-        error: new ConnectionError('unsupported-auth', 'basic-challenge'),
       });
-      await this.disposeServices();
       return;
     }
 
@@ -376,6 +401,10 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
 
     if (state.status !== 'login-required') {
       throw new ConnectionError('invalid-state', 'login-requires-login-required');
+    }
+
+    if (!state.serverInfo || !state.compatibility) {
+      throw new ConnectionError('invalid-state', 'login-requires-server-info');
     }
 
     const services = this.services;
@@ -475,12 +504,11 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
 
     if (probe.kind === 'basic') {
       this.publish(generation, {
-        status: 'unsupported-auth',
+        status: 'login-required',
         ...loginContext,
         authMode: 'BASIC_AUTH',
-        error: new ConnectionError('unsupported-auth', 'basic-challenge'),
+        error: new ConnectionError('authentication-required', 'basic-challenge'),
       });
-      await this.disposeServices();
       return;
     }
 
@@ -495,6 +523,219 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
     });
   }
 
+  public async loginBasic(username: string, password: string): Promise<void> {
+    this.assertNotDisposed();
+
+    const state = this.state;
+    const services = this.services;
+
+    if (
+      state.status !== 'login-required' ||
+      state.authMode !== 'BASIC_AUTH' ||
+      !services
+    ) {
+      throw new ConnectionError('invalid-state', 'basic-login-state');
+    }
+
+    const generation = this.generation;
+    services.authService.setBasicSession(username, password);
+
+    const probe = await this.probe();
+
+    if (!this.isCurrent(generation)) {
+      return;
+    }
+
+    if (probe.kind === 'ok') {
+      await this.finishLogin(generation, 'BASIC_AUTH');
+      return;
+    }
+
+    services.authService.setNoneSession();
+    this.publish(generation, {
+      status: 'login-required',
+      serverBaseUrl: state.serverBaseUrl,
+      config: state.config,
+      serverInfo: state.serverInfo,
+      compatibility: state.compatibility,
+      authMode: 'BASIC_AUTH',
+      error:
+        probe.kind === 'basic'
+          ? new ConnectionError('invalid-credentials')
+          : probe.kind === 'failure'
+            ? probe.error
+            : new ConnectionError('authentication-required', 'basic-login'),
+    });
+  }
+
+  public async loginSimple(username: string, password: string): Promise<void> {
+    this.assertNotDisposed();
+
+    const state = this.state;
+    const services = this.services;
+
+    if (
+      state.status !== 'login-required' ||
+      state.authMode !== 'SIMPLE_LOGIN' ||
+      !services
+    ) {
+      throw new ConnectionError('invalid-state', 'simple-login-state');
+    }
+
+    const generation = this.generation;
+
+    try {
+      await this.postSimpleLogin(state.config, username, password);
+    } catch {
+      if (!this.isCurrent(generation)) {
+        return;
+      }
+
+      this.publish(generation, {
+        status: 'login-required',
+        serverBaseUrl: state.serverBaseUrl,
+        config: state.config,
+        serverInfo: state.serverInfo,
+        compatibility: state.compatibility,
+        authMode: 'SIMPLE_LOGIN',
+        error: new ConnectionError('unreachable', 'simple-login-network'),
+      });
+      return;
+    }
+
+    if (!this.isCurrent(generation)) {
+      return;
+    }
+
+    services.authService.setSimpleSession(username);
+
+    const probe = await this.probe();
+
+    if (!this.isCurrent(generation)) {
+      return;
+    }
+
+    if (probe.kind === 'ok') {
+      await this.finishLogin(generation, 'SIMPLE_LOGIN');
+      return;
+    }
+
+    this.publish(generation, {
+      status: 'login-required',
+      serverBaseUrl: state.serverBaseUrl,
+      config: state.config,
+      serverInfo: state.serverInfo,
+      compatibility: state.compatibility,
+      authMode: 'SIMPLE_LOGIN',
+      error: new ConnectionError('invalid-credentials', 'simple-login'),
+    });
+  }
+
+  private async postSimpleLogin(
+    config: DeploymentConfig,
+    username: string,
+    password: string,
+  ): Promise<void> {
+    const fetchImpl = this.fetchImpl ?? globalThis.fetch;
+
+    if (!fetchImpl) {
+      throw new Error('Fetch API tidak tersedia untuk SIMPLE_LOGIN.');
+    }
+
+    const response = await fetchImpl(
+      config.resolveResource('login.html?redirect=/'),
+      {
+        method: 'POST',
+        credentials: 'include',
+        redirect: 'manual',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ user: username, pass: password }).toString(),
+      },
+    );
+
+    if (
+      response.type === 'opaqueredirect' ||
+      response.status === 0 ||
+      response.status === 302 ||
+      response.status === 303
+    ) {
+      return;
+    }
+
+    throw new Error('SIMPLE_LOGIN rejected the credentials.');
+  }
+
+  private async finishLogin(
+    generation: number,
+    authMode: 'BASIC_AUTH' | 'SIMPLE_LOGIN',
+  ): Promise<void> {
+    const services = this.services;
+    const state = this.state;
+
+    if (!services || state.status !== 'login-required') {
+      return;
+    }
+
+    let aboutResult;
+
+    try {
+      aboutResult = await services.graphQL.client.query({
+        query: AboutServerDocument,
+        fetchPolicy: 'no-cache',
+      });
+    } catch {
+      if (!this.isCurrent(generation)) {
+        return;
+      }
+
+      this.publish(generation, {
+        status: 'failed',
+        serverBaseUrl: state.serverBaseUrl,
+        config: state.config,
+        error: new ConnectionError('server-error', 'aboutServer-after-login'),
+      });
+      await this.disposeServices();
+      return;
+    }
+
+    if (!this.isCurrent(generation)) {
+      return;
+    }
+
+    const serverInfo = aboutResult.data?.aboutServer;
+
+    if (!serverInfo) {
+      this.publish(generation, {
+        status: 'failed',
+        serverBaseUrl: state.serverBaseUrl,
+        config: state.config,
+        error: new ConnectionError('server-error', 'malformed-aboutServer'),
+      });
+      await this.disposeServices();
+      return;
+    }
+
+    const compatibility = evaluateCompatibility(
+      serverInfo.version,
+      serverInfo.buildType,
+    );
+
+    this.publish(generation, {
+      status: 'connected',
+      context: {
+        config: state.config,
+        serverInfo,
+        authMode,
+        compatibility,
+        graphQL: services.graphQL.client,
+        resources: services.resources,
+        authService: services.authService,
+      },
+    });
+  }
+
   public async restoreSession(refreshToken: string): Promise<void> {
     this.assertNotDisposed();
 
@@ -502,6 +743,10 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
 
     if (state.status !== 'login-required') {
       throw new ConnectionError('invalid-state', 'restore-requires-login-required');
+    }
+
+    if (!state.serverInfo || !state.compatibility) {
+      throw new ConnectionError('invalid-state', 'restore-requires-server-info');
     }
 
     const services = this.services;
@@ -590,12 +835,22 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
     }
 
     try {
-      await services.graphQL.client.query({
+      const result = await services.graphQL.client.query({
         query: AuthProbeDocument,
         fetchPolicy: 'no-cache',
       });
 
-      return { kind: 'ok' };
+      const authMode = result.data?.settings.authMode;
+
+      return {
+        kind: 'ok',
+        authMode:
+          authMode === 'SIMPLE_LOGIN'
+            ? 'SIMPLE_LOGIN'
+            : authMode === 'UI_LOGIN'
+              ? 'UI_LOGIN'
+              : 'NONE',
+      };
     } catch (error) {
       if (hasBasicAuthChallenge(asErrorLike(error))) {
         return { kind: 'basic' };
@@ -624,7 +879,7 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
     const errorLike = asErrorLike(error);
 
     if (hasBasicAuthChallenge(errorLike)) {
-      return new ConnectionError('unsupported-auth', 'basic-challenge');
+      return new ConnectionError('authentication-required', 'basic-challenge');
     }
 
     const status = getHttpStatus(errorLike);

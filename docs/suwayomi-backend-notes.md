@@ -259,7 +259,7 @@ Semua itu hanya boleh dipakai setelah ada compatibility gate dan bukti dukungan 
 - Login dengan kredensial salah dan pesan error yang tepat.
 - Deteksi mode auth dari client tanpa mencoba query yang dilindungi.
 - `aboutWebUI` saat `webUIEnabled = false`; kemungkinan gagal karena tidak ada file `revision`.
-- BASIC_AUTH dan SIMPLE_LOGIN; keduanya di luar dukungan penuh awal. BASIC_AUTH challenge sudah terdeteksi, tetapi login Basic tidak diimplementasikan; SIMPLE_LOGIN belum diuji.
+- BASIC_AUTH dan SIMPLE_LOGIN: klien kini mengimplementasikan HTTP Basic (header pada GraphQL/resource) dan SIMPLE_LOGIN (POST `login.html` + cookie sesi). Verifikasi dilakukan lewat source server stable, unit test mock, dan typecheck; instalasi server Basic/Simple nyata belum dijalankan pada sesi ini.
 - Reconnect WebSocket, expiry token saat koneksi aktif, dan perilaku subscription setelah token diganti.
 - Path thumbnail/page manga dan chapter, kebutuhan Bearer pada image tersebut, redirect, dan CORS resource.
 - Deployment same-origin/standalone, subpath, reverse proxy, TLS, dan CORS. CORS localhost sudah diuji; deployment dengan proxy/TLS/kebijakan origin lain belum.

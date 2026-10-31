@@ -45,7 +45,7 @@ frontend.
 | Connection | Server URL, connect, compatibility check | `Implemented` | AboutServer + protected probe | Memory-only config; no persistence |
 | Authentication | NONE | `Implemented` | Yes | |
 | Authentication | UI login, token refresh, logout | `Implemented` | Yes | |
-| Authentication | Basic auth / simple login modes | `Missing` | Yes | ConnectionCoordinator currently exposes NONE/UI_LOGIN only |
+| Authentication | Basic auth / simple login modes | `Implemented` | Yes | HTTP Basic login challenge/header and SIMPLE_LOGIN server-session cookie login (same-origin/cookie-capable deployments) |
 | Connection | Persist server URL and session across reload/PWA relaunch | `Implemented` | Client storage | Opt-in refresh-token persistence plus server URL/auto-connect; access token stays in memory |
 | Shell | Desktop sidebar + mobile bottom navigation | `Implemented` | Client concern | Desktop sidebar plus five primary mobile tabs and a More sheet |
 | Shell | Mobile "More" overflow destination | `Implemented` | Client concern | More sheet contains Categories, History, Downloads, and Settings with badges/active state |
@@ -53,7 +53,7 @@ frontend.
 | App updates | Inform about WebUI/server updates | `Implemented` | WebUI update query + subscriptions | PWA update prompt, WebUI update check, and server update check on `/about` |
 | Localization | Language selection | `Implemented` | Client concern | English/Indonesian locale selection stored per device; no upstream catalog dependency |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
-| PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
+| PWA | Offline reading/downloads | `Implemented` | Client OPFS | Explicit client downloads stored in OPFS with offline reader; server download queue remains online-only |
 | Sharing | Native share of manga/reader | `Implemented` | Client concern | Reader chapter share and manga share with clipboard fallback |
 
 ### Library

@@ -119,21 +119,18 @@ export function createResourceService(options: ResourceServiceOptions): Resource
     }
 
     const session = options.authService.getSnapshot();
-    let authorization: string | undefined;
+    const authorization = options.authService.getAuthorizationHeader();
+    const credentials = options.authService.getCredentialsMode();
 
     if (session.status === 'disconnected') {
       throw dependencyError();
     }
 
-    if (session.status === 'authenticated' || session.status === 'refreshing') {
-      const accessToken = options.authService.getAccessToken();
-
-      if (!accessToken) {
-        throw new ResourceError('unauthorized');
-      }
-
-      authorization = `Bearer ${accessToken}`;
-    } else if (session.status !== 'none') {
+    if (
+      session.status === 'unauthenticated' ||
+      session.status === 'failed' ||
+      session.status === 'refreshing'
+    ) {
       throw new ResourceError('unauthorized');
     }
 
@@ -150,7 +147,7 @@ export function createResourceService(options: ResourceServiceOptions): Resource
       try {
         response = await fetchImpl(url, {
           method: 'GET',
-          credentials: 'omit',
+          credentials,
           redirect: 'manual',
           signal: controller.signal,
           headers: authorization ? { Authorization: authorization } : undefined,

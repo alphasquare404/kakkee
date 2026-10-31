@@ -2,6 +2,7 @@ export type ThemeMode = 'dark' | 'pure-black';
 export type LibraryDensity = 'compact' | 'comfortable';
 export type LibraryView = 'grid' | 'list';
 export type Locale = 'en' | 'id';
+export type DownloadTarget = 'server' | 'device';
 
 export interface AppPreferences {
   readonly theme: ThemeMode;
@@ -11,6 +12,7 @@ export interface AppPreferences {
   readonly libraryContinue: boolean;
   readonly accent: string;
   readonly locale: Locale;
+  readonly downloadTarget: DownloadTarget;
 }
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
@@ -21,6 +23,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   libraryContinue: true,
   accent: '#5b7cff',
   locale: 'en',
+  downloadTarget: 'server',
 };
 
 const STORAGE_KEY = 'suwayomi.app-preferences.v1';
@@ -51,6 +54,7 @@ function load(): AppPreferences {
           ? parsed.accent
           : DEFAULT_APP_PREFERENCES.accent,
       locale: parsed.locale === 'id' ? 'id' : 'en',
+      downloadTarget: parsed.downloadTarget === 'device' ? 'device' : 'server',
     };
   } catch {
     return DEFAULT_APP_PREFERENCES;
@@ -112,6 +116,12 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
         ? patch.accent
         : state.accent,
     locale: patch.locale === 'id' ? 'id' : patch.locale === 'en' ? 'en' : state.locale,
+    downloadTarget:
+      patch.downloadTarget === 'device'
+        ? 'device'
+        : patch.downloadTarget === 'server'
+          ? 'server'
+          : state.downloadTarget,
   };
   persist(state);
   notify();

@@ -5,6 +5,8 @@ export interface ConnectionContextValue {
   readonly state: ConnectionState;
   connect(serverUrl: string): Promise<void>;
   login(username: string, password: string): Promise<void>;
+  loginBasic(username: string, password: string): Promise<void>;
+  loginSimple(username: string, password: string): Promise<void>;
   restoreSession(refreshToken: string): Promise<void>;
   disconnect(): Promise<void>;
 }

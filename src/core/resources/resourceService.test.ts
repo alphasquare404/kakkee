@@ -126,6 +126,47 @@ describe('ResourceService NONE', () => {
   });
 });
 
+describe('ResourceService BASIC_AUTH and SIMPLE_LOGIN', () => {
+  it('sends the Basic header for every resource request', async () => {
+    const authService = new AuthService();
+    authService.setBasicSession('reader', 'secret');
+    const captured: CapturedRequest[] = [];
+    const service = createResourceService({
+      config,
+      authService,
+      fetchImpl: capture(imageResponse(), captured),
+    });
+
+    const resource = await service.loadImageResource('/api/v1/chapter/1/page/1');
+    const expected = `Basic ${btoa('reader:secret')}`;
+
+    expect(header(captured[0].init, 'authorization')).toBe(expected);
+    expect(captured[0].init.credentials).toBe('omit');
+
+    resource.dispose();
+    service.dispose();
+  });
+
+  it('uses cookies for SIMPLE_LOGIN resources', async () => {
+    const authService = new AuthService();
+    authService.setSimpleSession('reader');
+    const captured: CapturedRequest[] = [];
+    const service = createResourceService({
+      config,
+      authService,
+      fetchImpl: capture(imageResponse(), captured),
+    });
+
+    const resource = await service.loadImageResource('/api/v1/chapter/1/page/1');
+
+    expect(header(captured[0].init, 'authorization')).toBeNull();
+    expect(captured[0].init.credentials).toBe('include');
+
+    resource.dispose();
+    service.dispose();
+  });
+});
+
 describe('ResourceService UI_LOGIN', () => {
   it('sends Bearer and reads the latest access token for each request', async () => {
     const firstToken = createToken();

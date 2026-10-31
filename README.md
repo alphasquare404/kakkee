@@ -4,14 +4,14 @@ Frontend React baru untuk Suwayomi Server. Proyek ini bukan fork Suwayomi-WebUI 
 
 Status saat ini: **Phase 1 core reading + reference-driven shell tersedia**. Functional baseline resmi dipin pada Suwayomi-WebUI **v20260929.01 (r3518)** dan server stable **v2.4.2366**. Top-level pages Library, Updates, Browse, Categories, History, Downloads, Settings, Manga Detail, dan Reader tersedia dengan data server nyata. Fitur state-changing/migration/tracking/extension/download-queue masih dicatat sebagai parity work, bukan diklaim selesai.
 
-Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Kontrak/data/state/category/UI Library: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md). Manga detail/reader: [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md). Visual system: [docs/phase-1-visual-redesign.md](docs/phase-1-visual-redesign.md). Feature parity: [docs/suwayomi-webui-feature-parity.md](docs/suwayomi-webui-feature-parity.md).
+Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validation.md). Kontrak/data/state/category/UI Library: [docs/phase-1-library-contract.md](docs/phase-1-library-contract.md), [docs/phase-1-library-data.md](docs/phase-1-library-data.md), [docs/phase-1-library-state.md](docs/phase-1-library-state.md), [docs/phase-1-library-categories.md](docs/phase-1-library-categories.md), [docs/phase-1-library-ui.md](docs/phase-1-library-ui.md). Manga detail/reader: [docs/phase-1-manga-reader.md](docs/phase-1-manga-reader.md). Visual system: [docs/phase-1-visual-redesign.md](docs/phase-1-visual-redesign.md). Offline OPFS: [docs/offline-opfs.md](docs/offline-opfs.md). Feature parity: [docs/suwayomi-webui-feature-parity.md](docs/suwayomi-webui-feature-parity.md).
 
 ## Kemampuan saat ini
 
 - Membuka connection screen; memasukkan URL Suwayomi; connect.
 - NONE langsung Connected setelah `aboutServer` + protected probe.
 - UI_LOGIN menampilkan login, menolak kredensial salah, dan Connected setelah login/probe berhasil.
-- BASIC_AUTH dan SIMPLE_LOGIN ditampilkan sebagai tidak didukung, bukan fallback ke NONE.
+- BASIC_AUTH memakai form HTTP Basic; SIMPLE_LOGIN memakai sesi cookie server; keduanya tidak fallback diam-diam ke NONE.
 - Menampilkan nama/version/build/platform/architecture/server URL/auth mode/compatibility.
 - Disconnect/ganti server dengan generation guard.
 - Resource REST terautentikasi melalui service terpusat untuk thumbnail dan page reader.
@@ -19,7 +19,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Library state controller untuk loading, pagination, reset criteria, dan stale request guard.
 - Category navigation data/state: All synthetic, category selection, backend ordering, dan stale guard.
 - Navigation: responsive desktop sidebar and mobile tab bar with download-queue and extension-update badges.
-- Connection: server URL validation, last-server memory, opt-in auto-connect, opt-in remembered login/session restore, UI_LOGIN, and explicit unsupported-auth messaging.
+- Connection: server URL validation, last-server memory, opt-in auto-connect, opt-in remembered login/session restore, NONE, UI_LOGIN, HTTP BASIC_AUTH, and SIMPLE_LOGIN server-session authentication.
 - Global Search: top-level search across server-known manga and matching sources, plus on-demand live search of installed sources, with source filter, in-library counts, recent-search suggestions, and library/unread metadata.
 - Updates: recent chapters grouped by day, unread/read/scanlator filters, first-unread continue cards, mark read/unread and download actions, real covers, and a library sync trigger with live progress and auto-refresh.
 - Tracking: service list, OAuth login links, username/password credentials, token state, logout, per-manga search/bind/unbind, private flag, status/score/reading dates, manual sync, and optional auto-sync after finishing a Reader chapter.
@@ -28,7 +28,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Browse: installed source catalog with language/NSFW/preferred-language filters, pin/last-used sources, source preferences (including multi-select), plus source manga browsing with Popular/Latest, dynamic source filters, hide-in-library, duplicate-only check, search with per-source history, pagination, and quick library add/remove.
 - Categories: server categories with real manga counts, create, rename, reorder, update/download inclusion flags, set default, and delete with confirmation.
 - History: server-provided last-read chapters, newest per manga, Today/Yesterday grouping, and exact-page resume.
-- Downloads: real queue/state/progress, live queue refresh, pause/resume, retry-all-failed, cancel/delete, manga grouping with series cancel, downloaded-chapter list, and server image conversion lists.
+- Downloads: real server queue/state/progress, live queue refresh, pause/resume, retry-all-failed, cancel/delete, manga grouping with series cancel, downloaded-chapter list, and server image conversion lists. A second explicit target, **This device**, stores chapters in OPFS with progress/size, delete controls, and an offline reader at `/offline`.
 - Extensions: installed/available extension catalog, language filter, name/package search, updates-only filter, store add/remove, external JAR upload, per-extension detail pages, install/uninstall/update, and update checking.
 - Localization: English/Indonesian locale selection with translated navigation, core screens, all Settings pages, Connection, Reader, and PWA prompt.
 - Settings extras: About/update page with WebUI update action, hidden read history, device/PWA capability information, tracker status, server settings, backup, and sync controls.
@@ -38,7 +38,7 @@ Laporan bukti akhir Phase 0: [docs/phase-0-validation.md](docs/phase-0-validatio
 - Settings: real server/application information, server update/download/system settings, dark/pure-black theme, and library grid density.
 - Manga Detail: metadata, cover, refresh metadata/chapters, share, category picker, per-manga reading/layout overrides, chapter search/filter/scanlator with saved per-manga view preferences, full chapter scan for cross-page gaps, hide-duplicate chapters, missing-chapter separators, chapter order, read/bookmark/download toggles, per-chapter mark-previous-read, shift-range and long-press bulk read/bookmark/download/delete, tracker search/bind/unbind with status/score/private controls, reading dates, and progress sync, server-backed manga notes, in-library toggle, load more, and reader navigation.
 - Reader: vertical, webtoon, single-page, double-page, and horizontal modes with optional webtoon auto-detection; authenticated lazy pages, neighbor preload plus next-chapter manifest prefetch, inline next-chapter append when auto-advance is off, progress write, saved-page resume, image-filter presets with brightness/contrast/saturation sliders, LTR/RTL direction, width/height/screen/original scaling with optional small-page stretching, first-page offset, safe-area insets, keep-screen-on, fullscreen, share, tap zones with swipe paging, configurable paging keys, adjustable auto-scroll speed, duplicate-chapter skipping, per-mode and per-manga layout profiles, optional next-chapter auto-advance, chapter + next-chapter download/delete, delete-after-reading, bookmark/library actions, auto background color, chapter navigation, and a chapter-list overlay.
-- PWA installable dengan shell-only cache dan update prompt.
+- PWA installable dengan shell-only cache dan update prompt. Offline reading hanya untuk chapter yang diunduh eksplisit ke OPFS; gambar/halaman privat tidak masuk CacheStorage.
 
 Baseline kontrak: **Suwayomi Server stable v2.4.2366**. Core reading journey tersedia, termasuk progress baca (`lastPageRead`/`isRead`) dan Continue reading dari Detail. Exact page resume, library continue-reading, source browsing, extension management, download queue, migration, tracking, sync, backup, dan full Settings parity masih parity work.
 
@@ -51,7 +51,8 @@ Route utama:
 /browse                            installed source catalog
 /categories                        category overview
 /history                           server-provided reading history
-/downloads                         downloaded chapters
+/downloads                         server and device downloads
+/offline                           device downloads and offline reading
 /settings                          server/application information
 /manga/:mangaId                    manga detail + chapter list
 /manga/:mangaId/chapter/:chapterId vertical reader

@@ -115,6 +115,16 @@ const ReaderPage = lazy(() =>
     default: module.ReaderPage,
   })),
 );
+const OfflineDownloadsPage = lazy(() =>
+  import('../features/offline/OfflineDownloadsPage').then((module) => ({
+    default: module.OfflineDownloadsPage,
+  })),
+);
+const OfflineReaderPage = lazy(() =>
+  import('../features/offline/OfflineReaderPage').then((module) => ({
+    default: module.OfflineReaderPage,
+  })),
+);
 
 export interface AppRouterProps {
   readonly basename: string;
@@ -145,6 +155,11 @@ export function AppRouter({ basename }: AppRouterProps) {
       >
         <Routes>
           <Route path="/" element={<ConnectionPage />} />
+          <Route path="/offline" element={<OfflineDownloadsPage />} />
+          <Route
+            path="/offline/read/:chapterId"
+            element={<OfflineReaderPage />}
+          />
           <Route element={<AppLayout />}>
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/updates" element={<UpdatesPage />} />

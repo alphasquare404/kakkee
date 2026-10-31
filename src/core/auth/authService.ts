@@ -12,6 +12,7 @@ import type {
   AuthTokens,
   UiLoginUnauthenticatedReason,
 } from './session';
+import { isUiLoginSession } from './session';
 import { readAccessTokenExpiry } from './token';
 
 export type LoginResult = Pick<LoginMutation['login'], 'accessToken' | 'refreshToken'>;
@@ -35,6 +36,17 @@ function assertTokenPresent(token: string): void {
 function assertTokensPresent(tokens: AuthTokens): void {
   assertTokenPresent(tokens.accessToken);
   assertTokenPresent(tokens.refreshToken);
+}
+
+function encodeBasicAuthorization(username: string, password: string): string {
+  const bytes = new TextEncoder().encode(`${username}:${password}`);
+  let binary = '';
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return `Basic ${btoa(binary)}`;
 }
 
 export class AuthService {
@@ -63,7 +75,11 @@ export class AuthService {
   }
 
   public getAccessToken(): string | null {
-    if (this.session.status === 'authenticated' || this.session.status === 'refreshing') {
+    if (
+      isUiLoginSession(this.session) &&
+      (this.session.status === 'authenticated' ||
+        this.session.status === 'refreshing')
+    ) {
       return this.session.accessToken;
     }
 
@@ -71,11 +87,65 @@ export class AuthService {
   }
 
   public getRefreshToken(): string | null {
-    if (this.session.status === 'authenticated' || this.session.status === 'refreshing') {
+    if (
+      isUiLoginSession(this.session) &&
+      (this.session.status === 'authenticated' ||
+        this.session.status === 'refreshing')
+    ) {
       return this.session.refreshToken;
     }
 
     return null;
+  }
+
+  public getAuthorizationHeader(): string | null {
+    if (isUiLoginSession(this.session)) {
+      const accessToken = this.getAccessToken();
+      return accessToken ? `Bearer ${accessToken}` : null;
+    }
+
+    if (this.session.status === 'authenticated' && this.session.mode === 'basic') {
+      return this.session.authorization;
+    }
+
+    return null;
+  }
+
+  public getCredentialsMode(): RequestCredentials {
+    return this.session.status === 'authenticated' &&
+      this.session.mode === 'simple'
+      ? 'include'
+      : 'omit';
+  }
+
+  public getUsername(): string | null {
+    if (
+      this.session.status === 'authenticated' &&
+      (this.session.mode === 'basic' || this.session.mode === 'simple')
+    ) {
+      return this.session.username;
+    }
+
+    return null;
+  }
+
+  public setBasicSession(username: string, password: string): void {
+    this.generation += 1;
+    this.setSession({
+      status: 'authenticated',
+      mode: 'basic',
+      username,
+      authorization: encodeBasicAuthorization(username, password),
+    });
+  }
+
+  public setSimpleSession(username: string): void {
+    this.generation += 1;
+    this.setSession({
+      status: 'authenticated',
+      mode: 'simple',
+      username,
+    });
   }
 
   public setNoneSession(): void {
@@ -116,7 +186,10 @@ export class AuthService {
   }
 
   public beginRefresh(): AuthAttempt | null {
-    if (this.session.status !== 'authenticated') {
+    if (
+      this.session.status !== 'authenticated' ||
+      this.session.mode !== 'ui-login'
+    ) {
       return null;
     }
 

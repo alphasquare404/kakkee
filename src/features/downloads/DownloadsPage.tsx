@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
@@ -15,6 +16,13 @@ import {
   type DownloadItem,
 } from '../../core/downloads/downloadRepository';
 import type { ResourceService } from '../../core/resources/resourceService';
+import { createReaderRepository } from '../../core/reader/readerRepository';
+import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
+import {
+  createOfflineStorage,
+  isOfflineStorageSupported,
+  type OfflineChapterRecord,
+} from '../../core/offline/offlineStorage';
 import { useImageResource } from '../../shared/useImageResource';
 import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
@@ -57,7 +65,29 @@ registerMessages('id', {
   Cancel: 'Batalkan',
   Delete: 'Hapus',
   'try {count}': 'percobaan {count}',
+  'This device': 'Perangkat ini',
+  'Save to device': 'Simpan ke perangkat',
+  'Saving…': 'Menyimpan…',
+  'Deleting…': 'Menghapus…',
+  'Read offline': 'Baca offline',
+  'No chapters saved to this device.': 'Belum ada chapter yang disimpan di perangkat ini.',
+  'Device storage is not available in this browser.':
+    'Penyimpanan perangkat tidak tersedia di browser ini.',
+  'Device download failed.': 'Unduhan perangkat gagal.',
+  'Loading…': 'Memuat…',
 });
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 const DOWNLOADED_FEED = {
   filter: { isDownloaded: { equalTo: true } },
@@ -164,6 +194,80 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
       }, new Map<number, { manga: DownloadItem['manga']; items: DownloadItem[] }>())
       .values(),
   );
+
+  const readerRepository = useMemo(
+    () => createReaderRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
+  const offlineStorage = useMemo(() => createOfflineStorage(), []);
+  const clientDownloads = useMemo(
+    () =>
+      createClientDownloadRepository({
+        reader: readerRepository,
+        resources: context.resources,
+        storage: offlineStorage,
+        serverBaseUrl: context.config.serverBaseUrl,
+      }),
+    [context.config.serverBaseUrl, context.resources, offlineStorage, readerRepository],
+  );
+  const [deviceRecords, setDeviceRecords] = useState<
+    readonly OfflineChapterRecord[]
+  >([]);
+  const [deviceLoading, setDeviceLoading] = useState(
+    isOfflineStorageSupported(),
+  );
+  const [deviceBusyId, setDeviceBusyId] = useState<number | null>(null);
+  const [deviceError, setDeviceError] = useState(false);
+
+  const loadDeviceRecords = () => {
+    if (!isOfflineStorageSupported()) {
+      setDeviceLoading(false);
+      return;
+    }
+
+    setDeviceLoading(true);
+    setDeviceError(false);
+    void clientDownloads
+      .list()
+      .then(setDeviceRecords)
+      .catch(() => setDeviceError(true))
+      .finally(() => setDeviceLoading(false));
+  };
+
+  useEffect(loadDeviceRecords, [clientDownloads]);
+
+  const saveChapterToDevice = async (chapterId: number) => {
+    setDeviceBusyId(chapterId);
+    setDeviceError(false);
+
+    try {
+      const record = await clientDownloads.downloadChapter(chapterId);
+      setDeviceRecords((current) => [
+        record,
+        ...current.filter((item) => item.chapterId !== chapterId),
+      ]);
+    } catch {
+      setDeviceError(true);
+    } finally {
+      setDeviceBusyId(null);
+    }
+  };
+
+  const removeDeviceRecord = async (chapterId: number) => {
+    setDeviceBusyId(chapterId);
+    setDeviceError(false);
+
+    try {
+      await clientDownloads.deleteChapter(chapterId);
+      setDeviceRecords((current) =>
+        current.filter((item) => item.chapterId !== chapterId),
+      );
+    } catch {
+      setDeviceError(true);
+    } finally {
+      setDeviceBusyId(null);
+    }
+  };
 
   return (
     <div className="app-shell page-shell downloads-shell">
@@ -336,6 +440,18 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   resources={context.resources}
                   detail={`${t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
                 />
+                {isOfflineStorageSupported() ? (
+                  <button
+                    className="button button-secondary"
+                    type="button"
+                    disabled={deviceBusyId === chapter.id}
+                    onClick={() => void saveChapterToDevice(chapter.id)}
+                  >
+                    {deviceBusyId === chapter.id
+                      ? t('Saving…')
+                      : t('Save to device')}
+                  </button>
+                ) : null}
                 <button
                   className="download-cancel"
                   type="button"
@@ -344,6 +460,78 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   onClick={() => void controller.deleteDownloaded(chapter.id)}
                 >
                   {t('Delete')}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      <section className="download-section" aria-labelledby="device-downloads-heading">
+        <div className="section-heading-row">
+          <h2 id="device-downloads-heading">{t('This device')}</h2>
+          <span>
+            {deviceRecords.length > 0
+              ? `${deviceRecords.length} · ${formatBytes(
+                  deviceRecords.reduce((total, record) => total + record.bytes, 0),
+                )}`
+              : 0}
+          </span>
+        </div>
+
+        {!isOfflineStorageSupported() ? (
+          <p className="download-empty">
+            {t('Device storage is not available in this browser.')}
+          </p>
+        ) : null}
+
+        {deviceLoading ? (
+          <p className="settings-save-state" role="status">
+            {t('Loading…')}
+          </p>
+        ) : null}
+
+        {deviceError ? (
+          <p className="settings-inline-error" role="alert">
+            {t('Device download failed.')}
+          </p>
+        ) : null}
+
+        {isOfflineStorageSupported() &&
+        !deviceLoading &&
+        deviceRecords.length === 0 ? (
+          <p className="download-empty">
+            {t('No chapters saved to this device.')}
+          </p>
+        ) : null}
+
+        {deviceRecords.length > 0 ? (
+          <div className="feed-list">
+            {deviceRecords.map((record) => (
+              <div className="downloaded-row" key={record.chapterId}>
+                <div className="download-copy">
+                  <strong>{record.chapterName}</strong>
+                  <span className="download-meta">
+                    {record.mangaTitle} ·{' '}
+                    {t('{count} pages', { count: record.pageCount })} ·{' '}
+                    {formatBytes(record.bytes)}
+                  </span>
+                </div>
+                <Link
+                  className="button"
+                  to={`/offline/read/${record.chapterId}`}
+                >
+                  {t('Read offline')}
+                </Link>
+                <button
+                  className="download-cancel"
+                  type="button"
+                  disabled={deviceBusyId === record.chapterId}
+                  onClick={() => void removeDeviceRecord(record.chapterId)}
+                >
+                  {deviceBusyId === record.chapterId
+                    ? t('Deleting…')
+                    : t('Delete')}
                 </button>
               </div>
             ))}

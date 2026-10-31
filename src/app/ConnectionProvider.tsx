@@ -98,6 +98,16 @@ export function ConnectionProvider({
     (username: string, password: string) => coordinator.login(username, password),
     [coordinator],
   );
+  const loginBasic = useCallback(
+    (username: string, password: string) =>
+      coordinator.loginBasic(username, password),
+    [coordinator],
+  );
+  const loginSimple = useCallback(
+    (username: string, password: string) =>
+      coordinator.loginSimple(username, password),
+    [coordinator],
+  );
   const restoreSession = useCallback(
     (refreshToken: string) => coordinator.restoreSession(refreshToken),
     [coordinator],
@@ -105,8 +115,24 @@ export function ConnectionProvider({
   const disconnect = useCallback(() => coordinator.disconnect(), [coordinator]);
 
   const value = useMemo<ConnectionContextValue>(
-    () => ({ state, connect, login, restoreSession, disconnect }),
-    [state, connect, login, restoreSession, disconnect],
+    () => ({
+      state,
+      connect,
+      login,
+      loginBasic,
+      loginSimple,
+      restoreSession,
+      disconnect,
+    }),
+    [
+      state,
+      connect,
+      login,
+      loginBasic,
+      loginSimple,
+      restoreSession,
+      disconnect,
+    ],
   );
 
   return <ConnectionContext.Provider value={value}>{children}</ConnectionContext.Provider>;

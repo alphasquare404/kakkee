@@ -22,6 +22,14 @@ import {
   saveChapterViewPreferences,
   type ChapterFilter,
 } from '../../core/preferences/chapterViewPreferences';
+import { updateAppPreferences } from '../../core/preferences/appPreferences';
+import { useAppPreferences } from '../../shared/useAppPreferences';
+import { createReaderRepository } from '../../core/reader/readerRepository';
+import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
+import {
+  createOfflineStorage,
+  isOfflineStorageSupported,
+} from '../../core/offline/offlineStorage';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -81,6 +89,11 @@ registerMessages('id', {
   'No chapters available.': 'Tidak ada chapter.',
   'No chapters match these filters.':
     'Tidak ada chapter yang cocok dengan filter ini.',
+  'Download target': 'Target unduhan',
+  Server: 'Server',
+  'This device': 'Perangkat ini',
+  'Saving to device…': 'Menyimpan ke perangkat…',
+  'Device download failed.': 'Unduhan perangkat gagal.',
 });
 
 const STATUS_LABEL: Record<string, string> = {
@@ -190,6 +203,30 @@ function ConnectedMangaDetail({
     [mangaId, repository, savedView],
   );
   const detail = useSyncExternalStore(controller.subscribe, controller.getState);
+  const appPreferences = useAppPreferences();
+  const readerRepository = useMemo(
+    () => createReaderRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
+  const offlineStorage = useMemo(() => createOfflineStorage(), []);
+  const clientDownloads = useMemo(
+    () =>
+      createClientDownloadRepository({
+        reader: readerRepository,
+        resources: context.resources,
+        storage: offlineStorage,
+        serverBaseUrl: context.config.serverBaseUrl,
+      }),
+    [context.config.serverBaseUrl, context.resources, offlineStorage, readerRepository],
+  );
+  const [deviceRecords, setDeviceRecords] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
+  const [deviceProgress, setDeviceProgress] = useState<{
+    readonly completed: number;
+    readonly total: number;
+  } | null>(null);
+  const [deviceError, setDeviceError] = useState(false);
   const loaded = useRef<MangaDetailController | null>(null);
   const [scannedChapters, setScannedChapters] = useState<
     readonly MangaChapter[] | null
@@ -252,6 +289,70 @@ function ConnectedMangaDetail({
     setScannedChapters(null);
     setScanError(false);
   }, [mangaId]);
+
+  useEffect(() => {
+    if (!isOfflineStorageSupported()) {
+      return;
+    }
+
+    void clientDownloads
+      .list()
+      .then((records) =>
+        setDeviceRecords(new Set(records.map((record) => record.chapterId))),
+      )
+      .catch(() => setDeviceError(true));
+  }, [clientDownloads, mangaId]);
+
+  const downloadToDevice = async (chapterIds: readonly number[]) => {
+    if (deviceProgress) {
+      return;
+    }
+
+    setDeviceError(false);
+    const pending = chapterIds.filter((id) => !deviceRecords.has(id));
+
+    for (let index = 0; index < pending.length; index += 1) {
+      const chapterId = pending[index];
+      setPendingChapterId(chapterId);
+
+      try {
+        await clientDownloads.downloadChapter(chapterId, (progress) =>
+          setDeviceProgress({
+            completed: progress.completedPages,
+            total: progress.totalPages,
+          }),
+        );
+        setDeviceRecords((current) => {
+          const next = new Set(current);
+          next.add(chapterId);
+          return next;
+        });
+      } catch {
+        setDeviceError(true);
+        break;
+      } finally {
+        setDeviceProgress(null);
+        setPendingChapterId(null);
+      }
+    }
+  };
+
+  const removeDeviceDownload = async (chapterId: number) => {
+    setPendingChapterId(chapterId);
+
+    try {
+      await clientDownloads.deleteChapter(chapterId);
+      setDeviceRecords((current) => {
+        const next = new Set(current);
+        next.delete(chapterId);
+        return next;
+      });
+    } catch {
+      setDeviceError(true);
+    } finally {
+      setPendingChapterId(null);
+    }
+  };
 
   if (!detail.manga && !detail.error) {
     return (
@@ -736,6 +837,25 @@ function ConnectedMangaDetail({
               {t('Hide duplicates')}
             </button>
 
+            {isOfflineStorageSupported() ? (
+              <label className="chapter-select">
+                <span className="sr-only">{t('Download target')}</span>
+                <select
+                  aria-label={t('Download target')}
+                  value={appPreferences.downloadTarget}
+                  onChange={(event) =>
+                    updateAppPreferences({
+                      downloadTarget:
+                        event.target.value === 'device' ? 'device' : 'server',
+                    })
+                  }
+                >
+                  <option value="server">{t('Server')}</option>
+                  <option value="device">{t('This device')}</option>
+                </select>
+              </label>
+            ) : null}
+
             {scanlators.length > 0 ? (
               <label className="chapter-select">
                 <span className="sr-only">Filter by scanlator</span>
@@ -754,6 +874,18 @@ function ConnectedMangaDetail({
               </label>
             ) : null}
           </div>
+
+          {deviceProgress ? (
+            <p className="settings-save-state" role="status">
+              {t('Saving to device…')} {deviceProgress.completed}/
+              {deviceProgress.total}
+            </p>
+          ) : null}
+          {deviceError ? (
+            <p className="settings-inline-error" role="alert">
+              {t('Device download failed.')}
+            </p>
+          ) : null}
 
           {chapterSelectionMode ? (
             <div className="chapter-bulk-bar" role="toolbar" aria-label="Bulk chapter actions">
@@ -814,6 +946,12 @@ function ConnectedMangaDetail({
                 disabled={chapterBulkBusy || selectedChapterIds.size === 0}
                 onClick={() => {
                   const ids = [...selectedChapterIds];
+
+                  if (appPreferences.downloadTarget === 'device') {
+                    void downloadToDevice(ids);
+                    return;
+                  }
+
                   setQueuedChapters((current) => {
                     const next = new Set(current);
                     ids.forEach((id) => next.add(id));
@@ -887,6 +1025,13 @@ function ConnectedMangaDetail({
                 const chapter = entry.chapter;
                 const index = visibleChapters.indexOf(chapter);
                 const uploaded = formatDate(chapter.uploadDate);
+                const deviceMode = appPreferences.downloadTarget === 'device';
+                const downloaded = deviceMode
+                  ? deviceRecords.has(chapter.id)
+                  : chapter.isDownloaded;
+                const queued = deviceMode
+                  ? pendingChapterId === chapter.id
+                  : queuedChapters.has(chapter.id);
 
                 return (
                   <li className="chapter-item" key={chapter.id}>
@@ -971,14 +1116,23 @@ function ConnectedMangaDetail({
                         type="button"
                         disabled={pendingChapterId === chapter.id}
                         aria-label={`${
-                          chapter.isDownloaded
+                          downloaded
                             ? 'Delete download for'
-                            : queuedChapters.has(chapter.id)
+                            : queued
                               ? 'Queued download for'
                               : 'Download'
                         } ${chapter.name}`}
-                        aria-pressed={chapter.isDownloaded}
+                        aria-pressed={downloaded}
                         onClick={() => {
+                          if (deviceMode) {
+                            if (downloaded) {
+                              void removeDeviceDownload(chapter.id);
+                            } else {
+                              void downloadToDevice([chapter.id]);
+                            }
+                            return;
+                          }
+
                           setChapterActionError(false);
                           setPendingChapterId(chapter.id);
                           void controller
@@ -999,9 +1153,9 @@ function ConnectedMangaDetail({
                             .finally(() => setPendingChapterId(null));
                         }}
                       >
-                        {chapter.isDownloaded
+                        {downloaded
                           ? '×'
-                          : queuedChapters.has(chapter.id)
+                          : queued
                             ? '✓'
                             : '↓'}
                       </button>

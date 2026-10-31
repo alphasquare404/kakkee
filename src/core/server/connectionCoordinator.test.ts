@@ -76,7 +76,14 @@ type Handler = (request: Captured) => Response | Promise<Response>;
 function makeFetch(handler: Handler): { fetchImpl: FetchLike; requests: Captured[] } {
   const requests: Captured[] = [];
   const fetchImpl: FetchLike = async (input, init) => {
-    const body = JSON.parse(String(init?.body ?? '{}')) as Captured['body'];
+    let body: Captured['body'];
+
+    try {
+      body = JSON.parse(String(init?.body ?? '{}')) as Captured['body'];
+    } catch {
+      body = { query: '', variables: {} };
+    }
+
     const request = { url: String(input), init: init ?? {}, body };
 
     requests.push(request);
@@ -216,7 +223,7 @@ describe('ConnectionCoordinator UI_LOGIN', () => {
     expect(invalid.status).toBe('login-required');
     if (invalid.status === 'login-required') {
       expect(invalid.error?.code).toBe('invalid-credentials');
-      expect(invalid.serverInfo.version).toBe('v2.4.2366');
+      expect(invalid.serverInfo?.version).toBe('v2.4.2366');
       expect(invalid.serverBaseUrl).toBe('https://server.example/suwayomi');
       expect(invalid.error?.message).not.toContain('wrong-password');
     }
@@ -348,7 +355,87 @@ describe('ConnectionCoordinator failures', () => {
     await unknown.dispose();
   });
 
-  it('detects an HTTP Basic challenge as unsupported-auth', async () => {
+  it('logs in with HTTP Basic credentials and connects', async () => {
+    const expected = `Basic ${btoa('reader:secret')}`;
+    const { fetchImpl, requests } = makeFetch((request) => {
+      if (request.url.endsWith('/login.html?redirect=/')) {
+        return new Response(null, { status: 303 });
+      }
+
+      const authorization = header(request.init, 'authorization');
+
+      if (authorization !== expected) {
+        return new Response('Unauthorized', {
+          status: 401,
+          headers: { 'www-authenticate': 'Basic realm="suwayomi"' },
+        });
+      }
+
+      return jsonResponse({
+        data: request.body.query.includes('aboutServer')
+          ? aboutData()
+          : authProbeData('BASIC_AUTH'),
+      });
+    });
+    const coordinator = createConnectionCoordinator({ frontendUrl, fetchImpl });
+
+    await coordinator.connect('https://server.example/suwayomi');
+    expect(coordinator.getState().status).toBe('login-required');
+
+    await coordinator.loginBasic('reader', 'secret');
+    const state = coordinator.getState();
+
+    expect(state.status).toBe('connected');
+    if (state.status === 'connected') {
+      expect(state.context.authMode).toBe('BASIC_AUTH');
+    }
+
+    expect(
+      requests.some((request) => header(request.init, 'authorization') === expected),
+    ).toBe(true);
+
+    await coordinator.dispose();
+  });
+
+  it('logs in to a SIMPLE_LOGIN server session and connects', async () => {
+    const { fetchImpl, requests } = makeFetch((request) => {
+      if (request.url.endsWith('/login.html?redirect=/')) {
+        return new Response(null, { status: 303 });
+      }
+
+      return jsonResponse({
+        data: request.body.query.includes('aboutServer')
+          ? aboutData()
+          : authProbeData('SIMPLE_LOGIN'),
+      });
+    });
+    const coordinator = createConnectionCoordinator({ frontendUrl, fetchImpl });
+
+    await coordinator.connect('https://server.example/suwayomi');
+    const required = coordinator.getState();
+    expect(required.status).toBe('login-required');
+    if (required.status === 'login-required') {
+      expect(required.authMode).toBe('SIMPLE_LOGIN');
+    }
+
+    await coordinator.loginSimple('reader', 'secret');
+    const state = coordinator.getState();
+
+    expect(state.status).toBe('connected');
+    if (state.status === 'connected') {
+      expect(state.context.authMode).toBe('SIMPLE_LOGIN');
+    }
+
+    const loginRequest = requests.find((request) =>
+      request.url.endsWith('/login.html?redirect=/'),
+    );
+    expect(loginRequest).toBeTruthy();
+    expect(String(loginRequest?.init.body)).toContain('user=reader');
+
+    await coordinator.dispose();
+  });
+
+  it('detects an HTTP Basic challenge and requests Basic credentials', async () => {
     const coordinator = createConnectionCoordinator({
       frontendUrl,
       fetchImpl: async () =>
@@ -363,10 +450,9 @@ describe('ConnectionCoordinator failures', () => {
 
     await coordinator.connect('https://server.example');
     const state = coordinator.getState();
-    expect(state.status).toBe('unsupported-auth');
-    if (state.status === 'unsupported-auth') {
+    expect(state.status).toBe('login-required');
+    if (state.status === 'login-required') {
       expect(state.authMode).toBe('BASIC_AUTH');
-      expect(state.error.code).toBe('unsupported-auth');
     }
 
     await coordinator.dispose();
