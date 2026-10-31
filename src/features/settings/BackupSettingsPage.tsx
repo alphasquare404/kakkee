@@ -136,6 +136,18 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
           />
           <div className="settings-actions">
             <button
+              className="button button-secondary"
+              type="button"
+              disabled={!restoreFile || backup.validating}
+              onClick={() => {
+                if (restoreFile) {
+                  void controller.validate(restoreFile);
+                }
+              }}
+            >
+              {backup.validating ? 'Validating…' : 'Validate backup'}
+            </button>
+            <button
               className="button button-danger"
               type="button"
               disabled={!restoreFile || backup.restoring}
@@ -148,6 +160,33 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
               {backup.restoring ? 'Restoring…' : 'Restore backup'}
             </button>
           </div>
+          {backup.validation ? (
+            <div className="settings-save-state" role="status">
+              {backup.validation.missingSources.length === 0 &&
+              backup.validation.missingTrackers.length === 0 ? (
+                <span>Backup validation passed.</span>
+              ) : (
+                <>
+                  {backup.validation.missingSources.length > 0 ? (
+                    <p>
+                      Missing sources:{' '}
+                      {backup.validation.missingSources
+                        .map((source) => source.name)
+                        .join(', ')}
+                    </p>
+                  ) : null}
+                  {backup.validation.missingTrackers.length > 0 ? (
+                    <p>
+                      Missing trackers:{' '}
+                      {backup.validation.missingTrackers
+                        .map((tracker) => tracker.name)
+                        .join(', ')}
+                    </p>
+                  ) : null}
+                </>
+              )}
+            </div>
+          ) : null}
           {backup.restoredId ? (
             <p className="settings-save-state" role="status">
               Restore started: {backup.restoredId}

@@ -1,5 +1,5 @@
 import type { PartialBackupFlagsInput } from '../graphql/generated/graphql';
-import type { BackupRepository, BackupSettings } from './backupRepository';
+import type { BackupRepository, BackupSettings, BackupValidation } from './backupRepository';
 
 export type BackupStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -10,6 +10,8 @@ export interface BackupState {
   readonly createdUrl: string | null;
   readonly restoring: boolean;
   readonly restoredId: string | null;
+  readonly validating: boolean;
+  readonly validation: BackupValidation | null;
   readonly error: boolean;
   readonly lastAction: 'create' | 'restore' | null;
 }
@@ -20,6 +22,7 @@ export interface BackupController {
   load(): Promise<void>;
   create(flags: PartialBackupFlagsInput): Promise<void>;
   restore(file: File, flags: PartialBackupFlagsInput): Promise<void>;
+  validate(file: File): Promise<void>;
 }
 
 export function createBackupController(
@@ -32,6 +35,8 @@ export function createBackupController(
     createdUrl: null,
     restoring: false,
     restoredId: null,
+    validating: false,
+    validation: null,
     error: false,
     lastAction: null,
   };
@@ -84,6 +89,16 @@ export function createBackupController(
     }
   }
 
+  async function validate(file: File): Promise<void> {
+    patch({ validating: true, error: false, validation: null });
+    try {
+      const validation = await repository.validate(file);
+      patch({ validating: false, validation });
+    } catch {
+      patch({ validating: false, error: true });
+    }
+  }
+
   return {
     getState: () => state,
     subscribe(listener) {
@@ -93,5 +108,6 @@ export function createBackupController(
     load,
     create,
     restore,
+    validate,
   };
 }

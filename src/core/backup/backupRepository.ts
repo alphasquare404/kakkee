@@ -4,16 +4,21 @@ import {
   BackupSettingsDocument,
   CreateBackupDocument,
   RestoreBackupDocument,
+  ValidateBackupDocument,
   type BackupSettingsQuery,
   type PartialBackupFlagsInput,
+  type ValidateBackupQuery,
 } from '../graphql/generated/graphql';
 
 export type BackupSettings = BackupSettingsQuery['settings'];
+
+export type BackupValidation = ValidateBackupQuery['validateBackup'];
 
 export interface BackupRepository {
   getSettings(): Promise<BackupSettings>;
   create(flags: PartialBackupFlagsInput): Promise<string>;
   restore(file: File, flags: PartialBackupFlagsInput): Promise<string>;
+  validate(file: File): Promise<BackupValidation>;
 }
 
 export interface BackupRepositoryOptions {
@@ -89,6 +94,45 @@ export function createBackupRepository(
       }
 
       return payload.data.restoreBackup.id;
+    },
+    async validate(file) {
+      const url = options.getGraphqlUrl?.();
+
+      if (!url) {
+        throw new Error('Backup validation endpoint is unavailable.');
+      }
+
+      const form = new FormData();
+      form.append(
+        'operations',
+        JSON.stringify({
+          query: print(ValidateBackupDocument),
+          variables: { input: { backup: null } },
+        }),
+      );
+      form.append('map', JSON.stringify({ 0: ['variables.input.backup'] }));
+      form.append('0', file);
+      const token = options.getAccessToken?.();
+      const response = await (options.fetchImpl ?? fetch)(url, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: form,
+      });
+
+      if (!response.ok) {
+        throw new Error('Backup validation request failed.');
+      }
+
+      const payload = (await response.json()) as {
+        data?: { validateBackup?: BackupValidation | null };
+        errors?: readonly unknown[];
+      };
+
+      if (!payload.data?.validateBackup) {
+        throw new Error('Backup could not be validated.');
+      }
+
+      return payload.data.validateBackup;
     },
   };
 }

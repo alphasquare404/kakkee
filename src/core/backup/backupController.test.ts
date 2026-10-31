@@ -21,16 +21,22 @@ function setup() {
   const getSettings = vi.fn(async () => settings);
   const create = vi.fn(async () => 'https://example.test/backup.zip');
   const restore = vi.fn(async () => 'restore-1');
+  const validate = vi.fn(async () => ({
+    missingSources: [],
+    missingTrackers: [],
+  }));
   const repository = {
     getSettings,
     create,
     restore,
+    validate,
   } as unknown as BackupRepository;
   return {
     controller: createBackupController(repository),
     getSettings,
     create,
     restore,
+    validate,
   };
 }
 
@@ -64,5 +70,18 @@ describe('createBackupController', () => {
     expect(restore).toHaveBeenCalledWith(file, { includeManga: true });
     expect(controller.getState().restoredId).toBe('restore-1');
     expect(controller.getState().restoring).toBe(false);
+  });
+
+  it('validates a backup file', async () => {
+    const { controller, validate } = setup();
+    const file = new File(['backup'], 'backup.zip');
+    await controller.validate(file);
+
+    expect(validate).toHaveBeenCalledWith(file);
+    expect(controller.getState().validation).toEqual({
+      missingSources: [],
+      missingTrackers: [],
+    });
+    expect(controller.getState().validating).toBe(false);
   });
 });

@@ -73,4 +73,29 @@ describe('createBackupRepository', () => {
       }),
     );
   });
+
+  it('validates a backup archive', async () => {
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        data: {
+          validateBackup: {
+            missingSources: [{ id: '42', name: 'Source' }],
+            missingTrackers: [],
+          },
+        },
+      }),
+    })) as unknown as typeof fetch;
+    const repository = createBackupRepository({
+      getClient: () => ({ query: vi.fn(), mutate: vi.fn() }) as unknown as ApolloClient,
+      getGraphqlUrl: () => 'https://example.test/api/graphql',
+      fetchImpl,
+    });
+
+    await expect(
+      repository.validate(new File(['backup'], 'backup.zip')),
+    ).resolves.toMatchObject({
+      missingSources: [{ id: '42', name: 'Source' }],
+    });
+  });
 });

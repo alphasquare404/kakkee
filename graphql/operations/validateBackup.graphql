@@ -1,0 +1,11 @@
+query ValidateBackup($input: ValidateBackupInput!) {
+  validateBackup(input: $input) {
+    missingSources {
+      id
+      name
+    }
+    missingTrackers {
+      name
+    }
+  }
+}
