@@ -1,5 +1,6 @@
 import type { ApolloClient } from '@apollo/client';
 import {
+  ClearCachedImagesDocument,
   ServerSettingsDocument,
   UpdateServerSettingsDocument,
   type PartialSettingsTypeInput,
@@ -43,6 +44,11 @@ export interface ServerSettingsRepository {
   updateSettings(
     patch: Partial<EditableServerSettings>,
   ): Promise<Partial<EditableServerSettings>>;
+  clearCachedImages(input: {
+    cachedPages?: boolean;
+    cachedThumbnails?: boolean;
+    downloadedThumbnails?: boolean;
+  }): Promise<void>;
 }
 
 export interface ServerSettingsRepositoryOptions {
@@ -76,6 +82,12 @@ export function createServerSettingsRepository(
       }
 
       return result.data.setSettings.settings;
+    },
+    async clearCachedImages(input) {
+      await options.getClient().mutate({
+        mutation: ClearCachedImagesDocument,
+        variables: { input },
+      });
     },
   };
 }

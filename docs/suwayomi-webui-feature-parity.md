@@ -213,7 +213,7 @@ frontend.
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
-| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, and conversion lists; image processing absent |
+| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, conversion lists, and cache clearing; image processing absent |
 | Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |

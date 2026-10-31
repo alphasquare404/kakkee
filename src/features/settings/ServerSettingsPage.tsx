@@ -66,6 +66,7 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
         {settings.settings ? (
           <ServerSettingsForm controller={controller} settings={settings.settings} />
         ) : null}
+        <ImageCacheSection context={context} />
       </div>
     </div>
   );
@@ -549,5 +550,100 @@ function NumberField({
         }}
       />
     </label>
+  );
+}
+
+function ImageCacheSection({ context }: { readonly context: ConnectedContext }) {
+  const [cachedPages, setCachedPages] = useState(true);
+  const [cachedThumbnails, setCachedThumbnails] = useState(true);
+  const [downloadedThumbnails, setDownloadedThumbnails] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  const clear = () => {
+    if (!cachedPages && !cachedThumbnails && !downloadedThumbnails) {
+      return;
+    }
+
+    setBusy(true);
+    setFailed(false);
+    setMessage(null);
+    const repository = createServerSettingsRepository({
+      getClient: () => context.graphQL,
+    });
+
+    void repository
+      .clearCachedImages({
+        cachedPages,
+        cachedThumbnails,
+        downloadedThumbnails,
+      })
+      .then(() => setMessage('Selected image caches cleared.'))
+      .catch(() => setFailed(true))
+      .finally(() => setBusy(false));
+  };
+
+  return (
+    <section className="settings-section" aria-labelledby="server-image-cache">
+      <div className="section-heading-row">
+        <h2 id="server-image-cache">Image cache</h2>
+      </div>
+      <p className="settings-save-state">
+        Clear cached pages or thumbnails stored by the server.
+      </p>
+      <div className="settings-toggle-list">
+        <label className="settings-toggle">
+          <span>Cached pages</span>
+          <input
+            type="checkbox"
+            checked={cachedPages}
+            disabled={busy}
+            onChange={(event) => setCachedPages(event.target.checked)}
+          />
+        </label>
+        <label className="settings-toggle">
+          <span>Cached thumbnails</span>
+          <input
+            type="checkbox"
+            checked={cachedThumbnails}
+            disabled={busy}
+            onChange={(event) => setCachedThumbnails(event.target.checked)}
+          />
+        </label>
+        <label className="settings-toggle">
+          <span>Downloaded thumbnails</span>
+          <input
+            type="checkbox"
+            checked={downloadedThumbnails}
+            disabled={busy}
+            onChange={(event) => setDownloadedThumbnails(event.target.checked)}
+          />
+        </label>
+      </div>
+      <div className="settings-actions">
+        <button
+          className="button"
+          type="button"
+          disabled={
+            busy ||
+            (!cachedPages && !cachedThumbnails && !downloadedThumbnails)
+          }
+          onClick={clear}
+        >
+          {busy ? 'Clearing…' : 'Clear selected caches'}
+        </button>
+      </div>
+      {message ? (
+        <p className="settings-save-state" role="status">
+          {message}
+        </p>
+      ) : null}
+      {failed ? (
+        <p className="settings-inline-error" role="alert">
+          Image cache could not be cleared.
+        </p>
+      ) : null}
+    </section>
   );
 }

@@ -1,0 +1,5 @@
+mutation ClearCachedImages($input: ClearCachedImagesInput!) {
+  clearCachedImages(input: $input) {
+    __typename
+  }
+}
