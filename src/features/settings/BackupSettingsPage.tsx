@@ -40,11 +40,14 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
   const controller = useMemo(() => {
     const repository = createBackupRepository({
       getClient: () => context.graphQL,
+      getGraphqlUrl: () => context.config.graphqlHttpUrl,
+      getAccessToken: () => context.authService?.getAccessToken() ?? null,
     });
 
     return createBackupController(repository);
-  }, [context.graphQL]);
+  }, [context.authService, context.config.graphqlHttpUrl, context.graphQL]);
   const backup = useSyncExternalStore(controller.subscribe, controller.getState);
+  const [restoreFile, setRestoreFile] = useState<File | null>(null);
   const [flags, setFlags] = useState<PartialBackupFlagsInput>({
     includeCategories: true,
     includeChapters: true,
@@ -109,9 +112,50 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
             </p>
           ) : null}
 
-          {backup.error ? (
+          {backup.error && backup.lastAction === 'create' ? (
             <p className="settings-inline-error" role="alert">
               Backup could not be created. Check server logs.
+            </p>
+          ) : null}
+        </section>
+
+        <section className="settings-section" aria-labelledby="backup-restore">
+          <div className="section-heading-row">
+            <h2 id="backup-restore">Restore backup</h2>
+          </div>
+          <p className="settings-save-state">
+            Upload a backup archive to the server. This may replace server data.
+          </p>
+          <input
+            type="file"
+            accept=".gz,.backup,application/gzip"
+            aria-label="Backup file"
+            onChange={(event) =>
+              setRestoreFile(event.target.files?.[0] ?? null)
+            }
+          />
+          <div className="settings-actions">
+            <button
+              className="button button-danger"
+              type="button"
+              disabled={!restoreFile || backup.restoring}
+              onClick={() => {
+                if (restoreFile) {
+                  void controller.restore(restoreFile, flags);
+                }
+              }}
+            >
+              {backup.restoring ? 'Restoring…' : 'Restore backup'}
+            </button>
+          </div>
+          {backup.restoredId ? (
+            <p className="settings-save-state" role="status">
+              Restore started: {backup.restoredId}
+            </p>
+          ) : null}
+          {backup.error && backup.lastAction === 'restore' ? (
+            <p className="settings-inline-error" role="alert">
+              Backup restore failed. Check server logs.
             </p>
           ) : null}
         </section>

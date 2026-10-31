@@ -45,4 +45,32 @@ describe('createBackupRepository', () => {
       variables: { input: { flags: { includeManga: true } } },
     });
   });
+
+  it('uploads a backup archive with auth', async () => {
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: { restoreBackup: { id: 'restore-1' } } }),
+    })) as unknown as typeof fetch;
+    const client = { query: vi.fn(), mutate: vi.fn() } as unknown as ApolloClient;
+    const repository = createBackupRepository({
+      getClient: () => client,
+      getGraphqlUrl: () => 'https://example.test/api/graphql',
+      getAccessToken: () => 'token-1',
+      fetchImpl,
+    });
+    const file = new File(['backup'], 'backup.zip');
+
+    await expect(
+      repository.restore(file, { includeManga: true }),
+    ).resolves.toBe('restore-1');
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://example.test/api/graphql',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { Authorization: 'Bearer token-1' },
+        body: expect.any(FormData),
+      }),
+    );
+  });
 });

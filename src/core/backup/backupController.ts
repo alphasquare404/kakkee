@@ -8,7 +8,10 @@ export interface BackupState {
   readonly settings: BackupSettings | null;
   readonly creating: boolean;
   readonly createdUrl: string | null;
+  readonly restoring: boolean;
+  readonly restoredId: string | null;
   readonly error: boolean;
+  readonly lastAction: 'create' | 'restore' | null;
 }
 
 export interface BackupController {
@@ -16,6 +19,7 @@ export interface BackupController {
   subscribe(listener: () => void): () => void;
   load(): Promise<void>;
   create(flags: PartialBackupFlagsInput): Promise<void>;
+  restore(file: File, flags: PartialBackupFlagsInput): Promise<void>;
 }
 
 export function createBackupController(
@@ -26,7 +30,10 @@ export function createBackupController(
     settings: null,
     creating: false,
     createdUrl: null,
+    restoring: false,
+    restoredId: null,
     error: false,
+    lastAction: null,
   };
   const listeners = new Set<() => void>();
 
@@ -53,13 +60,27 @@ export function createBackupController(
   }
 
   async function create(flags: PartialBackupFlagsInput): Promise<void> {
-    patch({ creating: true, error: false, createdUrl: null });
+    patch({ creating: true, error: false, createdUrl: null, lastAction: 'create' });
 
     try {
       const url = await repository.create(flags);
       patch({ creating: false, createdUrl: url });
     } catch {
       patch({ creating: false, error: true });
+    }
+  }
+
+  async function restore(
+    file: File,
+    flags: PartialBackupFlagsInput,
+  ): Promise<void> {
+    patch({ restoring: true, error: false, restoredId: null, lastAction: 'restore' });
+
+    try {
+      const id = await repository.restore(file, flags);
+      patch({ restoring: false, restoredId: id });
+    } catch {
+      patch({ restoring: false, error: true });
     }
   }
 
@@ -71,5 +92,6 @@ export function createBackupController(
     },
     load,
     create,
+    restore,
   };
 }

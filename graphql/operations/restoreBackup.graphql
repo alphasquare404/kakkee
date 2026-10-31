@@ -1,0 +1,8 @@
+mutation RestoreBackup($input: RestoreBackupInput!) {
+  restoreBackup(input: $input) {
+    id
+    status {
+      state
+    }
+  }
+}

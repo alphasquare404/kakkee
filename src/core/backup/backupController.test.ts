@@ -20,14 +20,17 @@ const settings = {
 function setup() {
   const getSettings = vi.fn(async () => settings);
   const create = vi.fn(async () => 'https://example.test/backup.zip');
+  const restore = vi.fn(async () => 'restore-1');
   const repository = {
     getSettings,
     create,
+    restore,
   } as unknown as BackupRepository;
   return {
     controller: createBackupController(repository),
     getSettings,
     create,
+    restore,
   };
 }
 
@@ -48,9 +51,18 @@ describe('createBackupController', () => {
     const { controller, create } = setup();
     await controller.load();
     create.mockRejectedValueOnce(new Error('rejected'));
-
     await controller.create({ includeManga: true });
 
     expect(controller.getState().error).toBe(true);
+  });
+
+  it('restores a backup file', async () => {
+    const { controller, restore } = setup();
+    const file = new File(['backup'], 'backup.zip');
+    await controller.restore(file, { includeManga: true });
+
+    expect(restore).toHaveBeenCalledWith(file, { includeManga: true });
+    expect(controller.getState().restoredId).toBe('restore-1');
+    expect(controller.getState().restoring).toBe(false);
   });
 });

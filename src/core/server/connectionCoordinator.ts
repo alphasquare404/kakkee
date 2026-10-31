@@ -42,6 +42,9 @@ export interface ConnectedContext {
   readonly compatibility: CompatibilityInfo;
   readonly graphQL: ApolloClient;
   readonly resources: ResourceService;
+  readonly authService?: {
+    getAccessToken(): string | null;
+  };
 }
 
 export interface DisconnectedState {
@@ -322,6 +325,7 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
           compatibility,
           graphQL: services.graphQL.client,
           resources: services.resources,
+          authService: services.authService,
         },
       });
       return;
@@ -459,6 +463,7 @@ export class DefaultConnectionCoordinator implements ConnectionCoordinator {
           authMode: 'UI_LOGIN',
           graphQL: services.graphQL.client,
           resources: services.resources,
+          authService: services.authService,
         },
       });
       return;
