@@ -6,6 +6,7 @@ import type {
 
 export interface LibraryPreferences {
   readonly status?: string;
+  readonly statuses?: readonly string[];
   readonly categoryId: number | null;
   readonly sort: LibrarySort;
 }
@@ -43,6 +44,11 @@ function load(): LibraryPreferences {
 
     return {
       status: typeof parsed.status === 'string' ? parsed.status : undefined,
+      statuses: Array.isArray(parsed.statuses)
+        ? parsed.statuses.filter(
+            (value): value is string => typeof value === 'string',
+          )
+        : undefined,
       categoryId:
         typeof parsed.categoryId === 'number' && Number.isSafeInteger(parsed.categoryId)
           ? parsed.categoryId
@@ -81,6 +87,7 @@ export function subscribeLibraryPreferences(listener: () => void): () => void {
 export function updateLibraryPreferences(next: LibraryPreferences): void {
   state = {
     status: next.status,
+    statuses: next.statuses,
     categoryId: next.categoryId,
     sort: next.sort,
   };

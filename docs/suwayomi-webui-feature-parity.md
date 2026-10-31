@@ -68,7 +68,7 @@ frontend.
 | Library | Search autocomplete and search history | `Partial` | Client-side | Recent-search suggestions and history stored per device; remote autocomplete absent |
 | Library | Reset all filters | `Implemented` | Client concern | Resets search, status, category, random mode, and default sort |
 | Library | Status, source, tracker, unread, started, downloaded, bookmarked filters | `Partial` | Yes | Status filter implemented; source/tracker/unread/started/downloaded/bookmarked missing |
-| Library | Filter AND/OR mode and saved defaults | `Partial` | Metadata/settings | Status OR checkbox set plus AND with source/category; saved defaults exclude the OR set |
+| Library | Filter AND/OR mode and saved defaults | `Implemented` | Yes | Status OR set, AND with source/category, saved defaults include the OR set |
 | Library | Sorting | `Implemented` | Yes | Title/date/ID/direction; no random sort |
 | Library | Random manga / random sort | `Partial` | Client concern | Shuffles loaded cards; not a server-wide random query |
 | Library | Continue-reading button / tooltip | `Implemented` | Reading progress | Progress chip, tooltip, and direct resume button with saved page |

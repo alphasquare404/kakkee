@@ -160,9 +160,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     () =>
       createLibraryController({
         repository,
-        initialFilter: savedPreferences.status
-          ? { status: savedPreferences.status as LibraryStatus }
-          : {},
+        initialFilter: {
+          ...(savedPreferences.status
+            ? { status: savedPreferences.status as LibraryStatus }
+            : {}),
+          ...(savedPreferences.statuses && savedPreferences.statuses.length > 0
+            ? { statuses: savedPreferences.statuses as LibraryStatus[] }
+            : {}),
+        },
         initialSort: savedPreferences.sort,
         initialCategoryId: savedPreferences.categoryId,
       }),
@@ -335,6 +340,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const saveDefaults = () => {
     updateLibraryPreferences({
       status: library.filter.status,
+      statuses: library.filter.statuses,
       categoryId: library.categoryId,
       sort: library.sort,
     });

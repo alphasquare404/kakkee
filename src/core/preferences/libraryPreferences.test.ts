@@ -16,12 +16,14 @@ describe('library preferences', () => {
   it('persists filter defaults and restores them', () => {
     updateLibraryPreferences({
       status: 'ONGOING',
+      statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
       sort: { field: 'title', direction: 'asc' },
     });
 
     expect(getLibraryPreferences()).toEqual({
       status: 'ONGOING',
+      statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
       sort: { field: 'title', direction: 'asc' },
     });
