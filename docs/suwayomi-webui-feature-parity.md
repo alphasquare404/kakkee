@@ -238,7 +238,7 @@ frontend.
 | Themes | Dynamic manga artwork backdrop, custom themes | `Implemented` | Client concern | Ambient artwork plus dark/pure-black themes and persisted custom accent |
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
-| Localization | Translated UI | `Partial` | Client concern | Most screens translated; Reader Settings, Server Settings toggles, Connection, and shared states still mixed |
+| Localization | Translated UI | `Partial` | Client concern | Reader and Server Settings translated; Connection and a few image-cache labels remain mixed |
 | Accessibility | Keyboard/focus/labels on implemented screens | `Implemented` | Client concern | Skip-to-content, main landmark, focus-visible styles, locale lang, labelled controls, and Escape-closable More menu |
 
 ## Immediate implementation order

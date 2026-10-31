@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -19,12 +19,12 @@ registerMessages('id', {
   'Server behavior stored by Suwayomi':
     'Perilaku server yang disimpan Suwayomi',
   'All settings': 'Semua pengaturan',
-  'Couldn’t load server settings':
+  'Couldnâ€™t load server settings':
     'Tidak dapat memuat pengaturan server',
   Retry: 'Coba lagi',
   'The server rejected the last change. The previous value is still shown.':
     'Server menolak perubahan terakhir. Nilai sebelumnya tetap ditampilkan.',
-  'Saving…': 'Menyimpan…',
+  'Savingâ€¦': 'Menyimpanâ€¦',
   'Changes save automatically': 'Perubahan disimpan otomatis',
   'Library updates': 'Update perpustakaan',
   Downloads: 'Unduhan',
@@ -55,6 +55,34 @@ registerMessages('id', {
   'Cached pages': 'Halaman ter-cache',
   'Cached thumbnails': 'Thumbnail ter-cache',
   'Downloaded thumbnails': 'Thumbnail terunduh',
+  'Update library automatically': 'Perbarui perpustakaan otomatis',
+  'Exclude completed manga': 'Kecualikan manga tamat',
+  'Exclude not-started manga': 'Kecualikan manga belum dimulai',
+  'Exclude manga with unread chapters':
+    'Kecualikan manga dengan chapter belum dibaca',
+  'Exclude entries with unread chapters':
+    'Kecualikan entri dengan chapter belum dibaca',
+  'Global update interval (hours)': 'Interval update global (jam)',
+  'Download new chapters automatically':
+    'Unduh chapter baru secara otomatis',
+  'Download as CBZ archive': 'Unduh sebagai arsip CBZ',
+  'Automatic download limit': 'Batas unduhan otomatis',
+  'Max sources in parallel': 'Maksimal source paralel',
+  'Mark chapters as read on download':
+    'Tandai chapter dibaca saat diunduh',
+  'Show only downloaded chapters': 'Tampilkan hanya chapter terunduh',
+  'Show only unread chapters': 'Tampilkan hanya chapter belum dibaca',
+  'Enable page read progress': 'Aktifkan progres baca halaman',
+  'Skip chapter metadata feed': 'Lewati feed metadata chapter',
+  'Use binary file sizes': 'Gunakan ukuran file biner',
+  'CBZ media type': 'Tipe media CBZ',
+  'Chapter sort order': 'Urutan chapter',
+  'Items per page': 'Item per halaman',
+  'Checksum method': 'Metode checksum',
+  'Conflict strategy (forward)': 'Strategi konflik (maju)',
+  'Conflict strategy (backward)': 'Strategi konflik (mundur)',
+  'Percentage tolerance': 'Toleransi persentase',
+  'Enable debug logs': 'Aktifkan log debug',
 });
 
 export function ServerSettingsPage() {
@@ -96,13 +124,13 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
       <div className="settings-content">
         {settings.status === 'loading' && !settings.settings ? (
           <p className="library-state" role="status">
-            Loading server settings…
+            Loading server settingsâ€¦
           </p>
         ) : null}
 
         {settings.status === 'error' ? (
           <div className="library-state" role="alert">
-            <h2>{t('Couldn’t load server settings')}</h2>
+            <h2>{t('Couldnâ€™t load server settings')}</h2>
             <button className="button button-secondary" type="button" onClick={() => void controller.retry()}>
               {t('Retry')}
             </button>
@@ -140,7 +168,7 @@ function ServerSettingsForm({
         </p>
       ) : null}
       <p className="settings-save-state" role="status">
-        {controller.getState().saving ? 'Saving…' : 'Changes save automatically'}
+        {controller.getState().saving ? 'Savingâ€¦' : 'Changes save automatically'}
       </p>
 
       <section className="settings-section" aria-labelledby="server-updates">
@@ -149,34 +177,34 @@ function ServerSettingsForm({
         </div>
         <div className="settings-toggle-list">
           <Toggle
-            label="Update library automatically"
+            label={t('Update library automatically')}
             checked={settings.updateMangas}
             onChange={(value) => update({ updateMangas: value })}
           />
           <Toggle
-            label="Exclude completed manga"
+            label={t('Exclude completed manga')}
             checked={settings.excludeCompleted}
             onChange={(value) => update({ excludeCompleted: value })}
           />
           <Toggle
-            label="Exclude not-started manga"
+            label={t('Exclude not-started manga')}
             checked={settings.excludeNotStarted}
             onChange={(value) => update({ excludeNotStarted: value })}
           />
           <Toggle
-            label="Exclude manga with unread chapters"
+            label={t('Exclude manga with unread chapters')}
             checked={settings.excludeUnreadChapters}
             onChange={(value) => update({ excludeUnreadChapters: value })}
           />
           <Toggle
-            label="Exclude entries with unread chapters"
+            label={t('Exclude entries with unread chapters')}
             checked={settings.excludeEntryWithUnreadChapters}
             onChange={(value) => update({ excludeEntryWithUnreadChapters: value })}
           />
         </div>
         <div className="settings-field-grid">
           <NumberField
-            label="Global update interval (hours)"
+            label={t('Global update interval (hours)')}
             value={settings.globalUpdateInterval}
             min={0}
             step={0.5}
@@ -191,26 +219,26 @@ function ServerSettingsForm({
         </div>
         <div className="settings-toggle-list">
           <Toggle
-            label="Download new chapters automatically"
+            label={t('Download new chapters automatically')}
             checked={settings.autoDownloadNewChapters}
             onChange={(value) => update({ autoDownloadNewChapters: value })}
           />
           <Toggle
-            label="Download as CBZ archive"
+            label={t('Download as CBZ archive')}
             checked={settings.downloadAsCbz}
             onChange={(value) => update({ downloadAsCbz: value })}
           />
         </div>
         <div className="settings-field-grid">
           <NumberField
-            label="Automatic download limit"
+            label={t('Automatic download limit')}
             value={settings.autoDownloadNewChaptersLimit}
             min={0}
             step={1}
             onCommit={(value) => update({ autoDownloadNewChaptersLimit: value })}
           />
           <NumberField
-            label="Max sources in parallel"
+            label={t('Max sources in parallel')}
             value={settings.maxSourcesInParallel}
             min={1}
             step={1}
@@ -303,7 +331,7 @@ function ServerSettingsForm({
                     {settings[key].map((conversion, index) => (
                       <li key={`${conversion.target}-${conversion.mimeType}-${index}`}>
                         <span>
-                          {conversion.target} · {conversion.mimeType}
+                          {conversion.target} Â· {conversion.mimeType}
                         </span>
                         <button
                           className="library-action"
@@ -334,39 +362,39 @@ function ServerSettingsForm({
         </div>
         <div className="settings-toggle-list">
           <Toggle
-            label="Mark chapters as read on download"
+            label={t('Mark chapters as read on download')}
             checked={settings.opdsMarkAsReadOnDownload ?? false}
             onChange={(value) => update({ opdsMarkAsReadOnDownload: value })}
           />
           <Toggle
-            label="Show only downloaded chapters"
+            label={t('Show only downloaded chapters')}
             checked={settings.opdsShowOnlyDownloadedChapters ?? false}
             onChange={(value) => update({ opdsShowOnlyDownloadedChapters: value })}
           />
           <Toggle
-            label="Show only unread chapters"
+            label={t('Show only unread chapters')}
             checked={settings.opdsShowOnlyUnreadChapters ?? false}
             onChange={(value) => update({ opdsShowOnlyUnreadChapters: value })}
           />
           <Toggle
-            label="Enable page read progress"
+            label={t('Enable page read progress')}
             checked={settings.opdsEnablePageReadProgress ?? false}
             onChange={(value) => update({ opdsEnablePageReadProgress: value })}
           />
           <Toggle
-            label="Skip chapter metadata feed"
+            label={t('Skip chapter metadata feed')}
             checked={settings.opdsSkipChapterMetadataFeed ?? false}
             onChange={(value) => update({ opdsSkipChapterMetadataFeed: value })}
           />
           <Toggle
-            label="Use binary file sizes"
+            label={t('Use binary file sizes')}
             checked={settings.opdsUseBinaryFileSizes ?? false}
             onChange={(value) => update({ opdsUseBinaryFileSizes: value })}
           />
         </div>
         <div className="settings-field-grid">
           <SelectField
-            label="CBZ media type"
+            label={t('CBZ media type')}
             value={settings.opdsCbzMimetype ?? 'COMPATIBLE'}
             options={['MODERN', 'LEGACY', 'COMPATIBLE']}
             onChange={(value) =>
@@ -374,7 +402,7 @@ function ServerSettingsForm({
             }
           />
           <SelectField
-            label="Chapter sort order"
+            label={t('Chapter sort order')}
             value={settings.opdsChapterSortOrder ?? 'ASC'}
             options={['ASC', 'DESC']}
             onChange={(value) =>
@@ -385,7 +413,7 @@ function ServerSettingsForm({
             }
           />
           <NumberField
-            label="Items per page"
+            label={t('Items per page')}
             value={settings.opdsItemsPerPage ?? 20}
             min={1}
             step={1}
@@ -400,7 +428,7 @@ function ServerSettingsForm({
         </div>
         <div className="settings-field-grid">
           <SelectField
-            label="Checksum method"
+            label={t('Checksum method')}
             value={settings.koreaderSyncChecksumMethod ?? 'BINARY'}
             options={['BINARY', 'FILENAME']}
             onChange={(value) =>
@@ -411,7 +439,7 @@ function ServerSettingsForm({
             }
           />
           <SelectField
-            label="Conflict strategy (forward)"
+            label={t('Conflict strategy (forward)')}
             value={settings.koreaderSyncStrategyForward ?? 'PROMPT'}
             options={['PROMPT', 'KEEP_LOCAL', 'KEEP_REMOTE', 'DISABLED']}
             onChange={(value) =>
@@ -422,7 +450,7 @@ function ServerSettingsForm({
             }
           />
           <SelectField
-            label="Conflict strategy (backward)"
+            label={t('Conflict strategy (backward)')}
             value={settings.koreaderSyncStrategyBackward ?? 'PROMPT'}
             options={['PROMPT', 'KEEP_LOCAL', 'KEEP_REMOTE', 'DISABLED']}
             onChange={(value) =>
@@ -433,7 +461,7 @@ function ServerSettingsForm({
             }
           />
           <NumberField
-            label="Percentage tolerance"
+            label={t('Percentage tolerance')}
             value={settings.koreaderSyncPercentageTolerance ?? 0}
             min={0}
             step={0.1}
@@ -544,7 +572,7 @@ function ServerSettingsForm({
         </div>
         <div className="settings-toggle-list">
           <Toggle
-            label="Enable debug logs"
+            label={t('Enable debug logs')}
             checked={settings.debugLogsEnabled}
             onChange={(value) => update({ debugLogsEnabled: value })}
           />
@@ -766,7 +794,7 @@ function ImageCacheSection({ context }: { readonly context: ConnectedContext }) 
           }
           onClick={clear}
         >
-          {busy ? 'Clearing…' : 'Clear selected caches'}
+          {busy ? 'Clearingâ€¦' : 'Clear selected caches'}
         </button>
       </div>
       {message ? (
