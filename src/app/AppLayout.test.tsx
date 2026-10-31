@@ -10,6 +10,7 @@ import {
   FakeConnectionCoordinator,
   makeConnectedState,
 } from '../test/fakeConnectionCoordinator';
+import { createSectionOrigin } from './navigationOrigin';
 
 vi.mock('../shared/useNavigationBadges', () => ({
   useNavigationBadges: () => ({ downloads: 0, extensionUpdates: 0 }),
@@ -19,12 +20,15 @@ afterEach(() => {
   cleanup();
 });
 
-function renderShell(path: string, basename = '/') {
+function renderShell(path: string, basename = '/', state?: unknown) {
   const coordinator = new FakeConnectionCoordinator(makeConnectedState());
 
   return render(
     <ConnectionProvider createCoordinator={() => coordinator}>
-      <MemoryRouter basename={basename} initialEntries={[path]}>
+      <MemoryRouter
+        basename={basename}
+        initialEntries={[state === undefined ? path : { pathname: path, state }]}
+      >
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="*" element={<div>Page content</div>} />
@@ -65,6 +69,24 @@ describe('AppLayout navigation', () => {
     renderShell('/about');
 
     expect(activeLabels()).toContain('Settings');
+  });
+
+  it('uses origin context for Manga Detail active navigation', () => {
+    renderShell('/manga/427', '/', {
+      origin: createSectionOrigin('browse', {
+        pathname: '/browse/7',
+        search: '?q=one',
+      }),
+    });
+
+    expect(activeLabels()).toContain('Browse');
+    expect(activeLabels()).not.toContain('Library');
+  });
+
+  it('does not invent a primary active item for a direct Manga URL', () => {
+    renderShell('/manga/427');
+
+    expect(activeLabels()).toEqual([]);
   });
 
   it('exposes Extensions in the mobile More menu', async () => {

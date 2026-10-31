@@ -18,6 +18,8 @@ export function useAppPath() {
 
   return {
     pathname,
+    search: location.search,
+    hash: location.hash,
     from: `${pathname}${location.search}${location.hash}`,
   };
 }

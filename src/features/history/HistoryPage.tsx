@@ -1,4 +1,6 @@
 import { ActivityPage } from '../activity/ActivityPage';
+import { useAppPath } from '../../app/useAppPath';
+import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { FeedInput } from '../../core/catalog/catalogRepository';
 import { formatRelativeTime } from '../../shared/feedTime';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
@@ -25,6 +27,8 @@ const HISTORY_FEED: FeedInput = {
 export function HistoryPage() {
   const preferences = useHistoryPreferences();
   const { t } = useI18n();
+  const { pathname, search } = useAppPath();
+  const origin = createSectionOrigin('history', { pathname, search });
 
   return (
     <ActivityPage
@@ -52,6 +56,7 @@ export function HistoryPage() {
       }
       groupByDay
       dedupeByManga
+      origin={origin}
       itemFilter={(chapter) => !preferences.hideRead || !chapter.isRead}
       rowTo={(chapter) => {
         const page =

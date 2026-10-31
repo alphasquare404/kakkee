@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
-import { cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
@@ -9,6 +9,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import type { MangaDetailQuery } from '../../core/graphql/generated/graphql';
 import { MangaDetailDocument } from '../../core/graphql/generated/graphql';
 import { clearChapterViewPreferences } from '../../core/preferences/chapterViewPreferences';
+import { createSectionOrigin } from '../../app/navigationOrigin';
 import {
   FakeConnectionCoordinator,
   makeConnectedState,
@@ -129,11 +130,98 @@ describe('MangaDetailPage', () => {
 
   it('returns to the originating page when opened from Updates', async () => {
     const query = vi.fn(async () => ({ data: detailData() }));
-    renderDetail(query, { from: '/updates' });
+    renderDetail(query, {
+      origin: createSectionOrigin('updates', {
+        pathname: '/updates',
+      }),
+    });
 
     expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Back' }).getAttribute('href')).toBe(
       '/updates',
+    );
+  });
+
+  it('does not fabricate a Library breadcrumb for a direct manga URL', async () => {
+    const base = detailData();
+    const query = vi.fn(async () => ({
+      data: { ...base, manga: { ...base.manga, inLibrary: false } },
+    }));
+    renderDetail(query);
+
+    await screen.findByRole('heading', { name: 'One Piece' });
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).queryByRole('link', { name: 'Library' })).toBeNull();
+    expect(within(breadcrumb).getByText('One Piece')).toBeTruthy();
+  });
+
+  it('shows Library provenance when actually opened from Library', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    renderDetail(query, {
+      origin: createSectionOrigin('library', {
+        pathname: '/library',
+        search: '?q=one',
+      }),
+    });
+
+    await screen.findByRole('heading', { name: 'One Piece' });
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByRole('link', { name: 'Library' }).getAttribute('href')).toBe(
+      '/library?q=one',
+    );
+    expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(
+      '/library?q=one',
+    );
+  });
+
+  it('uses Browse and source provenance instead of Library', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    renderDetail(query, {
+      origin: createSectionOrigin('browse', {
+        pathname: '/browse/7',
+        search: '?q=art',
+        trail: [
+          { pathname: '/browse', labelKey: 'Browse' },
+          { pathname: '/browse/7', search: '?q=art', label: 'MangaDex' },
+        ],
+      }),
+    });
+
+    await screen.findByRole('heading', { name: 'One Piece' });
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByRole('link', { name: 'Browse' }).getAttribute('href')).toBe(
+      '/browse',
+    );
+    expect(within(breadcrumb).getByRole('link', { name: 'MangaDex' }).getAttribute('href')).toBe(
+      '/browse/7?q=art',
+    );
+    expect(within(breadcrumb).queryByRole('link', { name: 'Library' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Back' }).getAttribute('href')).toBe(
+      '/browse/7?q=art',
+    );
+  });
+
+  it('uses Search provenance instead of Library', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    renderDetail(query, {
+      origin: createSectionOrigin('search', {
+        pathname: '/search',
+        search: '?q=one+piece',
+      }),
+    });
+
+    await screen.findByRole('heading', { name: 'One Piece' });
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByRole('link', { name: 'Search' }).getAttribute('href')).toBe(
+      '/search?q=one+piece',
+    );
+    expect(within(breadcrumb).queryByRole('link', { name: 'Library' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Back' }).getAttribute('href')).toBe(
+      '/search?q=one+piece',
     );
   });
 

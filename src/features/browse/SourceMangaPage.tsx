@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import {
+  createSectionOrigin,
+  type NavigationOrigin,
+} from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createSourceController,
@@ -79,6 +83,19 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     [repository],
   );
   const source = useSyncExternalStore(controller.subscribe, controller.getState);
+  const { pathname, search: searchString } = useAppPath();
+  const origin = createSectionOrigin('browse', {
+    pathname,
+    search: searchString,
+    trail: [
+      { pathname: '/browse', labelKey: 'Browse' },
+      {
+        pathname,
+        search: searchString,
+        label: source.source?.displayName ?? t('Source'),
+      },
+    ],
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParamKey = searchParams.toString();
   const initialQuery = searchParams.get('q') ?? '';
@@ -311,6 +328,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 key={manga.id}
                 manga={manga}
                 resources={context.resources}
+                origin={origin}
                 busy={source.loadingMore}
                 onToggleLibrary={() => void controller.toggleLibrary(manga)}
               />
@@ -337,16 +355,17 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
 function SourceMangaCard({
   manga,
   resources,
+  origin,
   busy,
   onToggleLibrary,
 }: {
   readonly manga: SourceManga;
   readonly resources: ConnectedContext['resources'];
+  readonly origin: NavigationOrigin;
   readonly busy: boolean;
   readonly onToggleLibrary: () => void;
 }) {
   const { t } = useI18n();
-  const { from } = useAppPath();
   const image = useImageResource(resources, manga.thumbnailUrl);
 
   return (
@@ -354,7 +373,7 @@ function SourceMangaCard({
       <Link
         className="source-manga-cover"
         to={`/manga/${manga.id}`}
-        state={{ from }}
+        state={{ origin }}
         aria-label={`${manga.title}, manga details`}
       >
         {image.objectUrl ? (

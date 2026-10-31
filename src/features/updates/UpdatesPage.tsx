@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
+import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createCatalogRepository,
@@ -76,6 +78,8 @@ export function UpdatesPage() {
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const { pathname, search } = useAppPath();
+  const origin = createSectionOrigin('updates', { pathname, search });
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [scanlator, setScanlator] = useState('all');
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
@@ -278,6 +282,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 key={chapter.id}
                 chapter={chapter}
                 resources={context.resources}
+                state={{ origin }}
                 detail={`${formatRelativeTime(chapter.uploadDate)} · ${chapter.pageCount} pages`}
                 stateLabel={chapter.isRead ? 'Read' : 'Unread'}
                 actions={
@@ -328,7 +333,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                     <Link
                       className="feed-action"
                       to={`/manga/${chapter.manga.id}`}
-                      state={{ from: '/updates' }}
+                      state={{ origin }}
                     >
                       {t('Manga')}
                     </Link>

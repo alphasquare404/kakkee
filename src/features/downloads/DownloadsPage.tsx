@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
+import { useAppPath } from '../../app/useAppPath';
+import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
 import {
@@ -115,6 +117,8 @@ export function DownloadsPage() {
 
 function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const { pathname, search } = useAppPath();
+  const origin = createSectionOrigin('downloads', { pathname, search });
   const repository = useMemo(
     () => createDownloadRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -439,6 +443,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                 <FeedRow
                   chapter={chapter}
                   resources={context.resources}
+                  state={{ origin }}
                   detail={`${t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
                 />
                 {isOfflineStorageSupported() ? (

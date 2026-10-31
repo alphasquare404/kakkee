@@ -20,6 +20,7 @@ import {
   FakeConnectionCoordinator,
   makeConnectedState,
 } from '../../test/fakeConnectionCoordinator';
+import { createSectionOrigin } from '../../app/navigationOrigin';
 
 vi.mock('../../app/pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -96,7 +97,12 @@ function fakeResources(failFirst = false) {
   return { resources, handles, loadImageResource };
 }
 
-function renderReader(failFirstImage = false, page?: number, progress = 0) {
+function renderReader(
+  failFirstImage = false,
+  page?: number,
+  progress = 0,
+  historyState?: unknown,
+) {
   const { resources, handles, loadImageResource } = fakeResources(failFirstImage);
   const query = vi.fn(async ({ query: document }: { query: unknown }) => {
     if (document === ReaderChapterDocument) {
@@ -174,7 +180,7 @@ function renderReader(failFirstImage = false, page?: number, progress = 0) {
     },
   };
   window.history.replaceState(
-    {},
+    historyState === undefined ? {} : { usr: historyState },
     '',
     `/manga/1/chapter/10${page ? `?page=${page}` : ''}`,
   );
@@ -185,6 +191,33 @@ function renderReader(failFirstImage = false, page?: number, progress = 0) {
 }
 
 describe('ReaderPage', () => {
+  it('shows the origin context in the back control', async () => {
+    renderReader(false, undefined, 0, {
+      origin: createSectionOrigin('history', {
+        pathname: '/history',
+      }),
+    });
+
+    expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: '← History' }).getAttribute('href')).toBe(
+      '/history',
+    );
+  });
+
+  it('returns to manga when entered from Manga Detail', async () => {
+    renderReader(false, undefined, 0, {
+      origin: createSectionOrigin('search', {
+        pathname: '/search',
+        search: '?q=one',
+      }),
+      fromManga: true,
+    });
+
+    expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: '← Manga' }).getAttribute('href')).toBe(
+      '/manga/1',
+    );
+  });
   it('renders chapter pages and chapter navigation', async () => {
     const { loadImageResource } = renderReader();
 

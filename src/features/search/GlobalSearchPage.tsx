@@ -2,6 +2,10 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { Link, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import {
+  createSectionOrigin,
+  type NavigationOrigin,
+} from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import { createSearchController } from '../../core/search/searchController';
@@ -52,6 +56,11 @@ export function GlobalSearchPage() {
 
 function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const { pathname, search: searchString } = useAppPath();
+  const origin = createSectionOrigin('search', {
+    pathname,
+    search: searchString,
+  });
   const controller = useMemo(
     () =>
       createSearchController(
@@ -295,7 +304,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
                 className="live-source-result"
                 key={manga.id}
                 to={`/manga/${manga.id}`}
-                state={{ from: '/search' }}
+                state={{ origin }}
               >
                 <strong>{manga.title}</strong>
                 <span>{manga.sourceName}</span>
@@ -402,6 +411,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
                 key={manga.id}
                 manga={manga}
                 resources={context.resources}
+                origin={origin}
               />
             ))}
           </div>
@@ -414,18 +424,19 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 function SearchMangaCard({
   manga,
   resources,
+  origin,
 }: {
   readonly manga: SearchManga;
   readonly resources: ConnectedContext['resources'];
+  readonly origin: NavigationOrigin;
 }) {
   const image = useImageResource(resources, manga.thumbnailUrl);
-  const { from } = useAppPath();
 
   return (
     <Link
       className="search-manga-card"
       to={`/manga/${manga.id}`}
-      state={{ from }}
+      state={{ origin }}
       aria-label={`${manga.title}, manga details`}
     >
       <span className="search-manga-cover">

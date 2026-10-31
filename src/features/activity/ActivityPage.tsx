@@ -6,6 +6,7 @@ import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
 import { feedDay } from '../../shared/feedTime';
 import { useConnection } from '../../app/useConnection';
+import type { NavigationOrigin } from '../../app/navigationOrigin';
 import { createCatalogRepository } from '../../core/catalog/catalogRepository';
 import { useSyncExternalStore } from 'react';
 import { useI18n } from '../../shared/useI18n';
@@ -33,6 +34,7 @@ export interface ActivityPageProps {
   readonly groupByDay?: boolean;
   readonly dedupeByManga?: boolean;
   readonly rowTo?: (chapter: FeedChapter) => string;
+  readonly origin: NavigationOrigin;
   readonly itemFilter?: (chapter: FeedChapter) => boolean;
 }
 
@@ -59,6 +61,7 @@ function ActivityContent({
   groupByDay = false,
   dedupeByManga = false,
   rowTo,
+  origin,
   itemFilter,
 }: ActivityPageProps & { readonly context: ConnectedContext }) {
   const { t } = useI18n();
@@ -166,6 +169,7 @@ function ActivityContent({
                     detail={detail(chapter)}
                     stateLabel={stateLabel?.(chapter)}
                     to={rowTo?.(chapter)}
+                    state={{ origin }}
                   />
                 ))}
               </div>

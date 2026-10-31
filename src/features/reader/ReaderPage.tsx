@@ -6,7 +6,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createReaderController } from '../../core/reader/readerController';
 import { createReaderRepository } from '../../core/reader/readerRepository';
@@ -15,6 +15,11 @@ import { getTrackingPreferences } from '../../core/preferences/trackingPreferenc
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import {
+  getNavigationOrigin,
+  originHref,
+  originLabel,
+} from '../../app/navigationOrigin';
 import { useImageResource } from '../../shared/useImageResource';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -131,6 +136,41 @@ function ConnectedReader({
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const swipeHandled = useRef(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const origin = getNavigationOrigin(location.state);
+  const fromManga = Boolean(
+    (location.state as { fromManga?: unknown } | null)?.fromManga,
+  );
+  const canGoBack =
+    ((window.history.state as { idx?: number } | null)?.idx ?? 0) > 0;
+  const mangaState = useMemo(
+    () => (origin ? { origin } : undefined),
+    [origin],
+  );
+  const readerState = useMemo(
+    () => ({
+      ...(origin ? { origin } : {}),
+      ...(fromManga ? { fromManga: true } : {}),
+    }),
+    [fromManga, origin],
+  );
+  const originCrumb = origin?.trail.at(-1);
+  const backTarget =
+    fromManga || !origin ? `/manga/${mangaId}` : originHref(origin);
+  const backLabel = fromManga
+    ? `← ${t('Manga')}`
+    : originCrumb
+      ? `← ${originLabel(originCrumb, t)}`
+      : `← ${t('Manga')}`;
+  const historyBack = canGoBack && (fromManga || Boolean(origin));
+  const goBack = useCallback(() => {
+    if (historyBack) {
+      navigate(-1);
+      return;
+    }
+
+    navigate(backTarget, { state: fromManga ? mangaState : undefined });
+  }, [backTarget, fromManga, historyBack, mangaState, navigate]);
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [autoWebtoon, setAutoWebtoon] = useState(false);
@@ -359,16 +399,18 @@ function ConnectedReader({
     }
 
     const timer = window.setTimeout(() => {
-      navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`);
+      navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: readerState });
     }, 1_200);
 
     return () => window.clearTimeout(timer);
   }, [
     currentPage,
     mangaId,
+    mangaState,
     navigate,
     nextChapter,
     reader.pages.length,
+    readerState,
     readerSettings.autoAdvance,
   ]);
 
@@ -531,7 +573,7 @@ function ConnectedReader({
           return;
         }
 
-        navigate(`/manga/${mangaId}`);
+        goBack();
         return;
       }
 
@@ -560,11 +602,11 @@ function ConnectedReader({
       }
 
       if (isPrevious && previousChapter) {
-        navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`);
+        navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`, { state: readerState });
       }
 
       if (isNext && nextChapter) {
-        navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`);
+        navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: readerState });
       }
     };
 
@@ -573,10 +615,13 @@ function ConnectedReader({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
     chaptersOpen,
+    goBack,
     isPaged,
     mangaId,
+    mangaState,
     navigate,
     nextChapter,
+    readerState,
     reader.pages.length,
     readerSettings.backKey,
     readerSettings.pageNextKey,
@@ -682,8 +727,18 @@ function ConnectedReader({
       }
     >
       <header className="reader-header">
-        <Link className="reader-back" to={`/manga/${mangaId}`}>
-          ← Manga
+        <Link
+          className="reader-back"
+          to={backTarget}
+          state={fromManga ? mangaState : undefined}
+          onClick={(event) => {
+            if (historyBack) {
+              event.preventDefault();
+              goBack();
+            }
+          }}
+        >
+          {backLabel}
         </Link>
 
         <div className="reader-title">
@@ -698,14 +753,14 @@ function ConnectedReader({
 
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">
           {previousChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`}>
+            <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={readerState}>
               {t('Previous')}
             </Link>
           ) : (
             <span aria-disabled="true">{t('Previous')}</span>
           )}
           {nextChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`}>
+            <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={readerState}>
               {t('Next')}
             </Link>
           ) : (
@@ -876,6 +931,7 @@ function ConnectedReader({
                 <Link
                   className={item.id === chapterId ? 'is-active' : undefined}
                   to={`/manga/${mangaId}/chapter/${item.id}`}
+                  state={readerState}
                   aria-current={item.id === chapterId ? 'page' : undefined}
                 >
                   {item.name}
@@ -904,8 +960,18 @@ function ConnectedReader({
             >
               Retry
             </button>
-            <Link className="button button-secondary" to={`/manga/${mangaId}`}>
-              Back to manga
+            <Link
+              className="button button-secondary"
+              to={backTarget}
+              state={fromManga ? mangaState : undefined}
+              onClick={(event) => {
+                if (historyBack) {
+                  event.preventDefault();
+                  goBack();
+                }
+              }}
+            >
+              {t('Back')}
             </Link>
           </div>
         </div>
@@ -987,7 +1053,7 @@ function ConnectedReader({
               <div className="reader-appended-heading">
                 <p>{t('Next chapter')}</p>
                 <h2>{extra.name}</h2>
-                <Link to={`/manga/${mangaId}/chapter/${extra.id}`}>
+                <Link to={`/manga/${mangaId}/chapter/${extra.id}`} state={readerState}>
                   Open chapter
                 </Link>
               </div>
@@ -1021,7 +1087,7 @@ function ConnectedReader({
         <footer className="reader-footer">
           <nav className="reader-chapter-nav" aria-label="Chapter navigation">
             {previousChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`}>
+              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={readerState}>
                 Previous: {previousChapter.name}
               </Link>
             ) : (
@@ -1029,7 +1095,7 @@ function ConnectedReader({
             )}
             <span>{activeChapter.pageCount} pages</span>
             {nextChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`}>
+              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={readerState}>
                 Next: {nextChapter.name}
               </Link>
             ) : (
@@ -1068,6 +1134,7 @@ function ConnectedReader({
                   <Link
                     className={chapter.id === activeChapter.id ? 'is-current' : undefined}
                     to={`/manga/${mangaId}/chapter/${chapter.id}`}
+                    state={readerState}
                     onClick={() => setChaptersOpen(false)}
                   >
                     <span>{chapter.name}</span>

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Link, Navigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createMangaDetailController,
@@ -12,6 +12,12 @@ import {
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import {
+  getLegacyReturnPath,
+  getNavigationOrigin,
+  originHref,
+  originLabel,
+} from '../../app/navigationOrigin';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { MangaTrackingSection } from './MangaTrackingSection';
@@ -200,16 +206,19 @@ function ConnectedMangaDetail({
 }) {
   const { t } = useI18n();
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const returnCandidate = (location.state as { from?: unknown } | null)?.from;
-  const returnTo =
-    typeof returnCandidate === 'string' &&
-    returnCandidate.startsWith('/') &&
-    !returnCandidate.startsWith('//')
-      ? returnCandidate
-      : '/library';
-  const returnLabel =
-    returnTo === '/library' ? t('Back to library') : t('Back');
+  const origin = getNavigationOrigin(location.state);
+  const canGoBack = ((window.history.state as { idx?: number } | null)?.idx ?? 0) > 0;
+  const legacyReturn = getLegacyReturnPath(location.state);
+  const returnTo = origin ? originHref(origin) : (legacyReturn ?? '/library');
+  const returnLabel = origin
+    ? origin.section === 'library'
+      ? t('Back to library')
+      : t('Back')
+    : returnTo === '/library'
+      ? t('Back to library')
+      : t('Back');
   const repository = useMemo(
     () => createMangaRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -420,7 +429,16 @@ function ConnectedMangaDetail({
             <button className="button" type="button" onClick={() => void controller.load()}>
               Retry
             </button>
-            <Link className="button button-secondary" to={returnTo}>
+            <Link
+              className="button button-secondary"
+              to={returnTo}
+              onClick={(event) => {
+                if (origin && canGoBack) {
+                  event.preventDefault();
+                  navigate(-1);
+                }
+              }}
+            >
               {returnLabel}
             </Link>
           </div>
@@ -598,8 +616,12 @@ function ConnectedMangaDetail({
     <div className="app-shell detail-shell">
       <AmbientArt imageUrl={cover.objectUrl} className="detail-ambient" />
       <nav className="page-nav" aria-label="Breadcrumb">
-        <Link to="/library">{t('Library')}</Link>
-        <span aria-hidden="true">/</span>
+        {origin?.trail.map((crumb, index) => (
+          <Fragment key={`${crumb.pathname}-${index}`}>
+            <Link to={originHref(crumb)}>{originLabel(crumb, t)}</Link>
+            <span aria-hidden="true">/</span>
+          </Fragment>
+        ))}
         <span>{manga.title}</span>
       </nav>
 
@@ -636,6 +658,7 @@ function ConnectedMangaDetail({
                       ? `?page=${inProgressChapter.lastPageRead + 1}`
                       : ''
                   }`}
+                  state={{ ...(origin ? { origin } : {}), fromManga: true }}
                 >
                   {inProgressChapter
                     ? t('Continue reading')
@@ -701,7 +724,16 @@ function ConnectedMangaDetail({
                     ? t('Copy failed')
                     : t('Share')}
               </button>
-              <Link className="button button-secondary" to={returnTo}>
+              <Link
+                className="button button-secondary"
+                to={returnTo}
+                onClick={(event) => {
+                  if (origin && canGoBack) {
+                    event.preventDefault();
+                    navigate(-1);
+                  }
+                }}
+              >
                 {returnLabel}
               </Link>
             </div>
@@ -1103,6 +1135,7 @@ function ConnectedMangaDetail({
                     <Link
                       className="chapter-row"
                       to={`/manga/${manga.id}/chapter/${chapter.id}`}
+                    state={{ ...(origin ? { origin } : {}), fromManga: true }}
                       onPointerDown={() =>
                         startChapterLongPress(chapter.id, index)
                       }

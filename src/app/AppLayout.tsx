@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppPath } from './useAppPath';
 import { useConnection } from './useConnection';
+import { getNavigationOrigin } from './navigationOrigin';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
 import { useI18n } from '../shared/useI18n';
 import type { MessageKey } from '../shared/i18n';
@@ -159,7 +160,6 @@ export function AppLayout() {
   const mobileMoreItems = NAV_ITEMS.filter(
     (item) => item.mobile && !MOBILE_PRIMARY_ROUTES.has(item.to),
   );
-  const moreActive = mobileMoreItems.some((item) => item.match(appPathname));
 
   useEffect(() => {
     setMoreOpen(false);
@@ -202,6 +202,24 @@ export function AppLayout() {
     };
   }, [moreOpen]);
   const readerActive = appPathname.includes('/chapter/');
+  const origin = getNavigationOrigin(location.state);
+  const mangaPath = appPathname.startsWith('/manga/');
+  const originSectionPath: Partial<Record<string, string>> = {
+    library: '/library',
+    browse: '/browse',
+    search: '/search',
+    updates: '/updates',
+    history: '/history',
+    downloads: '/downloads',
+    categories: '/categories',
+    settings: '/settings',
+    extensions: '/extensions',
+  };
+  const isItemActive = (item: (typeof NAV_ITEMS)[number]) =>
+    mangaPath
+      ? Boolean(origin) && originSectionPath[origin?.section ?? ''] === item.to
+      : item.match(appPathname);
+  const moreActive = mobileMoreItems.some((item) => isItemActive(item));
   const badges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
     appPathname,
@@ -248,7 +266,7 @@ export function AppLayout() {
         <nav className="primary-nav" aria-label="Primary navigation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const active = item.match(appPathname);
+            const active = isItemActive(item);
             const badge =
               item.to === '/downloads'
                 ? badges.downloads
@@ -295,7 +313,7 @@ export function AppLayout() {
       <nav className="mobile-nav" aria-label="Primary navigation">
         {mobilePrimaryItems.map((item) => {
           const Icon = item.icon;
-          const active = item.match(appPathname);
+          const active = isItemActive(item);
 
           return (
             <Link
@@ -340,7 +358,7 @@ export function AppLayout() {
         >
           {mobileMoreItems.map((item) => {
             const Icon = item.icon;
-            const active = item.match(appPathname);
+            const active = isItemActive(item);
             const badge = item.to === '/downloads' ? badges.downloads : 0;
 
             return (
