@@ -14,6 +14,40 @@ import {
   togglePinnedSource,
   updateSourcePreferences,
 } from '../../core/preferences/sourcePreferences';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Browse: 'Jelajah',
+  'Discover the sources installed on your server':
+    'Temukan source yang terpasang di server Anda',
+  '{count} sources': '{count} source',
+  'Source catalog': 'Katalog source',
+  'Your server’s extensions, in one place.':
+    'Ekstensi server Anda, dalam satu tempat.',
+  'Open a source to browse its Popular/Latest catalog, search, and add manga directly to your library.':
+    'Buka source untuk menjelajahi katalog Populer/Terbaru, mencari, dan menambahkan manga langsung ke perpustakaan.',
+  'installed sources': 'source terpasang',
+  Preferred: 'Pilihan',
+  'Preferred languages': 'Bahasa pilihan',
+  'Couldn’t load sources': 'Tidak dapat memuat source',
+  'The source catalog could not be loaded from your server.':
+    'Katalog source tidak dapat dimuat dari server Anda.',
+  Retry: 'Coba lagi',
+  'No sources installed': 'Belum ada source terpasang',
+  'Install a source extension in Suwayomi Server to browse its catalog.':
+    'Pasang ekstensi source di Suwayomi Server untuk menjelajahi katalognya.',
+  Sources: 'Source',
+  '{count} shown': '{count} ditampilkan',
+  Multi: 'Multi',
+  Safe: 'Aman',
+  Mixed: 'Campuran',
+  Latest: 'Terbaru',
+  Pinned: 'Disematkan',
+  'Last used': 'Terakhir dipakai',
+  Pin: 'Sematkan',
+  Unpin: 'Lepas sematan',
+});
 
 const WARNING_LABEL: Record<string, string> = {
   SAFE: 'Safe',
@@ -49,12 +83,13 @@ function SourceCard({
   readonly onPin: () => void;
   readonly onOpen: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <article className={`source-card-shell${pinned ? ' is-pinned' : ''}`}>
       <Link
         className="source-card"
         to={`/browse/${encodeURIComponent(source.id)}`}
-        aria-label={`${source.displayName}, browse source`}
+        aria-label={`${source.displayName}, ${t('Browse')}`}
         onClick={onOpen}
       >
         <span className="source-mark" aria-hidden="true">
@@ -64,28 +99,35 @@ function SourceCard({
           <h2>{source.displayName}</h2>
           <p>{source.name}</p>
           <div className="source-badges">
-            <span>{source.lang.toLowerCase() === 'all' ? 'Multi' : source.lang.toUpperCase()}</span>
-            <span>{WARNING_LABEL[source.contentWarning] ?? source.contentWarning}</span>
-            {source.supportsLatest ? <span>Latest</span> : null}
-            {pinned ? <span>Pinned</span> : null}
-            {lastUsed ? <span>Last used</span> : null}
+            <span>
+              {source.lang.toLowerCase() === 'all'
+                ? t('Multi')
+                : source.lang.toUpperCase()}
+            </span>
+            <span>
+              {t(WARNING_LABEL[source.contentWarning] ?? source.contentWarning)}
+            </span>
+            {source.supportsLatest ? <span>{t('Latest')}</span> : null}
+            {pinned ? <span>{t('Pinned')}</span> : null}
+            {lastUsed ? <span>{t('Last used')}</span> : null}
           </div>
         </div>
       </Link>
       <button
         className="source-pin"
         type="button"
-        aria-label={`${pinned ? 'Unpin' : 'Pin'} ${source.displayName}`}
+        aria-label={`${pinned ? t('Unpin') : t('Pin')} ${source.displayName}`}
         aria-pressed={pinned}
         onClick={onPin}
       >
-        {pinned ? 'Unpin' : 'Pin'}
+        {pinned ? t('Unpin') : t('Pin')}
       </button>
     </article>
   );
 }
 
 function BrowseContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const preferences = useSourcePreferences();
   const [language, setLanguage] = useState(preferences.language);
   const [preferredOnly, setPreferredOnly] = useState(false);
@@ -156,23 +198,30 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   return (
     <div className="app-shell page-shell browse-shell">
       <PageHeader
-        title="Browse"
-        subtitle="Discover the sources installed on your server"
-        count={sources.data ? `${sources.data.totalCount.toLocaleString('en-US')} sources` : undefined}
+        title={t('Browse')}
+        subtitle={t('Discover the sources installed on your server')}
+        count={
+          sources.data
+            ? t('{count} sources', { count: sources.data.totalCount })
+            : undefined
+        }
       />
 
       <section className="browse-hero" aria-labelledby="browse-hero-title">
         <div>
-          <p className="eyebrow">Source catalog</p>
-          <h2 id="browse-hero-title">Your server&apos;s extensions, in one place.</h2>
+          <p className="eyebrow">{t('Source catalog')}</p>
+          <h2 id="browse-hero-title">
+            {t('Your server’s extensions, in one place.')}
+          </h2>
           <p>
-            Open a source to browse its Popular/Latest catalog, search, and add manga
-            directly to your library.
+            {t(
+              'Open a source to browse its Popular/Latest catalog, search, and add manga directly to your library.',
+            )}
           </p>
         </div>
         <span className="browse-hero-count">
           {sources.data?.totalCount.toLocaleString('en-US') ?? '—'}
-          <small>installed sources</small>
+          <small>{t('installed sources')}</small>
         </span>
       </section>
 
@@ -185,7 +234,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
             aria-pressed={language === lang.value}
             onClick={() => setLanguage(lang.value)}
           >
-            {lang.label}
+            {lang.value === 'all' ? t('All') : lang.label}
           </button>
         ))}
         <button
@@ -205,12 +254,12 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
           disabled={preferences.preferredLanguages.length === 0}
           onClick={() => setPreferredOnly((value) => !value)}
         >
-          Preferred
+          {t('Preferred')}
         </button>
       </div>
 
       <details className="source-preferred-languages">
-        <summary>Preferred languages</summary>
+        <summary>{t('Preferred languages')}</summary>
         <div>
           {languages
             .filter((entry) => entry.value !== 'all' && entry.value !== 'multi')
@@ -243,26 +292,26 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
 
       {sources.error && !sources.data ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load sources</h1>
-          <p>The source catalog could not be loaded from your server.</p>
+          <h1>{t('Couldn’t load sources')}</h1>
+          <p>{t('The source catalog could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       {!sources.isLoading && !sources.error && items.length === 0 ? (
         <div className="library-state">
-          <h1>No sources installed</h1>
-          <p>Install a source extension in Suwayomi Server to browse its catalog.</p>
+          <h1>{t('No sources installed')}</h1>
+          <p>{t('Install a source extension in Suwayomi Server to browse its catalog.')}</p>
         </div>
       ) : null}
 
       {ordered.length > 0 ? (
         <section className="source-section" aria-labelledby="sources-heading">
           <div className="section-heading-row">
-            <h2 id="sources-heading">Sources</h2>
-            <span>{ordered.length} shown</span>
+            <h2 id="sources-heading">{t('Sources')}</h2>
+            <span>{t('{count} shown', { count: ordered.length })}</span>
           </div>
           <div className="source-grid">
             {ordered.map((source) => (

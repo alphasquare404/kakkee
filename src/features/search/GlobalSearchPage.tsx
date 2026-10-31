@@ -11,6 +11,33 @@ import { createSourceRepository } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { useSearchHistory } from '../../shared/useSearchHistory';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Search: 'Cari',
+  'Search manga and sources known to this server':
+    'Cari manga dan source yang dikenal server ini',
+  '{count} manga': '{count} manga',
+  'Clear history': 'Hapus riwayat',
+  'Search installed sources': 'Cari di source terpasang',
+  'Searching sources {done}/{total}': 'Mencari source {done}/{total}',
+  '{count} live results': '{count} hasil langsung',
+  'Live source search failed.': 'Pencarian source langsung gagal.',
+  'Live source results': 'Hasil source langsung',
+  Source: 'Source',
+  'All sources': 'Semua source',
+  '{count} shown': '{count} ditampilkan',
+  '{count} in library': '{count} di perpustakaan',
+  'Search the server': 'Cari di server',
+  'Enter a title to search manga and sources known to Suwayomi.':
+    'Masukkan judul untuk mencari manga dan source yang dikenal Suwayomi.',
+  'Search failed': 'Pencarian gagal',
+  Retry: 'Coba lagi',
+  'No results': 'Tidak ada hasil',
+  Sources: 'Source',
+  Manga: 'Manga',
+});
 
 export function GlobalSearchPage() {
   const { state } = useConnection();
@@ -23,6 +50,7 @@ export function GlobalSearchPage() {
 }
 
 function SearchContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(
     () =>
       createSearchController(
@@ -155,11 +183,13 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   return (
     <div className="app-shell page-shell browse-shell">
       <PageHeader
-        title="Search"
-        subtitle="Search manga and sources known to this server"
+        title={t('Search')}
+        subtitle={t('Search manga and sources known to this server')}
         count={
           search.status === 'ready'
-            ? `${search.results?.mangas.totalCount ?? 0} manga`
+            ? t('{count} manga', {
+                count: search.results?.mangas.totalCount ?? 0,
+              })
             : undefined
         }
       />
@@ -182,7 +212,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
           autoFocus
         />
         <button className="button" type="submit" disabled={!query.trim()}>
-          Search
+          {t('Search')}
         </button>
         {historyOpen && history.length > 0 ? (
           <div className="global-search-history" role="listbox" aria-label="Recent searches">
@@ -207,7 +237,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => clearSearchHistory()}
             >
-              Clear history
+              {t('Clear history')}
             </button>
           </div>
         ) : null}
@@ -226,20 +256,19 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
         </button>
         {liveStatus === 'ready' ? (
           <span>
-            {liveResults.length} live result
-            {liveResults.length === 1 ? '' : 's'}
+            {t('{count} live results', { count: liveResults.length })}
           </span>
         ) : null}
         {liveStatus === 'error' ? (
-          <span role="alert">Live source search failed.</span>
+          <span role="alert">{t('Live source search failed.')}</span>
         ) : null}
       </div>
 
       {liveResults.length > 0 ? (
         <section className="search-section" aria-labelledby="live-search-heading">
           <div className="section-heading-row">
-            <h2 id="live-search-heading">Live source results</h2>
-            <span>{liveResults.length} manga</span>
+            <h2 id="live-search-heading">{t('Live source results')}</h2>
+            <span>{t('{count} manga', { count: liveResults.length })}</span>
           </div>
           <div className="live-source-results">
             {liveResults.map((manga) => (
@@ -259,12 +288,12 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       {mangaSources.length > 1 ? (
         <div className="search-source-filter">
           <label>
-            <span>Source</span>
+            <span>{t('Source')}</span>
             <select
               value={sourceFilter}
               onChange={(event) => setSourceFilter(event.target.value)}
             >
-              <option value="all">All sources</option>
+              <option value="all">{t('All sources')}</option>
               {mangaSources.map((source) => (
                 <option key={source.id} value={source.id}>
                   {source.displayName}
@@ -280,8 +309,12 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
       {search.status === 'idle' ? (
         <div className="library-state">
-          <h2>Search the server</h2>
-          <p>Enter a title to search manga and sources known to Suwayomi.</p>
+          <h2>{t('Search the server')}</h2>
+          <p>
+            {t(
+              'Enter a title to search manga and sources known to Suwayomi.',
+            )}
+          </p>
         </div>
       ) : null}
 
@@ -293,16 +326,16 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
       {search.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h2>Search failed</h2>
+          <h2>{t('Search failed')}</h2>
           <button className="button button-secondary" type="button" onClick={submit}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       {search.status === 'ready' && mangas.length === 0 && sources.length === 0 ? (
         <div className="library-state">
-          <h2>No results</h2>
+          <h2>{t('No results')}</h2>
           <p>No manga or source matched “{search.query}”.</p>
         </div>
       ) : null}
@@ -310,7 +343,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       {sources.length > 0 ? (
         <section className="search-section" aria-labelledby="search-sources">
           <div className="section-heading-row">
-            <h2 id="search-sources">Sources</h2>
+            <h2 id="search-sources">{t('Sources')}</h2>
             <span>{search.results?.sources.totalCount}</span>
           </div>
           <div className="source-grid">
@@ -338,7 +371,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       {filteredMangas.length > 0 ? (
         <section className="search-section" aria-labelledby="search-manga">
           <div className="section-heading-row">
-            <h2 id="search-manga">Manga</h2>
+            <h2 id="search-manga">{t('Manga')}</h2>
             <span>
               {filteredMangas.length} shown · {libraryCount} in library
             </span>

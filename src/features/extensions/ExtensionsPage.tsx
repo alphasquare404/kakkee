@@ -11,6 +11,44 @@ import {
 } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Extensions: 'Ekstensi',
+  'Sources installed through your server':
+    'Source yang terpasang melalui server Anda',
+  '{count} extensions': '{count} ekstensi',
+  'Checking…': 'Memeriksa…',
+  'Check for updates': 'Periksa update',
+  'The last extension change was rejected by the server.':
+    'Perubahan ekstensi terakhir ditolak server.',
+  'Search extensions': 'Cari ekstensi',
+  'Search by name or package…': 'Cari berdasarkan nama atau paket…',
+  'Updates only': 'Hanya update',
+  'Couldn’t load extensions': 'Tidak dapat memuat ekstensi',
+  'The extension catalog could not be loaded.':
+    'Katalog ekstensi tidak dapat dimuat.',
+  Retry: 'Coba lagi',
+  'No extensions': 'Belum ada ekstensi',
+  'Add an extension store or install an extension on the server.':
+    'Tambahkan toko ekstensi atau pasang ekstensi di server.',
+  'Updates available': 'Update tersedia',
+  Installed: 'Terpasang',
+  Available: 'Tersedia',
+  Stores: 'Toko',
+  Working: 'Memproses',
+  Remove: 'Hapus',
+  'Add store': 'Tambah toko',
+  'Install external JAR': 'Pasang JAR eksternal',
+  'Install JAR': 'Pasang JAR',
+  'Installing…': 'Memasang…',
+  'Extension store index URL': 'URL indeks toko ekstensi',
+  Obsolete: 'Usang',
+  Update: 'Update',
+  Install: 'Pasang',
+  Uninstall: 'Copot',
+});
 
 export function ExtensionsPage() {
   const { state } = useConnection();
@@ -23,6 +61,7 @@ export function ExtensionsPage() {
 }
 
 function ExtensionsContent({ context }: { readonly context: ConnectedContext }) {
+  const { t } = useI18n();
   const controller = useMemo(() => {
     const repository = createExtensionRepository({
       getClient: () => context.graphQL,
@@ -73,11 +112,13 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
   return (
     <div className="app-shell page-shell extensions-shell">
       <PageHeader
-        title="Extensions"
-        subtitle="Sources installed through your server"
+        title={t('Extensions')}
+        subtitle={t('Sources installed through your server')}
         count={
           extensions.status === 'ready'
-            ? `${extensions.items.length.toLocaleString('en-US')} extensions`
+            ? t('{count} extensions', {
+                count: extensions.items.length,
+              })
             : undefined
         }
       >
@@ -93,7 +134,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {extensions.actionError ? (
         <p className="settings-inline-error" role="alert">
-          The last extension change was rejected by the server.
+          {t('The last extension change was rejected by the server.')}
         </p>
       ) : null}
 
@@ -106,7 +147,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             aria-pressed={language === lang}
             onClick={() => setLanguage(lang)}
           >
-            {lang === 'all' ? 'All' : lang.toUpperCase()}
+            {lang === 'all' ? t('All') : lang.toUpperCase()}
           </button>
         ))}
       </div>
@@ -125,7 +166,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
           aria-pressed={updatesOnly}
           onClick={() => setUpdatesOnly((value) => !value)}
         >
-          Updates only
+          {t('Updates only')}
         </button>
       </div>
 
@@ -139,24 +180,24 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {extensions.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>Couldn&apos;t load extensions</h1>
-          <p>The extension catalog could not be loaded.</p>
+          <h1>{t('Couldn’t load extensions')}</h1>
+          <p>{t('The extension catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
-            Retry
+            {t('Retry')}
           </button>
         </div>
       ) : null}
 
       {extensions.status === 'ready' && items.length === 0 ? (
         <div className="library-state">
-          <h1>No extensions</h1>
-          <p>Add an extension store or install an extension on the server.</p>
+          <h1>{t('No extensions')}</h1>
+          <p>{t('Add an extension store or install an extension on the server.')}</p>
         </div>
       ) : null}
 
       {updates.length > 0 ? (
         <ExtensionSection
-          title="Updates available"
+          title={t('Updates available')}
           extensions={updates}
           resources={context.resources}
           busyPkg={extensions.busyPkg}
@@ -171,7 +212,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {installed.length > 0 ? (
         <ExtensionSection
-          title="Installed"
+          title={t('Installed')}
           extensions={installed}
           resources={context.resources}
           busyPkg={extensions.busyPkg}
@@ -186,7 +227,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       {available.length > 0 ? (
         <ExtensionSection
-          title="Available"
+          title={t('Available')}
           extensions={available}
           resources={context.resources}
           busyPkg={extensions.busyPkg}
@@ -199,7 +240,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
       {extensions.stores.length > 0 ? (
         <section className="extension-section" aria-labelledby="extension-stores">
           <div className="section-heading-row">
-            <h2 id="extension-stores">Stores</h2>
+            <h2 id="extension-stores">{t('Stores')}</h2>
           </div>
           <ul className="extension-stores">
             {extensions.stores.map((store) => (
@@ -222,7 +263,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
       <section className="extension-section" aria-labelledby="extension-add-store">
         <div className="section-heading-row">
-          <h2 id="extension-add-store">Add store</h2>
+          <h2 id="extension-add-store">{t('Add store')}</h2>
         </div>
         <form
           className="source-search"
@@ -247,14 +288,14 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             type="submit"
             disabled={extensions.storeBusy !== null || !storeUrl.trim()}
           >
-            Add store
+            {t('Add store')}
           </button>
         </form>
       </section>
 
       <section className="extension-section" aria-labelledby="extension-jar">
         <div className="section-heading-row">
-          <h2 id="extension-jar">Install external JAR</h2>
+          <h2 id="extension-jar">{t('Install external JAR')}</h2>
         </div>
         <input
           type="file"
@@ -328,6 +369,7 @@ function ExtensionCard({
   readonly busy: boolean;
   readonly onAction: (extension: Extension, action: 'install' | 'update' | 'uninstall') => void;
 }) {
+  const { t } = useI18n();
   const icon = useImageResource(resources, extension.iconUrl);
   const action = !extension.isInstalled ? 'install' : extension.hasUpdate ? 'update' : 'uninstall';
 
@@ -347,8 +389,8 @@ function ExtensionCard({
           {extension.extensionStore ? ` · ${extension.extensionStore.name}` : ''}
         </p>
         <div className="extension-badges">
-          {extension.isObsolete ? <span>Obsolete</span> : null}
-          {extension.hasUpdate ? <span>Update</span> : null}
+          {extension.isObsolete ? <span>{t('Obsolete')}</span> : null}
+          {extension.hasUpdate ? <span>{t('Update')}</span> : null}
         </div>
       </div>
       <button
