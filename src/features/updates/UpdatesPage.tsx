@@ -221,11 +221,11 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       </div>
 
       {continueItems.length > 0 ? (
-        <section className="updates-continue" aria-labelledby="updates-continue-heading">
-          <div className="section-heading-row">
+        <details className="updates-continue" aria-labelledby="updates-continue-heading">
+          <summary className="section-heading-row">
             <h2 id="updates-continue-heading">{t('Continue reading')}</h2>
             <span>{t('{count} manga', { count: continueItems.length })}</span>
-          </div>
+          </summary>
           <div className="updates-continue-grid">
             {continueItems.map((manga) => (
               <ContinueCard
@@ -235,7 +235,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               />
             ))}
           </div>
-        </section>
+        </details>
       ) : null}
 
       {feed.isLoading && !feed.data ? (

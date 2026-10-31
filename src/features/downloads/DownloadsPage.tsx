@@ -301,15 +301,16 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         >
           {t('Refresh')}
         </button>
-        <button
-          className="button button-secondary"
-          type="button"
-          disabled={downloads.isActing || failedCount === 0}
-          onClick={() => void controller.retryFailed()}
-        >
-          {t('Retry failed')}
-          {failedCount > 0 ? ` (${failedCount})` : ''}
-        </button>
+        {failedCount > 0 ? (
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={downloads.isActing}
+            onClick={() => void controller.retryFailed()}
+          >
+            {t('Retry failed')} ({failedCount})
+          </button>
+        ) : null}
       </PageHeader>
 
       <div className="download-stats">

@@ -28,6 +28,8 @@ registerMessages('id', {
   'Open a source to browse its Popular/Latest catalog, search, and add manga directly to your library.':
     'Buka source untuk menjelajahi katalog Populer/Terbaru, mencari, dan menambahkan manga langsung ke perpustakaan.',
   'installed sources': 'source terpasang',
+  Language: 'Bahasa',
+  'All languages': 'Semua bahasa',
   Preferred: 'Pilihan',
   'Preferred languages': 'Bahasa pilihan',
   'Couldn’t load sources': 'Tidak dapat memuat source',
@@ -226,17 +228,20 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
       </section>
 
       <div className="browse-filters" role="group" aria-label="Filter sources by language">
-        {languages.map((lang) => (
-          <button
-            className={language === lang.value ? 'is-active' : undefined}
-            key={lang.value}
-            type="button"
-            aria-pressed={language === lang.value}
-            onClick={() => setLanguage(lang.value)}
+        <label className="browse-language-select">
+          <span>{t('Language')}</span>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            aria-label="Filter sources by language"
           >
-            {lang.value === 'all' ? t('All') : lang.label}
-          </button>
-        ))}
+            {languages.map((lang) => (
+              <option key={lang.value} value={lang.value}>
+                {lang.value === 'all' ? t('All languages') : lang.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           className={preferences.showNsfw ? 'is-active' : undefined}
           type="button"

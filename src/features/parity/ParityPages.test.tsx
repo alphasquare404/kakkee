@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';

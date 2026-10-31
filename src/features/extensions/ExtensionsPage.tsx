@@ -24,6 +24,8 @@ registerMessages('id', {
   'The last extension change was rejected by the server.':
     'Perubahan ekstensi terakhir ditolak server.',
   'Search extensions': 'Cari ekstensi',
+  Language: 'Bahasa',
+  'All languages': 'Semua bahasa',
   'Search by name or package…': 'Cari berdasarkan nama atau paket…',
   'Updates only': 'Hanya update',
   'Couldn’t load extensions': 'Tidak dapat memuat ekstensi',
@@ -139,17 +141,20 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
       ) : null}
 
       <div className="browse-filters" role="group" aria-label="Filter extensions by language">
-        {languages.map((lang) => (
-          <button
-            className={language === lang ? 'is-active' : undefined}
-            key={lang}
-            type="button"
-            aria-pressed={language === lang}
-            onClick={() => setLanguage(lang)}
+        <label className="browse-language-select">
+          <span>{t('Language')}</span>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            aria-label="Filter extensions by language"
           >
-            {lang === 'all' ? t('All') : lang.toUpperCase()}
-          </button>
-        ))}
+            {languages.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang === 'all' ? t('All languages') : lang.toUpperCase()}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div className="extension-filter-row">
