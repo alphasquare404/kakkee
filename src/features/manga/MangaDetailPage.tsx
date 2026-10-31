@@ -136,6 +136,9 @@ function ConnectedMangaDetail({
     savedView?.filter ?? 'all',
   );
   const [scanlator, setScanlator] = useState(savedView?.scanlator ?? 'all');
+  const [hideDuplicates, setHideDuplicates] = useState(
+    savedView?.hideDuplicates ?? false,
+  );
   const [chapterSelectionMode, setChapterSelectionMode] = useState(false);
   const [selectedChapterIds, setSelectedChapterIds] = useState<ReadonlySet<number>>(
     new Set(),
@@ -172,8 +175,9 @@ function ConnectedMangaDetail({
       order: detail.order,
       filter: chapterFilter,
       scanlator,
+      hideDuplicates,
     });
-  }, [chapterFilter, detail.order, mangaId, scanlator]);
+  }, [chapterFilter, detail.order, hideDuplicates, mangaId, scanlator]);
 
   if (!detail.manga && !detail.error) {
     return (
@@ -224,7 +228,7 @@ function ConnectedMangaDetail({
         .filter((value): value is string => Boolean(value)),
     ),
   ].sort((left, right) => left.localeCompare(right));
-  const visibleChapters = detail.chapters.filter((chapter) => {
+  const filteredChapters = detail.chapters.filter((chapter) => {
     if (scanlator !== 'all' && chapter.scanlator !== scanlator) {
       return false;
     }
@@ -255,6 +259,14 @@ function ConnectedMangaDetail({
       .toLowerCase()
       .includes(query);
   });
+  const visibleChapters = hideDuplicates
+    ? filteredChapters.filter(
+        (chapter, index, items) =>
+          items.findIndex(
+            (item) => item.chapterNumber === chapter.chapterNumber,
+          ) === index,
+      )
+    : filteredChapters;
 
   const toggleChapterRange = (
     chapterId: number,
@@ -572,6 +584,15 @@ function ConnectedMangaDetail({
                 <option value="bookmarked">Bookmarked</option>
               </select>
             </label>
+
+            <button
+              className={`library-action${hideDuplicates ? ' is-active' : ''}`}
+              type="button"
+              aria-pressed={hideDuplicates}
+              onClick={() => setHideDuplicates((value) => !value)}
+            >
+              Hide duplicates
+            </button>
 
             {scanlators.length > 0 ? (
               <label className="chapter-select">

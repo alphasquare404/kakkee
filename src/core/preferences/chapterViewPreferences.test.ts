@@ -18,12 +18,14 @@ describe('chapter view preferences', () => {
       order: 'oldest',
       filter: 'unread',
       scanlator: 'Scan',
+      hideDuplicates: true,
     });
 
     expect(getChapterViewPreferences(12)).toEqual({
       order: 'oldest',
       filter: 'unread',
       scanlator: 'Scan',
+      hideDuplicates: true,
     });
     expect(getChapterViewPreferences(13)).toBeNull();
   });

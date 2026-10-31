@@ -11,6 +11,7 @@ export interface ChapterViewPreferences {
   readonly order: MangaChapterOrder;
   readonly filter: ChapterFilter;
   readonly scanlator: string;
+  readonly hideDuplicates: boolean;
 }
 
 const STORAGE_KEY = 'suwayomi.chapter-view-preferences.v1';
@@ -50,6 +51,7 @@ function load(): Record<string, ChapterViewPreferences> {
             ? item.filter
             : 'all',
         scanlator: typeof item.scanlator === 'string' ? item.scanlator : 'all',
+        hideDuplicates: item.hideDuplicates === true,
       };
     }
 
