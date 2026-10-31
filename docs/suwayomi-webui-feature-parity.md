@@ -198,7 +198,7 @@ frontend.
 | Categories | List categories and counts | `Partial` | Yes | Read-only category page |
 | Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
 | Categories | Assignment and default-category behavior | `Missing` | Yes | |
-| Categories | Category update/download inclusion flags | `Missing` | Yes | |
+| Categories | Category update/download inclusion flags | `Implemented` | Yes | Per-category include in updates/downloads toggles |
 
 ### Backup / Sync / Settings / Global behavior
 

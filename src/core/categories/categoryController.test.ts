@@ -9,6 +9,8 @@ const category: Category = {
   default: true,
   isDefaultCategory: true,
   order: 0,
+  includeInUpdate: 'INCLUDE',
+  includeInDownload: 'INCLUDE',
   mangas: { __typename: 'MangaNodeList', totalCount: 4 },
 };
 

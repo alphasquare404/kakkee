@@ -197,6 +197,22 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
               }}
               onMoveUp={() => moveCategory(category, -1)}
               onMoveDown={() => moveCategory(category, 1)}
+              onToggleUpdate={() =>
+                void controller.setFlags(category.id, {
+                  includeInUpdate:
+                    category.includeInUpdate === 'INCLUDE'
+                      ? 'EXCLUDE'
+                      : 'INCLUDE',
+                })
+              }
+              onToggleDownload={() =>
+                void controller.setFlags(category.id, {
+                  includeInDownload:
+                    category.includeInDownload === 'INCLUDE'
+                      ? 'EXCLUDE'
+                      : 'INCLUDE',
+                })
+              }
             />
           ))}
         </div>
@@ -222,6 +238,8 @@ function CategoryCard({
   onConfirmDelete,
   onMoveUp,
   onMoveDown,
+  onToggleUpdate,
+  onToggleDownload,
 }: {
   readonly category: Category;
   readonly busy: boolean;
@@ -239,6 +257,8 @@ function CategoryCard({
   readonly onConfirmDelete: () => void;
   readonly onMoveUp: () => void;
   readonly onMoveDown: () => void;
+  readonly onToggleUpdate: () => void;
+  readonly onToggleDownload: () => void;
 }) {
   const isDefault = category.default || category.isDefaultCategory;
 
@@ -277,6 +297,26 @@ function CategoryCard({
           {category.mangas.totalCount.toLocaleString('en-US')} manga
           {isDefault ? ' · Default' : ''}
         </p>
+        <div className="category-flags">
+          <label>
+            <input
+              type="checkbox"
+              checked={category.includeInUpdate === 'INCLUDE'}
+              disabled={busy}
+              onChange={onToggleUpdate}
+            />
+            Include in updates
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={category.includeInDownload === 'INCLUDE'}
+              disabled={busy}
+              onChange={onToggleDownload}
+            />
+            Include in downloads
+          </label>
+        </div>
         {deleting ? (
           <div className="category-delete-confirm" role="alert">
             <span>Delete this category?</span>

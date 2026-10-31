@@ -6,6 +6,7 @@ import {
   UpdateCategoryDocument,
   UpdateCategoryOrderDocument,
   type CategoryCatalogQuery,
+  type IncludeOrExclude,
 } from '../graphql/generated/graphql';
 
 export type Category = CategoryCatalogQuery['categories']['nodes'][number];
@@ -16,6 +17,13 @@ export interface CategoryRepository {
   renameCategory(id: number, name: string): Promise<Category>;
   deleteCategory(id: number): Promise<void>;
   moveCategory(id: number, position: number): Promise<void>;
+  setCategoryFlags(
+    id: number,
+    flags: Partial<{
+      includeInUpdate: IncludeOrExclude;
+      includeInDownload: IncludeOrExclude;
+    }>,
+  ): Promise<void>;
 }
 
 export interface CategoryRepositoryOptions {
@@ -80,6 +88,16 @@ export function createCategoryRepository(
 
       if (!result.data?.updateCategoryOrder) {
         throw new Error('Category order could not be saved.');
+      }
+    },
+    async setCategoryFlags(id, flags) {
+      const result = await options.getClient().mutate({
+        mutation: UpdateCategoryDocument,
+        variables: { input: { id, patch: flags } },
+      });
+
+      if (!result.data?.updateCategory) {
+        throw new Error('Category flags could not be saved.');
       }
     },
   };

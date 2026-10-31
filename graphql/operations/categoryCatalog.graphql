@@ -6,6 +6,8 @@ query CategoryCatalog {
       default
       isDefaultCategory
       order
+      includeInUpdate
+      includeInDownload
       mangas {
         totalCount
       }

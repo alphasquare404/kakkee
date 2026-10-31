@@ -6,6 +6,8 @@ mutation CreateCategory($input: CreateCategoryInput!) {
       default
       isDefaultCategory
       order
+      includeInUpdate
+      includeInDownload
       mangas {
         totalCount
       }

@@ -18,6 +18,13 @@ export interface CategoryController {
   rename(id: number, name: string): Promise<boolean>;
   remove(id: number): Promise<boolean>;
   move(id: number, position: number): Promise<boolean>;
+  setFlags(
+    id: number,
+    flags: Partial<{
+      includeInUpdate: 'INCLUDE' | 'EXCLUDE';
+      includeInDownload: 'INCLUDE' | 'EXCLUDE';
+    }>,
+  ): Promise<boolean>;
 }
 
 export function createCategoryController(
@@ -93,6 +100,11 @@ export function createCategoryController(
     async move(id, position) {
       return run(async () => {
         await repository.moveCategory(id, position);
+      });
+    },
+    async setFlags(id, flags) {
+      return run(async () => {
+        await repository.setCategoryFlags(id, flags);
       });
     },
   };
