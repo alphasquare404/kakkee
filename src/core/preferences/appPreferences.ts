@@ -1,16 +1,19 @@
 export type ThemeMode = 'dark' | 'pure-black';
 export type LibraryDensity = 'compact' | 'comfortable';
+export type LibraryView = 'grid' | 'list';
 export type Locale = 'en' | 'id';
 
 export interface AppPreferences {
   readonly theme: ThemeMode;
   readonly libraryDensity: LibraryDensity;
+  readonly libraryView: LibraryView;
   readonly locale: Locale;
 }
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   theme: 'dark',
   libraryDensity: 'compact',
+  libraryView: 'grid',
   locale: 'en',
 };
 
@@ -33,6 +36,7 @@ function load(): AppPreferences {
       theme: parsed.theme === 'pure-black' ? 'pure-black' : 'dark',
       libraryDensity:
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
+      libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
       locale: parsed.locale === 'id' ? 'id' : 'en',
     };
   } catch {
@@ -76,6 +80,12 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
         : patch.libraryDensity === 'compact'
           ? 'compact'
           : state.libraryDensity,
+    libraryView:
+      patch.libraryView === 'list'
+        ? 'list'
+        : patch.libraryView === 'grid'
+          ? 'grid'
+          : state.libraryView,
     locale: patch.locale === 'id' ? 'id' : patch.locale === 'en' ? 'en' : state.locale,
   };
   persist(state);

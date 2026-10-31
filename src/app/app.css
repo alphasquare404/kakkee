@@ -2217,6 +2217,36 @@ h2 {
   gap: 1.6rem 1.1rem;
 }
 
+.manga-grid.is-list {
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.manga-grid.is-list .manga-card {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-sunken);
+}
+
+.manga-grid.is-list .manga-card-cover {
+  flex: 0 0 4.25rem;
+  width: 4.25rem;
+}
+
+.manga-grid.is-list .manga-card-title {
+  font-size: var(--text-md);
+  text-align: left;
+}
+
+.manga-grid.is-list .manga-card-continue {
+  position: static;
+  margin-left: auto;
+}
+
 .manga-card-link {
   transition: transform var(--dur-base) var(--ease-out);
   touch-action: manipulation;

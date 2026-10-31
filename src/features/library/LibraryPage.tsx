@@ -30,6 +30,7 @@ import { useConnection } from '../../app/useConnection';
 import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
+import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useSearchHistory } from '../../shared/useSearchHistory';
 import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import {
@@ -821,6 +822,26 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               Duplicates ({duplicateGroups.length})
             </button>
+            <button
+              className={`library-action${
+                appPreferences.libraryView === 'grid' ? ' is-active' : ''
+              }`}
+              type="button"
+              aria-pressed={appPreferences.libraryView === 'grid'}
+              onClick={() => updateAppPreferences({ libraryView: 'grid' })}
+            >
+              Grid
+            </button>
+            <button
+              className={`library-action${
+                appPreferences.libraryView === 'list' ? ' is-active' : ''
+              }`}
+              type="button"
+              aria-pressed={appPreferences.libraryView === 'list'}
+              onClick={() => updateAppPreferences({ libraryView: 'list' })}
+            >
+              List
+            </button>
 
             <button
               ref={filterButton}
@@ -1166,7 +1187,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           ) : null}
 
           {library.items.length > 0 ? (
-            <div className="manga-grid">
+            <div
+              className={`manga-grid${
+                appPreferences.libraryView === 'list' ? ' is-list' : ''
+              }`}
+            >
               {displayedItems.map((manga, index) => (
                 <MangaCard
                   key={manga.id}

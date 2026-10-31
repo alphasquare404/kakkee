@@ -61,7 +61,7 @@ frontend.
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
 | Library | Poster grid with authenticated thumbnails | `Implemented` | Yes | Real ResourceService thumbnails |
-| Library | List / comfortable grid / compact grid | `Partial` | Client concern | Poster grid only |
+| Library | List / comfortable grid / compact grid | `Implemented` | Client concern | Grid/list toggle plus compact/comfortable density |
 | Library | Categories and category counts | `Partial` | Yes | Category tabs and counts on Categories page; library tab counts not shown |
 | Library | Search | `Implemented` | Yes | Server-side search |
 | Library | Fuzzy search | `Partial` | Client-side/upstream metadata | Token/subsequence fuzzy filter over loaded titles; not a server-wide fuzzy query |

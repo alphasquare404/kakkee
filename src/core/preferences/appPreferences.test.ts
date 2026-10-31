@@ -28,6 +28,7 @@ describe('app preferences', () => {
     expect(getAppPreferences()).toEqual({
       theme: 'dark',
       libraryDensity: 'comfortable',
+      libraryView: 'grid',
       locale: 'en',
     });
     expect(getReaderSettings()).toBeDefined();
