@@ -19,6 +19,15 @@ function readFrontendBasePath(configured: string | undefined): string {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   const frontendBasePath = readFrontendBasePath(env.VITE_FRONTEND_BASE_PATH);
+  const suwayomiServerUrl =
+    env.SUWAYOMI_SERVER_URL?.trim() || 'http://127.0.0.1:4567';
+  const proxy = {
+    '/api': {
+      target: suwayomiServerUrl,
+      changeOrigin: false,
+      ws: true,
+    },
+  };
 
   return {
     base: frontendBasePath,
@@ -43,13 +52,15 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
     },
     server: {
-      allowedHosts: ['kakkee.alphasquare.my.id'],
+      allowedHosts: ['kakkee.alphasquare.my.id', '.trycloudflare.com'],
+      proxy,
     },
     preview: {
       host: '0.0.0.0',
       port: 4174,
       strictPort: true,
-      allowedHosts: ['kakkee.alphasquare.my.id'],
+      allowedHosts: ['kakkee.alphasquare.my.id', '.trycloudflare.com'],
+      proxy,
     },
   };
 });

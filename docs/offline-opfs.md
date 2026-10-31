@@ -51,3 +51,4 @@ suwayomi-offline-v1/
 
 - Unit test `clientDownloadRepository.test.ts`.
 - Verifikasi headless Chrome: OPFS write/read, route `/offline`, service worker control, lalu `/offline/read/999` saat jaringan dimatikan; gambar terbaca dengan `naturalWidth = 1`.
+- E2E server nyata `https://suwayomi.alphasquare.my.id` (stable v2.4.2366, auth NONE): manga 60 chapter 1621, 60 halaman, 28.278.865 byte tersimpan di OPFS. Setelah service worker aktif dan jaringan dimatikan, `/offline/read/1621` menampilkan tiga gambar pertama dengan `naturalWidth = 1280` dari blob OPFS.

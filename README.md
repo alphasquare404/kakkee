@@ -219,6 +219,21 @@ https://kakkee.alphasquare.my.id/*      -> http://localhost:4174
 
 Route `/api/*` harus diperiksa lebih dulu. Dengan pola ini frontend dan server berada di origin yang sama, sehingga tidak perlu konfigurasi CORS tambahan.
 
+Vite preview juga mem-proxy `/api` dan WebSocket ke server Suwayomi lokal secara default:
+
+```text
+http://127.0.0.1:4567
+```
+
+Ubah target bila server berada di port/host lain:
+
+```powershell
+$env:SUWAYOMI_SERVER_URL='http://127.0.0.1:4567'
+npm run preview
+```
+
+Dengan proxy ini, reverse proxy HTTPS cukup meneruskan seluruh request ke port `4174`; Vite yang meneruskan `/api` ke Suwayomi.
+
 DNS `kakkee.alphasquare.my.id` saat ini mengarah ke `151.242.116.229`. Jika memakai Cloudflare Tunnel, record tersebut harus diganti dengan CNAME tunnel Cloudflare (dashboard biasanya membuatnya otomatis). Hapus record A lama terlebih dahulu jika `cloudflared tunnel route dns` menolak karena record sudah ada.
 
 Setelah tunnel aktif, isi server URL di aplikasi dengan:
