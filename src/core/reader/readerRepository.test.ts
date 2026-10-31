@@ -49,7 +49,9 @@ describe('createReaderRepository', () => {
       next: { nodes: [{ id: 11 }] },
     });
     await expect(repository.getPages(10)).resolves.toEqual(['/page/0', '/page/1']);
+    await expect(repository.getPages(10)).resolves.toEqual(['/page/0', '/page/1']);
 
+    expect(mutate).toHaveBeenCalledTimes(1);
     expect(mutate).toHaveBeenCalledWith(
       expect.objectContaining({
         variables: { input: { chapterId: 10 } },

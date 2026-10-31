@@ -20,6 +20,7 @@ export interface ReaderController {
   getState(): ReaderState;
   subscribe(listener: (state: ReaderState) => void): () => void;
   load(chapterId: number): Promise<void>;
+  preload(chapterId: number): Promise<void>;
   retryPages(): Promise<void>;
   saveProgress(
     chapterId: number,
@@ -177,6 +178,14 @@ export function createReaderController(
     }
   }
 
+  async function preload(chapterId: number): Promise<void> {
+    try {
+      await options.repository.getPages(chapterId);
+    } catch {
+      // Preloading is best-effort; the normal load path reports errors.
+    }
+  }
+
   async function setBookmark(isBookmarked: boolean): Promise<void> {
     const chapter = state.chapter;
 
@@ -254,6 +263,7 @@ export function createReaderController(
       };
     },
     load,
+    preload,
     retryPages,
     saveProgress,
     downloadChapter,

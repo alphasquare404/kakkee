@@ -41,6 +41,8 @@ export interface ReaderRepositoryOptions {
 export function createReaderRepository(
   options: ReaderRepositoryOptions,
 ): ReaderRepository {
+  const pageCache = new Map<number, readonly string[]>();
+
   return {
     async getChapter(chapterId) {
       const result = await options.getClient().query({
@@ -81,7 +83,14 @@ export function createReaderRepository(
 
       return result.data.chapters.nodes;
     },
-    async getPages(chapterId) {      const result = await options.getClient().mutate({
+    async getPages(chapterId) {
+      const cached = pageCache.get(chapterId);
+
+      if (cached) {
+        return cached;
+      }
+
+      const result = await options.getClient().mutate({
         mutation: FetchChapterPagesDocument,
         variables: { input: { chapterId } },
         fetchPolicy: 'network-only',
@@ -91,7 +100,9 @@ export function createReaderRepository(
         throw new Error('Halaman chapter tidak tersedia.');
       }
 
-      return result.data.fetchChapterPages.pages;
+      const pages = result.data.fetchChapterPages.pages;
+      pageCache.set(chapterId, pages);
+      return pages;
     },
     async updateProgress(chapterId, lastPageRead, isRead) {
       const result = await options.getClient().mutate({

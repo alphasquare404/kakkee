@@ -80,6 +80,7 @@ function ConnectedReader({
   const imageFilter = buildReaderFilter(readerSettings);
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
+  const preloadedNext = useRef<number | null>(null);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
@@ -98,6 +99,7 @@ function ConnectedReader({
       loadedChapter.current = chapterId;
       setCurrentPage(1);
       setAutoWebtoon(false);
+      preloadedNext.current = null;
       setNextDownloadQueued(false);
       void controller.load(chapterId);
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -130,6 +132,27 @@ function ConnectedReader({
         : [safeCurrentPage - 1, safeCurrentPage]
     : reader.pages.map((_, index) => index);
   const noopVisible = useCallback(() => undefined, []);
+
+  useEffect(() => {
+    const next = reader.nextChapter;
+
+    if (
+      !next ||
+      preloadedNext.current === next.id ||
+      reader.pages.length === 0 ||
+      safeCurrentPage < reader.pages.length - 2
+    ) {
+      return;
+    }
+
+    preloadedNext.current = next.id;
+    void controller.preload(next.id);
+  }, [
+    controller,
+    reader.nextChapter,
+    reader.pages.length,
+    safeCurrentPage,
+  ]);
   const uniqueChapters = readerSettings.skipDuplicates
     ? [
         ...new Map(
