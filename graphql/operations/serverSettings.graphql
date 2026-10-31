@@ -32,5 +32,15 @@ query ServerSettings {
     koreaderSyncPercentageTolerance
     koreaderSyncStrategyBackward
     koreaderSyncStrategyForward
+    downloadConversions {
+      mimeType
+      target
+      compressionLevel
+    }
+    serveConversions {
+      mimeType
+      target
+      compressionLevel
+    }
   }
 }

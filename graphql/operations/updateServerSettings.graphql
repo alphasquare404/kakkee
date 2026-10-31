@@ -25,6 +25,16 @@ mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {
       koreaderSyncPercentageTolerance
       koreaderSyncStrategyBackward
       koreaderSyncStrategyForward
+      downloadConversions {
+        mimeType
+        target
+        compressionLevel
+      }
+      serveConversions {
+        mimeType
+        target
+        compressionLevel
+      }
     }
   }
 }

@@ -38,7 +38,9 @@ const settings: ServerSettings = {
   koreaderSyncChecksumMethod: 'BINARY',
   koreaderSyncPercentageTolerance: 0.1,
   koreaderSyncStrategyBackward: 'PROMPT',
-  koreaderSyncStrategyForward: 'PROMPT',};
+  koreaderSyncStrategyForward: 'PROMPT',
+  downloadConversions: [],
+  serveConversions: [],};
 
 function setup() {
   const getSettings = vi.fn(async () => settings);

@@ -166,7 +166,7 @@ frontend.
 | Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
 | Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Progress and per-row actions; no grouping/bulk/speed |
 | Downloads | List downloaded chapters | `Partial` | Yes | Real `isDownloaded` feed |
-| Downloads | Download/conversion/image settings | `Missing` | Yes | |
+| Downloads | Download/conversion/image settings | `Partial` | Yes | Download/serve conversion list editor; image processing settings absent |
 
 ### Browse / Sources / Extensions
 
@@ -213,7 +213,7 @@ frontend.
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
-| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits and CBZ setting; image processing absent |
+| Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, and conversion lists; image processing absent |
 | Settings | Browse/source/extension-store settings | `Partial` | Yes | Extension stores can be added/removed; source preferences absent |
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |

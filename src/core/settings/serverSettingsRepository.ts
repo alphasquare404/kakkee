@@ -34,6 +34,8 @@ export type EditableServerSettings = Pick<
   | 'koreaderSyncPercentageTolerance'
   | 'koreaderSyncStrategyBackward'
   | 'koreaderSyncStrategyForward'
+  | 'downloadConversions'
+  | 'serveConversions'
 >;
 
 export interface ServerSettingsRepository {

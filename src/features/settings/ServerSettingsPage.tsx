@@ -78,6 +78,8 @@ function ServerSettingsForm({
   readonly controller: ServerSettingsController;
   readonly settings: NonNullable<ReturnType<ServerSettingsController['getState']>['settings']>;
 }) {
+  const [conversionTarget, setConversionTarget] = useState('');
+  const [conversionMime, setConversionMime] = useState('image/webp');
   const update = (patch: Partial<EditableServerSettings>) => {
     void controller.update(patch);
   };
@@ -175,6 +177,107 @@ function ServerSettingsForm({
             </dd>
           </div>
         </dl>
+      </section>
+
+      <section className="settings-section" aria-labelledby="server-conversions">
+        <div className="section-heading-row">
+          <h2 id="server-conversions">Image conversions</h2>
+        </div>
+        <p className="settings-save-state">
+          Convert downloaded or served images through the server.
+        </p>
+        <div className="settings-field-grid">
+          <label className="settings-number">
+            <span>Target</span>
+            <input
+              value={conversionTarget}
+              placeholder="webp"
+              onChange={(event) => setConversionTarget(event.target.value)}
+            />
+          </label>
+          <label className="settings-number">
+            <span>MIME type</span>
+            <input
+              value={conversionMime}
+              onChange={(event) => setConversionMime(event.target.value)}
+            />
+          </label>
+        </div>
+        <div className="settings-actions">
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={!conversionTarget.trim() || !conversionMime.trim()}
+            onClick={() => {
+              const conversion = {
+                __typename: 'SettingsDownloadConversionType' as const,
+                target: conversionTarget.trim(),
+                mimeType: conversionMime.trim(),
+                compressionLevel: null,
+              };
+              update({
+                downloadConversions: [...settings.downloadConversions, conversion],
+              });
+              setConversionTarget('');
+            }}
+          >
+            Add download conversion
+          </button>
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={!conversionTarget.trim() || !conversionMime.trim()}
+            onClick={() => {
+              const conversion = {
+                __typename: 'SettingsDownloadConversionType' as const,
+                target: conversionTarget.trim(),
+                mimeType: conversionMime.trim(),
+                compressionLevel: null,
+              };
+              update({
+                serveConversions: [...settings.serveConversions, conversion],
+              });
+              setConversionTarget('');
+            }}
+          >
+            Add serve conversion
+          </button>
+        </div>
+        {(['downloadConversions', 'serveConversions'] as const).map((key) => (
+          <div className="settings-rows" key={key}>
+            <div>
+              <dt>{key === 'downloadConversions' ? 'Download' : 'Serve'}</dt>
+              <dd>
+                {settings[key].length === 0 ? (
+                  'None'
+                ) : (
+                  <ul className="conversion-list">
+                    {settings[key].map((conversion, index) => (
+                      <li key={`${conversion.target}-${conversion.mimeType}-${index}`}>
+                        <span>
+                          {conversion.target} · {conversion.mimeType}
+                        </span>
+                        <button
+                          className="library-action"
+                          type="button"
+                          onClick={() =>
+                            update({
+                              [key]: settings[key].filter(
+                                (_item, itemIndex) => itemIndex !== index,
+                              ),
+                            })
+                          }
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </dd>
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="settings-section" aria-labelledby="server-opds">

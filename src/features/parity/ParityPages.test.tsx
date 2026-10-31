@@ -160,7 +160,9 @@ function serverSettings(): ServerSettingsQuery {
   koreaderSyncChecksumMethod: 'BINARY',
   koreaderSyncPercentageTolerance: 0.1,
   koreaderSyncStrategyBackward: 'PROMPT',
-  koreaderSyncStrategyForward: 'PROMPT',    },
+  koreaderSyncStrategyForward: 'PROMPT',
+  downloadConversions: [],
+  serveConversions: [],    },
   };
 }
 

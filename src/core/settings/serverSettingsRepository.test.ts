@@ -40,7 +40,9 @@ const settings: ServerSettingsQuery['settings'] = {
   koreaderSyncChecksumMethod: 'BINARY',
   koreaderSyncPercentageTolerance: 0.1,
   koreaderSyncStrategyBackward: 'PROMPT',
-  koreaderSyncStrategyForward: 'PROMPT',};
+  koreaderSyncStrategyForward: 'PROMPT',
+  downloadConversions: [],
+  serveConversions: [],};
 
 describe('createServerSettingsRepository', () => {
   it('reads settings from the server', async () => {
