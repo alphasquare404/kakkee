@@ -20,8 +20,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 10 | Empty states | Complete | [empty-state-audit.md](empty-state-audit.md) | `Goal 10` |
 | 11 | Accessibility | Complete | [accessibility-audit.md](accessibility-audit.md) | `Goal 11` |
 | 12 | Reader UX | Complete | [reader-ux-audit.md](reader-ux-audit.md) | `Goal 12` |
-| 13 | Performance/resources | In Progress | — | — |
-| 14 | PWA/offline | Pending | — | — |
+| 13 | Performance/resources | Complete | [performance-audit.md](performance-audit.md) | `Goal 13` |
+| 14 | PWA/offline | In Progress | — | — |
 | 15 | Visual hierarchy | Pending | — | — |
 | 16 | Motion/microinteractions | Pending | — | — |
 | 17 | Content/copy | Pending | — | — |

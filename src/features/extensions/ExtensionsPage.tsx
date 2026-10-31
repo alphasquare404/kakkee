@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -371,11 +371,39 @@ function ExtensionCard({
   readonly onAction: (extension: Extension, action: 'install' | 'update' | 'uninstall') => void;
 }) {
   const { t } = useI18n();
-  const icon = useImageResource(resources, extension.iconUrl);
+  const card = useRef<HTMLElement>(null);
+  const [iconVisible, setIconVisible] = useState(false);
+  const icon = useImageResource(resources, iconVisible ? extension.iconUrl : null);
   const action = !extension.isInstalled ? 'install' : extension.hasUpdate ? 'update' : 'uninstall';
 
+  useEffect(() => {
+    const element = card.current;
+
+    if (!element) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setIconVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIconVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <article className="extension-card">
+    <article className="extension-card" ref={card}>
       <span className="extension-icon" aria-hidden="true">
         {icon.objectUrl ? <img src={icon.objectUrl} alt="" /> : extension.name.charAt(0)}
       </span>
