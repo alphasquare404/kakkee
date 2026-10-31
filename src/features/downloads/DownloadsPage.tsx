@@ -53,6 +53,7 @@ registerMessages('id', {
   Retry: 'Coba lagi',
   Queue: 'Antrean',
   'The download queue is empty.': 'Antrean unduhan kosong.',
+  'Browse library': 'Jelajahi perpustakaan',
   '{count} chapters': '{count} chapter',
   'Cancel series': 'Batalkan seri',
   'Downloaded chapters': 'Chapter terunduh',
@@ -363,7 +364,12 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
 
         {!downloads.isLoading && queue.length === 0 ? (
-          <p className="download-empty">{t('The download queue is empty.')}</p>
+          <div className="download-empty">
+            <p>{t('The download queue is empty.')}</p>
+            <Link className="button button-secondary" to="/library">
+              {t('Browse library')}
+            </Link>
+          </div>
         ) : null}
 
         <div className="download-list">
@@ -434,7 +440,12 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         ) : null}
 
         {!downloaded.isLoading && (downloaded.data?.items.length ?? 0) === 0 ? (
-          <p className="download-empty">{t('No downloaded chapters on this server.')}</p>
+          <div className="download-empty">
+            <p>{t('No downloaded chapters on this server.')}</p>
+            <Link className="button button-secondary" to="/library">
+              {t('Browse library')}
+            </Link>
+          </div>
         ) : null}
 
         {downloaded.data && downloaded.data.items.length > 0 ? (

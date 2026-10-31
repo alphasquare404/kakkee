@@ -38,6 +38,8 @@ registerMessages('id', {
   'New chapters from manga in your library will appear here.':
     'Chapter baru dari manga di perpustakaan Anda akan muncul di sini.',
   'Nothing in this filter': 'Tidak ada pada filter ini',
+  'Open library': 'Buka perpustakaan',
+  'Show all updates': 'Tampilkan semua update',
   'Try another update filter.': 'Coba filter update lain.',
   Download: 'Unduh',
   Queued: 'Dalam antrean',
@@ -260,6 +262,11 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         <div className="library-state">
           <h1>{t('No updates yet')}</h1>
           <p>{t('New chapters from manga in your library will appear here.')}</p>
+          <div className="actions">
+            <Link className="button" to="/library">
+              {t('Open library')}
+            </Link>
+          </div>
         </div>
       ) : null}
 
@@ -267,6 +274,11 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         <div className="library-state">
           <h1>{t('Nothing in this filter')}</h1>
           <p>{t('Try another update filter.')}</p>
+          <div className="actions">
+            <button className="button" type="button" onClick={() => setFilter('all')}>
+              {t('Show all updates')}
+            </button>
+          </div>
         </div>
       ) : null}
 

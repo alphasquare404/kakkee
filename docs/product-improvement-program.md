@@ -17,8 +17,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | 7 | User task flows | Complete | [task-flow-audit.md](task-flow-audit.md) | `Goal 7` |
 | 8 | State and feedback | Complete | [state-feedback-audit.md](state-feedback-audit.md) | `Goal 8` |
 | 9 | Error recovery | Complete | [error-recovery-audit.md](error-recovery-audit.md) | `Goal 9` |
-| 10 | Empty states | In Progress | — | — |
-| 11 | Accessibility | Pending | — | — |
+| 10 | Empty states | Complete | [empty-state-audit.md](empty-state-audit.md) | `Goal 10` |
+| 11 | Accessibility | In Progress | — | — |
 | 12 | Reader UX | Pending | — | — |
 | 13 | Performance/resources | Pending | — | — |
 | 14 | PWA/offline | Pending | — | — |

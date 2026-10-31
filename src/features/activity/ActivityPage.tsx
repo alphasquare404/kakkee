@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter, FeedInput } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
@@ -28,6 +28,7 @@ export interface ActivityPageProps {
   readonly input: FeedInput;
   readonly emptyTitle: string;
   readonly emptyCopy: string;
+  readonly emptyAction?: ReactNode;
   readonly detail: (chapter: FeedChapter) => string;
   readonly stateLabel?: (chapter: FeedChapter) => string | undefined;
   readonly summary?: (items: readonly FeedChapter[]) => string;
@@ -55,6 +56,7 @@ function ActivityContent({
   input,
   emptyTitle,
   emptyCopy,
+  emptyAction,
   detail,
   stateLabel,
   summary,
@@ -152,6 +154,7 @@ function ActivityContent({
         <div className="library-state">
           <h1>{emptyTitle}</h1>
           <p>{emptyCopy}</p>
+          {emptyAction ? <div className="actions">{emptyAction}</div> : null}
         </div>
       ) : null}
 

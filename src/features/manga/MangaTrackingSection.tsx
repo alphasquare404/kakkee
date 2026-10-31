@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { Link } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createMangaTrackingController } from '../../core/tracking/mangaTrackingController';
 import {
@@ -57,7 +58,7 @@ export function MangaTrackingSection({
               disabled={tracking.syncing}
               onClick={() => void controller.syncProgress()}
             >
-              {tracking.syncing ? 'Syncing…' : 'Sync progress'}
+              {tracking.syncing ? 'Syncingâ€¦' : 'Sync progress'}
             </button>
           ) : null}
         </div>
@@ -71,7 +72,7 @@ export function MangaTrackingSection({
 
       {tracking.status === 'loading' && tracking.records.length === 0 ? (
         <p className="settings-save-state" role="status">
-          Loading tracker records…
+          Loading tracker recordsâ€¦
         </p>
       ) : null}
 
@@ -132,7 +133,7 @@ export function MangaTrackingSection({
             type="submit"
             disabled={tracking.searching || !query.trim()}
           >
-            {tracking.searching ? 'Searching…' : 'Search tracker'}
+            {tracking.searching ? 'Searchingâ€¦' : 'Search tracker'}
           </button>
           {selectedTracker?.supportsPrivateTracking ? (
             <label className="manga-track-private">
@@ -146,9 +147,14 @@ export function MangaTrackingSection({
           ) : null}
         </form>
       ) : (
-        <p className="settings-save-state">
-          Log in to a tracker in Settings to link this manga.
-        </p>
+        <div className="manga-track-empty">
+          <p className="settings-save-state">
+            Log in to a tracker in Settings to link this manga.
+          </p>
+          <Link className="button button-secondary" to="/settings/tracking">
+            Open tracking settings
+          </Link>
+        </div>
       )}
 
       {tracking.searchResults.length > 0 ? (
@@ -158,7 +164,7 @@ export function MangaTrackingSection({
               <div>
                 <strong>{result.title}</strong>
                 <span>
-                  {result.publishingStatus} · {result.totalChapters} chapters
+                  {result.publishingStatus} Â· {result.totalChapters} chapters
                 </span>
               </div>
               <button
@@ -304,8 +310,9 @@ function TrackRecordRow({
         disabled={busy}
         onClick={onUnbind}
       >
-        {busy ? 'Working…' : 'Unlink'}
+        {busy ? 'Workingâ€¦' : 'Unlink'}
       </button>
     </article>
   );
 }
+

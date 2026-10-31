@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ActivityPage } from '../activity/ActivityPage';
 import { useAppPath } from '../../app/useAppPath';
 import { createSectionOrigin } from '../../app/navigationOrigin';
@@ -39,6 +40,11 @@ export function HistoryPage() {
       emptyCopy={t(
         'Chapters you read will appear here when your server has reading progress.',
       )}
+      emptyAction={
+        <Link className="button button-secondary" to="/browse">
+          {t('Browse sources')}
+        </Link>
+      }
       detail={(chapter) => {
         const when = formatRelativeTime(chapter.lastReadAt);
         const page =

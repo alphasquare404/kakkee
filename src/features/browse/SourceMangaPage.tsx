@@ -49,6 +49,8 @@ registerMessages('id', {
   'No manga found': 'Tidak ada manga',
   'Try another search or catalog type.':
     'Coba pencarian atau tipe katalog lain.',
+  'Clear search': 'Hapus pencarian',
+  'Clear filters': 'Hapus filter',
   'No manga match these filters': 'Tidak ada manga yang cocok',
   'Turn off a filter or load more catalog pages.':
     'Matikan filter atau muat lebih banyak halaman katalog.',
@@ -394,6 +396,23 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         <div className="library-state">
           <h1>{t('No manga found')}</h1>
           <p>{t('Try another search or catalog type.')}</p>
+          <div className="actions">
+            {source.query || search.trim() ? (
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  runSearch('');
+                }}
+              >
+                {t('Clear search')}
+              </button>
+            ) : null}
+            <Link className="button button-secondary" to="/browse">
+              {t('All sources')}
+            </Link>
+          </div>
         </div>
       ) : null}
 
@@ -401,6 +420,19 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         <div className="library-state">
           <h1>{t('No manga match these filters')}</h1>
           <p>{t('Turn off a filter or load more catalog pages.')}</p>
+          <div className="actions">
+            <button
+              className="button"
+              type="button"
+              onClick={() => {
+                setHideInLibrary(false);
+                setDuplicatesOnly(false);
+                void controller.setFilters([]);
+              }}
+            >
+              {t('Clear filters')}
+            </button>
+          </div>
         </div>
       ) : null}
 

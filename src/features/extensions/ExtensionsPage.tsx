@@ -188,6 +188,11 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         <div className="library-state">
           <h1>{t('No extensions')}</h1>
           <p>{t('Add an extension store or install an extension on the server.')}</p>
+          <div className="actions">
+            <a className="button button-secondary" href="#extension-add-store">
+              {t('Add store')}
+            </a>
+          </div>
         </div>
       ) : null}
 

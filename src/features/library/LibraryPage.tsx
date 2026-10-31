@@ -1385,6 +1385,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   ? 'Try a different search, category, or status.'
                   : 'Manga you add in Suwayomi will appear here.'}
               </p>
+              <div className="actions">
+                {isNarrowed ? (
+                  <button className="button" type="button" onClick={resetAll}>
+                    Reset filters
+                  </button>
+                ) : (
+                  <Link className="button" to="/browse">
+                    Browse sources
+                  </Link>
+                )}
+              </div>
             </div>
           ) : null}
 

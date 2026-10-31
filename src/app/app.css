@@ -6394,3 +6394,13 @@ button.manga-card-link {
   color: var(--muted);
   font-size: var(--text-xs);
 }
+
+.download-empty {
+  display: grid;
+  gap: var(--sp-2);
+  justify-items: start;
+}
+
+.download-empty p {
+  margin: 0;
+}
