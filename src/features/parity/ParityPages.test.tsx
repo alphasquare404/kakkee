@@ -148,7 +148,19 @@ function serverSettings(): ServerSettingsQuery {
       webUIChannel: 'STABLE',
       webUIFlavor: 'WEBUI',
       webUIInterface: 'BROWSER',
-    },
+  opdsCbzMimetype: 'COMPATIBLE',
+  opdsChapterSortOrder: 'ASC',
+  opdsEnablePageReadProgress: true,
+  opdsItemsPerPage: 20,
+  opdsMarkAsReadOnDownload: false,
+  opdsShowOnlyDownloadedChapters: false,
+  opdsShowOnlyUnreadChapters: false,
+  opdsSkipChapterMetadataFeed: false,
+  opdsUseBinaryFileSizes: false,
+  koreaderSyncChecksumMethod: 'BINARY',
+  koreaderSyncPercentageTolerance: 0.1,
+  koreaderSyncStrategyBackward: 'PROMPT',
+  koreaderSyncStrategyForward: 'PROMPT',    },
   };
 }
 

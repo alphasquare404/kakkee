@@ -177,6 +177,120 @@ function ServerSettingsForm({
         </dl>
       </section>
 
+      <section className="settings-section" aria-labelledby="server-opds">
+        <div className="section-heading-row">
+          <h2 id="server-opds">OPDS</h2>
+        </div>
+        <div className="settings-toggle-list">
+          <Toggle
+            label="Mark chapters as read on download"
+            checked={settings.opdsMarkAsReadOnDownload ?? false}
+            onChange={(value) => update({ opdsMarkAsReadOnDownload: value })}
+          />
+          <Toggle
+            label="Show only downloaded chapters"
+            checked={settings.opdsShowOnlyDownloadedChapters ?? false}
+            onChange={(value) => update({ opdsShowOnlyDownloadedChapters: value })}
+          />
+          <Toggle
+            label="Show only unread chapters"
+            checked={settings.opdsShowOnlyUnreadChapters ?? false}
+            onChange={(value) => update({ opdsShowOnlyUnreadChapters: value })}
+          />
+          <Toggle
+            label="Enable page read progress"
+            checked={settings.opdsEnablePageReadProgress ?? false}
+            onChange={(value) => update({ opdsEnablePageReadProgress: value })}
+          />
+          <Toggle
+            label="Skip chapter metadata feed"
+            checked={settings.opdsSkipChapterMetadataFeed ?? false}
+            onChange={(value) => update({ opdsSkipChapterMetadataFeed: value })}
+          />
+          <Toggle
+            label="Use binary file sizes"
+            checked={settings.opdsUseBinaryFileSizes ?? false}
+            onChange={(value) => update({ opdsUseBinaryFileSizes: value })}
+          />
+        </div>
+        <div className="settings-field-grid">
+          <SelectField
+            label="CBZ media type"
+            value={settings.opdsCbzMimetype ?? 'COMPATIBLE'}
+            options={['MODERN', 'LEGACY', 'COMPATIBLE']}
+            onChange={(value) =>
+              update({ opdsCbzMimetype: value as EditableServerSettings['opdsCbzMimetype'] })
+            }
+          />
+          <SelectField
+            label="Chapter sort order"
+            value={settings.opdsChapterSortOrder ?? 'ASC'}
+            options={['ASC', 'DESC']}
+            onChange={(value) =>
+              update({
+                opdsChapterSortOrder:
+                  value as EditableServerSettings['opdsChapterSortOrder'],
+              })
+            }
+          />
+          <NumberField
+            label="Items per page"
+            value={settings.opdsItemsPerPage ?? 20}
+            min={1}
+            step={1}
+            onCommit={(value) => update({ opdsItemsPerPage: value })}
+          />
+        </div>
+      </section>
+
+      <section className="settings-section" aria-labelledby="server-koreader">
+        <div className="section-heading-row">
+          <h2 id="server-koreader">KOReader sync</h2>
+        </div>
+        <div className="settings-field-grid">
+          <SelectField
+            label="Checksum method"
+            value={settings.koreaderSyncChecksumMethod ?? 'BINARY'}
+            options={['BINARY', 'FILENAME']}
+            onChange={(value) =>
+              update({
+                koreaderSyncChecksumMethod:
+                  value as EditableServerSettings['koreaderSyncChecksumMethod'],
+              })
+            }
+          />
+          <SelectField
+            label="Conflict strategy (forward)"
+            value={settings.koreaderSyncStrategyForward ?? 'PROMPT'}
+            options={['PROMPT', 'KEEP_LOCAL', 'KEEP_REMOTE', 'DISABLED']}
+            onChange={(value) =>
+              update({
+                koreaderSyncStrategyForward:
+                  value as EditableServerSettings['koreaderSyncStrategyForward'],
+              })
+            }
+          />
+          <SelectField
+            label="Conflict strategy (backward)"
+            value={settings.koreaderSyncStrategyBackward ?? 'PROMPT'}
+            options={['PROMPT', 'KEEP_LOCAL', 'KEEP_REMOTE', 'DISABLED']}
+            onChange={(value) =>
+              update({
+                koreaderSyncStrategyBackward:
+                  value as EditableServerSettings['koreaderSyncStrategyBackward'],
+              })
+            }
+          />
+          <NumberField
+            label="Percentage tolerance"
+            value={settings.koreaderSyncPercentageTolerance ?? 0}
+            min={0}
+            step={0.1}
+            onCommit={(value) => update({ koreaderSyncPercentageTolerance: value })}
+          />
+        </div>
+      </section>
+
       <section className="settings-section" aria-labelledby="server-system">
         <div className="section-heading-row">
           <h2 id="server-system">System</h2>
@@ -253,6 +367,31 @@ function Toggle({
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly options: readonly string[];
+  readonly onChange: (value: string) => void;
+}) {
+  return (
+    <label className="settings-select-field">
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option.replaceAll('_', ' ')}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

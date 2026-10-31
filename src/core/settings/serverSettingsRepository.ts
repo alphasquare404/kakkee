@@ -21,6 +21,19 @@ export type EditableServerSettings = Pick<
   | 'excludeUnreadChapters'
   | 'excludeEntryWithUnreadChapters'
   | 'debugLogsEnabled'
+  | 'opdsCbzMimetype'
+  | 'opdsChapterSortOrder'
+  | 'opdsEnablePageReadProgress'
+  | 'opdsItemsPerPage'
+  | 'opdsMarkAsReadOnDownload'
+  | 'opdsShowOnlyDownloadedChapters'
+  | 'opdsShowOnlyUnreadChapters'
+  | 'opdsSkipChapterMetadataFeed'
+  | 'opdsUseBinaryFileSizes'
+  | 'koreaderSyncChecksumMethod'
+  | 'koreaderSyncPercentageTolerance'
+  | 'koreaderSyncStrategyBackward'
+  | 'koreaderSyncStrategyForward'
 >;
 
 export interface ServerSettingsRepository {

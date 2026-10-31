@@ -12,6 +12,19 @@ mutation UpdateServerSettings($settings: PartialSettingsTypeInput!) {
       excludeUnreadChapters
       excludeEntryWithUnreadChapters
       debugLogsEnabled
+      opdsCbzMimetype
+      opdsChapterSortOrder
+      opdsEnablePageReadProgress
+      opdsItemsPerPage
+      opdsMarkAsReadOnDownload
+      opdsShowOnlyDownloadedChapters
+      opdsShowOnlyUnreadChapters
+      opdsSkipChapterMetadataFeed
+      opdsUseBinaryFileSizes
+      koreaderSyncChecksumMethod
+      koreaderSyncPercentageTolerance
+      koreaderSyncStrategyBackward
+      koreaderSyncStrategyForward
     }
   }
 }

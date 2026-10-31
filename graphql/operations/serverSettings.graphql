@@ -19,5 +19,18 @@ query ServerSettings {
     webUIChannel
     webUIFlavor
     webUIInterface
+    opdsCbzMimetype
+    opdsChapterSortOrder
+    opdsEnablePageReadProgress
+    opdsItemsPerPage
+    opdsMarkAsReadOnDownload
+    opdsShowOnlyDownloadedChapters
+    opdsShowOnlyUnreadChapters
+    opdsSkipChapterMetadataFeed
+    opdsUseBinaryFileSizes
+    koreaderSyncChecksumMethod
+    koreaderSyncPercentageTolerance
+    koreaderSyncStrategyBackward
+    koreaderSyncStrategyForward
   }
 }

@@ -28,7 +28,19 @@ const settings: ServerSettingsQuery['settings'] = {
   webUIChannel: 'STABLE',
   webUIFlavor: 'WEBUI',
   webUIInterface: 'BROWSER',
-};
+  opdsCbzMimetype: 'COMPATIBLE',
+  opdsChapterSortOrder: 'ASC',
+  opdsEnablePageReadProgress: true,
+  opdsItemsPerPage: 20,
+  opdsMarkAsReadOnDownload: false,
+  opdsShowOnlyDownloadedChapters: false,
+  opdsShowOnlyUnreadChapters: false,
+  opdsSkipChapterMetadataFeed: false,
+  opdsUseBinaryFileSizes: false,
+  koreaderSyncChecksumMethod: 'BINARY',
+  koreaderSyncPercentageTolerance: 0.1,
+  koreaderSyncStrategyBackward: 'PROMPT',
+  koreaderSyncStrategyForward: 'PROMPT',};
 
 describe('createServerSettingsRepository', () => {
   it('reads settings from the server', async () => {

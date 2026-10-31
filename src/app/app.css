@@ -4215,6 +4215,24 @@ button.manga-card-link {
   font-size: var(--text-xs);
 }
 
+.settings-select-field {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.settings-select-field select {
+  width: 100%;
+  min-height: 2.15rem;
+  padding: 0 0.55rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-sunken);
+}
+
 .settings-number input {
   width: 100%;
   min-height: 2.15rem;
