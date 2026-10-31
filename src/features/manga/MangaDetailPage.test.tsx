@@ -272,12 +272,30 @@ describe('MangaDetailPage', () => {
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
     expect(screen.getByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
 
+    fireEvent.click(screen.getByLabelText('More chapter actions'));
     await user.selectOptions(
       screen.getByLabelText('Filter by scanlator'),
       'Other',
     );
     expect(screen.getByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
+  });
+
+  it('switches between chapters and overview content', async () => {
+    const query = vi.fn(async () => ({ data: detailData() }));
+    const user = userEvent.setup();
+    renderDetail(query);
+    await screen.findByRole('link', { name: /Chapter 1186/ });
+
+    expect(
+      screen.getByRole('button', { name: 'Chapters' }).getAttribute('aria-current'),
+    ).toBe('true');
+
+    await user.click(screen.getByRole('button', { name: 'Overview' }));
+    expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Chapters' }));
+    expect(await screen.findByRole('link', { name: /Chapter 1186/ })).toBeTruthy();
   });
 
   it('selects chapters for bulk actions', async () => {

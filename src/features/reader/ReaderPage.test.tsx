@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
 import { cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -335,6 +335,7 @@ describe('ReaderPage', () => {
     expect(
       screen.getByRole('button', { name: 'Next page' }),
     ).toBeTruthy();
+    fireEvent.click(screen.getByLabelText('Reader actions'));
     expect(
       screen.getByRole('button', { name: 'Auto-scroll' }),
     ).toBeTruthy();

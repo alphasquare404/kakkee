@@ -29,6 +29,7 @@ import {
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
+import { ActionMenu } from '../../shared/ActionMenu';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
@@ -46,8 +47,9 @@ import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
   Library: 'Perpustakaan',
-  'Loading…': 'Memuat…',
+  'Loadingâ€¦': 'Memuatâ€¦',
   'Search library': 'Cari di perpustakaan',
+  'Submit search': 'Cari',
   'Clear history': 'Hapus riwayat',
   Select: 'Pilih',
   Done: 'Selesai',
@@ -69,7 +71,7 @@ registerMessages('id', {
   Close: 'Tutup',
   All: 'Semua',
   'No server categories.': 'Tidak ada kategori server.',
-  'Loading categories…': 'Memuat kategori…',
+  'Loading categoriesâ€¦': 'Memuat kategoriâ€¦',
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
@@ -135,7 +137,7 @@ function countLabel(
   t: (key: string, params?: Record<string, string | number>) => string,
 ): string {
   if (loading) {
-    return t('Loading…');
+    return t('Loadingâ€¦');
   }
 
   return t('{count} manga', {
@@ -425,7 +427,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
 
     setHistoryOpen(false);
-    writeSearchUrl(query, fuzzy);
 
     if (fuzzy) {
       const rest = { ...library.filter };
@@ -435,10 +436,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         void controller.setFilter(rest);
       }
 
+      writeSearchUrl(query, fuzzy);
       return;
     }
 
     void controller.setSearch(query);
+    writeSearchUrl(query, fuzzy);
   };
 
   const clearSearch = () => {
@@ -882,6 +885,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             autoComplete="off"
             enterKeyHint="search"
           />
+          <button
+            className="library-search-submit"
+            type="submit"
+            aria-label={t('Submit search')}
+            disabled={!search.trim()}
+          >
+            <IconSearch />
+          </button>
           {search.length > 0 ? (
             <button
               className="library-search-clear"
@@ -951,55 +962,19 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
           <div className="library-actions" ref={actionsRef}>
             <button
-              className={`library-action${selectionMode ? ' is-active' : ''}`}
+              className="library-action"
               type="button"
-              aria-pressed={selectionMode}
-              onClick={() => {
-                if (selectionMode) {
-                  clearSelection();
-                }
-                setSelectionMode((value) => !value);
-              }}
+              aria-label={`Current view: ${appPreferences.libraryView}. Switch to ${
+                appPreferences.libraryView === 'grid' ? 'list' : 'grid'
+              } view`}
+              onClick={() =>
+                updateAppPreferences({
+                  libraryView:
+                    appPreferences.libraryView === 'grid' ? 'list' : 'grid',
+                })
+              }
             >
-              {selectionMode ? t('Done') : t('Select')}
-            </button>
-            <button
-              className={`library-action${fuzzy ? ' is-active' : ''}`}
-              type="button"
-              aria-pressed={fuzzy}
-              title="Fuzzy search loaded titles"
-              onClick={toggleFuzzy}
-            >
-              Fuzzy
-            </button>
-            <button
-              className={`library-action${duplicatesOpen ? ' is-active' : ''}`}
-              type="button"
-              aria-pressed={duplicatesOpen}
-              title="Show duplicate titles; scan the full library on demand"
-              onClick={() => setDuplicatesOpen((value) => !value)}
-            >
-              Duplicates ({duplicateGroups.length})
-            </button>
-            <button
-              className={`library-action${
-                appPreferences.libraryView === 'grid' ? ' is-active' : ''
-              }`}
-              type="button"
-              aria-pressed={appPreferences.libraryView === 'grid'}
-              onClick={() => updateAppPreferences({ libraryView: 'grid' })}
-            >
-              Grid
-            </button>
-            <button
-              className={`library-action${
-                appPreferences.libraryView === 'list' ? ' is-active' : ''
-              }`}
-              type="button"
-              aria-pressed={appPreferences.libraryView === 'list'}
-              onClick={() => updateAppPreferences({ libraryView: 'list' })}
-            >
-              List
+              {appPreferences.libraryView === 'grid' ? t('Grid') : t('List')}
             </button>
 
             <button
@@ -1052,28 +1027,64 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               onClose={closePanel}
             />
 
-            {hasAnyRefinement ? (
-              <button
-                className="library-action"
-                type="button"
-                onClick={resetAll}
-              >
-                Reset
-              </button>
-            ) : null}
-            <button
-              className="library-action"
-              type="button"
-              title="Save current category, status, and sort as default"
-              onClick={saveDefaults}
+            <ActionMenu
+              label="More"
+              ariaLabel="More library actions"
+              summaryClassName={`library-action${
+                selectionMode || fuzzy || duplicatesOpen || hasAnyRefinement
+                  ? ' is-active'
+                  : ''
+              }`}
             >
-              Save defaults
-            </button>
-            <LibrarySyncButton
-              context={context}
-              className="library-action"
-              onComplete={() => void controller.load()}
-            />
+              <p className="action-menu-section">Library tools</p>
+              <button
+                type="button"
+                aria-pressed={selectionMode}
+                onClick={() => {
+                  if (selectionMode) {
+                    clearSelection();
+                  }
+                  setSelectionMode((value) => !value);
+                }}
+              >
+                <span>{selectionMode ? t('Done') : t('Select')}</span>
+                <span>{selectionMode ? 'On' : ''}</span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={fuzzy}
+                onClick={toggleFuzzy}
+              >
+                <span>Fuzzy</span>
+                <span>{fuzzy ? 'On' : ''}</span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={duplicatesOpen}
+                onClick={() => setDuplicatesOpen((value) => !value)}
+              >
+                <span>Duplicates ({duplicateGroups.length})</span>
+                <span>{duplicatesOpen ? 'On' : ''}</span>
+              </button>
+              {hasAnyRefinement ? (
+                <button type="button" onClick={resetAll}>
+                  Reset
+                </button>
+              ) : null}
+              <p className="action-menu-section">Library maintenance</p>
+              <button
+                type="button"
+                title="Save current category, status, and sort as default"
+                onClick={saveDefaults}
+              >
+                Save defaults
+              </button>
+              <LibrarySyncButton
+                context={context}
+                className=""
+                onComplete={() => void controller.load()}
+              />
+            </ActionMenu>
           </div>
         </div>
       </header>
@@ -1090,7 +1101,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 onClick={() => void scanAllDuplicates()}
               >
                 {duplicateScanBusy
-                  ? 'Scanning…'
+                  ? 'Scanningâ€¦'
                   : scannedDuplicates
                     ? 'Rescan library'
                     : 'Scan all library'}
@@ -1168,7 +1179,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
         {categories.isLoading && categories.categories.length === 0 ? (
           <p className="library-note" role="status">
-            Loading categories…
+            Loading categoriesâ€¦
           </p>
         ) : null}
 
@@ -1258,7 +1269,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   value={categoryChoice}
                   onChange={(event) => setCategoryChoice(event.target.value)}
                 >
-                  <option value="">Add to category…</option>
+                  <option value="">Add to categoryâ€¦</option>
                   {categories.categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -1424,7 +1435,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               disabled={library.isLoadingMore}
               onClick={() => void controller.loadMore()}
             >
-              {library.isLoadingMore ? 'Loading…' : 'Load more'}
+              {library.isLoadingMore ? 'Loadingâ€¦' : 'Load more'}
             </button>
           </section>
         ) : null}

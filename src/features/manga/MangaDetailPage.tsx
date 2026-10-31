@@ -12,6 +12,7 @@ import {
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import { ActionMenu } from '../../shared/ActionMenu';
 import {
   getLegacyReturnPath,
   getNavigationOrigin,
@@ -67,6 +68,11 @@ registerMessages('id', {
   'No description.': 'Tidak ada deskripsi.',
   Overview: 'Ringkasan',
   Chapters: 'Chapter',
+  Tags: 'Tag',
+  More: 'Lainnya',
+  'More manga actions': 'Aksi manga lainnya',
+  'More chapter actions': 'Aksi chapter lainnya',
+  'Scan all chapters': 'Pindai semua chapter',
   '{count} chapters': '{count} chapter',
   Order: 'Urutan',
   'Newest first': 'Terbaru dulu',
@@ -265,7 +271,7 @@ function ConnectedMangaDetail({
   const [scanBusy, setScanBusy] = useState(false);
   const [scanError, setScanError] = useState(false);
   const [section, setSection] = useState<'overview' | 'chapters'>(
-    searchParams.get('section') === 'chapters' ? 'chapters' : 'overview',
+    searchParams.get('section') === 'overview' ? 'overview' : 'chapters',
   );
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterSearch, setChapterSearch] = useState('');
@@ -319,7 +325,7 @@ function ConnectedMangaDetail({
   }, [chapterFilter, detail.order, hideDuplicates, mangaId, scanlator]);
 
   useEffect(() => {
-    setSection(searchParams.get('section') === 'chapters' ? 'chapters' : 'overview');
+    setSection(searchParams.get('section') === 'overview' ? 'overview' : 'chapters');
   }, [searchParams]);
 
   useEffect(() => {
@@ -333,7 +339,7 @@ function ConnectedMangaDetail({
       (current) => {
         const params = new URLSearchParams(current);
 
-        if (next === 'overview') {
+        if (next === 'chapters') {
           params.delete('section');
         } else {
           params.set('section', next);
@@ -623,6 +629,18 @@ function ConnectedMangaDetail({
           </Fragment>
         ))}
         <span>{manga.title}</span>
+        <Link
+          className="page-nav-back"
+          to={returnTo}
+          onClick={(event) => {
+            if (canGoBack && origin) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
+        >
+          {returnLabel}
+        </Link>
       </nav>
 
       <main className="manga-detail">
@@ -642,11 +660,16 @@ function ConnectedMangaDetail({
             <p className="manga-meta">{meta.join(' · ')}</p>
 
             {manga.genre.length > 0 ? (
-              <ul className="manga-genres" aria-label="Genres">
-                {manga.genre.map((genre) => (
-                  <li key={genre}>{genre}</li>
-                ))}
-              </ul>
+              <details className="manga-tag-disclosure">
+                <summary>
+                  {t('Tags')} <span>{manga.genre.length}</span>
+                </summary>
+                <ul className="manga-genres" aria-label="Genres">
+                  {manga.genre.map((genre) => (
+                    <li key={genre}>{genre}</li>
+                  ))}
+                </ul>
+              </details>
             ) : null}
 
             <div className="manga-actions">
@@ -684,58 +707,50 @@ function ConnectedMangaDetail({
               >
                 {manga.inLibrary ? t('In library') : t('Add to library')}
               </button>
-              <button
-                className="button button-secondary"
-                type="button"
-                disabled={refreshPending}
-                onClick={() => {
-                  setRefreshError(false);
-                  setRefreshPending(true);
-                  void controller
-                    .refresh()
-                    .catch(() => setRefreshError(true))
-                    .finally(() => setRefreshPending(false));
-                }}
+              <ActionMenu
+                label={t('More')}
+                ariaLabel={t('More manga actions')}
+                summaryClassName="button button-secondary"
               >
-                {refreshPending ? 'Refreshing…' : 'Refresh'}
-              </button>
-              <button
-                className="button button-secondary"
-                type="button"
-                onClick={() => {
-                  const url = window.location.href;
+                <button
+                  type="button"
+                  disabled={refreshPending}
+                  onClick={() => {
+                    setRefreshError(false);
+                    setRefreshPending(true);
+                    void controller
+                      .refresh()
+                      .catch(() => setRefreshError(true))
+                      .finally(() => setRefreshPending(false));
+                  }}
+                >
+                  {refreshPending ? t('Refreshing…') : t('Refresh')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.location.href;
 
-                  if (typeof navigator.share === 'function') {
-                    void navigator
-                      .share({ title: manga.title, text: manga.title, url })
-                      .catch(() => undefined);
-                    return;
-                  }
+                    if (typeof navigator.share === 'function') {
+                      void navigator
+                        .share({ title: manga.title, text: manga.title, url })
+                        .catch(() => undefined);
+                      return;
+                    }
 
-                  void navigator.clipboard
-                    ?.writeText(url)
-                    .then(() => setShareState('copied'))
-                    .catch(() => setShareState('error'));
-                }}
-              >
-                {shareState === 'copied'
-                  ? t('Link copied')
-                  : shareState === 'error'
-                    ? t('Copy failed')
-                    : t('Share')}
-              </button>
-              <Link
-                className="button button-secondary"
-                to={returnTo}
-                onClick={(event) => {
-                  if (origin && canGoBack) {
-                    event.preventDefault();
-                    navigate(-1);
-                  }
-                }}
-              >
-                {returnLabel}
-              </Link>
+                    void navigator.clipboard
+                      ?.writeText(url)
+                      .then(() => setShareState('copied'))
+                      .catch(() => setShareState('error'));
+                  }}
+                >
+                  {shareState === 'copied'
+                    ? t('Link copied')
+                    : shareState === 'error'
+                      ? t('Copy failed')
+                      : t('Share')}
+                </button>
+              </ActionMenu>
             </div>
 
             {libraryActionError ? (
@@ -780,16 +795,6 @@ function ConnectedMangaDetail({
           </div>
         </header>
 
-        <MangaTrackingSection
-          context={context}
-          mangaId={manga.id}
-          mangaTitle={manga.title}
-        />
-
-        <MangaNotesSection context={context} mangaId={manga.id} />
-        <MangaCategoryPicker context={context} mangaId={manga.id} />
-        <MangaReaderModePicker mangaId={manga.id} />
-
         <nav className="detail-tabs" aria-label="Manga sections">
           <button
             className={section === 'overview' ? 'is-active' : undefined}
@@ -797,7 +802,7 @@ function ConnectedMangaDetail({
             aria-current={section === 'overview' ? 'true' : undefined}
             onClick={() => {
               changeSection('overview');
-              document.getElementById('overview')?.scrollIntoView({ block: 'start' });
+              document.getElementById('overview')?.scrollIntoView?.({ block: 'start' });
             }}
           >
             {t('Overview')}
@@ -808,13 +813,28 @@ function ConnectedMangaDetail({
             aria-current={section === 'chapters' ? 'true' : undefined}
             onClick={() => {
               changeSection('chapters');
-              document.getElementById('chapters')?.scrollIntoView({ block: 'start' });
+              document.getElementById('chapters')?.scrollIntoView?.({ block: 'start' });
             }}
           >
             {t('Chapters')}
           </button>
         </nav>
 
+        {section === 'overview' ? (
+          <>
+        <MangaTrackingSection
+          context={context}
+          mangaId={manga.id}
+          mangaTitle={manga.title}
+        />
+
+        <MangaNotesSection context={context} mangaId={manga.id} />
+        <MangaCategoryPicker context={context} mangaId={manga.id} />
+        <MangaReaderModePicker mangaId={manga.id} />
+          </>
+        ) : null}
+
+        {section === 'chapters' ? (
         <section className="chapter-section" id="chapters" aria-labelledby="chapters-heading">
           <div className="chapter-section-header">
             <div>
@@ -858,20 +878,6 @@ function ConnectedMangaDetail({
               {chapterSelectionMode ? t('Done') : t('Select')}
             </button>
 
-            <button
-              className="library-action"
-              type="button"
-              disabled={scanBusy}
-              title="Load every chapter to detect gaps across pages"
-              onClick={() => void scanAllChapters()}
-            >
-              {scanBusy
-                ? 'Scanning…'
-                : scannedChapters
-                  ? `${scannedChapters.length} chapters`
-                  : 'Scan all'}
-            </button>
-
             <label className="chapter-search">
               <span className="sr-only">Search chapters</span>
               <input
@@ -906,6 +912,23 @@ function ConnectedMangaDetail({
               </select>
             </label>
 
+            <ActionMenu
+              label={t('More')}
+              ariaLabel={t('More chapter actions')}
+              summaryClassName="library-action"
+            >
+              <button
+                type="button"
+                disabled={scanBusy}
+                onClick={() => void scanAllChapters()}
+              >
+                {scanBusy
+                  ? t('Scanning…')
+                  : scannedChapters
+                    ? t('{count} chapters', { count: scannedChapters.length })
+                    : t('Scan all chapters')}
+              </button>
+              <p className="action-menu-section">Chapter filters</p>
             <button
               className={`library-action${hideDuplicates ? ' is-active' : ''}`}
               type="button"
@@ -951,6 +974,7 @@ function ConnectedMangaDetail({
                 </select>
               </label>
             ) : null}
+            </ActionMenu>
           </div>
 
           {deviceProgress ? (
@@ -1328,6 +1352,7 @@ function ConnectedMangaDetail({
             </div>
           ) : null}
         </section>
+        ) : null}
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -146,6 +146,10 @@ async function openMenu(user: ReturnType<typeof userEvent.setup>, name: string) 
   await user.click(screen.getByRole('button', { name }));
 }
 
+async function openLibraryMore(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByLabelText('More library actions'));
+}
+
 describe('LibraryPage initial states', () => {
   it('shows a stable skeleton while the first page is loading', async () => {
     let resolveLibrary!: (value: { data: LibraryMangasQuery }) => void;
@@ -163,7 +167,7 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
 
     expect(libraryRegion().getAttribute('aria-busy')).toBe('true');
-    expect(screen.getByText('Loading…')).toBeTruthy();
+    expect(screen.getByText('Loadingâ€¦')).toBeTruthy();
 
     resolveLibrary(libraryQuery(page([manga(1, 'Alpha')])));
 
@@ -194,6 +198,30 @@ describe('LibraryPage initial states', () => {
     });
   });
 
+  it('keeps maintenance actions behind More while filters stay visible', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    expect(screen.getByRole('button', { name: 'Filter' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Sort' })).toBeTruthy();
+    const more = screen.getByLabelText('More library actions');
+    const menu = more.closest('details');
+    expect(menu?.open).toBe(false);
+
+    await user.click(more);
+    expect(menu?.open).toBe(true);
+    expect(screen.getByRole('button', { name: 'Select' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Save defaults' })).toBeTruthy();
+  });
+
   it('enters selection mode and selects a manga card', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
@@ -206,6 +234,7 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
     await screen.findByRole('heading', { name: 'Alpha' });
 
+    await openLibraryMore(user);
     await user.click(screen.getByRole('button', { name: 'Select' }));
     await user.click(
       screen.getByRole('button', { name: 'Alpha, not selected' }),
@@ -458,7 +487,7 @@ describe('LibraryPage categories', () => {
     renderLibrary(query);
 
     expect(await screen.findByRole('heading', { name: 'Alpha' })).toBeTruthy();
-    expect(screen.getByText('Loading categories…')).toBeTruthy();
+    expect(screen.getByText('Loading categoriesâ€¦')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'All' })).toBeTruthy();
 
     resolveCategories(
@@ -470,7 +499,7 @@ describe('LibraryPage categories', () => {
 });
 
 describe('LibraryPage search, filter, and sort', () => {
-  it('submits server-side search with trimmed text', async () => {
+  it('loads a server-side search from the URL', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -478,11 +507,7 @@ describe('LibraryPage search, filter, and sort', () => {
 
       return libraryQuery(page([manga(1, 'Alpha')]));
     });
-    const user = userEvent.setup();
-    renderLibrary(query);
-
-    const search = screen.getByLabelText('Search library');
-    await user.type(search, '  alpha  {Enter}');
+    renderLibrary(query, '/library?q=alpha');
 
     await waitFor(() =>
       expect(query).toHaveBeenCalledWith(
@@ -592,6 +617,7 @@ describe('LibraryPage search, filter, and sort', () => {
     await screen.findByRole('heading', { name: 'Alpha' });
 
     await user.type(screen.getByLabelText('Search library'), 'alpha{Enter}');
+    await openLibraryMore(user);
     expect(await screen.findByRole('button', { name: 'Reset' })).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Reset' }));
 
@@ -617,6 +643,7 @@ describe('LibraryPage search, filter, and sort', () => {
     await user.click(screen.getByRole('menuitemradio', { name: 'Random' }));
 
     expect(screen.getByRole('button', { name: 'Sort, active' })).toBeTruthy();
+    await openLibraryMore(user);
     expect(screen.getByRole('button', { name: 'Reset' })).toBeTruthy();
   });
 
@@ -632,6 +659,7 @@ describe('LibraryPage search, filter, and sort', () => {
     renderLibrary(query);
     await screen.findByRole('heading', { name: 'Alpha' });
 
+    await openLibraryMore(user);
     await user.click(screen.getByRole('button', { name: 'Fuzzy' }));
     await user.type(screen.getByLabelText('Search library'), 'alpa{Enter}');
 
@@ -689,6 +717,7 @@ describe('LibraryPage search, filter, and sort', () => {
     renderLibrary(query);
     await screen.findAllByRole('heading', { name: 'Alpha' });
 
+    await openLibraryMore(user);
     await user.click(screen.getByRole('button', { name: 'Duplicates (1)' }));
 
     expect(screen.getByRole('heading', { name: 'Possible duplicates' })).toBeTruthy();
@@ -924,7 +953,7 @@ describe('LibraryPage pagination', () => {
     await screen.findByRole('heading', { name: 'Alpha' });
     await user.click(screen.getByRole('button', { name: 'Load more' }));
 
-    const loading = screen.getByRole('button', { name: 'Loading…' });
+    const loading = screen.getByRole('button', { name: 'Loadingâ€¦' });
     expect((loading as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
 

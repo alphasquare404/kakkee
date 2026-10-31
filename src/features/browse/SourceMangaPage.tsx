@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'reac
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import { FilterDrawer } from '../../shared/FilterDrawer';
 import {
   createSectionOrigin,
   type NavigationOrigin,
@@ -30,6 +31,9 @@ registerMessages('id', {
   Latest: 'Terbaru',
   'Hide in library': 'Sembunyikan yang ada di perpustakaan',
   'Duplicates only': 'Hanya duplikat',
+  Filters: 'Filter',
+  'Source filters': 'Filter source',
+  'Result filters': 'Filter hasil',
   'Search source': 'Cari di source',
   'Search this source…': 'Cari di source ini…',
   'Clear history': 'Hapus riwayat',
@@ -103,9 +107,14 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const [search, setSearch] = useState(initialQuery);
   const searchRef = useRef(search);
   searchRef.current = search;
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filterCount, setFilterCount] = useState(0);
+  const filtersButton = useRef<HTMLButtonElement>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
+  const activeFilterCount =
+    filterCount + (hideInLibrary ? 1 : 0) + (duplicatesOnly ? 1 : 0);
   const searchHistory = useSourceSearchHistory(sourceId);
 
   const runSearch = (value: string) => {
@@ -205,22 +214,17 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           </button>
         </div>
         <div className="source-filter-toggles">
-          <label>
-            <input
-              type="checkbox"
-              checked={hideInLibrary}
-              onChange={(event) => setHideInLibrary(event.target.checked)}
-            />
-            {t('Hide in library')}
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={duplicatesOnly}
-              onChange={(event) => setDuplicatesOnly(event.target.checked)}
-            />
-            {t('Duplicates only')}
-          </label>
+          <button
+            ref={filtersButton}
+            className={`button button-secondary${activeFilterCount > 0 ? ' is-active' : ''}`}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={filtersOpen}
+            onClick={() => setFiltersOpen(true)}
+          >
+            {t('Filters')}
+            {activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+          </button>
         </div>
         <form
           className="source-search"
@@ -272,15 +276,59 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         </form>
       </div>
 
-      <SourcePreferencesSection context={context} sourceId={sourceId} />
+      <FilterDrawer
+        open={filtersOpen}
+        title={t('Source filters')}
+        description={source.source?.displayName}
+        onClose={() => setFiltersOpen(false)}
+        triggerRef={filtersButton}
+      >
+        <details className="filter-section" open>
+          <summary>{t('Result filters')}</summary>
+          <div className="filter-section-content">
+            <label className="settings-toggle">
+              <span>{t('Hide in library')}</span>
+              <input
+                type="checkbox"
+                checked={hideInLibrary}
+                onChange={(event) => setHideInLibrary(event.target.checked)}
+              />
+            </label>
+            <label className="settings-toggle">
+              <span>{t('Duplicates only')}</span>
+              <input
+                type="checkbox"
+                checked={duplicatesOnly}
+                onChange={(event) => setDuplicatesOnly(event.target.checked)}
+              />
+            </label>
+          </div>
+        </details>
 
-      {source.source ? (
-        <SourceFilterPanel
-          filters={source.source.filters as unknown as readonly SourceFilterData[]}
-          busy={source.status === 'loading'}
-          onApply={(changes) => void controller.setFilters(changes)}
-        />
-      ) : null}
+        <details className="filter-section">
+          <summary>{t('Source preferences')}</summary>
+          <div className="filter-section-content">
+            <SourcePreferencesSection context={context} sourceId={sourceId} />
+          </div>
+        </details>
+
+        {source.source ? (
+          <SourceFilterPanel
+            filters={source.source.filters as unknown as readonly SourceFilterData[]}
+            busy={source.status === 'loading'}
+            onReset={() => {
+              setHideInLibrary(false);
+              setDuplicatesOnly(false);
+              setFilterCount(0);
+            }}
+            onApply={(changes, activeCount) => {
+              setFilterCount(activeCount);
+              void controller.setFilters(changes);
+              setFiltersOpen(false);
+            }}
+          />
+        ) : null}
+      </FilterDrawer>
 
       {source.actionError ? (
         <p className="settings-inline-error" role="alert">

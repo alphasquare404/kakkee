@@ -15,6 +15,7 @@ import { getTrackingPreferences } from '../../core/preferences/trackingPreferenc
 import type { ResourceService } from '../../core/resources/resourceService';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import { ActionMenu } from '../../shared/ActionMenu';
 import {
   getNavigationOrigin,
   originHref,
@@ -773,6 +774,11 @@ function ConnectedReader({
           >
             {t('Chapters')}
           </button>
+          <ActionMenu
+            label={t('More')}
+            ariaLabel={t('Reader actions')}
+            summaryClassName="reader-quick-action"
+          >
           <button
             className="reader-quick-action"
             type="button"
@@ -883,6 +889,7 @@ function ConnectedReader({
               {t('Share')}
             </button>
           ) : null}
+          </ActionMenu>
         </nav>
 
         {isPaged && activeChapter && reader.pages.length > 0 ? (

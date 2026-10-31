@@ -54,6 +54,24 @@ export type SourceFilterData =
 type SourceFilter = SourceFilterData;
 type FilterValue = string | number | boolean | TriState;
 
+function createInitialValues(filters: readonly SourceFilter[]): Record<string, FilterValue> {
+  const result: Record<string, FilterValue> = {};
+
+  filters.forEach((filter, index) => {
+    result[String(index)] = initialValue(filter);
+
+    if (filter.__typename === 'GroupFilter') {
+      const children = Array.isArray(filter.filters) ? filter.filters : [];
+
+      children.forEach((child, childIndex) => {
+        result[`${index}.${childIndex}`] = initialValue(child);
+      });
+    }
+  });
+
+  return result;
+}
+
 function initialValue(filter: SourceFilter): FilterValue {
   switch (filter.__typename) {
     case 'TextFilter':
@@ -105,28 +123,19 @@ export function SourceFilterPanel({
   filters,
   busy,
   onApply,
+  onReset,
 }: {
   readonly filters: readonly SourceFilter[];
   readonly busy: boolean;
-  readonly onApply: (changes: readonly FilterChangeInput[]) => void;
+  readonly onApply: (
+    changes: readonly FilterChangeInput[],
+    activeCount: number,
+  ) => void;
+  readonly onReset?: () => void;
 }) {
-  const [values, setValues] = useState<Record<string, FilterValue>>(() => {
-    const result: Record<string, FilterValue> = {};
-
-    filters.forEach((filter, index) => {
-      result[String(index)] = initialValue(filter);
-
-      if (filter.__typename === 'GroupFilter') {
-        const children = Array.isArray(filter.filters) ? filter.filters : [];
-
-        children.forEach((child, childIndex) => {
-          result[`${index}.${childIndex}`] = initialValue(child);
-        });
-      }
-    });
-
-    return result;
-  });
+  const [values, setValues] = useState<Record<string, FilterValue>>(() =>
+    createInitialValues(filters),
+  );
 
   if (filters.length === 0) {
     return null;
@@ -136,7 +145,9 @@ export function SourceFilterPanel({
     setValues((current) => ({ ...current, [key]: value }));
   };
 
-  const apply = () => {
+  const buildChanges = (
+    sourceValues: Record<string, FilterValue>,
+  ): FilterChangeInput[] => {
     const changes: FilterChangeInput[] = [];
 
     filters.forEach((filter, index) => {
@@ -144,7 +155,8 @@ export function SourceFilterPanel({
         const children = Array.isArray(filter.filters) ? filter.filters : [];
 
         children.forEach((child, childIndex) => {
-          const value = values[`${index}.${childIndex}`] ?? initialValue(child);
+          const value =
+            sourceValues[`${index}.${childIndex}`] ?? initialValue(child);
           changes.push({
             position: index,
             groupChange: {
@@ -158,11 +170,53 @@ export function SourceFilterPanel({
 
       changes.push({
         position: index,
-        ...stateFor(filter, values[String(index)] ?? initialValue(filter)),
+        ...stateFor(filter, sourceValues[String(index)] ?? initialValue(filter)),
       });
     });
 
-    onApply(changes);
+    return changes;
+  };
+
+  const countActive = (sourceValues: Record<string, FilterValue>): number => {
+    let count = 0;
+
+    filters.forEach((filter, index) => {
+      if (filter.__typename === 'GroupFilter') {
+        const children = Array.isArray(filter.filters) ? filter.filters : [];
+
+        children.forEach((child, childIndex) => {
+          const value =
+            sourceValues[`${index}.${childIndex}`] ?? initialValue(child);
+
+          if (value !== initialValue(child)) {
+            count += 1;
+          }
+        });
+        return;
+      }
+
+      if (
+        filter.__typename !== 'HeaderFilter' &&
+        filter.__typename !== 'SeparatorFilter' &&
+        (sourceValues[String(index)] ?? initialValue(filter)) !==
+          initialValue(filter)
+      ) {
+        count += 1;
+      }
+    });
+
+    return count;
+  };
+
+  const apply = () => {
+    onApply(buildChanges(values), countActive(values));
+  };
+
+  const reset = () => {
+    const initial = createInitialValues(filters);
+    setValues(initial);
+    onReset?.();
+    onApply(buildChanges(initial), 0);
   };
 
   const renderFilter = (filter: SourceFilter, key: string) => {
@@ -264,9 +318,14 @@ export function SourceFilterPanel({
     <section className="source-filter-panel" aria-labelledby="source-filter-heading">
       <div className="section-heading-row">
         <h2 id="source-filter-heading">Filters</h2>
-        <button className="button" type="button" disabled={busy} onClick={apply}>
-          {busy ? 'Applying…' : 'Apply filters'}
-        </button>
+        <div className="source-filter-actions">
+          <button className="library-action" type="button" disabled={busy} onClick={reset}>
+            Reset
+          </button>
+          <button className="button" type="button" disabled={busy} onClick={apply}>
+            {busy ? 'Applying…' : 'Apply filters'}
+          </button>
+        </div>
       </div>
       <div className="source-filter-grid">
         {filters.map((filter, index) => {
@@ -274,14 +333,20 @@ export function SourceFilterPanel({
             const children = Array.isArray(filter.filters) ? filter.filters : [];
 
             return (
-              <fieldset className="source-filter-group" key={`${filterLabel(filter)}-${index}`}>
-                <legend>{filter.name}</legend>
-                {children.map((child, childIndex) => (
-                  <div key={`${filterLabel(child)}-${childIndex}`}>
-                    {renderFilter(child, `${index}.${childIndex}`)}
-                  </div>
-                ))}
-              </fieldset>
+              <details
+                className="filter-section"
+                key={`${filterLabel(filter)}-${index}`}
+                open={index < 2}
+              >
+                <summary>{filter.name || 'Filters'}</summary>
+                <div className="filter-section-content source-filter-group">
+                  {children.map((child, childIndex) => (
+                    <div key={`${filterLabel(child)}-${childIndex}`}>
+                      {renderFilter(child, `${index}.${childIndex}`)}
+                    </div>
+                  ))}
+                </div>
+              </details>
             );
           }
 
