@@ -1,0 +1,10 @@
+mutation InstallExternalExtension($input: InstallExternalExtensionInput!) {
+  installExternalExtension(input: $input) {
+    extension {
+      pkgName
+      name
+      isInstalled
+      hasUpdate
+    }
+  }
+}

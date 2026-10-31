@@ -26,16 +26,19 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
   const controller = useMemo(() => {
     const repository = createExtensionRepository({
       getClient: () => context.graphQL,
+      getGraphqlUrl: () => context.config.graphqlHttpUrl,
+      getAccessToken: () => context.authService?.getAccessToken() ?? null,
     });
 
     return createExtensionController(repository);
-  }, [context.graphQL]);
+  }, [context.authService, context.config.graphqlHttpUrl, context.graphQL]);
   const extensions = useSyncExternalStore(
     controller.subscribe,
     controller.getState,
   );
   const [language, setLanguage] = useState('all');
   const [storeUrl, setStoreUrl] = useState('');
+  const [jarFile, setJarFile] = useState<File | null>(null);
 
   useEffect(() => {
     void controller.load();
@@ -215,6 +218,32 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             Add store
           </button>
         </form>
+      </section>
+
+      <section className="extension-section" aria-labelledby="extension-jar">
+        <div className="section-heading-row">
+          <h2 id="extension-jar">Install external JAR</h2>
+        </div>
+        <input
+          type="file"
+          accept=".jar,application/java-archive"
+          aria-label="Extension JAR file"
+          onChange={(event) => setJarFile(event.target.files?.[0] ?? null)}
+        />
+        <div className="settings-actions">
+          <button
+            className="button"
+            type="button"
+            disabled={!jarFile || extensions.storeBusy !== null}
+            onClick={() => {
+              if (jarFile) {
+                void controller.installExternal(jarFile);
+              }
+            }}
+          >
+            {extensions.storeBusy === 'external' ? 'Installing…' : 'Install JAR'}
+          </button>
+        </div>
       </section>
     </div>
   );

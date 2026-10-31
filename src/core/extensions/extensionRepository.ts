@@ -1,8 +1,10 @@
 import type { ApolloClient } from '@apollo/client';
+import { print } from 'graphql';
 import {
   AddExtensionStoreDocument,
   ExtensionsCatalogDocument,
   FetchExtensionsDocument,
+  InstallExternalExtensionDocument,
   RemoveExtensionStoreDocument,
   UpdateExtensionsDocument,
   type ExtensionsCatalogQuery,
@@ -31,11 +33,19 @@ export interface ExtensionRepository {
   }[]>;
   addStore(indexUrl: string): Promise<ExtensionStore>;
   removeStore(indexUrl: string): Promise<void>;
+  installExternal(file: File): Promise<void>;
 }
 
-export function createExtensionRepository(options: {
+export interface ExtensionRepositoryOptions {
   readonly getClient: () => ApolloClient;
-}): ExtensionRepository {
+  readonly getGraphqlUrl?: () => string;
+  readonly getAccessToken?: () => string | null;
+  readonly fetchImpl?: typeof fetch;
+}
+
+export function createExtensionRepository(
+  options: ExtensionRepositoryOptions,
+): ExtensionRepository {
   return {
     async getExtensions() {
       const result = await options.getClient().query({
@@ -95,6 +105,46 @@ export function createExtensionRepository(options: {
 
       if (!result.data?.removeExtensionStore) {
         throw new Error('Extension store could not be removed.');
+      }
+    },
+    async installExternal(file) {
+      const url = options.getGraphqlUrl?.();
+
+      if (!url) {
+        throw new Error('Extension upload endpoint is unavailable.');
+      }
+
+      const form = new FormData();
+      form.append(
+        'operations',
+        JSON.stringify({
+          query: print(InstallExternalExtensionDocument),
+          variables: { input: { extensionFile: null } },
+        }),
+      );
+      form.append(
+        'map',
+        JSON.stringify({ 0: ['variables.input.extensionFile'] }),
+      );
+      form.append('0', file);
+      const token = options.getAccessToken?.();
+      const response = await (options.fetchImpl ?? fetch)(url, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: form,
+      });
+
+      if (!response.ok) {
+        throw new Error('Extension upload failed.');
+      }
+
+      const payload = (await response.json()) as {
+        data?: { installExternalExtension?: unknown };
+        errors?: readonly unknown[];
+      };
+
+      if (!payload.data?.installExternalExtension) {
+        throw new Error('Extension could not be installed.');
       }
     },
   };

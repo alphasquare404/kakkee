@@ -25,6 +25,7 @@ export interface ExtensionController {
   update(pkgName: string, patch: UpdateExtensionPatchInput): Promise<void>;
   addStore(indexUrl: string): Promise<void>;
   removeStore(indexUrl: string): Promise<void>;
+  installExternal(file: File): Promise<void>;
 }
 
 export function createExtensionController(
@@ -133,6 +134,18 @@ export function createExtensionController(
     }
   }
 
+  async function installExternal(file: File): Promise<void> {
+    patch({ storeBusy: 'external', actionError: false });
+
+    try {
+      await repository.installExternal(file);
+      patch({ storeBusy: null });
+      await load();
+    } catch {
+      patch({ storeBusy: null, actionError: true });
+    }
+  }
+
   return {
     getState: () => state,
     subscribe(listener) {
@@ -144,5 +157,6 @@ export function createExtensionController(
     update,
     addStore,
     removeStore,
+    installExternal,
   };
 }

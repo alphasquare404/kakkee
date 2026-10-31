@@ -139,4 +139,29 @@ describe('createExtensionRepository', () => {
       variables: { input: { indexUrl: 'https://example.test/index.json' } },
     });
   });
+
+  it('uploads an external extension JAR', async () => {
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ data: { installExternalExtension: {} } }),
+    })) as unknown as typeof fetch;
+    const client = { query: vi.fn(), mutate: vi.fn() } as unknown as ApolloClient;
+    const repository = createExtensionRepository({
+      getClient: () => client,
+      getGraphqlUrl: () => 'https://example.test/api/graphql',
+      getAccessToken: () => 'token-1',
+      fetchImpl,
+    });
+
+    await repository.installExternal(new File(['jar'], 'extension.jar'));
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://example.test/api/graphql',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { Authorization: 'Bearer token-1' },
+        body: expect.any(FormData),
+      }),
+    );
+  });
 });

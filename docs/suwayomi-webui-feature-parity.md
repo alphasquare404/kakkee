@@ -179,7 +179,7 @@ frontend.
 | Browse | Saved source searches and global search | `Missing` | Client metadata + server | |
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |
 | Extensions | Installed/available extensions, stores, language filters | `Partial` | Yes | Catalog, installed/available sections, language filter, store add/remove; advanced filters absent |
-| Extensions | Install/uninstall/update, external JAR, obsolete handling | `Partial` | Yes | Install/uninstall/update and obsolete badge; external JAR upload absent |
+| Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |
 | Extensions | Update badges/info pages | `Implemented` | Yes | Update section/badge and per-extension detail page with install/update/uninstall |
 | Sources | Source configure/preferences | `Missing` | Yes | |
 

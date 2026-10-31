@@ -35,12 +35,14 @@ function setup() {
     indexUrl: 'https://example.test/index.json',
   }));
   const removeStore = vi.fn(async () => undefined);
+  const installExternal = vi.fn(async () => undefined);
   const repository = {
     getExtensions,
     refresh,
     update,
     addStore,
     removeStore,
+    installExternal,
   } as unknown as ExtensionRepository;
   return {
     controller: createExtensionController(repository),
@@ -49,6 +51,7 @@ function setup() {
     update,
     addStore,
     removeStore,
+    installExternal,
   };
 }
 
@@ -86,5 +89,15 @@ describe('createExtensionController', () => {
     expect(controller.getState().stores).toHaveLength(0);
     expect(addStore).toHaveBeenCalledWith('https://example.test/index.json');
     expect(removeStore).toHaveBeenCalledWith('https://example.test/index.json');
+  });
+
+  it('installs an external extension JAR', async () => {
+    const { controller, installExternal } = setup();
+    const file = new File(['jar'], 'extension.jar');
+    await controller.load();
+    await controller.installExternal(file);
+
+    expect(installExternal).toHaveBeenCalledWith(file);
+    expect(controller.getState().actionError).toBe(false);
   });
 });
