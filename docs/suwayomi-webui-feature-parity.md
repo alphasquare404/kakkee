@@ -54,7 +54,7 @@ frontend.
 | Localization | Upstream translations and language selection | `Missing` | Client concern | Current UI is English |
 | PWA | Installable shell, safe areas, route fallback | `Implemented` | Client concern | Shell-only cache; no private resources |
 | PWA | Offline reading/downloads | `Missing` | Server downloads | No offline reader/cache |
-| Sharing | Native share of manga/reader | `Partial` | Client concern | Reader chapter share when Web Share API exists; manga share absent |
+| Sharing | Native share of manga/reader | `Implemented` | Client concern | Reader chapter share and manga share with clipboard fallback |
 
 ### Library
 
@@ -76,7 +76,7 @@ frontend.
 | Library | Bulk download, delete downloads, mark read/unread | `Implemented` | Yes | All four bulk actions implemented with confirmation for delete |
 | Library | Bulk category assignment | `Partial` | Yes | Add-to-category only; remove/clear absent |
 | Library | Bulk migrate | `Blocked by server` | No | No migration API in stable schema; single/bulk migration impossible without inventing mutations |
-| Library | Remove from library (single/bulk) | `Partial` | Yes | Single-manga toggle on Detail; bulk removal on Library with confirmation |
+| Library | Remove from library (single/bulk) | `Implemented` | Yes | Single-manga toggle on Detail and bulk removal on Library with confirmation |
 | Library | Library duplicate detection/overview | `Partial` | Client-side | Normalized title groups over loaded library items; server-wide scan absent |
 | Library | Sync button | `Implemented` | Yes | Starts `updateLibrary` and shows live job progress via subscription |
 | Library | Show unread/download badges | `Implemented` | Yes | Unread and downloaded chapter counts from `MangaType` |
@@ -108,9 +108,9 @@ frontend.
 | Chapters | Chapter list with state, date, page count | `Implemented` | Yes | |
 | Chapters | Chapter pagination / load more | `Implemented` | Yes | |
 | Chapters | Select single/multiple/range chapters | `Partial` | Client concern | Multi-select with shift-click range; long-press absent |
-| Chapters | Bookmark/unbookmark | `Partial` | Yes | Per-chapter toggle on Manga Detail; bulk/bookmark filters absent |
-| Chapters | Mark read/unread and mark previous read | `Partial` | Yes | Single chapter toggle on Manga Detail; mark-previous/bulk absent |
-| Chapters | Download/delete download | `Partial` | Yes | Enqueue/delete per chapter on Detail; queue is in Downloads |
+| Chapters | Bookmark/unbookmark | `Implemented` | Yes | Per-chapter and bulk bookmark toggles plus bookmarked filter |
+| Chapters | Mark read/unread and mark previous read | `Implemented` | Yes | Single toggle, bulk read/unread, and per-chapter mark-previous |
+| Chapters | Download/delete download | `Implemented` | Yes | Per-chapter and bulk enqueue/delete, plus Downloads queue and Reader actions |
 | Chapters | Bulk chapter actions | `Partial` | Yes | Bulk read/unread, bookmark, download, and delete with confirmation; other bulk actions absent |
 | Chapters | Scanlator filter and duplicate handling | `Implemented` | Yes | Scanlator filter plus hide-duplicate chapter numbers toggle |
 | Chapters | Missing-chapter separators | `Partial` | Client-side | Gap separators between loaded chapter numbers; unloaded boundaries absent |
@@ -132,7 +132,7 @@ frontend.
 | Reader | Page gap, first-page offset, safe-area inset | `Implemented` | Client-side | Gap, first-page offset, safe-area padding, and per-mode layout defaults |
 | Reader | Reader defaults per mode | `Implemented` | Client metadata | Save layout per mode and restore on mode switch |
 | Reader | Per-device reader profiles | `Implemented` | Metadata/settings | Per-mode layouts stored per device |
-| Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
+| Reader | Progress write / read state | `Implemented` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
 | Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
@@ -158,21 +158,21 @@ frontend.
 | Updates | Unread/read filters, scanlator, state | `Partial` | Yes | All/Unread/Read; no scanlator filter |
 | Updates | Chapter/manga actions | `Partial` | Yes | Mark read/unread and download from feed; broader manga actions absent |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |
-| History | Reading history entries | `Partial` | Yes | Real lastReadAt feed; new reader progress writes feed it |
+| History | Reading history entries | `Implemented` | Yes | Real lastReadAt feed; reader progress writes populate it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
 | History | Resume / clear / remove history | `Partial` | Yes | Resume link includes saved page; clear/remove unsupported by current contract |
 | History | Hide history setting | `Partial` | Metadata | Client-side hide-read filter; server history recording unchanged |
 | Downloads | Download queue, active/queued/failed states | `Partial` | DownloadStatus + subscriptions | Queue, state, progress, tries, and pause/resume/cancel are implemented; live subscriptions/grouping absent |
 | Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
 | Downloads | Grouping, bulk series actions, progress/speed | `Partial` | Yes | Manga grouping, series cancel, and progress; speed absent |
-| Downloads | List downloaded chapters | `Partial` | Yes | Real `isDownloaded` feed |
+| Downloads | List downloaded chapters | `Implemented` | Yes | Real `isDownloaded` feed with delete action |
 | Downloads | Download/conversion/image settings | `Partial` | Yes | Download/serve conversion list editor; image processing settings absent |
 
 ### Browse / Sources / Extensions
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Browse | Source catalog and language filter | `Partial` | Yes | Real source list; cannot open source catalog yet |
+| Browse | Source catalog and language filter | `Implemented` | Yes | Real source list with language filter and source catalog navigation |
 | Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Partial` | Metadata | Pin/last-used, saved language filter, and NSFW toggle; multi-language preference list absent |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
@@ -195,8 +195,8 @@ frontend.
 | Tracking | Tracker auth/config and services | `Partial` | Yes | Tracking settings lists services, login links, and logout; credential/OAuth callback handling absent |
 | Tracking | Manga search, bind/unbind, private binding | `Implemented` | Yes | Tracker search, bind, private option, unlink, status/score editing |
 | Tracking | Score/progress/status and sync behavior | `Implemented` | Yes | Score/status, reading dates, manual sync, and optional auto-sync after finishing a Reader chapter |
-| Categories | List categories and counts | `Partial` | Yes | Read-only category page |
-| Categories | Create/rename/reorder/delete with confirmation | `Partial` | Yes | Create, rename, move up/down, and delete with confirmation; default category cannot be deleted |
+| Categories | List categories and counts | `Implemented` | Yes | Categories page with real manga counts |
+| Categories | Create/rename/reorder/delete with confirmation | `Implemented` | Yes | Create, rename, move up/down, set default, and delete with confirmation; default is protected |
 | Categories | Assignment and default-category behavior | `Implemented` | Yes | Per-manga category picker plus Set default action |
 | Categories | Category update/download inclusion flags | `Implemented` | Yes | Per-category include in updates/downloads toggles |
 
@@ -209,12 +209,12 @@ frontend.
 | Backup | Automatic backup settings | `Implemented` | Yes | Editable auto-backup path/interval/time/TTL and include flags |
 | Sync | Sync button and sync status | `Partial` | Yes | Start sync and result state; live progress/subscription absent |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Partial` | Yes | Data toggles, Yomi enablement/host, and interval shown; API key editing absent |
-| Settings | Real server/connection information | `Partial` | Yes | Current Settings page shows actual server data |
+| Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Partial` | Metadata | Compact/comfortable grid density implemented; other library prefs absent |
 | Settings | Download preferences and image processing | `Partial` | Yes | Server download toggles/limits, CBZ, and conversion lists; image processing absent |
-| Settings | Browse/source/extension-store settings | `Partial` | Yes | Extension stores can be added/removed; source preferences absent |
+| Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | Update/download/system plus OPDS and KOReader sync editing; auth/database remain read-only |
