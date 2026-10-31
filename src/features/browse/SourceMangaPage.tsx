@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+﻿import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import { ActionMenu } from '../../shared/ActionMenu';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import {
   createSectionOrigin,
@@ -27,6 +28,8 @@ registerMessages('id', {
   'Source manga catalog': 'Katalog manga source',
   '{count} loaded': '{count} dimuat',
   'All sources': 'Semua source',
+  More: 'Lainnya',
+  'Source actions': 'Aksi source',
   Popular: 'Populer',
   Latest: 'Terbaru',
   'Hide in library': 'Sembunyikan yang ada di perpustakaan',
@@ -35,11 +38,11 @@ registerMessages('id', {
   'Source filters': 'Filter source',
   'Result filters': 'Filter hasil',
   'Search source': 'Cari di source',
-  'Search this source…': 'Cari di source ini…',
+  'Search this sourceâ€¦': 'Cari di source iniâ€¦',
   'Clear history': 'Hapus riwayat',
   'Library change was rejected by the server.':
     'Perubahan perpustakaan ditolak server.',
-  'Couldn’t load this source': 'Tidak dapat memuat source ini',
+  'Couldnâ€™t load this source': 'Tidak dapat memuat source ini',
   'The source catalog could not be loaded.':
     'Katalog source tidak dapat dimuat.',
   Retry: 'Coba lagi',
@@ -108,8 +111,10 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const searchRef = useRef(search);
   searchRef.current = search;
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
   const filtersButton = useRef<HTMLButtonElement>(null);
+  const preferencesButton = useRef<HTMLElement>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
@@ -192,6 +197,19 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         <Link className="button button-secondary" to="/browse">
           {t('All sources')}
         </Link>
+        <ActionMenu
+          label={t('More')}
+          ariaLabel={t('Source actions')}
+          summaryClassName="button button-secondary"
+          triggerRef={preferencesButton}
+        >
+          <button
+            type="button"
+            onClick={() => setPreferencesOpen(true)}
+          >
+            {t('Source preferences')}
+          </button>
+        </ActionMenu>
       </PageHeader>
 
       <div className="source-manga-controls">
@@ -236,7 +254,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           <input
             type="search"
             aria-label="Search source"
-            placeholder="Search this source…"
+            placeholder="Search this sourceâ€¦"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setHistoryOpen(true)}
@@ -305,13 +323,6 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           </div>
         </details>
 
-        <details className="filter-section">
-          <summary>{t('Source preferences')}</summary>
-          <div className="filter-section-content">
-            <SourcePreferencesSection context={context} sourceId={sourceId} />
-          </div>
-        </details>
-
         {source.source ? (
           <SourceFilterPanel
             filters={source.source.filters as unknown as readonly SourceFilterData[]}
@@ -330,6 +341,16 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         ) : null}
       </FilterDrawer>
 
+      <FilterDrawer
+        open={preferencesOpen}
+        title={t('Source preferences')}
+        description={source.source?.displayName}
+        onClose={() => setPreferencesOpen(false)}
+        triggerRef={preferencesButton}
+      >
+        <SourcePreferencesSection context={context} sourceId={sourceId} />
+      </FilterDrawer>
+
       {source.actionError ? (
         <p className="settings-inline-error" role="alert">
           {t('Library change was rejected by the server.')}
@@ -346,7 +367,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
 
       {source.status === 'error' ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldn’t load this source')}</h1>
+          <h1>{t('Couldnâ€™t load this source')}</h1>
           <p>{t('The source catalog could not be loaded.')}</p>
           <button className="button" type="button" onClick={() => void controller.load(sourceId)}>
             {t('Retry')}
@@ -390,7 +411,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 disabled={source.loadingMore}
                 onClick={() => void controller.loadMore()}
               >
-                {source.loadingMore ? t('Loading…') : t('Load more')}
+                {source.loadingMore ? t('Loadingâ€¦') : t('Load more')}
               </button>
             </div>
           ) : null}
@@ -443,3 +464,4 @@ function SourceMangaCard({
     </article>
   );
 }
+

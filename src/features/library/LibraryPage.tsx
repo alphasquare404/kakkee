@@ -40,6 +40,7 @@ import {
   updateLibraryPreferences,
 } from '../../core/preferences/libraryPreferences';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
+import { LibraryFilterDrawer } from './LibraryFilterDrawer';
 import { MangaCard, MangaCardSkeleton } from './MangaCard';
 import { createCatalogRepository } from '../../core/catalog/catalogRepository';
 import { useI18n } from '../../shared/useI18n';
@@ -77,7 +78,7 @@ import { LibrarySyncButton } from './LibrarySyncButton';
 import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
 
 type LibraryStatus = NonNullable<LibraryFilter['status']>;
-type OpenPanel = 'filter' | 'sort';
+type OpenPanel = 'sort';
 type QuickFilter = 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked';
 
 const QUICK_FILTER_OPTIONS: ReadonlyArray<{ readonly value: QuickFilter; readonly label: string }> = [
@@ -89,7 +90,6 @@ const QUICK_FILTER_OPTIONS: ReadonlyArray<{ readonly value: QuickFilter; readonl
 ];
 
 const SEARCH_FORM_ID = 'library-search-form';
-const FILTER_MENU_ID = 'library-filter-menu';
 const SORT_MENU_ID = 'library-sort-menu';
 
 /** Empty value is the "no status refinement" choice; it is never sent to the server. */
@@ -268,6 +268,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   searchRef.current = search;
   const [searchOpen, setSearchOpen] = useState(false);
   const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [randomOrder, setRandomOrder] = useState(false);
   const [randomSeed, setRandomSeed] = useState(0);
   const [fuzzy, setFuzzy] = useState(initialFuzzy);
@@ -406,10 +407,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   }, [openPanel]);
 
   const closePanel = () => {
-    const trigger = openPanel === 'sort' ? sortButton.current : filterButton.current;
-
     setOpenPanel(null);
-    trigger?.focus({ preventScroll: true });
+    sortButton.current?.focus({ preventScroll: true });
   };
 
   const togglePanel = (panel: OpenPanel) => {
@@ -772,69 +771,48 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     });
   };
 
-  const filterGroups: readonly LibraryMenuGroup[] = [
-    {
-      key: 'statuses',
-      label: 'Publication status',
-      value: '',
-      selection: 'multiple',
-      values: selectedStatuses,
-      options: STATUS_OPTIONS.filter((option) => option.value !== ''),
-      onSelect: () => undefined,
-      onToggle: (value) => {
-        const next = new Set(selectedStatuses);
-        const status = value as LibraryStatus;
+  const toggleStatus = (value: string) => {
+    const next = new Set(selectedStatuses);
+    const status = value as LibraryStatus;
 
-        if (next.has(status)) {
-          next.delete(status);
-        } else {
-          next.add(status);
-        }
+    if (next.has(status)) {
+      next.delete(status);
+    } else {
+      next.add(status);
+    }
 
-        applyStatuses([...next]);
-      },
-    },
-    {
-      key: 'loaded',
-      label: 'Loaded titles',
-      value: '',
-      selection: 'multiple',
-      values: [...quickFilters],
-      options: QUICK_FILTER_OPTIONS,
-      onSelect: () => undefined,
-      onToggle: (value) => {
-        const next = new Set(quickFilters);
-        const filter = value as QuickFilter;
+    applyStatuses([...next]);
+  };
 
-        if (next.has(filter)) {
-          next.delete(filter);
-        } else {
-          next.add(filter);
-        }
+  const toggleQuickFilter = (value: string) => {
+    const next = new Set(quickFilters);
+    const filter = value as QuickFilter;
 
-        setQuickFilters(next);
-      },
-    },
-    {
-      key: 'source',
-      label: 'Source',
-      value: library.filter.sourceId ?? '',
-      options: [
-        { value: '', label: 'All sources' },
-        ...sources.map((source) => ({
-          value: source.id,
-          label: source.displayName,
-        })),
-      ],
-      onSelect: (value) => {
-        void controller.setFilter({
-          ...library.filter,
-          sourceId: value || undefined,
-        });
-        closePanel();
-      },
-    },
-  ];
+    if (next.has(filter)) {
+      next.delete(filter);
+    } else {
+      next.add(filter);
+    }
+
+    setQuickFilters(next);
+  };
+
+  const selectSource = (value: string) => {
+    void controller.setFilter({
+      ...library.filter,
+      sourceId: value || undefined,
+    });
+  };
+
+  const resetFilterState = () => {
+    const filter = { ...library.filter };
+    delete filter.status;
+    delete filter.statuses;
+    delete filter.sourceId;
+
+    void controller.setFilter(filter);
+    setQuickFilters(new Set());
+  };
 
   const sortGroups: readonly LibraryMenuGroup[] = [
     {
@@ -997,10 +975,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               ref={filterButton}
               className={`library-action${filterActive ? ' is-active' : ''}`}
               type="button"
-              aria-haspopup="menu"
-              aria-expanded={openPanel === 'filter'}
-              aria-controls={FILTER_MENU_ID}
-              onClick={() => togglePanel('filter')}
+              aria-haspopup="dialog"
+              aria-expanded={filterOpen}
+              onClick={() => setFilterOpen(true)}
             >
               <IconFilter />
               <span>Filter</span>
@@ -1030,14 +1007,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               ) : null}
               {sortActive ? <span className="sr-only">, active</span> : null}
             </button>
-
-            <LibraryMenu
-              id={FILTER_MENU_ID}
-              label="Status filter"
-              open={openPanel === 'filter'}
-              groups={filterGroups}
-              onClose={closePanel}
-            />
 
             <LibraryMenu
               id={SORT_MENU_ID}
@@ -1108,6 +1077,26 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           </div>
         </div>
       </header>
+
+      <LibraryFilterDrawer
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        triggerRef={filterButton}
+        statusOptions={STATUS_OPTIONS.filter((option) => option.value !== '')}
+        selectedStatuses={selectedStatuses}
+        onToggleStatus={toggleStatus}
+        quickOptions={QUICK_FILTER_OPTIONS}
+        quickFilters={quickFilters}
+        onToggleQuick={toggleQuickFilter}
+        sources={sources.map((source) => ({
+          value: source.id,
+          label: source.displayName,
+        }))}
+        sourceId={library.filter.sourceId}
+        onSelectSource={selectSource}
+        onReset={resetFilterState}
+        activeCount={filterCount}
+      />
 
       {duplicatesOpen ? (
         <section className="library-duplicates" aria-labelledby="duplicates-heading">

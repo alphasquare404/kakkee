@@ -741,19 +741,19 @@ describe('LibraryPage search, filter, and sort', () => {
     await screen.findByRole('heading', { name: 'Beta' });
 
     await user.click(screen.getByRole('button', { name: 'Filter' }));
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Unread' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Unread' }));
     expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
 
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Downloaded' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Downloaded' }));
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
 
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Unread' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Unread' }));
     expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
 
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Tracked' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Tracked' }));
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
   });
@@ -770,16 +770,14 @@ describe('LibraryPage search, filter, and sort', () => {
     renderLibrary(query);
 
     await openMenu(user, 'Filter');
-    expect(
-      screen.getByRole('group', { name: 'Publication status' }),
-    ).toBeTruthy();
+    expect(screen.getByRole('dialog', { name: 'Library filters' })).toBeTruthy();
     expect(screen.getByRole('group', { name: 'Source' })).toBeTruthy();
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Ongoing' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Ongoing' }));
 
     expect(screen.getByRole('button', { name: 'Filter, 1 active' })).toBeTruthy();
     expect(
-      screen.getByRole('menuitemcheckbox', { name: 'Ongoing' }).getAttribute('aria-checked'),
-    ).toBe('true');
+      (screen.getByRole('checkbox', { name: 'Ongoing' }) as HTMLInputElement).checked,
+    ).toBe(true);
 
     await waitFor(() =>
       expect(query).toHaveBeenCalledWith(
@@ -805,8 +803,8 @@ describe('LibraryPage search, filter, and sort', () => {
     renderLibrary(query);
 
     await openMenu(user, 'Filter');
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Ongoing' }));
-    await user.click(screen.getByRole('menuitemcheckbox', { name: 'Completed' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Ongoing' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Completed' }));
 
     await waitFor(() =>
       expect(query).toHaveBeenCalledWith(
@@ -820,7 +818,7 @@ describe('LibraryPage search, filter, and sort', () => {
     );
   });
 
-  it('closes the filter menu on Escape and restores focus to its trigger', async () => {
+  it('closes the filter drawer on Escape and restores focus to its trigger', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -834,17 +832,16 @@ describe('LibraryPage search, filter, and sort', () => {
 
     const filter = screen.getByRole('button', { name: 'Filter' });
     await user.click(filter);
-    expect(document.activeElement).toBe(
-      screen.getByRole('menuitemradio', { name: 'All sources' }),
-    );
+    expect(screen.getByRole('dialog', { name: 'Library filters' })).toBeTruthy();
+    expect(screen.getByRole('searchbox', { name: 'Source' })).toBeTruthy();
 
     await user.keyboard('{Escape}');
 
-    expect(screen.queryAllByRole('menuitemcheckbox')).toHaveLength(0);
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(filter);
   });
 
-  it('moves menu focus with arrows and tabs into the next control', async () => {
+  it('closes the filter drawer from Done', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -856,25 +853,12 @@ describe('LibraryPage search, filter, and sort', () => {
     renderLibrary(query);
     await screen.findByRole('heading', { name: 'Alpha' });
 
-    await openMenu(user, 'Filter');
-    expect(document.activeElement).toBe(
-      screen.getByRole('menuitemradio', { name: 'All sources' }),
-    );
+    const filter = screen.getByRole('button', { name: 'Filter' });
+    await user.click(filter);
+    await user.click(screen.getByRole('button', { name: 'Done' }));
 
-    await user.keyboard('{ArrowDown}');
-    expect(document.activeElement).toBe(
-      screen.getByRole('menuitemcheckbox', { name: 'Ongoing' }),
-    );
-
-    await user.keyboard('{ArrowDown}');
-    expect(document.activeElement).toBe(
-      screen.getByRole('menuitemcheckbox', { name: 'Completed' }),
-    );
-
-    await user.tab();
-
-    expect(screen.queryAllByRole('menuitemcheckbox')).toHaveLength(0);
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Sort' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(filter);
   });
 
   it('maps sort fields and direction to stable GraphQL order', async () => {

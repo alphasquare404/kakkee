@@ -9,8 +9,8 @@ Status: `Pending` · `In Progress` · `Complete`
 | # | Goal | Status | Audit | Commit |
 | --- | --- | --- | --- | --- |
 | 1 | Interaction semantics | Complete | [interaction-semantics-audit.md](interaction-semantics-audit.md) | `Goal 1` |
-| 2 | Information architecture | In Progress | [information-architecture-audit.md](information-architecture-audit.md) | — |
-| 3 | Action hierarchy | Pending | — | — |
+| 2 | Information architecture | Complete | [information-architecture-audit.md](information-architecture-audit.md) | `Goal 2` |
+| 3 | Action hierarchy | In Progress | — | — |
 | 4 | UI consistency | Pending | — | — |
 | 5 | Responsive/adaptive layout | Pending | — | — |
 | 6 | Navigation regression/context | Pending | — | — |
@@ -42,9 +42,9 @@ Status: `Pending` · `In Progress` · `Complete`
 
 ## Goal 2 — Information architecture
 
-- **Status:** In Progress
-- **Findings:** in progress.
-- **Fixes:** in progress.
-- **Tests:** pending.
-- **Runtime:** pending.
-- **Remaining concerns:** pending.
+- **Status:** Complete
+- **Findings:** 107-option source filter inside a popover; filter surface mixed filters with auto-saving source preferences; source preferences were hidden under Filters; Search mixes server and live-source result models.
+- **Fixes:** Library filter drawer with searchable source list, status/loaded predicates, Reset/Done, focus return; source preferences moved to a contextual Source actions drawer; empty/loading/error states for preferences.
+- **Tests:** Library filter drawer tests (dialog, checkboxes, source search, Escape, Done, focus return); typecheck/lint.
+- **Runtime:** 1280×900: Library filter drawer shows searchable 107-source list, status, loaded filters, sticky Reset/Done; source search reduced list to 2. 390×844: full-screen drawer verified. Source preferences open in their own contextual drawer.
+- **Remaining concerns:** Search result models, chapter download target placement, Downloads stats hierarchy, migration route visibility.

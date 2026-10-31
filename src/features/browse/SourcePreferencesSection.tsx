@@ -68,8 +68,28 @@ export function SourcePreferencesSection({
       .finally(() => setSaving(false));
   };
 
-  if (status === 'loading' || preferences.length === 0) {
-    return null;
+  if (status === 'loading') {
+    return (
+      <p className="library-note" role="status">
+        {t('Loading source preferences…')}
+      </p>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <p className="settings-inline-error" role="alert">
+        {t("Couldn't load source preferences.")}
+      </p>
+    );
+  }
+
+  if (preferences.length === 0) {
+    return (
+      <p className="library-note">
+        {t('This source has no preferences.')}
+      </p>
+    );
   }
 
   return (

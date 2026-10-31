@@ -2,6 +2,7 @@ import {
   useEffect,
   useRef,
   type ReactNode,
+  type RefObject,
 } from 'react';
 
 export interface ActionMenuProps {
@@ -11,6 +12,7 @@ export interface ActionMenuProps {
   readonly summaryClassName?: string;
   readonly align?: 'start' | 'end';
   readonly ariaLabel?: string;
+  readonly triggerRef?: RefObject<HTMLElement | null>;
 }
 
 export function ActionMenu({
@@ -20,6 +22,7 @@ export function ActionMenu({
   summaryClassName = 'button button-secondary',
   align = 'end',
   ariaLabel,
+  triggerRef,
 }: ActionMenuProps) {
   const details = useRef<HTMLDetailsElement>(null);
 
@@ -82,6 +85,7 @@ export function ActionMenu({
       className={`action-menu action-menu-${align}${className ? ` ${className}` : ''}`}
     >
       <summary
+        ref={triggerRef}
         className={summaryClassName}
         aria-label={ariaLabel ?? label}
       >

@@ -6180,3 +6180,103 @@ button.manga-card-link {
   border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
   background: var(--accent-soft);
 }
+
+/* Library filter drawer -------------------------------------------------- */
+
+.filter-section-heading {
+  margin: 0;
+  padding: 0.7rem 0.8rem 0;
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.filter-section-hint {
+  margin: 0;
+  padding: 0.15rem 0.8rem 0;
+  color: var(--faint);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+}
+
+.filter-checkbox-list {
+  gap: 0.15rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0 var(--sp-1);
+  color: var(--text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.filter-checkbox:hover {
+  background: var(--surface-sunken);
+}
+
+.filter-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+}
+
+.library-source-filter {
+  gap: var(--sp-2);
+}
+
+.library-source-list {
+  display: grid;
+  gap: 2px;
+  max-height: 15rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.2rem;
+  padding: 0 0.65rem;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.filter-option:hover {
+  background: var(--surface-sunken);
+}
+
+.filter-option.is-selected {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.filter-drawer-footer {
+  position: sticky;
+  bottom: calc(-1 * var(--sp-3));
+  z-index: 2;
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 calc(-1 * var(--sp-1));
+  padding: var(--sp-2) var(--sp-1);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.filter-drawer-status {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
