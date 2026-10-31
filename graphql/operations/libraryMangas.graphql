@@ -18,6 +18,7 @@ query LibraryMangas(
       thumbnailUrlLastFetched
       unreadCount
       downloadCount
+      bookmarkCount
       lastReadChapter {
         id
         name

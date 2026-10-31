@@ -39,6 +39,7 @@ function manga(
   title: string,
   unreadCount = 0,
   downloadCount = 0,
+  bookmarkCount = 0,
 ): LibraryManga {
   return {
     __typename: 'MangaType',
@@ -48,6 +49,7 @@ function manga(
     thumbnailUrlLastFetched: null,
     unreadCount,
     downloadCount,
+    bookmarkCount,
     lastReadChapter: null,
   };
 }
@@ -676,7 +678,7 @@ describe('LibraryPage search, filter, and sort', () => {
       }
 
       return libraryQuery(
-        page([manga(1, 'Alpha', 2), manga(2, 'Beta', 0, 1)]),
+        page([manga(1, 'Alpha', 2), manga(2, 'Beta', 0, 1, 2)]),
       );
     });
     const user = userEvent.setup();
@@ -689,6 +691,10 @@ describe('LibraryPage search, filter, and sort', () => {
     expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
 
     await user.click(screen.getByRole('button', { name: 'Downloaded' }));
+    expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Bookmarked' }));
     expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
   });
