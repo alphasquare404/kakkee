@@ -1,6 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  Device: 'Perangkat',
+  'Browser and display capabilities': 'Kemampuan browser dan layar',
+  'All settings': 'Semua pengaturan',
+  'This device': 'Perangkat ini',
+  Platform: 'Platform',
+  Language: 'Bahasa',
+  Screen: 'Layar',
+  'Pixel ratio': 'Rasio piksel',
+  'Installed app': 'Aplikasi terpasang',
+  'Standalone window': 'Jendela mandiri',
+  'Browser tab': 'Tab browser',
+  Network: 'Jaringan',
+  Online: 'Online',
+  Offline: 'Offline',
+  'Service worker': 'Service worker',
+  Supported: 'Didukung',
+  Unsupported: 'Tidak didukung',
+  'Wake Lock': 'Wake Lock',
+  'Web Share': 'Web Share',
+  Memory: 'Memori',
+  'User agent': 'User agent',
+});
 
 interface DeviceInfo {
   readonly userAgent: string;
@@ -44,6 +70,7 @@ function readDeviceInfo(): DeviceInfo {
 }
 
 export function DeviceSettingsPage() {
+  const { t } = useI18n();
   const [device, setDevice] = useState(readDeviceInfo);
 
   useEffect(() => {
@@ -59,60 +86,63 @@ export function DeviceSettingsPage() {
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title="Device" subtitle="Browser and display capabilities">
+      <PageHeader
+        title={t('Device')}
+        subtitle={t('Browser and display capabilities')}
+      >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="device-info">
           <div className="section-heading-row">
-            <h2 id="device-info">This device</h2>
+            <h2 id="device-info">{t('This device')}</h2>
           </div>
           <dl className="settings-rows">
             <div>
-              <dt>Platform</dt>
+              <dt>{t('Platform')}</dt>
               <dd>{device.platform}</dd>
             </div>
             <div>
-              <dt>Language</dt>
+              <dt>{t('Language')}</dt>
               <dd>{device.language}</dd>
             </div>
             <div>
-              <dt>Screen</dt>
+              <dt>{t('Screen')}</dt>
               <dd>{device.screen}</dd>
             </div>
             <div>
-              <dt>Pixel ratio</dt>
+              <dt>{t('Pixel ratio')}</dt>
               <dd>{device.pixelRatio}</dd>
             </div>
             <div>
-              <dt>Installed app</dt>
-              <dd>{device.standalone ? 'Standalone window' : 'Browser tab'}</dd>
+              <dt>{t('Installed app')}</dt>
+              <dd>{device.standalone ? t('Standalone window') : t('Browser tab')}</dd>
             </div>
             <div>
-              <dt>Network</dt>
-              <dd>{device.online ? 'Online' : 'Offline'}</dd>
+              <dt>{t('Network')}</dt>
+              <dd>{device.online ? t('Online') : t('Offline')}</dd>
             </div>
             <div>
-              <dt>Service worker</dt>
-              <dd>{device.serviceWorker ? 'Supported' : 'Unsupported'}</dd>
+              <dt>{t('Service worker')}</dt>
+              <dd>{device.serviceWorker ? t('Supported') : t('Unsupported')}</dd>
             </div>
             <div>
-              <dt>Wake Lock</dt>
-              <dd>{device.wakeLock ? 'Supported' : 'Unsupported'}</dd>
+              <dt>{t('Wake Lock')}</dt>
+              <dd>{device.wakeLock ? t('Supported') : t('Unsupported')}</dd>
             </div>
             <div>
-              <dt>Web Share</dt>
-              <dd>{device.share ? 'Supported' : 'Unsupported'}</dd>
+              <dt>{t('Web Share')}</dt>
+              <dd>{device.share ? t('Supported') : t('Unsupported')}</dd>
             </div>
             <div>
-              <dt>Memory</dt>
+              <dt>{t('Memory')}</dt>
               <dd>{device.storage}</dd>
             </div>
             <div>
-              <dt>User agent</dt>
+              <dt>{t('User agent')}</dt>
               <dd className="settings-endpoint">{device.userAgent}</dd>
             </div>
           </dl>

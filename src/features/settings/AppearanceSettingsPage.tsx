@@ -2,7 +2,24 @@ import { Link } from 'react-router-dom';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
 import { PageHeader } from '../../shared/PageHeader';
+
+registerMessages('id', {
+  'Cinematic dark': 'Gelap sinematik',
+  'Navy surfaces with blue-violet accent':
+    'Permukaan navy dengan aksen biru-ungu',
+  'Pure black': 'Hitam pekat',
+  'OLED-friendly true black surfaces':
+    'Permukaan hitam sejati ramah OLED',
+  Accent: 'Aksen',
+  'Accent color': 'Warna aksen',
+  Reset: 'Reset',
+  'Theme storage': 'Penyimpanan tema',
+  'Stored on this device only': 'Hanya disimpan di perangkat ini',
+  English: 'English',
+  'Bahasa Indonesia': 'Bahasa Indonesia',
+});
 
 export function AppearanceSettingsPage() {
   const preferences = useAppPreferences();
@@ -24,8 +41,8 @@ export function AppearanceSettingsPage() {
           <div className="settings-choice-grid">
             {(
               [
-                ['dark', 'Cinematic dark', 'Navy surfaces with blue-violet accent'],
-                ['pure-black', 'Pure black', 'OLED-friendly true black surfaces'],
+                ['dark', t('Cinematic dark'), t('Navy surfaces with blue-violet accent')],
+                ['pure-black', t('Pure black'), t('OLED-friendly true black surfaces')],
               ] as const
             ).map(([value, label, description]) => (
               <button
@@ -66,15 +83,15 @@ export function AppearanceSettingsPage() {
 
         <section className="settings-section" aria-labelledby="accent-heading">
           <div className="section-heading-row">
-            <h2 id="accent-heading">Accent</h2>
+            <h2 id="accent-heading">{t('Accent')}</h2>
           </div>
           <dl className="settings-rows">
             <div>
-              <dt>Accent color</dt>
+              <dt>{t('Accent color')}</dt>
               <dd className="settings-accent-editor">
                 <input
                   type="color"
-                  aria-label="Accent color"
+                  aria-label={t('Accent color')}
                   value={preferences.accent}
                   onChange={(event) =>
                     updateAppPreferences({ accent: event.target.value })
@@ -88,13 +105,13 @@ export function AppearanceSettingsPage() {
                     updateAppPreferences({ accent: '#5b7cff' })
                   }
                 >
-                  Reset
+                  {t('Reset')}
                 </button>
               </dd>
             </div>
             <div>
-              <dt>Theme storage</dt>
-              <dd>Stored on this device only</dd>
+              <dt>{t('Theme storage')}</dt>
+              <dd>{t('Stored on this device only')}</dd>
             </div>
           </dl>
         </section>

@@ -2,28 +2,60 @@ import { Link } from 'react-router-dom';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { PageHeader } from '../../shared/PageHeader';
+import { useI18n } from '../../shared/useI18n';
+import { registerMessages } from '../../shared/i18n';
+
+registerMessages('id', {
+  'Library settings': 'Pengaturan perpustakaan',
+  'Grid density and card size': 'Kepadatan grid dan ukuran kartu',
+  'All settings': 'Semua pengaturan',
+  'Grid density': 'Kepadatan grid',
+  Compact: 'Ringkas',
+  'More posters per row': 'Lebih banyak poster per baris',
+  Comfortable: 'Nyaman',
+  'Larger posters, fewer columns': 'Poster lebih besar, kolom lebih sedikit',
+  Cards: 'Kartu',
+  'Show unread and download badges':
+    'Tampilkan badge belum dibaca dan unduhan',
+  'Show continue-reading progress and shortcut':
+    'Tampilkan progres lanjut membaca dan pintasan',
+  Display: 'Tampilan',
+  Grid: 'Grid',
+  'Poster grid with authenticated thumbnails':
+    'Grid poster dengan thumbnail terautentikasi',
+  'Search and filters': 'Pencarian dan filter',
+  'Server-side search, status filter, categories, sort':
+    'Pencarian server, filter status, kategori, urutan',
+  Selection: 'Seleksi',
+  'Selection mode with shift-click range selection':
+    'Mode seleksi dengan rentang shift-klik',
+});
 
 export function LibrarySettingsPage() {
   const preferences = useAppPreferences();
+  const { t } = useI18n();
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title="Library settings" subtitle="Grid density and card size">
+      <PageHeader
+        title={t('Library settings')}
+        subtitle={t('Grid density and card size')}
+      >
         <Link className="button button-secondary" to="/settings">
-          All settings
+          {t('All settings')}
         </Link>
       </PageHeader>
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="density-heading">
           <div className="section-heading-row">
-            <h2 id="density-heading">Grid density</h2>
+            <h2 id="density-heading">{t('Grid density')}</h2>
           </div>
           <div className="settings-choice-grid">
             {(
               [
-                ['compact', 'Compact', 'More posters per row'],
-                ['comfortable', 'Comfortable', 'Larger posters, fewer columns'],
+                ['compact', t('Compact'), t('More posters per row')],
+                ['comfortable', t('Comfortable'), t('Larger posters, fewer columns')],
               ] as const
             ).map(([value, label, description]) => (
               <button
@@ -50,11 +82,11 @@ export function LibrarySettingsPage() {
 
         <section className="settings-section" aria-labelledby="library-cards-heading">
           <div className="section-heading-row">
-            <h2 id="library-cards-heading">Cards</h2>
+            <h2 id="library-cards-heading">{t('Cards')}</h2>
           </div>
           <div className="settings-toggle-list">
             <label className="settings-toggle">
-              <span>Show unread and download badges</span>
+              <span>{t('Show unread and download badges')}</span>
               <input
                 type="checkbox"
                 checked={preferences.libraryBadges}
@@ -66,7 +98,7 @@ export function LibrarySettingsPage() {
               />
             </label>
             <label className="settings-toggle">
-              <span>Show continue-reading progress and shortcut</span>
+              <span>{t('Show continue-reading progress and shortcut')}</span>
               <input
                 type="checkbox"
                 checked={preferences.libraryContinue}
@@ -82,20 +114,20 @@ export function LibrarySettingsPage() {
 
         <section className="settings-section" aria-labelledby="library-info-heading">
           <div className="section-heading-row">
-            <h2 id="library-info-heading">Display</h2>
+            <h2 id="library-info-heading">{t('Display')}</h2>
           </div>
           <dl className="settings-rows">
             <div>
-              <dt>Grid</dt>
-              <dd>Poster grid with authenticated thumbnails</dd>
+              <dt>{t('Grid')}</dt>
+              <dd>{t('Poster grid with authenticated thumbnails')}</dd>
             </div>
             <div>
-              <dt>Search and filters</dt>
-              <dd>Server-side search, status filter, categories, sort</dd>
+              <dt>{t('Search and filters')}</dt>
+              <dd>{t('Server-side search, status filter, categories, sort')}</dd>
             </div>
             <div>
-              <dt>Selection</dt>
-              <dd>Selection mode with shift-click range selection</dd>
+              <dt>{t('Selection')}</dt>
+              <dd>{t('Selection mode with shift-click range selection')}</dd>
             </div>
           </dl>
         </section>
