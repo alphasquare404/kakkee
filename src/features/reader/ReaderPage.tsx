@@ -18,7 +18,7 @@ import { useImageResource } from '../../shared/useImageResource';
 import { useReaderSettings } from '../../shared/useReaderSettings';
 import { useMangaReaderMode } from '../../shared/useMangaReaderMode';
 import { buildReaderFilter } from '../../core/preferences/readerSettings';
-import type { CSSProperties, MouseEvent } from 'react';
+import type { CSSProperties, MouseEvent, PointerEvent } from 'react';
 
 export function ReaderPage() {
   const { state } = useConnection();
@@ -81,6 +81,8 @@ function ConnectedReader({
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const preloadedNext = useRef<number | null>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const swipeHandled = useRef(false);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
@@ -438,6 +440,11 @@ function ConnectedReader({
   }, [autoScrolling, readerSettings.autoScrollSpeed]);
 
   const selectPageFromTap = (event: MouseEvent<HTMLElement>) => {
+    if (swipeHandled.current) {
+      swipeHandled.current = false;
+      return;
+    }
+
     if (!isPaged) {
       return;
     }
@@ -457,6 +464,40 @@ function ConnectedReader({
         ),
       );
     }
+  };
+
+  const beginSwipe = (event: PointerEvent<HTMLElement>) => {
+    if (!isPaged || event.pointerType === 'mouse') {
+      return;
+    }
+
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+    swipeHandled.current = false;
+  };
+
+  const endSwipe = (event: PointerEvent<HTMLElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+
+    if (!start || !isPaged) {
+      return;
+    }
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+
+    if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+
+    swipeHandled.current = true;
+    const step = readingMode === 'double' ? 2 : 1;
+    setCurrentPage((page) =>
+      Math.min(
+        Math.max(1, reader.pages.length),
+        Math.max(1, page + (deltaX < 0 ? step : -step)),
+      ),
+    );
   };
 
   return (
@@ -718,6 +759,11 @@ function ConnectedReader({
           }`}
           aria-label={`${activeChapter.name} pages`}
           onClick={selectPageFromTap}
+          onPointerDown={beginSwipe}
+          onPointerUp={endSwipe}
+          onPointerCancel={() => {
+            swipeStart.current = null;
+          }}
         >
           {pageIndices.map((index) => {
             const path = reader.pages[index];

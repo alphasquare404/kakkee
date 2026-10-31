@@ -142,13 +142,13 @@ frontend.
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
 | Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
 | Reader | Custom keybindings | `Partial` | Client-side | Basic arrows/Escape |
-| Reader | Tap zones and touch drag scrolling | `Partial` | Client-side | Left/right tap zones in paged modes; drag scrolling not customized |
+| Reader | Tap zones and touch drag scrolling | `Implemented` | Client-side | Left/right tap zones plus horizontal swipe paging in paged modes |
 | Reader | Keep screen on | `Partial` | Platform | Wake Lock where supported; denial is non-fatal |
 | Reader | Auto background color | `Implemented` | Client-side | Samples the current page and tints the Reader background when enabled |
 | Reader | Fullscreen | `Partial` | Platform limitation on iOS | Browser Fullscreen API; iOS Safari has no equivalent |
 | Reader | Download next chapter / delete after reading | `Implemented` | Yes | Active chapter download/delete, download next chapter, and opt-in delete-after-reading |
 | Reader | Bookmark/library actions from reader | `Implemented` | Yes | Bookmark toggle and add/remove library from Reader |
-| Reader | Chapter list overlay/sidebar | `Partial` | Yes | Right-side chapter dialog with active/read markers; sidebar variant absent |
+| Reader | Chapter list overlay/sidebar | `Implemented` | Yes | Right-side chapter overlay with active/read markers and chapter navigation |
 
 ### Updates / History / Downloads
 
