@@ -219,7 +219,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [fuzzy, setFuzzy] = useState(false);
   const [duplicatesOpen, setDuplicatesOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<
-    'all' | 'unread' | 'started' | 'downloaded' | 'bookmarked'
+    'all' | 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked'
   >('all');
   const [sources, setSources] = useState<
     readonly { readonly id: string; readonly displayName: string }[]
@@ -575,6 +575,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
           if (quickFilter === 'bookmarked') {
             return manga.bookmarkCount > 0;
+          }
+
+          if (quickFilter === 'tracked') {
+            return manga.trackRecords.totalCount > 0;
           }
 
           return manga.downloadCount > 0;
@@ -1033,6 +1037,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             ['started', 'Started'],
             ['downloaded', 'Downloaded'],
             ['bookmarked', 'Bookmarked'],
+            ['tracked', 'Tracked'],
           ] as const
         ).map(([value, label]) => (
           <button

@@ -40,6 +40,7 @@ function manga(
   unreadCount = 0,
   downloadCount = 0,
   bookmarkCount = 0,
+  tracked = false,
 ): LibraryManga {
   return {
     __typename: 'MangaType',
@@ -50,6 +51,10 @@ function manga(
     unreadCount,
     downloadCount,
     bookmarkCount,
+    trackRecords: {
+      __typename: 'TrackRecordNodeList',
+      totalCount: tracked ? 1 : 0,
+    },
     lastReadChapter: null,
   };
 }
@@ -678,7 +683,7 @@ describe('LibraryPage search, filter, and sort', () => {
       }
 
       return libraryQuery(
-        page([manga(1, 'Alpha', 2), manga(2, 'Beta', 0, 1, 2)]),
+        page([manga(1, 'Alpha', 2, 0, 0, true), manga(2, 'Beta', 0, 1, 2)]),
       );
     });
     const user = userEvent.setup();
@@ -697,6 +702,10 @@ describe('LibraryPage search, filter, and sort', () => {
     await user.click(screen.getByRole('button', { name: 'Bookmarked' }));
     expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Tracked' }));
+    expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Beta' })).toBeNull();
   });
 
   it('changes the supported status filter and exposes the source filter', async () => {

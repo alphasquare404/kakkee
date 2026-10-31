@@ -23,6 +23,7 @@ function manga(id: number, title = `Manga ${id}`): LibraryManga {
     unreadCount: 0,
     downloadCount: 0,
     bookmarkCount: 0,
+    trackRecords: { __typename: 'TrackRecordNodeList', totalCount: 0 },
     lastReadChapter: null,
   };
 }

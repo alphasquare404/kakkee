@@ -19,6 +19,9 @@ query LibraryMangas(
       unreadCount
       downloadCount
       bookmarkCount
+      trackRecords {
+        totalCount
+      }
       lastReadChapter {
         id
         name
