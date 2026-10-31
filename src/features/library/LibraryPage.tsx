@@ -106,6 +106,36 @@ function shuffled<T>(items: readonly T[], seed: number): readonly T[] {
   return result;
 }
 
+function fuzzyMatch(title: string, query: string): boolean {
+  const haystack = title.toLowerCase();
+  const needles = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (needles.length === 0) {
+    return true;
+  }
+
+  if (needles.every((needle) => haystack.includes(needle))) {
+    return true;
+  }
+
+  let position = 0;
+
+  for (const character of haystack) {
+    if (character === query.toLowerCase()[position]) {
+      position += 1;
+
+      if (position === query.length) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 export function LibraryPage() {
   const { state } = useConnection();
 
@@ -153,6 +183,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [openPanel, setOpenPanel] = useState<OpenPanel | null>(null);
   const [randomOrder, setRandomOrder] = useState(false);
   const [randomSeed, setRandomSeed] = useState(0);
+  const [fuzzy, setFuzzy] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(new Set());
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
@@ -220,6 +251,18 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
 
     setHistoryOpen(false);
+
+    if (fuzzy) {
+      const rest = { ...library.filter };
+      delete rest.search;
+
+      if (library.filter.search !== undefined) {
+        void controller.setFilter(rest);
+      }
+
+      return;
+    }
+
     void controller.setSearch(query);
   };
 
@@ -263,6 +306,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const handleCategory = (category: LibraryCategory | null) => {
     void controller.setCategory(category?.id ?? null);
+  };
+
+  const toggleFuzzy = () => {
+    const next = !fuzzy;
+    setFuzzy(next);
+
+    if (next && library.filter.search !== undefined) {
+      const rest = { ...library.filter };
+      delete rest.search;
+      void controller.setFilter(rest);
+    }
   };
 
   const clearSelection = () => {
@@ -396,20 +450,25 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const isNarrowed = hasNarrowingCriteria(library.filter, library.categoryId);
   const filterActive = Boolean(library.filter.status);
-  const searchActive = Boolean(library.filter.search?.trim());
+  const searchActive = Boolean(search.trim()) || Boolean(library.filter.search?.trim());
   const sortActive =
     randomOrder ||
     library.sort.field !== 'dateAdded' ||
     library.sort.direction !== 'desc';
-  const hasAnyRefinement = isNarrowed || sortActive;
+  const hasAnyRefinement = isNarrowed || sortActive || searchActive;
+  const locallyFiltered =
+    fuzzy && search.trim()
+      ? library.items.filter((manga) => fuzzyMatch(manga.title, search.trim()))
+      : library.items;
   const displayedItems = randomOrder
-    ? shuffled(library.items, randomSeed)
-    : library.items;
+    ? shuffled(locallyFiltered, randomSeed)
+    : locallyFiltered;
 
   const resetAll = () => {
     setSearch('');
     setRandomOrder(false);
     setRandomSeed(0);
+    setFuzzy(false);
     setOpenPanel(null);
     void controller.setFilter({});
 
@@ -584,6 +643,15 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               }}
             >
               {selectionMode ? 'Done' : 'Select'}
+            </button>
+            <button
+              className={`library-action${fuzzy ? ' is-active' : ''}`}
+              type="button"
+              aria-pressed={fuzzy}
+              title="Fuzzy search loaded titles"
+              onClick={toggleFuzzy}
+            >
+              Fuzzy
             </button>
 
             <button

@@ -64,7 +64,7 @@ frontend.
 | Library | List / comfortable grid / compact grid | `Partial` | Client concern | Poster grid only |
 | Library | Categories and category counts | `Partial` | Yes | Category tabs and counts on Categories page; library tab counts not shown |
 | Library | Search | `Implemented` | Yes | Server-side search |
-| Library | Fuzzy search | `Missing` | Client-side/upstream metadata | |
+| Library | Fuzzy search | `Partial` | Client-side/upstream metadata | Token/subsequence fuzzy filter over loaded titles; not a server-wide fuzzy query |
 | Library | Search autocomplete and search history | `Partial` | Client-side | Recent-search suggestions and history stored per device; remote autocomplete absent |
 | Library | Reset all filters | `Implemented` | Client concern | Resets search, status, category, random mode, and default sort |
 | Library | Status, source, tracker, unread, started, downloaded, bookmarked filters | `Partial` | Yes | Status filter implemented; source/tracker/unread/started/downloaded/bookmarked missing |
