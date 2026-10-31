@@ -8,5 +8,6 @@ query SyncSettings {
     syncDataTracking
     syncYomiEnabled
     syncYomiHost
+    syncYomiApiKey
   }
 }

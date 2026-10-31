@@ -19,6 +19,8 @@ export type EditableSyncSettings = Pick<
   | 'syncDataManga'
   | 'syncDataTracking'
   | 'syncYomiEnabled'
+  | 'syncYomiHost'
+  | 'syncYomiApiKey'
 >;
 
 export interface SyncRepository {

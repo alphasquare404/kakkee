@@ -208,7 +208,7 @@ frontend.
 | Backup | Restore/validate backup | `Implemented` | Yes | Multipart validate and restore with auth; missing sources/trackers shown before restore |
 | Backup | Automatic backup settings | `Implemented` | Yes | Editable auto-backup path/interval/time/TTL and include flags |
 | Sync | Sync button and sync status | `Implemented` | Yes | Start sync, result state, and live `syncStatusChanged` status |
-| Sync | Sync settings (Yomi, intervals, data selection) | `Partial` | Yes | Data toggles, Yomi enablement/host, and interval shown; API key editing absent |
+| Sync | Sync settings (Yomi, intervals, data selection) | `Implemented` | Yes | Data toggles, Yomi enablement/host, interval, and API key editing |
 | Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
 | Settings | Appearance/themes/custom themes/pure black | `Partial` | Client concern | Dark and pure-black themes persist per device; custom themes/accent editing absent |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
@@ -218,7 +218,7 @@ frontend.
 | Settings | History preferences | `Partial` | Metadata | Hide-read preference stored per device; retention/server history settings absent |
 | Settings | Tracking settings | `Partial` | Yes | `/settings/tracking` lists services and supports logout; binding/score controls absent |
 | Settings | Server settings, authentication, database, OPDS/KOReader | `Partial` | Yes | Update/download/system plus OPDS and KOReader sync editing; auth/database remain read-only |
-| Settings | WebUI channel/flavor/update settings | `Partial` | Yes | Channel, flavor, and interface displayed; update controls absent |
+| Settings | WebUI channel/flavor/update settings | `Implemented` | Yes | Channel/flavor/interface shown plus WebUI update action and live status on About |
 | Settings | Device management | `Partial` | Metadata | `/settings/device` shows platform, display, PWA, Wake Lock, and share capabilities; no remote device management |
 | Global search | Search all sources, global source filter, library counts | `Partial` | Yes | `/search` queries server-known manga and matching sources with source filter and in-library counts; live fetch across every source absent |
 | Global search | Search history/suggestions | `Partial` | Client metadata | Recent global searches stored per device; remote suggestions absent |

@@ -50,10 +50,21 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
   }, [context.graphQL]);
   const sync = useSyncExternalStore(controller.subscribe, controller.getState);
   const [liveStatus, setLiveStatus] = useState<SyncStatus | null>(null);
+  const [apiKeyDraft, setApiKeyDraft] = useState('');
 
   useEffect(() => {
     void controller.load();
   }, [controller]);
+
+  useEffect(() => {
+    if (sync.settings) {
+      setApiKeyDraft(
+        typeof sync.settings.syncYomiApiKey === 'string'
+          ? sync.settings.syncYomiApiKey
+          : '',
+      );
+    }
+  }, [sync.settings]);
 
   useEffect(() => {
     if (typeof context.graphQL.subscribe !== 'function') {
@@ -170,6 +181,21 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
                       syncYomiEnabled: event.target.checked,
                     })
                   }
+                />
+              </label>
+              <label className="settings-text-field">
+                <span>Yomi API key</span>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={apiKeyDraft}
+                  disabled={sync.busy}
+                  onChange={(event) => setApiKeyDraft(event.target.value)}
+                  onBlur={() => {
+                    if (apiKeyDraft !== sync.settings?.syncYomiApiKey) {
+                      void controller.update({ syncYomiApiKey: apiKeyDraft });
+                    }
+                  }}
                 />
               </label>
             </div>
