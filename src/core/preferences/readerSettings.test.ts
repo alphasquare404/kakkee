@@ -45,6 +45,7 @@ describe('reader settings', () => {
       keepScreenOn: true,
       firstPageOffset: 24,
       skipDuplicates: true,
+      autoAdvance: false,
       profiles: {},
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(

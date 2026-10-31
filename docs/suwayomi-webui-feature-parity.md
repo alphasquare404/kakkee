@@ -135,7 +135,7 @@ frontend.
 | Reader | Progress write / read state | `Partial` | UpdateChapter mutation | Writes `lastPageRead`; marks read on final page. Live round-trip verified on chapter 2820 (`lastPageRead` persisted) |
 | Reader | Resume at last page | `Implemented` | Reading progress | Resumes explicit `?page=` and stored `lastPageRead` for the vertical reader |
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
-| Reader | Infinite chapter scrolling and transition pages | `Missing` | Client-side | |
+| Reader | Infinite chapter scrolling and transition pages | `Partial` | Client-side | Optional auto-advance to next chapter after last page; inline scroll append absent |
 | Reader | Skip duplicate chapters | `Partial` | Client-side | Deduplicates loaded chapter numbers for overlay and navigation; unloaded boundaries fall back to server |
 | Reader | Preload pages and next chapter | `Partial` | Client-side | Current ±1 pages eager-loaded plus near-viewport loading; next chapter not preloaded |
 | Reader | Image filters (brightness/contrast/etc.) | `Partial` | Client-side | Grayscale, sepia, invert, and high-contrast presets; per-channel sliders absent |

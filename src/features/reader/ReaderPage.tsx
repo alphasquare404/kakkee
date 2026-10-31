@@ -136,6 +136,30 @@ function ConnectedReader({
       : reader.nextChapter;
 
   useEffect(() => {
+    if (
+      !readerSettings.autoAdvance ||
+      !nextChapter ||
+      reader.pages.length === 0 ||
+      currentPage < reader.pages.length
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`);
+    }, 1_200);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    currentPage,
+    mangaId,
+    navigate,
+    nextChapter,
+    reader.pages.length,
+    readerSettings.autoAdvance,
+  ]);
+
+  useEffect(() => {
     if (!readerSettings.keepScreenOn) {
       return;
     }

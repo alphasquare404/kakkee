@@ -263,6 +263,23 @@ export function ReaderSettingsPage() {
                 </label>
               </dd>
             </div>
+            <div>
+              <dt>Auto-advance</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.autoAdvance}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        autoAdvance: event.target.checked,
+                      })
+                    }
+                  />
+                  Open the next chapter after the last page
+                </label>
+              </dd>
+            </div>
           </dl>
         </section>
 
