@@ -297,6 +297,23 @@ export function ReaderSettingsPage() {
                 </label>
               </dd>
             </div>
+            <div>
+              <dt>Background</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.autoBackground}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        autoBackground: event.target.checked,
+                      })
+                    }
+                  />
+                  Match background to the current page
+                </label>
+              </dd>
+            </div>
           </dl>
         </section>
 

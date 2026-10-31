@@ -47,6 +47,7 @@ describe('reader settings', () => {
       skipDuplicates: true,
       autoAdvance: false,
       deleteAfterReading: false,
+      autoBackground: false,
       profiles: {},
     });
     expect(window.localStorage.getItem('suwayomi.reader-settings.v1')).toContain(

@@ -87,6 +87,7 @@ function ConnectedReader({
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
+  const [pageColors, setPageColors] = useState<Record<number, string>>({});
   const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const syncedChapter = useRef(0);
   const deletedAfterReading = useRef(0);
@@ -440,7 +441,10 @@ function ConnectedReader({
         {
           '--reader-width': `${readerSettings.widthRem}rem`,
           '--reader-gap': `${readerSettings.gapPx}px`,
-          '--reader-bg': readerSettings.background,
+          '--reader-bg':
+            (readerSettings.autoBackground
+              ? pageColors[safeCurrentPage]
+              : undefined) ?? readerSettings.background,
           '--reader-first-offset': `${readerSettings.firstPageOffset}px`,
         } as CSSProperties
       }
@@ -702,6 +706,13 @@ function ConnectedReader({
                 eager={isPaged || Math.abs(index + 1 - safeCurrentPage) <= 1}
                 filter={imageFilter}
                 onVisible={isPaged ? noopVisible : handlePageVisible}
+                onColor={(page, color) =>
+                  setPageColors((current) =>
+                    current[page] === color
+                      ? current
+                      : { ...current, [page]: color },
+                  )
+                }
               />
             ) : null;
           })}
@@ -791,6 +802,7 @@ function ReaderPageImage({
   eager = false,
   filter = 'none',
   onVisible,
+  onColor,
 }: {
   readonly resources: ResourceService;
   readonly path: string;
@@ -798,6 +810,7 @@ function ReaderPageImage({
   readonly eager?: boolean;
   readonly filter?: string;
   readonly onVisible: (pageNumber: number) => void;
+  readonly onColor?: (pageNumber: number, color: string) => void;
 }) {
   const figure = useRef<HTMLElement>(null);
   const [nearViewport, setNearViewport] = useState(pageNumber <= 2 || eager);
@@ -870,6 +883,30 @@ function ReaderPageImage({
           loading="lazy"
           decoding="async"
           style={{ filter }}
+          onLoad={(event) => {
+            if (!onColor) {
+              return;
+            }
+
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = 1;
+              canvas.height = 1;
+              const context = canvas.getContext('2d', {
+                willReadFrequently: true,
+              });
+
+              if (!context) {
+                return;
+              }
+
+              context.drawImage(event.currentTarget, 0, 0, 1, 1);
+              const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
+              onColor(pageNumber, `rgb(${red} ${green} ${blue})`);
+            } catch {
+              // Canvas sampling is best-effort.
+            }
+          }}
         />
       ) : image.status === 'error' ? (
         <div className="reader-page-error" role="group" aria-label={`Page ${pageNumber}`}>

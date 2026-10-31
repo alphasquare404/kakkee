@@ -45,6 +45,7 @@ export interface ReaderSettings {
   readonly skipDuplicates: boolean;
   readonly autoAdvance: boolean;
   readonly deleteAfterReading: boolean;
+  readonly autoBackground: boolean;
   readonly profiles: Partial<Record<ReaderMode, ReaderModeProfile>>;
 }
 
@@ -61,6 +62,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   skipDuplicates: false,
   autoAdvance: false,
   deleteAfterReading: false,
+  autoBackground: false,
   profiles: {},
 };
 
@@ -106,6 +108,7 @@ function load(): ReaderSettings {
       skipDuplicates: parsed.skipDuplicates === true,
       autoAdvance: parsed.autoAdvance === true,
       deleteAfterReading: parsed.deleteAfterReading === true,
+      autoBackground: parsed.autoBackground === true,
       profiles: parseProfiles(parsed.profiles),
     };
   } catch {
@@ -266,6 +269,10 @@ export function updateReaderSettings(patch: Partial<ReaderSettings>): void {
       typeof patch.deleteAfterReading === 'boolean'
         ? patch.deleteAfterReading
         : base.deleteAfterReading,
+    autoBackground:
+      typeof patch.autoBackground === 'boolean'
+        ? patch.autoBackground
+        : base.autoBackground,
     profiles: state.profiles,
   };
   persist(state);
