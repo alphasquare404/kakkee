@@ -26,7 +26,7 @@ Status: `Pending` · `In Progress` · `Complete`
 | 16 | Motion/microinteractions | Complete | [motion-audit.md](motion-audit.md) | `Goal 16` |
 | 17 | Content/copy | Complete | [content-copy-audit.md](content-copy-audit.md) | `Goal 17` |
 | 18 | Extreme data/stress | Complete | [stress-data-audit.md](stress-data-audit.md) | `Goal 18` |
-| 19 | Preference persistence | In Progress | — | — |
+| 19 | Preference persistence | Complete | [preference-persistence-audit.md](preference-persistence-audit.md) | `Goal 19` |
 | 20 | Cross-feature coherence | Pending | — | — |
 | 21 | Final product coherence | Pending | — | — |
 

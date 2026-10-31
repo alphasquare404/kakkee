@@ -72,7 +72,7 @@ Fokus: installability, standalone, relaunch, safe area, service worker, offline 
 3. Tidak ada uji perangkat iOS/Android nyata.
 4. Manifest `lang: id` tetapi default UI dapat English; Goal 17.
 5. Cache shell ~989 kB; tradeoff offline.
-6. Token login tidak dipersist ke localStorage; konsisten dengan keamanan, tetapi sesi UI_LOGIN berakhir setelah relaunch. Perlu keputusan produk pada Goal 19.
+6. Access token tidak dipersist; refresh token dapat disimpan opt-in di localStorage untuk Remember login. Tradeoff keamanan dicatat pada Goal 19.
 
 ## Validasi
 
