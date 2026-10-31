@@ -1,0 +1,12 @@
+subscription LibraryUpdateStatusChanged {
+  libraryUpdateStatusChanged(input: { maxUpdates: 1 }) {
+    jobsInfo {
+      isRunning
+      totalJobs
+      finishedJobs
+      skippedCategoriesCount
+      skippedMangasCount
+    }
+    omittedUpdates
+  }
+}

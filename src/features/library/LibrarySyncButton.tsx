@@ -1,6 +1,8 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createLibraryUpdateRepository } from '../../core/library/libraryUpdateRepository';
+import type { LibraryUpdateInfo } from '../../core/library/libraryUpdateRepository';
+import { LibraryUpdateStatusChangedDocument } from '../../core/graphql/generated/graphql';
 
 interface State {
   readonly running: boolean;
@@ -41,6 +43,16 @@ export function LibrarySyncButton({
         return () => listeners.delete(listener);
       },
       getState: () => state,
+      update(info: LibraryUpdateInfo) {
+        state = {
+          ...state,
+          running: info.isRunning,
+          total: info.totalJobs,
+          finished: info.finishedJobs,
+          error: false,
+        };
+        notify();
+      },
       async start() {
         state = { ...state, running: true, error: false };
         notify();
@@ -64,6 +76,29 @@ export function LibrarySyncButton({
   }, [context.graphQL]);
   const state = useSyncExternalStore(store.subscribe, store.getState);
 
+  useEffect(() => {
+    if (typeof context.graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const subscription = context.graphQL
+      .subscribe({
+        query: LibraryUpdateStatusChangedDocument,
+      })
+      .subscribe({
+        next: (result) => {
+          const info = result.data?.libraryUpdateStatusChanged.jobsInfo;
+
+          if (info) {
+            store.update(info);
+          }
+        },
+        error: () => undefined,
+      });
+
+    return () => subscription.unsubscribe();
+  }, [context.graphQL, store]);
+
   return (
     <button
       className={className}
@@ -73,7 +108,7 @@ export function LibrarySyncButton({
       title={state.started ? `Update queued: ${state.total} jobs` : 'Update library'}
     >
       {state.running
-        ? 'Starting…'
+        ? `Updating ${state.finished}/${state.total}`
         : state.error
           ? 'Retry sync'
           : state.started
