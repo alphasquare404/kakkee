@@ -174,7 +174,7 @@ frontend.
 |---|---|---|---|---|
 | Browse | Source catalog and language filter | `Partial` | Yes | Real source list; cannot open source catalog yet |
 | Browse | Source manga browsing, search, filters, pagination | `Partial` | Yes | Popular/Latest, search, and pagination; source filters absent |
-| Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Missing` | Metadata | |
+| Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Partial` | Metadata | Pin/last-used, saved language filter, and NSFW toggle; multi-language preference list absent |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Partial` | Yes | Quick add/remove library implemented; hide/duplicate checks absent |
 | Browse | Saved source searches and global search | `Missing` | Client metadata + server | |
 | Browse | WebView/open-in-WebView | `Missing` | Platform/server | |

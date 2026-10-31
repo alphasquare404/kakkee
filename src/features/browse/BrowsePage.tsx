@@ -8,6 +8,12 @@ import {
 } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
 import { PageHeader } from '../../shared/PageHeader';
+import { useSourcePreferences } from '../../shared/useSourcePreferences';
+import {
+  markSourceUsed,
+  togglePinnedSource,
+  updateSourcePreferences,
+} from '../../core/preferences/sourcePreferences';
 
 const WARNING_LABEL: Record<string, string> = {
   SAFE: 'Safe',
@@ -30,31 +36,58 @@ export function BrowsePage() {
   return <BrowseContent context={state.context} />;
 }
 
-function SourceCard({ source }: { readonly source: CatalogSource }) {
+function SourceCard({
+  source,
+  pinned,
+  lastUsed,
+  onPin,
+  onOpen,
+}: {
+  readonly source: CatalogSource;
+  readonly pinned: boolean;
+  readonly lastUsed: boolean;
+  readonly onPin: () => void;
+  readonly onOpen: () => void;
+}) {
   return (
-    <Link
-      className="source-card"
-      to={`/browse/${encodeURIComponent(source.id)}`}
-      aria-label={`${source.displayName}, browse source`}
-    >
-      <span className="source-mark" aria-hidden="true">
-        {source.displayName.trim().charAt(0).toUpperCase() || 'S'}
-      </span>
-      <div className="source-copy">
-        <h2>{source.displayName}</h2>
-        <p>{source.name}</p>
-        <div className="source-badges">
-          <span>{source.lang.toLowerCase() === 'all' ? 'Multi' : source.lang.toUpperCase()}</span>
-          <span>{WARNING_LABEL[source.contentWarning] ?? source.contentWarning}</span>
-          {source.supportsLatest ? <span>Latest</span> : null}
+    <article className={`source-card-shell${pinned ? ' is-pinned' : ''}`}>
+      <Link
+        className="source-card"
+        to={`/browse/${encodeURIComponent(source.id)}`}
+        aria-label={`${source.displayName}, browse source`}
+        onClick={onOpen}
+      >
+        <span className="source-mark" aria-hidden="true">
+          {source.displayName.trim().charAt(0).toUpperCase() || 'S'}
+        </span>
+        <div className="source-copy">
+          <h2>{source.displayName}</h2>
+          <p>{source.name}</p>
+          <div className="source-badges">
+            <span>{source.lang.toLowerCase() === 'all' ? 'Multi' : source.lang.toUpperCase()}</span>
+            <span>{WARNING_LABEL[source.contentWarning] ?? source.contentWarning}</span>
+            {source.supportsLatest ? <span>Latest</span> : null}
+            {pinned ? <span>Pinned</span> : null}
+            {lastUsed ? <span>Last used</span> : null}
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+      <button
+        className="source-pin"
+        type="button"
+        aria-label={`${pinned ? 'Unpin' : 'Pin'} ${source.displayName}`}
+        aria-pressed={pinned}
+        onClick={onPin}
+      >
+        {pinned ? 'Unpin' : 'Pin'}
+      </button>
+    </article>
   );
 }
 
 function BrowseContent({ context }: { readonly context: ConnectedContext }) {
-  const [language, setLanguage] = useState('all');
+  const preferences = useSourcePreferences();
+  const [language, setLanguage] = useState(preferences.language);
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -68,6 +101,10 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   useEffect(() => {
     void controller.load();
   }, [controller]);
+
+  useEffect(() => {
+    updateSourcePreferences({ language });
+  }, [language]);
 
   const items = sources.data?.items ?? [];
   const languages: LanguageFilter[] = [
@@ -88,6 +125,27 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
             ? source.lang.toLowerCase() === 'all'
             : source.lang.toLowerCase() === language,
         );
+  const filtered = preferences.showNsfw
+    ? visible
+    : visible.filter((source) => source.contentWarning !== 'NSFW');
+  const ordered = [...filtered].sort((left, right) => {
+    const leftPinned = preferences.pinned.includes(left.id) ? 1 : 0;
+    const rightPinned = preferences.pinned.includes(right.id) ? 1 : 0;
+
+    if (leftPinned !== rightPinned) {
+      return rightPinned - leftPinned;
+    }
+
+    if (preferences.lastSourceId === left.id) {
+      return -1;
+    }
+
+    if (preferences.lastSourceId === right.id) {
+      return 1;
+    }
+
+    return 0;
+  });
 
   return (
     <div className="app-shell page-shell browse-shell">
@@ -124,6 +182,16 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
             {lang.label}
           </button>
         ))}
+        <button
+          className={preferences.showNsfw ? 'is-active' : undefined}
+          type="button"
+          aria-pressed={preferences.showNsfw}
+          onClick={() =>
+            updateSourcePreferences({ showNsfw: !preferences.showNsfw })
+          }
+        >
+          NSFW
+        </button>
       </div>
 
       {sources.isLoading && !sources.data ? (
@@ -151,15 +219,22 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         </div>
       ) : null}
 
-      {visible.length > 0 ? (
+      {ordered.length > 0 ? (
         <section className="source-section" aria-labelledby="sources-heading">
           <div className="section-heading-row">
             <h2 id="sources-heading">Sources</h2>
-            <span>{visible.length} shown</span>
+            <span>{ordered.length} shown</span>
           </div>
           <div className="source-grid">
-            {visible.map((source) => (
-              <SourceCard key={source.id} source={source} />
+            {ordered.map((source) => (
+              <SourceCard
+                key={source.id}
+                source={source}
+                pinned={preferences.pinned.includes(source.id)}
+                lastUsed={preferences.lastSourceId === source.id}
+                onPin={() => togglePinnedSource(source.id)}
+                onOpen={() => markSourceUsed(source.id)}
+              />
             ))}
           </div>
         </section>

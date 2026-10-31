@@ -3353,6 +3353,32 @@ button.manga-card-link {
   background: rgba(17, 24, 39, 0.58);
 }
 
+.source-card-shell {
+  position: relative;
+  display: grid;
+}
+
+.source-card-shell.is-pinned .source-card {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.source-pin {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  padding: 0.15rem 0.35rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface-strong);
+}
+
+.source-pin[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .source-card:hover {
   border-color: var(--border-strong);
 }
