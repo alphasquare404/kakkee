@@ -55,6 +55,10 @@
 
   --sidebar-width: 13.75rem;
   --mobile-nav-height: 4.4rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 
   --dur-fast: 150ms;
   --dur-base: 220ms;
@@ -145,10 +149,10 @@ h2[tabindex="-1"]:focus {
   min-height: 100dvh;
   margin: 0 auto;
   padding:
-    max(2.25rem, env(safe-area-inset-top))
-    max(1.1rem, env(safe-area-inset-right))
-    max(2rem, env(safe-area-inset-bottom))
-    max(1.1rem, env(safe-area-inset-left));
+    max(2.25rem, var(--safe-top))
+    max(1.1rem, var(--safe-right))
+    max(2rem, var(--safe-bottom))
+    max(1.1rem, var(--safe-left));
 }
 
 /* Persistent application shell -------------------------------------------- */
@@ -384,7 +388,9 @@ h2[tabindex="-1"]:focus {
   }
 
   .app-frame-main .app-shell {
-    padding-bottom: calc(2rem + var(--mobile-nav-height));
+    padding-bottom: calc(
+      2rem + var(--mobile-nav-height) + var(--safe-bottom)
+    );
   }
 
   .mobile-nav {
@@ -398,9 +404,9 @@ h2[tabindex="-1"]:focus {
     gap: 0;
     min-height: var(--mobile-nav-height);
     padding:
-      0 max(0.25rem, env(safe-area-inset-right))
-      max(0.4rem, env(safe-area-inset-bottom))
-      max(0.25rem, env(safe-area-inset-left));
+      0 max(0.25rem, var(--safe-right))
+      max(0.4rem, var(--safe-bottom))
+      max(0.25rem, var(--safe-left));
     border-top: 1px solid var(--border);
     background: var(--surface-glass);
     backdrop-filter: blur(20px);
@@ -439,8 +445,8 @@ h2[tabindex="-1"]:focus {
 
   .mobile-more-menu {
     position: fixed;
-    right: max(0.5rem, env(safe-area-inset-right));
-    bottom: calc(var(--mobile-nav-height) + 0.5rem);
+    right: max(0.5rem, var(--safe-right));
+    bottom: calc(var(--mobile-nav-height) + 0.5rem + var(--safe-bottom));
     z-index: 31;
     display: grid;
     width: min(17rem, calc(100vw - 1rem));
@@ -789,10 +795,10 @@ h2 {
   width: min(100%, 120rem);
   gap: 0;
   padding:
-    max(1rem, env(safe-area-inset-top))
-    max(clamp(0.875rem, 1.6vw, 2rem), env(safe-area-inset-right))
-    max(2rem, env(safe-area-inset-bottom))
-    max(clamp(0.875rem, 1.6vw, 2rem), env(safe-area-inset-left));
+    max(1rem, var(--safe-top))
+    max(clamp(0.875rem, 1.6vw, 2rem), var(--safe-right))
+    max(2rem, var(--safe-bottom))
+    max(clamp(0.875rem, 1.6vw, 2rem), var(--safe-left));
 }
 
 .route-loading {
@@ -1513,7 +1519,7 @@ h2 {
 
 @media (max-width: 720px) {
   .library-shell {
-    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-top: max(0.75rem, var(--safe-top));
   }
 
   .library-header {
@@ -1953,9 +1959,9 @@ h2 {
 .reader-shell {
   width: min(100%, 68rem);
   gap: var(--sp-3);
-  padding-right: max(0.75rem, env(safe-area-inset-right));
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, var(--safe-right));
+  padding-bottom: calc(0.75rem + var(--safe-bottom));
+  padding-left: max(0.75rem, var(--safe-left));
 }
 
 .reader-page:first-child {
@@ -1972,10 +1978,10 @@ h2 {
   align-items: center;
   margin: 0 -0.75rem;
   padding:
-    max(0.65rem, env(safe-area-inset-top))
-    max(0.75rem, env(safe-area-inset-left))
+    max(0.65rem, var(--safe-top))
+    max(0.75rem, var(--safe-right))
     0.65rem
-    max(0.75rem, env(safe-area-inset-right));
+    max(0.75rem, var(--safe-left));
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(12px);
@@ -2193,9 +2199,9 @@ h2 {
 
 .pwa-update {
   position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  left: max(1rem, env(safe-area-inset-left));
+  right: max(1rem, var(--safe-right));
+  bottom: max(1rem, var(--safe-bottom));
+  left: max(1rem, var(--safe-left));
   z-index: 20;
   display: grid;
   gap: 0.55rem;
@@ -2227,7 +2233,7 @@ h2 {
   }
 
   .pwa-update {
-    padding-bottom: max(0.85rem, env(safe-area-inset-bottom));
+    padding-bottom: max(0.85rem, var(--safe-bottom));
   }
 }
 
@@ -2242,7 +2248,7 @@ h2 {
 .detail-shell {
   width: 100%;
   max-width: 112rem;
-  padding-top: 1.35rem;
+  padding-top: max(1.35rem, var(--safe-top));
 }
 
 .library-header {
@@ -2540,7 +2546,7 @@ button.manga-card-link {
 
 .detail-shell {
   max-width: 100rem;
-  padding-top: 0.8rem;
+  padding-top: max(0.8rem, var(--safe-top));
 }
 
 .detail-shell::before {
@@ -2923,7 +2929,7 @@ button.manga-card-link {
   display: grid;
   gap: 2px;
   justify-items: center;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--safe-bottom);
 }
 
 .offline-reader-pages .reader-page img {
@@ -3001,7 +3007,11 @@ button.manga-card-link {
   inset: 0;
   display: grid;
   place-items: start end;
-  padding: clamp(0.75rem, 3vw, 2rem);
+  padding:
+    max(clamp(0.75rem, 3vw, 2rem), var(--safe-top))
+    max(clamp(0.75rem, 3vw, 2rem), var(--safe-right))
+    max(clamp(0.75rem, 3vw, 2rem), var(--safe-bottom))
+    max(clamp(0.75rem, 3vw, 2rem), var(--safe-left));
   background: rgba(2, 5, 12, 0.66);
   backdrop-filter: blur(8px);
 }
@@ -3188,7 +3198,7 @@ button.manga-card-link {
 @media (max-width: 860px) {
   .library-shell,
   .detail-shell {
-    padding-top: 0.8rem;
+    padding-top: max(0.8rem, var(--safe-top));
   }
 
   .library-header {
@@ -3235,8 +3245,8 @@ button.manga-card-link {
 
   .reader-header {
     margin: 0;
-    padding-right: max(0.75rem, env(safe-area-inset-right));
-    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, var(--safe-right));
+    padding-left: max(0.75rem, var(--safe-left));
   }
 
   .reader-pages {
@@ -3278,7 +3288,7 @@ button.manga-card-link {
   width: 100%;
   max-width: 112rem;
   gap: 1.35rem;
-  padding-top: 1.5rem;
+  padding-top: max(1.5rem, var(--safe-top));
 }
 
 .page-header {
@@ -5137,7 +5147,7 @@ button.manga-card-link {
 
 .settings-choice-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 0.65rem;
 }
 
@@ -5309,7 +5319,7 @@ button.manga-card-link {
 
 @media (max-width: 860px) {
   .page-shell {
-    padding-top: 0.85rem;
+    padding-top: max(0.85rem, var(--safe-top));
   }
 
   .page-header {
@@ -5796,7 +5806,10 @@ button.manga-card-link {
   gap: var(--sp-3);
   align-items: flex-start;
   justify-content: space-between;
-  padding: var(--sp-4);
+  padding:
+    max(var(--sp-4), var(--safe-top))
+    var(--sp-4)
+    var(--sp-4);
   border-bottom: 1px solid var(--border);
 }
 
@@ -5830,7 +5843,7 @@ button.manga-card-link {
   gap: var(--sp-3);
   align-content: start;
   min-height: 0;
-  padding: var(--sp-3);
+  padding: var(--sp-3) var(--sp-3) calc(var(--sp-3) + var(--safe-bottom));
   overflow-y: auto;
 }
 
@@ -6271,7 +6284,10 @@ button.manga-card-link {
   align-items: center;
   justify-content: space-between;
   margin: 0 calc(-1 * var(--sp-1));
-  padding: var(--sp-2) var(--sp-1);
+  padding:
+    var(--sp-2)
+    var(--sp-1)
+    calc(var(--sp-2) + var(--safe-bottom));
   border-top: 1px solid var(--border);
   background: var(--surface);
 }
@@ -6517,4 +6533,467 @@ button.manga-card-link {
 .extension-card {
   content-visibility: auto;
   contain-intrinsic-size: auto 72px;
+}
+
+.manga-overview-synopsis {
+  display: grid;
+  gap: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border);
+}
+
+.manga-overview-synopsis h2 {
+  margin: 0;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+}
+
+.manga-overview-synopsis .manga-description {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .manga-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .manga-actions .detail-primary {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .manga-actions > .button,
+  .manga-actions > .action-menu {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .manga-actions > .action-menu > summary {
+    width: 100%;
+  }
+
+  .browse-filters {
+    flex-wrap: wrap;
+  }
+
+  .source-search > .button {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .reader-back {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-right: 0.35rem;
+  }
+}
+
+/* Tablet portrait composition: use width for card collections instead of
+   stretching phone lists. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .source-grid,
+  .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .extension-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .source-grid,
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .extension-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .manga-hero {
+    grid-template-areas:
+      "cover title"
+      "cover meta"
+      "tags tags"
+      "actions actions";
+  }
+
+  .manga-hero-cover {
+    grid-area: cover;
+  }
+
+  .manga-hero-body {
+    display: contents;
+  }
+
+  .manga-hero-body h1 {
+    grid-area: title;
+    margin-bottom: 0;
+  }
+
+  .manga-hero-body .manga-meta {
+    grid-area: meta;
+    margin-bottom: 0;
+  }
+
+  .manga-hero-body .manga-tag-disclosure {
+    grid-area: tags;
+  }
+
+  .manga-hero-body .manga-actions {
+    grid-area: actions;
+    width: auto;
+    margin-top: 0.15rem;
+  }
+
+  .manga-hero-body > .alert {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .filter-drawer-header {
+    padding: max(0.9rem, var(--safe-top)) 1rem 0.9rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .category-tabs {
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+  }
+
+  .settings-rows > div {
+    grid-template-columns: minmax(5.25rem, 0.38fr) minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    align-items: baseline;
+  }
+}
+
+
+.manga-overview-tags {
+  width: 100%;
+  padding-top: var(--sp-1);
+}
+
+@media (max-width: 720px) {
+  .page-nav-current {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-nav-back {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .browse-language-select select {
+    min-width: 8rem;
+  }
+}
+
+/* Short landscape phones: compress identity chrome so tabs and chapter
+   controls remain reachable without scrolling past a desktop-height hero. */
+@media (max-height: 500px) and (max-width: 900px) {
+  .manga-hero {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .manga-hero-body h1 {
+    font-size: 1.35rem;
+  }
+
+  .manga-hero-body .manga-meta {
+    margin-bottom: 0.2rem;
+    font-size: var(--text-xs);
+  }
+
+  .manga-hero-body .manga-actions {
+    margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .library-selection-bar {
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .library-selection-bar > * {
+    flex: 0 0 auto;
+  }
+
+  .library-selection-bar strong {
+    padding-right: 0.25rem;
+  }
+
+  .library-selection-confirm {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .browse-language-select {
+    flex: 0 1 auto;
+  }
+
+  .browse-language-select select {
+    flex: 0 0 8rem;
+    width: 8rem;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .reader-quick-action {
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+  }
+
+  .library-selection-bar {
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+  }
+
+  .library-selection-bar::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .library-selection-bar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--border-strong);
+  }
+
+  input[type='file']::file-selector-button {
+    min-height: 2.75rem;
+    margin-right: 0.55rem;
+    padding: 0 0.8rem;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    background: var(--surface-sunken);
+  }
+}
+
+@media (max-height: 500px) and (max-width: 900px) {
+  .manga-actions {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .manga-actions .detail-primary {
+    grid-column: auto;
+  }
+
+  .manga-actions > .button,
+  .manga-actions > .action-menu {
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .browse-language-select > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .pwa-update {
+    right: max(0.75rem, var(--safe-right));
+    bottom: calc(var(--mobile-nav-height) + var(--safe-bottom) + 0.4rem);
+    left: max(0.75rem, var(--safe-left));
+    gap: 0.4rem;
+    width: min(34rem, calc(100% - 1.5rem));
+    padding: 0.7rem;
+  }
+
+  .pwa-update p {
+    font-size: var(--text-sm);
+  }
+
+  .pwa-update .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .pwa-update .actions .button {
+    flex: 1 1 0;
+    width: auto;
+    min-height: 2.5rem;
+    padding: 0 0.7rem;
+    font-size: var(--text-sm);
+  }
+}
+
+@media (max-width: 720px) {
+  .chapter-section-header {
+    flex-wrap: nowrap;
+    align-items: flex-end;
+  }
+
+  .chapter-section-header > div:first-child {
+    min-width: 0;
+  }
+
+  .chapter-order {
+    flex: 0 0 auto;
+  }
+
+  .chapter-order > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .chapter-order select {
+    min-width: 8.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .library-action {
+    height: 2.75rem;
+  }
+
+  .category-tab {
+    min-height: 2.75rem;
+  }
+
+  .filter-drawer-close {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .extension-card > .button {
+    min-height: 2.5rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .extension-card > .button {
+    min-height: 2.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .feed-action {
+    min-height: 2.5rem;
+    padding: 0 0.7rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .manga-card-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .reader-chapter-overlay {
+    place-items: end stretch;
+    padding: 0;
+    padding-top: var(--safe-top);
+  }
+
+  .reader-chapter-dialog {
+    width: 100%;
+    max-height: min(85dvh, 42rem);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .reader-chapter-dialog header {
+    padding: 0.75rem 1rem;
+  }
+
+  .reader-chapter-dialog header .button {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
+  }
+
+  .reader-chapter-dialog ol {
+    padding-bottom: calc(0.35rem + var(--safe-bottom));
+  }
+}
+
+
+/* Keep rail and sidebar controls out of landscape sensor/notch insets. */
+@media (min-width: 761px) {
+  .app-frame {
+    grid-template-columns: calc(var(--sidebar-width) + var(--safe-left)) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .app-sidebar {
+    padding-left: calc(0.55rem + var(--safe-left));
+  }
+}
+
+@media (min-width: 1101px) {
+  .app-sidebar {
+    padding-left: calc(var(--sp-3) + var(--safe-left));
+  }
+}
+
+@media (min-width: 761px) {
+  .extension-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .settings-library-preview {
+    grid-auto-rows: 1fr;
+    height: 6.5rem;
+    min-height: 0;
+  }
+
+  .settings-library-preview i {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .pwa-update .actions .button {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.2;
+  }
 }

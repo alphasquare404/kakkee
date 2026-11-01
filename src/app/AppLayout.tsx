@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+﻿import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppPath } from './useAppPath';
 import { useConnection } from './useConnection';
@@ -164,6 +164,22 @@ export function AppLayout() {
   useEffect(() => {
     setMoreOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const query = window.matchMedia('(max-width: 760px)');
+    const onChange = () => {
+      if (!query.matches) {
+        setMoreOpen(false);
+      }
+    };
+
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     if (!moreOpen) {
