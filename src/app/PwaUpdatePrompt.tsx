@@ -3,8 +3,8 @@ import { useI18n } from '../shared/useI18n';
 import { registerMessages } from '../shared/i18n';
 
 registerMessages('id', {
-  'A new version of the app is available. Reload to use the latest shell.':
-    'Versi baru aplikasi tersedia. Muat ulang untuk memakai shell terbaru.',
+  'A new version is available. Reload to update.':
+    'Versi baru tersedia. Muat ulang untuk memperbarui.',
   'The app shell is ready. Server data still requires a connection.':
     'Shell aplikasi siap dipakai. Data server tetap memerlukan koneksi.',
   'Update and reload': 'Update dan muat ulang',
@@ -29,9 +29,7 @@ export function PwaUpdatePrompt() {
   return (
     <aside className="pwa-update" role="status" aria-live="polite">
       <p>
-        {t(
-          'A new version of the app is available. Reload to use the latest shell.',
-        )}
+        {t('A new version is available. Reload to update.')}
       </p>
       <div className="actions">
         <button

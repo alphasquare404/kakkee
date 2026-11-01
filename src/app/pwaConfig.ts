@@ -1,9 +1,9 @@
 import type { ManifestOptions } from 'vite-plugin-pwa';
 
-const APP_NAME = 'Suwayomi Frontend (Unofficial)';
-const SHORT_NAME = 'Suwayomi UI';
+const APP_NAME = 'Kakkee';
+const SHORT_NAME = 'Kakkee';
 const DESCRIPTION =
-  'Frontend tidak resmi untuk menghubungkan browser ke Suwayomi Server.';
+  'Kakkee — unofficial Suwayomi reader for your library and sources.';
 const THEME_COLOR = '#0b1020';
 const BACKGROUND_COLOR = '#080b12';
 

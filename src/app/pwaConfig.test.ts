@@ -5,7 +5,8 @@ describe('PWA manifest', () => {
   it('uses root start_url, scope, and root icon paths', () => {
     const manifest = createPwaManifest('/');
 
-    expect(manifest.name).toContain('Unofficial');
+    expect(manifest.name).toBe('Kakkee');
+    expect(manifest.short_name).toBe('Kakkee');
     expect(manifest.start_url).toBe('/');
     expect(manifest.scope).toBe('/');
     expect(manifest.display).toBe('standalone');

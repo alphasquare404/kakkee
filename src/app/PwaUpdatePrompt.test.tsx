@@ -31,7 +31,7 @@ describe('PwaUpdatePrompt', () => {
     const user = userEvent.setup();
     render(<PwaUpdatePrompt />);
 
-    expect(screen.getByText(/A new version of the app is available/)).toBeTruthy();
+    expect(screen.getByText(/A new version is available/)).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Update and reload' }));
 
     expect(pwaState.updateServiceWorker).toHaveBeenCalledWith(true);
