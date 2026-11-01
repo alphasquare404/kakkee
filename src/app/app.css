@@ -100,6 +100,9 @@ body,
 
 html {
   background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: pan-x pan-y;
 }
 
 body {
@@ -114,6 +117,7 @@ body {
     var(--bg);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  touch-action: pan-x pan-y;
 }
 
 button,
@@ -6995,5 +6999,23 @@ button.manga-card-link {
     min-width: 0;
     white-space: normal;
     line-height: 1.2;
+  }
+}
+
+
+/* iOS Safari zooms a focused text field whose computed font-size is under
+   16px. Keep app typography compact while making every editable control
+   safe to focus in the installed PWA. */
+@media (max-width: 720px) {
+  html body input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']):not([type='hidden']),
+  html body select:not([disabled]),
+  html body textarea:not([disabled]) {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .action-menu-panel .chapter-select select {
+    font-size: 16px;
   }
 }
