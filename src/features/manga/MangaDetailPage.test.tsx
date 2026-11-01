@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 
 import type { ApolloClient } from '@apollo/client';
 import { cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -118,11 +118,11 @@ describe('MangaDetailPage', () => {
     renderDetail(query);
 
     expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
-    expect(screen.getByText('A pirate adventure.')).toBeTruthy();
     expect(screen.getByText(/Weeb Central/)).toBeTruthy();
     expect(screen.getByRole('link', { name: /Chapter 1186/ }).getAttribute('href')).toBe(
       '/manga/1114/chapter/1186',
     );
+    expect(screen.getByText('2 chapters')).toBeTruthy();
     expect(
       screen
         .getByRole('button', { name: 'Read Chapter 1186' })
@@ -298,6 +298,8 @@ describe('MangaDetailPage', () => {
 
     await user.click(screen.getByRole('button', { name: 'Overview' }));
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Synopsis' })).toBeTruthy();
+    expect(screen.getByText('A pirate adventure.')).toBeTruthy();
 
     await user.click(screen.getByRole('button', { name: 'Chapters' }));
     expect(await screen.findByRole('link', { name: /Chapter 1186/ })).toBeTruthy();

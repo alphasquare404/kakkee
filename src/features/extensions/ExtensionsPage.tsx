@@ -420,10 +420,11 @@ function ExtensionCard({
           {extension.versionName} · {extension.lang.toUpperCase()}
           {extension.extensionStore ? ` · ${extension.extensionStore.name}` : ''}
         </p>
-        <div className="extension-badges">
-          {extension.isObsolete ? <span>{t('Obsolete')}</span> : null}
-          {extension.hasUpdate ? <span>{t('Update')}</span> : null}
-        </div>
+        {extension.isObsolete ? (
+          <div className="extension-badges">
+            <span>{t('Obsolete')}</span>
+          </div>
+        ) : null}
       </div>
       <button
         className={`button${action === 'uninstall' ? ' button-secondary is-danger' : ''}`}
