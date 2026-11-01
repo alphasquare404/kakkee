@@ -16,6 +16,7 @@ import { createSourceRepository } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { useSearchHistory } from '../../shared/useSearchHistory';
 import { PageHeader } from '../../shared/PageHeader';
+import { SearchIcon } from '../../shared/SearchIcon';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -105,8 +106,13 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
   const submit = () => {
     const trimmed = query.trim();
+
+    if (search.status === 'loading') {
+      return;
+    }
+
     setSearchParams(trimmed ? { q: trimmed } : {}, { replace: true });
-    runSearch(query);
+    runSearch(trimmed);
   };
 
   useEffect(() => {
@@ -211,7 +217,6 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     <div className="app-shell page-shell browse-shell">
       <PageHeader
         title={t('Search')}
-        subtitle={t('Search manga and sources known to this server')}
         count={
           search.status === 'ready'
             ? t('{count} manga', {
@@ -223,6 +228,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
       <form
         className="global-search-form"
+        role="search"
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -236,10 +242,18 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setHistoryOpen(true)}
           onClick={() => setHistoryOpen(true)}
+          enterKeyHint="search"
+          autoComplete="off"
           autoFocus
         />
-        <button className="button" type="submit" disabled={!query.trim()}>
-          {t('Search')}
+        <button
+          className="button search-submit-icon"
+          type="submit"
+          aria-label={t('Search')}
+          title={t('Search')}
+          disabled={!query.trim() || search.status === 'loading'}
+        >
+          <SearchIcon />
         </button>
         {historyOpen && history.length > 0 ? (
           <div className="global-search-history" role="listbox" aria-label="Recent searches">
@@ -272,16 +286,18 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       </form>
 
       <div className="live-source-search">
-        <button
-          className="button button-secondary"
-          type="button"
-          disabled={liveStatus === 'loading' || !(query.trim() || search.query)}
-          onClick={() => void searchAllSources()}
-        >
-          {liveStatus === 'loading'
-            ? `Searching sources ${liveProgress.done}/${liveProgress.total}…`
-            : 'Search installed sources'}
-        </button>
+        {query.trim() || search.query ? (
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={liveStatus === 'loading'}
+            onClick={() => void searchAllSources()}
+          >
+            {liveStatus === 'loading'
+              ? `Searching sources ${liveProgress.done}/${liveProgress.total}…`
+              : 'Search installed sources'}
+          </button>
+        ) : null}
         {liveStatus === 'ready' ? (
           <span>
             {t('{count} live results', { count: liveResults.length })}

@@ -235,10 +235,11 @@ describe('parity pages', () => {
     renderPage('/search', query);
     const user = userEvent.setup();
     const input = await screen.findByLabelText('Search all manga');
+    expect(screen.queryByRole('button', { name: 'Search installed sources' })).toBeNull();
 
-    await user.type(input, 'alpha');
-    await user.click(screen.getByRole('button', { name: 'Search' }));
+    await user.type(input, 'alpha{Enter}');
 
+    expect(screen.getByRole('button', { name: 'Search installed sources' })).toBeTruthy();
     expect(await screen.findByText('Alpha')).toBeTruthy();
     expect(screen.getByText('Example Source')).toBeTruthy();
     await user.click(input);
@@ -538,6 +539,19 @@ describe('parity pages', () => {
     ).toBeTruthy();
     expect(await screen.findByText('Source Manga')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Add to library' })).toBeTruthy();
+
+    const user = userEvent.setup();
+    expect(screen.getByRole('button', { name: 'Search source' })).toBeTruthy();
+    await user.type(screen.getByRole('searchbox', { name: 'Search source' }), 'elf{Enter}');
+    await waitFor(() =>
+      expect(mutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variables: expect.objectContaining({
+            input: expect.objectContaining({ type: 'SEARCH', query: 'elf' }),
+          }),
+        }),
+      ),
+    );
   });
 
   it('groups history by day and resumes the latest chapter per manga', async () => {
@@ -574,6 +588,7 @@ describe('parity pages', () => {
     expect(await screen.findByRole('heading', { name: 'Updates' })).toBeTruthy();
     expect(await screen.findByText('Actual Manga')).toBeTruthy();
     expect(screen.getByText('Chapter 9')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Actual Manga, Chapter 9' }).getAttribute('href')).toBe(
       '/manga/1/chapter/9',
     );
@@ -610,7 +625,7 @@ describe('parity pages', () => {
 
     expect(await screen.findByRole('heading', { name: 'Browse' })).toBeTruthy();
     expect(await screen.findByText('Actual Source')).toBeTruthy();
-    expect(screen.getByText('1 sources')).toBeTruthy();
+    expect(screen.getByText('installed sources')).toBeTruthy();
   });
 
   it('renders categories and their real manga counts', async () => {

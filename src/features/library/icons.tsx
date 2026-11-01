@@ -67,3 +67,24 @@ export function IconCheck(props: SVGProps<SVGSVGElement>) {
     </IconBase>
   );
 }
+
+
+export function IconGrid(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <rect x="2.25" y="2.25" width="4.5" height="4.5" rx="0.8" />
+      <rect x="9.25" y="2.25" width="4.5" height="4.5" rx="0.8" />
+      <rect x="2.25" y="9.25" width="4.5" height="4.5" rx="0.8" />
+      <rect x="9.25" y="9.25" width="4.5" height="4.5" rx="0.8" />
+    </IconBase>
+  );
+}
+
+export function IconList(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M5.5 4h8M5.5 8h8M5.5 12h8" />
+      <path d="M2.5 4h.01M2.5 8h.01M2.5 12h.01" />
+    </IconBase>
+  );
+}

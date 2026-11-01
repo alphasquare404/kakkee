@@ -5670,10 +5670,10 @@ button.manga-card-link {
 @media (min-width: 861px) and (max-width: 1360px) {
   .library-header {
     grid-template-areas:
-      "title"
-      "search"
-      "actions";
-    grid-template-columns: minmax(0, 1fr);
+      "title actions"
+      "search search";
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
   }
 
   .library-actions {
@@ -7018,4 +7018,36 @@ button.manga-card-link {
   html body .action-menu-panel .chapter-select select {
     font-size: 16px;
   }
+}
+
+/* Library utility bar: title and controls share one row on phones; the
+   category counts already carry the loaded count, so the duplicated
+   header count yields its space on the smallest screens. */
+@media (max-width: 860px) {
+  .library-header {
+    grid-template-areas:
+      "title actions"
+      "search search";
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@media (max-width: 720px) {
+  .library-count,
+  .library-action-label {
+    display: none;
+  }
+
+  .library-actions {
+    gap: 2px;
+  }
+}
+
+.search-submit-icon {
+  flex: 0 0 auto;
+  width: 2.7rem;
+  min-width: 2.7rem;
+  height: 2.7rem;
+  padding: 0;
 }

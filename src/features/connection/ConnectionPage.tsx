@@ -331,6 +331,7 @@ export function ConnectionPage() {
           type="url"
           inputMode="url"
           autoComplete="url"
+          enterKeyHint="go"
           spellCheck={false}
           placeholder="https://manga.example.com"
           value={serverUrl}
@@ -483,6 +484,7 @@ export function ConnectionPage() {
                   name="username"
                   type="text"
                   autoComplete="username"
+                  enterKeyHint="next"
                   spellCheck={false}
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
@@ -498,6 +500,7 @@ export function ConnectionPage() {
                   name="password"
                   type="password"
                   autoComplete="current-password"
+                  enterKeyHint="go"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   aria-invalid={state.error?.code === 'invalid-credentials' ? true : undefined}

@@ -1288,7 +1288,9 @@ function ConnectedMangaDetail({
                         }`}
                         type="button"
                         disabled={pendingChapterId === chapter.id}
-                        aria-label={`Read ${chapter.name}`}
+                        aria-label={`Mark ${chapter.name} as ${
+                          chapter.isRead ? 'unread' : 'read'
+                        }`}
                         aria-pressed={chapter.isRead}
                         title={
                           chapter.isRead

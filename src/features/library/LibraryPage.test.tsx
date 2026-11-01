@@ -340,6 +340,9 @@ describe('LibraryPage initial states', () => {
 
     expect(screen.queryAllByRole('menuitemradio')).toHaveLength(0);
     expect(screen.queryByRole('combobox')).toBeNull();
+    expect(
+      screen.getByRole('button', { name: /Current view: grid/ }),
+    ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Filter' }).getAttribute('aria-expanded')).toBe(
       'false',
     );
@@ -841,7 +844,7 @@ describe('LibraryPage search, filter, and sort', () => {
     expect(document.activeElement).toBe(filter);
   });
 
-  it('closes the filter drawer from Done', async () => {
+  it('closes the filter drawer from its close control', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -855,7 +858,9 @@ describe('LibraryPage search, filter, and sort', () => {
 
     const filter = screen.getByRole('button', { name: 'Filter' });
     await user.click(filter);
-    await user.click(screen.getByRole('button', { name: 'Done' }));
+    expect(screen.queryByText('0 active')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Done' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Close filters' }));
 
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(filter);

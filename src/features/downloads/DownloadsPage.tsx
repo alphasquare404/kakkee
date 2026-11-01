@@ -282,20 +282,17 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
       <PageHeader
         title={t('Downloads')}
         subtitle={t('Manage the download queue on your server')}
-        count={
-          downloads.queue
-            ? t('{count} queued', { count: queue.length })
-            : undefined
-        }
       >
-        <button
-          className="button button-secondary"
-          type="button"
-          disabled={downloads.isActing || !downloads.queue}
-          onClick={() => void controller.togglePaused()}
-        >
-          {isPaused ? t('Resume downloads') : t('Pause downloads')}
-        </button>
+        {queue.length > 0 || isPaused ? (
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={downloads.isActing || !downloads.queue}
+            onClick={() => void controller.togglePaused()}
+          >
+            {isPaused ? t('Resume downloads') : t('Pause downloads')}
+          </button>
+        ) : null}
         <button
           className="button button-secondary"
           type="button"

@@ -125,7 +125,7 @@ describe('MangaDetailPage', () => {
     expect(screen.getByText('2 chapters')).toBeTruthy();
     expect(
       screen
-        .getByRole('button', { name: 'Read Chapter 1186' })
+        .getByRole('button', { name: 'Mark Chapter 1186 as read' })
         .getAttribute('aria-pressed'),
     ).toBe('false');
     expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(

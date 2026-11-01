@@ -199,15 +199,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell browse-shell">
-      <PageHeader
-        title={t('Browse')}
-        subtitle={t('Discover the sources installed on your server')}
-        count={
-          sources.data
-            ? t('{count} sources', { count: sources.data.totalCount })
-            : undefined
-        }
-      />
+      <PageHeader title={t('Browse')} />
 
       <section className="browse-hero" aria-labelledby="browse-hero-title">
         <div>

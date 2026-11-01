@@ -18,6 +18,7 @@ import {
 } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { SearchIcon } from '../../shared/SearchIcon';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
 import { useI18n } from '../../shared/useI18n';
@@ -263,9 +264,13 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         </div>
         <form
           className="source-search"
+          role="search"
           onSubmit={(event) => {
             event.preventDefault();
-            runSearch(search);
+
+            if (source.status !== 'loading') {
+              runSearch(search);
+            }
           }}
         >
           <input
@@ -273,13 +278,21 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             aria-label="Search source"
             placeholder="Search this source…"
             value={search}
+            enterKeyHint="search"
+            autoComplete="off"
             onChange={(event) => setSearch(event.target.value)}
             onFocus={() => setHistoryOpen(true)}
             onClick={() => setHistoryOpen(true)}
             onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
           />
-          <button className="button" type="submit" disabled={source.status === 'loading'}>
-            {t('Search source')}
+          <button
+            className="button search-submit-icon"
+            type="submit"
+            aria-label={t('Search source')}
+            title={t('Search source')}
+            disabled={source.status === 'loading'}
+          >
+            <SearchIcon />
           </button>
           {historyOpen && searchHistory.length > 0 ? (
             <div className="source-search-history" role="listbox" aria-label="Recent source searches">

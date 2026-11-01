@@ -26,6 +26,8 @@ registerMessages('id', {
   All: 'Semua',
   Unread: 'Belum dibaca',
   Read: 'Sudah dibaca',
+  'Mark read': 'Tandai dibaca',
+  'Mark unread': 'Tandai belum dibaca',
   'All scanlators': 'Semua scanlator',
   'Newest first': 'Terbaru dulu',
   'Continue reading': 'Lanjut membaca',
@@ -314,7 +316,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                           .finally(() => setPendingChapterId(null));
                       }}
                     >
-                      {t('Read')}
+                      {chapter.isRead ? t('Mark unread') : t('Mark read')}
                     </button>
                     <button
                       className="feed-action"

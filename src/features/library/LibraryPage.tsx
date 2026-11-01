@@ -76,7 +76,14 @@ registerMessages('id', {
   'Loading categories…': 'Memuat kategori…',
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
-import { IconClose, IconFilter, IconSearch, IconSort } from './icons';
+import {
+  IconClose,
+  IconFilter,
+  IconGrid,
+  IconList,
+  IconSearch,
+  IconSort,
+} from './icons';
 
 type LibraryStatus = NonNullable<LibraryFilter['status']>;
 type OpenPanel = 'sort';
@@ -962,6 +969,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             <button
               className="library-action"
               type="button"
+              title={`Switch to ${
+                appPreferences.libraryView === 'grid' ? 'list' : 'grid'
+              } view`}
               aria-label={`Current view: ${appPreferences.libraryView}. Switch to ${
                 appPreferences.libraryView === 'grid' ? 'list' : 'grid'
               } view`}
@@ -972,19 +982,28 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 })
               }
             >
-              {appPreferences.libraryView === 'grid' ? t('Grid') : t('List')}
+              {appPreferences.libraryView === 'grid' ? (
+                <IconGrid />
+              ) : (
+                <IconList />
+              )}
+              <span className="library-action-label">
+                {appPreferences.libraryView === 'grid' ? t('Grid') : t('List')}
+              </span>
             </button>
 
             <button
               ref={filterButton}
               className={`library-action${filterActive ? ' is-active' : ''}`}
               type="button"
+              aria-label={filterCount > 0 ? `Filter, ${filterCount} active` : 'Filter'}
               aria-haspopup="dialog"
               aria-expanded={filterOpen}
+              title="Filter"
               onClick={() => setFilterOpen(true)}
             >
               <IconFilter />
-              <span>Filter</span>
+              <span className="library-action-label">Filter</span>
               {filterCount > 0 ? (
                 <span className="library-action-count" aria-hidden="true">
                   {filterCount}
@@ -999,13 +1018,15 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               ref={sortButton}
               className={`library-action${sortActive ? ' is-active' : ''}`}
               type="button"
+              aria-label={sortActive ? 'Sort, active' : 'Sort'}
               aria-haspopup="menu"
               aria-expanded={openPanel === 'sort'}
               aria-controls={SORT_MENU_ID}
+              title="Sort"
               onClick={() => togglePanel('sort')}
             >
               <IconSort />
-              <span>Sort</span>
+              <span className="library-action-label">Sort</span>
               {sortActive ? (
                 <span className="library-action-dot" aria-hidden="true" />
               ) : null}

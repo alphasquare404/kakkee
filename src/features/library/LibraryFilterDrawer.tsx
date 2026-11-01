@@ -143,24 +143,20 @@ export function LibraryFilterDrawer({
         </div>
       </section>
 
-      <footer className="filter-drawer-footer">
-        <span className="filter-drawer-status">
-          {t('{count} active', { count: activeCount })}
-        </span>
-        <button className="button button-secondary" type="button" onClick={onReset}>
-          {t('Reset filters')}
-        </button>
-        <button
-          className="button"
-          type="button"
-          onClick={() => {
-            onClose();
-            triggerRef.current?.focus({ preventScroll: true });
-          }}
-        >
-          {t('Done')}
-        </button>
-      </footer>
+      {activeCount > 0 ? (
+        <footer className="filter-drawer-footer">
+          <span className="filter-drawer-status">
+            {t('{count} active', { count: activeCount })}
+          </span>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={onReset}
+          >
+            {t('Reset filters')}
+          </button>
+        </footer>
+      ) : null}
     </FilterDrawer>
   );
 }
