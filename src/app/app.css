@@ -7225,3 +7225,13 @@ button.manga-card-link {
 .library-selection-clear {
   color: var(--text);
 }
+
+.library-main {
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
+}
+
+.category-tabs::after {
+  flex: 0 0 var(--sp-3);
+  content: "";
+}

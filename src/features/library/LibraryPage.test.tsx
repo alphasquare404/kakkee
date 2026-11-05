@@ -427,6 +427,59 @@ describe('LibraryPage initial states', () => {
     expect(screen.getByRole('button', { name: 'All' })).toBeTruthy();
   });
 
+  it('switches categories with horizontal swipes', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    const main = document.querySelector('.library-main') as HTMLElement;
+    expect(main).toBeTruthy();
+
+    fireEvent.pointerDown(main, {
+      pointerType: 'touch',
+      pointerId: 1,
+      clientX: 320,
+      clientY: 320,
+    });
+    fireEvent.pointerUp(main, {
+      pointerType: 'touch',
+      pointerId: 1,
+      clientX: 160,
+      clientY: 322,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Default' }).getAttribute('aria-pressed'),
+      ).toBe('true');
+    });
+
+    fireEvent.pointerDown(main, {
+      pointerType: 'touch',
+      pointerId: 2,
+      clientX: 160,
+      clientY: 320,
+    });
+    fireEvent.pointerUp(main, {
+      pointerType: 'touch',
+      pointerId: 2,
+      clientX: 320,
+      clientY: 322,
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'All' }).getAttribute('aria-pressed'),
+      ).toBe('true');
+    });
+  });
+
   it('keeps refine controls collapsed so the grid leads the page', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {

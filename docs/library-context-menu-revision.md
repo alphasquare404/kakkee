@@ -87,6 +87,19 @@ Unread and downloaded badges are one pill:
 - tooltip is combined, e.g. `12 unread chapters Ãƒâ€šÃ‚Â· 1 downloaded chapters`
 - visual numbers are `aria-hidden`; a single hidden label exposes the combined meaning
 
+### 7. Swipe category navigation
+
+- Swipe **left** moves to the next visible category; swipe **right** moves to the previous one.
+- The gesture is evaluated on the Library main content, so it works on cards and empty states.
+- Minimum horizontal distance is 60px and horizontal movement must dominate vertical movement.
+- Swipes starting within 24px of either screen edge are ignored to avoid browser back/forward gestures.
+- Mouse pointers are ignored; this is a touch/pen gesture.
+- Swiping is disabled while selection mode, the filter drawer, or the card context menu is open.
+- Navigation clamps at the first and last category; it does not wrap around.
+- After a swipe, the active category tab is automatically scrolled into view.
+- A short click-suppression window prevents the card under the finger from navigating after a swipe.
+- The Library content uses `touch-action: pan-y pinch-zoom`, so vertical scrolling and pinching still work.
+
 ## Tests
 
 Added/updated Library tests for:
@@ -103,7 +116,7 @@ Added/updated Library tests for:
 - category visibility checkbox hiding a tab and Show all restoring it;
 - persistent hidden category IDs in preferences.
 
-Final suite: **426 passed, 7 skipped**.
+Final suite: **427 passed, 7 skipped**.
 
 ## Validation
 
@@ -112,15 +125,15 @@ npm run codegen:check   PASS
 npm run lint            PASS
 npm run typecheck       PASS
 npm run test            80 files passed, 3 skipped
-                        426 tests passed, 7 skipped
+                        427 tests passed, 7 skipped
 npm run build           PASS
 ```
 
 Build after final changes:
 
 ```text
-main JS   650.35 kB (gzip 172.63 kB)
-CSS       105.09 kB (gzip  18.20 kB)
+main JS   651.82 kB (gzip 173.11 kB)
+CSS       105.21 kB (gzip  18.24 kB)
 precache   48 entries / ~1005 KiB
 ```
 
@@ -137,10 +150,12 @@ precache   48 entries / ~1005 KiB
 - `visual-audit/library-all-filter-phone.png`
 - `visual-audit/library-all-hidden-phone.png`
 - `visual-audit/library-selection-rail-final-phone.png`\n- `visual-audit/library-no-continue-chip-phone.png`
+- `visual-audit/library-swipe-default-phone.png`
+- `visual-audit/library-swipe-far-category-phone.png`
 
 ## Remaining concerns
 
-1. The progress chip (`Continue Ch. ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
-2. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
-3. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
+1. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
+2. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
+3. Swipe navigation has no separate visible onboarding hint; the category tabs remain the discoverable fallback.
 4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.

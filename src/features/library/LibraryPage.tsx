@@ -6,6 +6,8 @@ import {
   useSyncExternalStore,
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
 } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -269,10 +271,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const loadedCategories = useRef<LibraryCategoryController | null>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
   const filterButton = useRef<HTMLButtonElement>(null);
+  const categoryTabsRef = useRef<HTMLDivElement>(null);
   const sortButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const searchToggle = useRef<HTMLButtonElement>(null);
   const contextTriggerRef = useRef<HTMLElement | null>(null);
+  const swipeStart = useRef<{
+    readonly x: number;
+    readonly y: number;
+    readonly pointerId: number;
+  } | null>(null);
+  const suppressSwipeClick = useRef(false);
   const appliedInitialSearch = useRef(false);
   const [search, setSearch] = useState(initialQuery);
   const searchRef = useRef(search);
@@ -515,6 +524,131 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     (category) => !hiddenCategoryIds.has(category.id),
   );
   const firstVisibleCategoryId = visibleCategories[0]?.id ?? null;
+  const categorySteps: readonly { readonly category: LibraryCategory | null }[] = [
+    ...(showAllCategory ? [{ category: null }] : []),
+    ...visibleCategories.map((category) => ({ category })),
+  ];
+
+  const swipeToAdjacentCategory = (direction: 1 | -1) => {
+    const currentIndex = categorySteps.findIndex((step) =>
+      step.category === null
+        ? library.categoryId === null
+        : step.category.id === library.categoryId,
+    );
+
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const nextIndex = Math.min(
+      categorySteps.length - 1,
+      Math.max(0, currentIndex + direction),
+    );
+
+    if (nextIndex === currentIndex) {
+      return;
+    }
+
+    handleCategory(categorySteps[nextIndex]?.category ?? null);
+  };
+
+  const handleLibraryPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+    if (
+      event.pointerType === 'mouse' ||
+      selectionMode ||
+      filterOpen ||
+      contextMenu
+    ) {
+      return;
+    }
+
+    if (
+      event.clientX < 24 ||
+      event.clientX > window.innerWidth - 24 ||
+      (event.target as HTMLElement).closest('input, select, textarea')
+    ) {
+      return;
+    }
+
+    swipeStart.current = {
+      x: event.clientX,
+      y: event.clientY,
+      pointerId: event.pointerId,
+    };
+  };
+
+  const handleLibraryPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const start = swipeStart.current;
+
+    if (!start || start.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+
+    if (Math.abs(dy) > Math.abs(dx) + 10) {
+      swipeStart.current = null;
+    }
+  };
+
+  const handleLibraryPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+
+    if (!start || start.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.4) {
+      return;
+    }
+
+    suppressSwipeClick.current = true;
+    window.setTimeout(() => {
+      suppressSwipeClick.current = false;
+    }, 500);
+    swipeToAdjacentCategory(dx < 0 ? 1 : -1);
+  };
+
+  const handleLibraryClickCapture = (event: ReactMouseEvent<HTMLElement>) => {
+    if (!suppressSwipeClick.current) {
+      return;
+    }
+
+    suppressSwipeClick.current = false;
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  useEffect(() => {
+    const container = categoryTabsRef.current;
+    const active = container?.querySelector<HTMLElement>(
+      '.category-tab[aria-pressed="true"]',
+    );
+
+    if (!container || !active) {
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+
+    if (activeRect.left < containerRect.left) {
+      container.scrollTo({
+        left: container.scrollLeft - (containerRect.left - activeRect.left) - 8,
+        behavior: 'smooth',
+      });
+    } else if (activeRect.right > containerRect.right) {
+      container.scrollTo({
+        left: container.scrollLeft + (activeRect.right - containerRect.right) + 8,
+        behavior: 'smooth',
+      });
+    }
+  }, [library.categoryId, showAllCategory, visibleCategories.length]);
 
   useEffect(() => {
     if (
@@ -1345,7 +1479,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       ) : null}
 
       <nav className="category-nav" aria-label="Library categories">
-        <div className="category-tabs">
+        <div className="category-tabs" ref={categoryTabsRef}>
           {showAllCategory ? (
             <button
               className="category-tab"
@@ -1498,7 +1632,19 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         </div>
       ) : null}
 
-      <main className="library-main">
+      <main
+        className="library-main"
+        onPointerDown={handleLibraryPointerDown}
+        onPointerMove={handleLibraryPointerMove}
+        onPointerUp={handleLibraryPointerUp}
+        onPointerCancel={() => {
+          swipeStart.current = null;
+        }}
+        onPointerLeave={() => {
+          swipeStart.current = null;
+        }}
+        onClickCapture={handleLibraryClickCapture}
+      >
         <section
           className="library-results"
           aria-busy={library.isInitialLoading || library.isLoadingMore}
