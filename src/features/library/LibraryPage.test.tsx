@@ -441,17 +441,11 @@ describe('LibraryPage initial states', () => {
     const main = document.querySelector('.library-main') as HTMLElement;
     expect(main).toBeTruthy();
 
-    fireEvent.pointerDown(main, {
-      pointerType: 'touch',
-      pointerId: 1,
-      clientX: 320,
-      clientY: 320,
+    fireEvent.touchStart(main, {
+      touches: [{ clientX: 320, clientY: 320 }],
     });
-    fireEvent.pointerUp(main, {
-      pointerType: 'touch',
-      pointerId: 1,
-      clientX: 160,
-      clientY: 322,
+    fireEvent.touchEnd(main, {
+      changedTouches: [{ clientX: 160, clientY: 322 }],
     });
 
     await waitFor(() => {
@@ -460,17 +454,11 @@ describe('LibraryPage initial states', () => {
       ).toBe('true');
     });
 
-    fireEvent.pointerDown(main, {
-      pointerType: 'touch',
-      pointerId: 2,
-      clientX: 160,
-      clientY: 320,
+    fireEvent.touchStart(main, {
+      touches: [{ clientX: 160, clientY: 320 }],
     });
-    fireEvent.pointerUp(main, {
-      pointerType: 'touch',
-      pointerId: 2,
-      clientX: 320,
-      clientY: 322,
+    fireEvent.touchEnd(main, {
+      changedTouches: [{ clientX: 320, clientY: 322 }],
     });
 
     await waitFor(() => {

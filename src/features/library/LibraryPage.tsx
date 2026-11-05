@@ -7,7 +7,7 @@ import {
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
+  type TouchEvent as ReactTouchEvent,
 } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
@@ -279,7 +279,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const swipeStart = useRef<{
     readonly x: number;
     readonly y: number;
-    readonly pointerId: number;
   } | null>(null);
   const suppressSwipeClick = useRef(false);
   const appliedInitialSearch = useRef(false);
@@ -552,56 +551,65 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     handleCategory(categorySteps[nextIndex]?.category ?? null);
   };
 
-  const handleLibraryPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+  const handleLibraryTouchStart = (event: ReactTouchEvent<HTMLElement>) => {
     if (
-      event.pointerType === 'mouse' ||
       selectionMode ||
       filterOpen ||
-      contextMenu
+      contextMenu ||
+      event.touches.length !== 1
     ) {
       return;
     }
 
+    const touch = event.touches[0];
+
+    if (!touch) {
+      return;
+    }
+
     if (
-      event.clientX < 24 ||
-      event.clientX > window.innerWidth - 24 ||
+      touch.clientX < 24 ||
+      touch.clientX > window.innerWidth - 24 ||
       (event.target as HTMLElement).closest('input, select, textarea')
     ) {
       return;
     }
 
-    swipeStart.current = {
-      x: event.clientX,
-      y: event.clientY,
-      pointerId: event.pointerId,
-    };
+    swipeStart.current = { x: touch.clientX, y: touch.clientY };
   };
 
-  const handleLibraryPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+  const handleLibraryTouchMove = (event: ReactTouchEvent<HTMLElement>) => {
     const start = swipeStart.current;
+    const touch = event.touches[0];
 
-    if (!start || start.pointerId !== event.pointerId) {
+    if (!start || !touch) {
       return;
     }
 
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
 
     if (Math.abs(dy) > Math.abs(dx) + 10) {
       swipeStart.current = null;
     }
   };
 
-  const handleLibraryPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
+  const handleLibraryTouchEnd = (event: ReactTouchEvent<HTMLElement>) => {
     const start = swipeStart.current;
     swipeStart.current = null;
 
-    if (!start || start.pointerId !== event.pointerId) {
+    if (!start) {
       return;
     }
 
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
+    const touch = event.changedTouches[0];
+
+    if (!touch) {
+      return;
+    }
+
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
 
     if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.4) {
       return;
@@ -1634,13 +1642,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
       <main
         className="library-main"
-        onPointerDown={handleLibraryPointerDown}
-        onPointerMove={handleLibraryPointerMove}
-        onPointerUp={handleLibraryPointerUp}
-        onPointerCancel={() => {
-          swipeStart.current = null;
-        }}
-        onPointerLeave={() => {
+        onTouchStart={handleLibraryTouchStart}
+        onTouchMove={handleLibraryTouchMove}
+        onTouchEnd={handleLibraryTouchEnd}
+        onTouchCancel={() => {
           swipeStart.current = null;
         }}
         onClickCapture={handleLibraryClickCapture}

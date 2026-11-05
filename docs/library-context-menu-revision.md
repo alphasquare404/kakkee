@@ -91,6 +91,7 @@ Unread and downloaded badges are one pill:
 
 - Swipe **left** moves to the next visible category; swipe **right** moves to the previous one.
 - The gesture is evaluated on the Library main content, so it works on cards and empty states.
+- It uses native touch events instead of pointer events, which is more reliable in mobile browsers and installed PWAs.
 - Minimum horizontal distance is 60px and horizontal movement must dominate vertical movement.
 - Swipes starting within 24px of either screen edge are ignored to avoid browser back/forward gestures.
 - Mouse pointers are ignored; this is a touch/pen gesture.
@@ -132,7 +133,7 @@ npm run build           PASS
 Build after final changes:
 
 ```text
-main JS   651.82 kB (gzip 173.11 kB)
+main JS   651.79 kB (gzip 173.14 kB)
 CSS       105.21 kB (gzip  18.24 kB)
 precache   48 entries / ~1005 KiB
 ```
