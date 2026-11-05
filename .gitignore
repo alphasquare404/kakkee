@@ -32,3 +32,7 @@ suwayomi-data/
 
 # Referensi visual lokal (bukan aset aplikasi)
 Refrence/
+
+# Local verification captures and fixture scripts
+visual-audit/
+fixtures/
