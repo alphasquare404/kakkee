@@ -438,13 +438,15 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
     await screen.findByRole('heading', { name: 'Alpha' });
 
-    const main = document.querySelector('.library-main') as HTMLElement;
-    expect(main).toBeTruthy();
+    const surface = document.querySelector(
+      '.app-shell.library-shell',
+    ) as HTMLElement;
+    expect(surface).toBeTruthy();
 
-    fireEvent.touchStart(main, {
+    fireEvent.touchStart(surface, {
       touches: [{ clientX: 320, clientY: 320 }],
     });
-    fireEvent.touchEnd(main, {
+    fireEvent.touchEnd(surface, {
       changedTouches: [{ clientX: 160, clientY: 322 }],
     });
 
@@ -454,10 +456,10 @@ describe('LibraryPage initial states', () => {
       ).toBe('true');
     });
 
-    fireEvent.touchStart(main, {
+    fireEvent.touchStart(surface, {
       touches: [{ clientX: 160, clientY: 320 }],
     });
-    fireEvent.touchEnd(main, {
+    fireEvent.touchEnd(surface, {
       changedTouches: [{ clientX: 320, clientY: 322 }],
     });
 

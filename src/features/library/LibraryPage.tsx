@@ -570,7 +570,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     if (
       touch.clientX < 24 ||
       touch.clientX > window.innerWidth - 24 ||
-      (event.target as HTMLElement).closest('input, select, textarea')
+      (event.target as HTMLElement).closest(
+        '.library-header, .category-tabs, .library-selection-bar, .library-duplicates, input, select, textarea',
+      )
     ) {
       return;
     }
@@ -1094,6 +1096,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       className={`app-shell library-shell${
         appPreferences.libraryDensity === 'comfortable' ? ' is-comfortable' : ''
       }`}
+      onTouchStart={handleLibraryTouchStart}
+      onTouchMove={handleLibraryTouchMove}
+      onTouchEnd={handleLibraryTouchEnd}
+      onTouchCancel={() => {
+        swipeStart.current = null;
+      }}
+      onClickCapture={handleLibraryClickCapture}
     >
       <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className="library-header">
@@ -1640,16 +1649,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         </div>
       ) : null}
 
-      <main
-        className="library-main"
-        onTouchStart={handleLibraryTouchStart}
-        onTouchMove={handleLibraryTouchMove}
-        onTouchEnd={handleLibraryTouchEnd}
-        onTouchCancel={() => {
-          swipeStart.current = null;
-        }}
-        onClickCapture={handleLibraryClickCapture}
-      >
+      <main className="library-main">
         <section
           className="library-results"
           aria-busy={library.isInitialLoading || library.isLoadingMore}

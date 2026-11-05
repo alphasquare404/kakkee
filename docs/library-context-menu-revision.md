@@ -1,4 +1,4 @@
-# Library interaction revision
+﻿# Library interaction revision
 
 **Date:** 2026-11-05  
 **Scope:** Library category tabs, per-category visibility, manga-card context menu, selection menu, card artwork, merged badges.  
@@ -81,20 +81,21 @@ The card cover keeps its 2:3 frame.
 Unread and downloaded badges are one pill:
 
 - only unread: `12`
-- only downloaded: `ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Å“1`
-- both: `12 Ãƒâ€šÃ‚Â· ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Å“1`
+- only downloaded: `ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ1`
+- both: `12 ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ1`
 - counts above 99 use `99+`
-- tooltip is combined, e.g. `12 unread chapters Ãƒâ€šÃ‚Â· 1 downloaded chapters`
+- tooltip is combined, e.g. `12 unread chapters ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· 1 downloaded chapters`
 - visual numbers are `aria-hidden`; a single hidden label exposes the combined meaning
 
 ### 7. Swipe category navigation
 
 - Swipe **left** moves to the next visible category; swipe **right** moves to the previous one.
-- The gesture is evaluated on the Library main content, so it works on cards and empty states.
+- The gesture is captured on the full Library shell, not only on the short main-content area. Swiping the blank space below an empty category now works too.
 - It uses native touch events instead of pointer events, which is more reliable in mobile browsers and installed PWAs.
 - Minimum horizontal distance is 60px and horizontal movement must dominate vertical movement.
 - Swipes starting within 24px of either screen edge are ignored to avoid browser back/forward gestures.
 - Mouse pointers are ignored; this is a touch/pen gesture.
+- Category tabs, the Library header, the bulk-selection rail, and the duplicates panel are excluded from the swipe surface.
 - Swiping is disabled while selection mode, the filter drawer, or the card context menu is open.
 - Navigation clamps at the first and last category; it does not wrap around.
 - After a swipe, the active category tab is automatically scrolled into view.
@@ -133,7 +134,7 @@ npm run build           PASS
 Build after final changes:
 
 ```text
-main JS   651.79 kB (gzip 173.14 kB)
+main JS   651.87 kB (gzip 173.15 kB)
 CSS       105.21 kB (gzip  18.24 kB)
 precache   48 entries / ~1005 KiB
 ```
@@ -160,3 +161,4 @@ precache   48 entries / ~1005 KiB
 2. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
 3. Swipe navigation has no separate visible onboarding hint; the category tabs remain the discoverable fallback.
 4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.
+
