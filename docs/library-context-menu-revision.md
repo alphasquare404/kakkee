@@ -60,13 +60,14 @@ When cards are selected:
 
 ### 5. Card artwork fitting
 
-The card cover keeps its 2:3 frame.
+The card cover keeps its 2:3 frame, but the artwork is now fitted inside it rather than enlarged to fill it.
 
-- Portrait image: image is full height; width is automatic.
-- Landscape image: image is full width; height is automatic.
-- Images are centered and clipped only by the card frame's overflow.
-- Orientation is detected from `naturalWidth`/`naturalHeight` at image load.
-- Before load, `object-fit: contain` is the safe fallback.
+- Images are scaled down to fit within the cover without cropping.
+- Small images are not upscaled beyond their natural size.
+- Portrait and landscape images are centered in the cover.
+- Empty space around the image is intentional and comes from the card frame.
+- The image uses `width: auto`, `height: auto`, `max-width: 100%`, `max-height: 100%`, with `object-fit: contain` as the drawing fallback.
+- Orientation-specific classes and the previous full-height/full-width crop behavior were removed.
 
 ### 6. Merged badges
 
@@ -124,12 +125,13 @@ precache   48 entries / ~1005 KiB
 - `visual-audit/library-revision-final-820.png`
 - `visual-audit/library-revision-final-1280.png`
 - `visual-audit/library-final-context-phone.png`
+- `visual-audit/library-fit-phone.png`
 
 ## Remaining concerns
 
 1. The progress chip (`Continue Ch. â€¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
 2. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
 3. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
-4. Some server thumbnails loaded slowly during runtime capture; this is separate from the artwork orientation rule.
+4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.
 
 
