@@ -21,6 +21,7 @@ import {
 import {
   createLibraryRepository,
   type LibraryCategory,
+  type LibraryManga,
   type DuplicateScanItem,
   type LibraryFilter,
   type LibrarySortDirection,
@@ -30,6 +31,7 @@ import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 import { ActionMenu } from '../../shared/ActionMenu';
+import { ContextMenu } from '../../shared/ContextMenu';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
@@ -270,6 +272,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const sortButton = useRef<HTMLButtonElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const searchToggle = useRef<HTMLButtonElement>(null);
+  const contextTriggerRef = useRef<HTMLElement | null>(null);
   const appliedInitialSearch = useRef(false);
   const [search, setSearch] = useState(initialQuery);
   const searchRef = useRef(search);
@@ -299,7 +302,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
   const [categoryChoice, setCategoryChoice] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(false);
-  const [confirmDeleteDownloads, setConfirmDeleteDownloads] = useState(false);
+  const [hiddenCategoryIds, setHiddenCategoryIds] = useState<ReadonlySet<number>>(
+    () => new Set(getLibraryPreferences().hiddenCategoryIds),
+  );
+  const [contextMenu, setContextMenu] = useState<{
+    readonly manga: LibraryManga;
+    readonly index: number;
+    readonly x: number;
+    readonly y: number;
+  } | null>(null);
+  const [contextBusy, setContextBusy] = useState(false);
+  const [contextError, setContextError] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkError, setBulkError] = useState(false);
 
@@ -486,6 +499,19 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     void controller.setCategory(category?.id ?? null);
   };
 
+  useEffect(() => {
+    if (
+      library.categoryId !== null &&
+      hiddenCategoryIds.has(library.categoryId)
+    ) {
+      void controller.setCategory(null);
+    }
+  }, [controller, hiddenCategoryIds, library.categoryId]);
+
+  const visibleCategories = categories.categories.filter(
+    (category) => !hiddenCategoryIds.has(category.id),
+  );
+
   const toggleFuzzy = () => {
     const next = !fuzzy;
     setFuzzy(next);
@@ -505,6 +531,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       status: library.filter.status,
       statuses: library.filter.statuses,
       categoryId: library.categoryId,
+      hiddenCategoryIds: [...hiddenCategoryIds],
       sort: library.sort,
     });
   };
@@ -515,6 +542,96 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     setConfirmRemove(false);
     setCategoryChoice('');
     setBulkError(false);
+  };
+
+  const closeContextMenu = (restoreFocus = true) => {
+    const trigger = contextTriggerRef.current;
+    contextTriggerRef.current = null;
+    setContextMenu(null);
+
+    if (restoreFocus) {
+      trigger?.focus({ preventScroll: true });
+    }
+  };
+
+  const toggleCategoryVisibility = (categoryId: number) => {
+    const next = new Set(hiddenCategoryIds);
+
+    if (next.has(categoryId)) {
+      next.delete(categoryId);
+    } else {
+      next.add(categoryId);
+    }
+
+    setHiddenCategoryIds(next);
+    updateLibraryPreferences({
+      ...getLibraryPreferences(),
+      hiddenCategoryIds: [...next],
+    });
+
+    if (library.categoryId === categoryId) {
+      handleCategory(null);
+    }
+  };
+
+  const showAllCategories = () => {
+    const next = new Set<number>();
+    setHiddenCategoryIds(next);
+    updateLibraryPreferences({
+      ...getLibraryPreferences(),
+      hiddenCategoryIds: [],
+    });
+  };
+
+  const selectContextManga = () => {
+    if (!contextMenu) {
+      return;
+    }
+
+    setSelectionMode(true);
+    setSelectedIds(new Set([contextMenu.manga.id]));
+    setLastSelectedIndex(contextMenu.index);
+    setConfirmRemove(false);
+    setCategoryChoice('');
+    const cardId = contextMenu.manga.id;
+    closeContextMenu(false);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById(`library-card-${cardId}`)
+        ?.focus({ preventScroll: true });
+    });
+  };
+
+  const removeContextManga = async () => {
+    if (!contextMenu || contextBusy) {
+      return;
+    }
+
+    setContextBusy(true);
+    setContextError(false);
+
+    try {
+      const removedId = contextMenu.manga.id;
+      await controller.removeFromLibrary([removedId]);
+      void categoryController.load();
+
+      if (selectedIds.has(removedId)) {
+        const remaining = new Set(selectedIds);
+        remaining.delete(removedId);
+        setSelectedIds(remaining);
+
+        if (remaining.size === 0) {
+          setSelectionMode(false);
+        }
+      }
+
+      closeContextMenu(false);
+    } catch {
+      setContextError(true);
+      closeContextMenu(false);
+    } finally {
+      setContextBusy(false);
+    }
   };
 
   const toggleSelected = (index: number, mangaId: number, shiftKey: boolean) => {
@@ -586,65 +703,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
-  const markSelectedRead = async (isRead: boolean) => {
+  const removeSelected = async () => {
     if (selectedIds.size === 0) {
-      return;
-    }
-
-    setBulkBusy(true);
-    setBulkError(false);
-
-    try {
-      await controller.markRead([...selectedIds], isRead);
-      clearSelection();
-      setSelectionMode(false);
-    } catch {
-      setBulkError(true);
-    } finally {
-      setBulkBusy(false);
-    }
-  };
-
-  const downloadSelected = async () => {
-    if (selectedIds.size === 0) {
-      return;
-    }
-
-    setBulkBusy(true);
-    setBulkError(false);
-
-    try {
-      await controller.downloadMangas([...selectedIds]);
-      clearSelection();
-      setSelectionMode(false);
-    } catch {
-      setBulkError(true);
-    } finally {
-      setBulkBusy(false);
-    }
-  };
-
-  const deleteSelectedDownloads = async () => {
-    if (selectedIds.size === 0) {
-      return;
-    }
-
-    setBulkBusy(true);
-    setBulkError(false);
-
-    try {
-      await controller.deleteMangaDownloads([...selectedIds]);
-      clearSelection();
-      setSelectionMode(false);
-      setConfirmDeleteDownloads(false);
-    } catch {
-      setBulkError(true);
-    } finally {
-      setBulkBusy(false);
-    }
-  };
-
-  const removeSelected = async () => {    if (selectedIds.size === 0) {
       return;
     }
 
@@ -1045,25 +1105,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               label="More"
               ariaLabel="More library actions"
               summaryClassName={`library-action${
-                selectionMode || fuzzy || duplicatesOpen || hasAnyRefinement
+                fuzzy || duplicatesOpen || hasAnyRefinement
                   ? ' is-active'
                   : ''
               }`}
             >
               <p className="action-menu-section">Library tools</p>
-              <button
-                type="button"
-                aria-pressed={selectionMode}
-                onClick={() => {
-                  if (selectionMode) {
-                    clearSelection();
-                  }
-                  setSelectionMode((value) => !value);
-                }}
-              >
-                <span>{selectionMode ? t('Done') : t('Select')}</span>
-                <span>{selectionMode ? 'On' : ''}</span>
-              </button>
               <button
                 type="button"
                 aria-pressed={fuzzy}
@@ -1119,9 +1166,85 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         }))}
         sourceId={library.filter.sourceId}
         onSelectSource={selectSource}
+        categories={categories.categories}
+        hiddenCategoryIds={hiddenCategoryIds}
+        onToggleCategoryVisibility={toggleCategoryVisibility}
+        onShowAllCategories={showAllCategories}
         onReset={resetFilterState}
         activeCount={filterCount}
       />
+
+      <ContextMenu
+        open={contextMenu !== null}
+        position={
+          contextMenu
+            ? { x: contextMenu.x, y: contextMenu.y }
+            : { x: 0, y: 0 }
+        }
+        label={
+          contextMenu
+            ? `Manga actions for ${contextMenu.manga.title}`
+            : 'Manga actions'
+        }
+        onClose={() => closeContextMenu()}
+      >
+        {contextMenu ? (
+          <>
+            <Link
+              className="context-menu-item"
+              role="menuitem"
+              to={`/manga/${contextMenu.manga.id}`}
+              state={{ origin }}
+              onClick={() => closeContextMenu()}
+            >
+              View Details
+            </Link>
+            {contextMenu.manga.lastReadChapter ? (
+              <Link
+                className="context-menu-item"
+                role="menuitem"
+                to={`/manga/${contextMenu.manga.id}/chapter/${
+                  contextMenu.manga.lastReadChapter.id
+                }${
+                  contextMenu.manga.lastReadChapter.lastPageRead > 0
+                    ? `?page=${contextMenu.manga.lastReadChapter.lastPageRead + 1}`
+                    : ''
+                }`}
+                state={{ origin }}
+                onClick={() => closeContextMenu()}
+              >
+                Continue reading
+              </Link>
+            ) : (
+              <button
+                className="context-menu-item"
+                type="button"
+                role="menuitem"
+                disabled
+              >
+                Continue reading
+              </button>
+            )}
+            <button
+              className="context-menu-item"
+              type="button"
+              role="menuitem"
+              onClick={selectContextManga}
+            >
+              Select
+            </button>
+            <button
+              className="context-menu-item is-danger"
+              type="button"
+              role="menuitem"
+              disabled={contextBusy}
+              onClick={() => void removeContextManga()}
+            >
+              {contextBusy ? 'Removing…' : 'Remove from library'}
+            </button>
+          </>
+        ) : null}
+      </ContextMenu>
 
       {duplicatesOpen ? (
         <section className="library-duplicates" aria-labelledby="duplicates-heading">
@@ -1194,7 +1317,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               {library.totalCount.toLocaleString('en-US')}
             </span>
           </button>
-          {categories.categories.map((category) => (
+          {visibleCategories.map((category) => (
             <button
               className="category-tab"
               key={category.id}
@@ -1230,6 +1353,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         ) : null}
       </nav>
 
+      {contextError ? (
+        <p className="library-note library-note-warning" role="alert">
+          Couldn&apos;t update the library.
+        </p>
+      ) : null}
+
       {selectionMode ? (
         <div
           className="library-selection-bar"
@@ -1237,7 +1366,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           aria-label="Bulk manga actions"
           aria-busy={bulkBusy}
         >
-          <strong>{selectedIds.size} selected</strong>
           <span className="library-bulk-status" role="status">
             {bulkBusy ? 'Working…' : ''}
           </span>
@@ -1257,25 +1385,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 className="library-action"
                 type="button"
                 onClick={() => setConfirmRemove(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          ) : confirmDeleteDownloads ? (
-            <div className="library-selection-confirm">
-              <span>Delete downloads for {selectedIds.size} manga?</span>
-              <button
-                className="library-action is-danger"
-                type="button"
-                disabled={bulkBusy}
-                onClick={() => void deleteSelectedDownloads()}
-              >
-                Confirm
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                onClick={() => setConfirmDeleteDownloads(false)}
               >
                 Cancel
               </button>
@@ -1321,43 +1430,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                 Remove from library
               </button>
               <button
-                className="library-action"
+                className="library-selection-clear"
                 type="button"
-                disabled={bulkBusy || selectedIds.size === 0}
-                onClick={() => void markSelectedRead(true)}
+                aria-label="Clear selection"
+                title="Clear selection"
+                onClick={() => {
+                  clearSelection();
+                  setSelectionMode(false);
+                }}
               >
-                Mark read
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={bulkBusy || selectedIds.size === 0}
-                onClick={() => void markSelectedRead(false)}
-              >
-                Mark unread
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={bulkBusy || selectedIds.size === 0}
-                onClick={() => void downloadSelected()}
-              >
-                Download
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={bulkBusy || selectedIds.size === 0}
-                onClick={() => setConfirmDeleteDownloads(true)}
-              >
-                Delete download
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                onClick={clearSelection}
-              >
-                Clear
+                <IconClose />
               </button>
             </>
           )}
@@ -1441,10 +1523,15 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   onToggle={(shiftKey) =>
                     toggleSelected(index, manga.id, shiftKey)
                   }
-                  onLongPress={() => {
-                    setSelectionMode(true);
-                    setSelectedIds(new Set([manga.id]));
-                    setLastSelectedIndex(index);
+                  onContextMenu={(position, trigger) => {
+                    setContextError(false);
+                    contextTriggerRef.current = trigger;
+                    setContextMenu({
+                      manga,
+                      index,
+                      x: position.x,
+                      y: position.y,
+                    });
                   }}
                 />
               ))}

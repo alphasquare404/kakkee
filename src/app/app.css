@@ -1382,28 +1382,6 @@ h2 {
   backdrop-filter: blur(5px);
 }
 
-.manga-card-frame {
-  display: grid;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.manga-card-continue {
-  display: block;
-  overflow: hidden;
-  padding: 0.24rem 0.4rem;
-  color: var(--accent);
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-align: center;
-  text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-  border-radius: 5px;
-  background: var(--accent-soft);
-}
-
 .manga-card-badge {
   display: inline-flex;
   gap: 0.12rem;
@@ -2378,11 +2356,6 @@ h2 {
 .manga-grid.is-list .manga-card-title {
   font-size: var(--text-md);
   text-align: left;
-}
-
-.manga-grid.is-list .manga-card-continue {
-  position: static;
-  margin-left: auto;
 }
 
 .manga-card-link {
@@ -6918,14 +6891,6 @@ button.manga-card-link {
 }
 
 @media (max-width: 720px) {
-  .manga-card-continue {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.75rem;
-    padding: 0.2rem 0.4rem;
-  }
-
   .reader-chapter-overlay {
     place-items: end stretch;
     padding: 0;
@@ -7050,4 +7015,158 @@ button.manga-card-link {
   min-width: 2.7rem;
   height: 2.7rem;
   padding: 0;
+}
+
+/* Category visibility and context-menu refinements ------------------------- */
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.category-tab-count {
+  margin-left: 0;
+  line-height: 1;
+}
+
+.library-selection-bar {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.library-selection-clear {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: var(--muted);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+
+.library-selection-clear:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+.manga-card-image {
+  object-fit: contain;
+  object-position: center;
+}
+
+.manga-card-badges {
+  justify-content: flex-end;
+}
+
+.manga-card-badge.is-combined {
+  gap: 0.3rem;
+  padding: 0 0.42rem;
+  background: rgba(8, 12, 22, 0.88);
+}
+
+.manga-card-badge-separator {
+  opacity: 0.45;
+}
+
+.manga-card-badge-download {
+  display: inline-flex;
+  align-items: center;
+  color: #a7f3d0;
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 80;
+  display: grid;
+  gap: 2px;
+  min-width: 13rem;
+  max-width: min(18rem, calc(100vw - 1rem));
+  padding: 0.35rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-pop);
+  backdrop-filter: blur(18px);
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0 0.65rem;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  text-decoration: none;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+
+.context-menu-item:hover,
+.context-menu-item:focus-visible {
+  background: var(--accent-soft);
+}
+
+.context-menu-item.is-danger {
+  color: var(--danger);
+}
+
+.context-menu-item:disabled {
+  color: var(--faint);
+  cursor: default;
+}
+
+.category-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.58rem;
+  line-height: 1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.category-tab[aria-pressed="true"] .category-tab-count {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+@media (max-width: 720px) {
+  .library-selection-bar {
+    flex-wrap: wrap;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .library-selection-clear {
+    margin-left: auto;
+  }
+}
+
+.manga-card-cover.is-portrait .manga-card-image {
+  width: auto;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.manga-card-cover.is-landscape .manga-card-image {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: cover;
 }

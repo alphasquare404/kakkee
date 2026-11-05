@@ -1,6 +1,7 @@
 import { useMemo, useState, type RefObject } from 'react';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import { useI18n } from '../../shared/useI18n';
+import type { LibraryCategory } from '../../core/library/libraryRepository';
 
 export interface LibraryFilterOption {
   readonly value: string;
@@ -20,6 +21,10 @@ export interface LibraryFilterDrawerProps {
   readonly sources: readonly LibraryFilterOption[];
   readonly sourceId: string | undefined;
   readonly onSelectSource: (value: string) => void;
+  readonly categories: readonly LibraryCategory[];
+  readonly hiddenCategoryIds: ReadonlySet<number>;
+  readonly onToggleCategoryVisibility: (categoryId: number) => void;
+  readonly onShowAllCategories: () => void;
   readonly onReset: () => void;
   readonly activeCount: number;
 }
@@ -37,6 +42,10 @@ export function LibraryFilterDrawer({
   sources,
   sourceId,
   onSelectSource,
+  categories,
+  hiddenCategoryIds,
+  onToggleCategoryVisibility,
+  onShowAllCategories,
   onReset,
   activeCount,
 }: LibraryFilterDrawerProps) {
@@ -60,6 +69,43 @@ export function LibraryFilterDrawer({
       onClose={onClose}
       triggerRef={triggerRef}
     >
+      {categories.length > 0 ? (
+        <section
+          className="filter-section"
+          aria-labelledby="library-filter-categories"
+        >
+          <div className="section-heading-row">
+            <h3 className="filter-section-heading" id="library-filter-categories">
+              {t('Show categories')}
+            </h3>
+            {hiddenCategoryIds.size > 0 ? (
+              <button
+                className="library-action"
+                type="button"
+                onClick={onShowAllCategories}
+              >
+                {t('Show all')}
+              </button>
+            ) : null}
+          </div>
+          <p className="filter-section-hint">
+            {t('Choose which categories appear in the Library category strip.')}
+          </p>
+          <div className="filter-section-content filter-checkbox-list">
+            {categories.map((category) => (
+              <label className="filter-checkbox" key={category.id}>
+                <input
+                  type="checkbox"
+                  checked={!hiddenCategoryIds.has(category.id)}
+                  onChange={() => onToggleCategoryVisibility(category.id)}
+                />
+                <span>{category.name}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="filter-section" aria-labelledby="library-filter-source">
         <div className="filter-section-content library-source-filter">
           <label className="settings-text-field">

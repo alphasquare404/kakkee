@@ -218,7 +218,7 @@ describe('LibraryPage initial states', () => {
 
     await user.click(more);
     expect(menu?.open).toBe(true);
-    expect(screen.getByRole('button', { name: 'Select' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Select' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Save defaults' })).toBeTruthy();
   });
 
@@ -234,19 +234,27 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
     await screen.findByRole('heading', { name: 'Alpha' });
 
-    await openLibraryMore(user);
-    await user.click(screen.getByRole('button', { name: 'Select' }));
-    await user.click(
-      screen.getByRole('button', { name: 'Alpha, not selected' }),
+    fireEvent.contextMenu(
+      screen.getByRole('link', { name: 'Alpha, manga details' }),
+      { clientX: 40, clientY: 60 },
     );
+    await user.click(screen.getByRole('menuitem', { name: 'Select' }));
 
-    expect(screen.getByText('1 selected')).toBeTruthy();
     expect(
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();
+    expect(screen.getByRole('toolbar', { name: 'Bulk manga actions' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Mark read' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Mark unread' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Download' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Delete download' })).toBeNull();
+    expect(screen.queryByText('1 selected')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Clear selection' }));
+    expect(screen.queryByRole('toolbar', { name: 'Bulk manga actions' })).toBeNull();
   });
 
-  it('enters selection mode by long-pressing a poster', async () => {
+  it('opens the card context menu on long press', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
         return data({ __typename: 'Query', categories: categoryData() });
@@ -254,6 +262,7 @@ describe('LibraryPage initial states', () => {
 
       return libraryQuery(page([manga(1, 'Alpha')]));
     });
+    const user = userEvent.setup();
     renderLibrary(query);
 
     const card = await screen.findByRole('link', {
@@ -261,15 +270,54 @@ describe('LibraryPage initial states', () => {
     });
 
     await act(async () => {
-      fireEvent.pointerDown(card, { pointerType: 'touch' });
+      fireEvent.pointerDown(card, {
+        pointerType: 'touch',
+        clientX: 120,
+        clientY: 140,
+      });
       await new Promise((resolve) => window.setTimeout(resolve, 550));
       fireEvent.pointerUp(card, { pointerType: 'touch' });
     });
 
-    expect(await screen.findByText('1 selected')).toBeTruthy();
+    expect(await screen.findByRole('menu')).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: 'View Details' })).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: 'Select' })).toBeTruthy();
+    expect(
+      screen.getByRole('menuitem', { name: 'Remove from library' }),
+    ).toBeTruthy();
+    expect(screen.queryByText('1 selected')).toBeNull();
+
+    await user.click(screen.getByRole('menuitem', { name: 'Select' }));
     expect(
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();
+  });
+
+  it('opens the card context menu from right click and keyboard', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+
+    const card = await screen.findByRole('link', {
+      name: 'Alpha, manga details',
+    });
+    fireEvent.contextMenu(card, { clientX: 40, clientY: 60 });
+
+    expect(await screen.findByRole('menu')).toBeTruthy();
+    expect(screen.getByRole('menuitem', { name: 'View Details' }).getAttribute('href')).toBe(
+      '/manga/1',
+    );
+    fireEvent.keyDown(card, { key: 'Escape' });
+    fireEvent.keyDown(card, { key: 'F10', shiftKey: true });
+
+    expect(screen.getByRole('menu')).toBeTruthy();
+    await user.click(screen.getByRole('menuitem', { name: 'View Details' }));
   });
 
   it('shows continue-reading progress on a poster', async () => {
@@ -296,16 +344,21 @@ describe('LibraryPage initial states', () => {
     });
     renderLibrary(query);
 
+    expect(document.querySelector('.manga-card-continue')).toBeNull();
     expect(
       await screen.findByText('Continue Ch. 10 · p5'),
     ).toBeTruthy();
     expect(
       screen.getByRole('link', { name: 'Alpha, manga details' }).getAttribute('title'),
     ).toBe('Continue reading Chapter 10 — page 5');
+    fireEvent.contextMenu(
+      screen.getByRole('link', { name: 'Alpha, manga details' }),
+      { clientX: 40, clientY: 60 },
+    );
     expect(
-      screen
-        .getByRole('link', { name: 'Continue reading Chapter 10 — page 5' })
-        .getAttribute('href'),
+      (await screen.findByRole('menuitem', { name: 'Continue reading' })).getAttribute(
+        'href',
+      ),
     ).toBe('/manga/1/chapter/10?page=5');
   });
 
@@ -319,11 +372,34 @@ describe('LibraryPage initial states', () => {
     });
     renderLibrary(query);
 
-    expect(await screen.findByTitle('3 unread chapters')).toBeTruthy();
-    expect(screen.getByTitle('2 downloaded chapters')).toBeTruthy();
+    expect(
+      await screen.findByTitle('3 unread chapters · 2 downloaded chapters'),
+    ).toBeTruthy();
+    expect(document.querySelectorAll('.manga-card-badge')).toHaveLength(1);
     expect(
       screen.getByRole('button', { name: /Action/ }).textContent,
     ).toContain('5');
+  });
+
+  it('shows and hides categories from the filter drawer', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    expect(screen.getByRole('button', { name: 'Action' })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Filter' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Action' }));
+
+    expect(screen.queryByRole('button', { name: 'Action' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(screen.getByRole('button', { name: 'Action' })).toBeTruthy();
   });
 
   it('keeps refine controls collapsed so the grid leads the page', async () => {

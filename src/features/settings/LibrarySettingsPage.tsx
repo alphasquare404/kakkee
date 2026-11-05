@@ -17,8 +17,8 @@ registerMessages('id', {
   Cards: 'Kartu',
   'Show unread and download badges':
     'Tampilkan badge belum dibaca dan unduhan',
-  'Show continue-reading progress and shortcut':
-    'Tampilkan progres lanjut membaca dan pintasan',
+  'Show reading progress on cards':
+    'Tampilkan progres bacaan pada kartu',
   Display: 'Tampilan',
   Grid: 'Grid',
   'Poster grid with authenticated thumbnails':
@@ -98,7 +98,7 @@ export function LibrarySettingsPage() {
               />
             </label>
             <label className="settings-toggle">
-              <span>{t('Show continue-reading progress and shortcut')}</span>
+              <span>{t('Show reading progress on cards')}</span>
               <input
                 type="checkbox"
                 checked={preferences.libraryContinue}

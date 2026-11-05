@@ -18,6 +18,7 @@ describe('library preferences', () => {
       status: 'ONGOING',
       statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
+      hiddenCategoryIds: [3, 4],
       sort: { field: 'title', direction: 'asc' },
     });
 
@@ -25,6 +26,7 @@ describe('library preferences', () => {
       status: 'ONGOING',
       statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
+      hiddenCategoryIds: [3, 4],
       sort: { field: 'title', direction: 'asc' },
     });
     expect(

@@ -8,11 +8,13 @@ export interface LibraryPreferences {
   readonly status?: string;
   readonly statuses?: readonly string[];
   readonly categoryId: number | null;
+  readonly hiddenCategoryIds: readonly number[];
   readonly sort: LibrarySort;
 }
 
 export const DEFAULT_LIBRARY_PREFERENCES: LibraryPreferences = {
   categoryId: null,
+  hiddenCategoryIds: [],
   sort: { field: 'dateAdded', direction: 'desc' },
 };
 
@@ -53,6 +55,12 @@ function load(): LibraryPreferences {
         typeof parsed.categoryId === 'number' && Number.isSafeInteger(parsed.categoryId)
           ? parsed.categoryId
           : null,
+      hiddenCategoryIds: Array.isArray(parsed.hiddenCategoryIds)
+        ? parsed.hiddenCategoryIds.filter(
+            (value): value is number =>
+              typeof value === 'number' && Number.isSafeInteger(value),
+          )
+        : [],
       sort: { field, direction },
     };
   } catch {
@@ -89,6 +97,7 @@ export function updateLibraryPreferences(next: LibraryPreferences): void {
     status: next.status,
     statuses: next.statuses,
     categoryId: next.categoryId,
+    hiddenCategoryIds: [...next.hiddenCategoryIds],
     sort: next.sort,
   };
   persist();
