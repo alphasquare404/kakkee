@@ -7160,3 +7160,22 @@ button.manga-card-link {
     margin-left: auto;
   }
 }
+
+/* Portrait covers fill the frame; landscape covers stay fully fitted. */
+.manga-card-cover.is-portrait-fill .manga-card-image {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+}
+
+.manga-card-cover.is-portrait-fill .manga-card-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+}

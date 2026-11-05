@@ -60,14 +60,13 @@ When cards are selected:
 
 ### 5. Card artwork fitting
 
-The card cover keeps its 2:3 frame, but the artwork is now fitted inside it rather than enlarged to fill it.
+The card cover keeps its 2:3 frame.
 
-- Images are scaled down to fit within the cover without cropping.
-- Small images are not upscaled beyond their natural size.
-- Portrait and landscape images are centered in the cover.
-- Empty space around the image is intentional and comes from the card frame.
-- The image uses `width: auto`, `height: auto`, `max-width: 100%`, `max-height: 100%`, with `object-fit: contain` as the drawing fallback.
-- Orientation-specific classes and the previous full-height/full-width crop behavior were removed.
+- **Portrait artwork fills the frame.** It is scaled with `object-fit: cover` so the small empty bands around the image are removed. Small portrait images may be enlarged and edges may be cropped.
+- **Landscape artwork stays fitted.** It uses `object-fit: contain` with natural automatic height, so the full landscape image is visible without enlargement or cropping. The empty bands above and below are intentional.
+- Both orientations are centered.
+- Orientation is detected from `naturalWidth`/`naturalHeight` at image load.
+- The portrait fill uses an absolutely positioned image inside the cover so it fills the border box's content area.
 
 ### 6. Merged badges
 

@@ -1,5 +1,6 @@
 import {
   useRef,
+  useState,
   type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
@@ -41,6 +42,7 @@ export function MangaCard({
   showProgress = true,
 }: MangaCardProps) {
   const thumbnail = useImageResource(resources, manga.thumbnailUrl);
+  const [portrait, setPortrait] = useState(false);
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('library', { pathname, search });
   const progress = manga.lastReadChapter;
@@ -136,7 +138,7 @@ export function MangaCard({
 
   const content = (
     <article className="manga-card">
-      <div className="manga-card-cover">
+      <div className={`manga-card-cover${portrait ? ' is-portrait-fill' : ''}`}>
         {thumbnail.objectUrl ? (
           <img
             className="manga-card-image"
@@ -144,6 +146,11 @@ export function MangaCard({
             alt=""
             loading="lazy"
             decoding="async"
+            onLoad={(event) =>
+              setPortrait(
+                event.currentTarget.naturalHeight > event.currentTarget.naturalWidth,
+              )
+            }
           />
         ) : (
           <span className="manga-card-initial" aria-hidden="true">
