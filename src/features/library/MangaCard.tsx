@@ -28,7 +28,6 @@ export interface MangaCardProps {
     trigger: HTMLElement,
   ) => void;
   readonly showBadges?: boolean;
-  readonly showProgress?: boolean;
 }
 
 export function MangaCard({
@@ -39,7 +38,6 @@ export function MangaCard({
   onToggle,
   onContextMenu,
   showBadges = true,
-  showProgress = true,
 }: MangaCardProps) {
   const thumbnail = useImageResource(resources, manga.thumbnailUrl);
   const [portrait, setPortrait] = useState(false);
@@ -160,15 +158,6 @@ export function MangaCard({
         {selectable ? (
           <span className="manga-card-select" aria-hidden="true">
             {selected ? '✓' : ''}
-          </span>
-        ) : null}
-        {progress && showProgress ? (
-          <span
-            className="manga-card-progress"
-            title={`Continue reading ${progressLabel}`}
-          >
-            Continue {progress.chapterNumber ? `Ch. ${progress.chapterNumber}` : ''}
-            {progress.lastPageRead > 0 ? ` · p${progress.lastPageRead + 1}` : ''}
           </span>
         ) : null}
         {showBadges && (manga.unreadCount > 0 || manga.downloadCount > 0) ? (

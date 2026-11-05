@@ -348,11 +348,11 @@ describe('LibraryPage initial states', () => {
     renderLibrary(query);
 
     expect(document.querySelector('.manga-card-continue')).toBeNull();
+    expect(document.querySelector('.manga-card-progress')).toBeNull();
     expect(
-      await screen.findByText('Continue Ch. 10 · p5'),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole('link', { name: 'Alpha, manga details' }).getAttribute('title'),
+      (await screen.findByRole('link', { name: 'Alpha, manga details' })).getAttribute(
+        'title',
+      ),
     ).toBe('Continue reading Chapter 10 — page 5');
     fireEvent.contextMenu(
       screen.getByRole('link', { name: 'Alpha, manga details' }),

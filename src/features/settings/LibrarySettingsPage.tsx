@@ -17,8 +17,6 @@ registerMessages('id', {
   Cards: 'Kartu',
   'Show unread and download badges':
     'Tampilkan badge belum dibaca dan unduhan',
-  'Show reading progress on cards':
-    'Tampilkan progres bacaan pada kartu',
   Display: 'Tampilan',
   Grid: 'Grid',
   'Poster grid with authenticated thumbnails':
@@ -93,18 +91,6 @@ export function LibrarySettingsPage() {
                 onChange={(event) =>
                   updateAppPreferences({
                     libraryBadges: event.target.checked,
-                  })
-                }
-              />
-            </label>
-            <label className="settings-toggle">
-              <span>{t('Show reading progress on cards')}</span>
-              <input
-                type="checkbox"
-                checked={preferences.libraryContinue}
-                onChange={(event) =>
-                  updateAppPreferences({
-                    libraryContinue: event.target.checked,
                   })
                 }
               />

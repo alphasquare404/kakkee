@@ -30,7 +30,6 @@ describe('app preferences', () => {
       libraryDensity: 'comfortable',
       libraryView: 'grid',
       libraryBadges: true,
-      libraryContinue: true,
       accent: '#5b7cff',
       locale: 'en',
       downloadTarget: 'server',

@@ -45,6 +45,8 @@ The menu is portaled, viewport-clamped, focusable, supports Escape, outside clic
 
 The duplicate `Select` entry in Library More was removed. Selection now starts from the card context menu.
 
+The **Continue Ch.** progress chip was removed from the card. Continue reading now exists only as a context-menu action and as the card title tooltip. The now-unused **Show reading progress on cards** setting and its preference were removed as well.
+
 ### 4. Selection menu
 
 When cards are selected:
@@ -79,10 +81,10 @@ The card cover keeps its 2:3 frame.
 Unread and downloaded badges are one pill:
 
 - only unread: `12`
-- only downloaded: `Ã¢â€ â€œ1`
-- both: `12 Ã‚Â· Ã¢â€ â€œ1`
+- only downloaded: `ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Å“1`
+- both: `12 Ãƒâ€šÃ‚Â· ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬Å“1`
 - counts above 99 use `99+`
-- tooltip is combined, e.g. `12 unread chapters Ã‚Â· 1 downloaded chapters`
+- tooltip is combined, e.g. `12 unread chapters Ãƒâ€šÃ‚Â· 1 downloaded chapters`
 - visual numbers are `aria-hidden`; a single hidden label exposes the combined meaning
 
 ## Tests
@@ -117,8 +119,8 @@ npm run build           PASS
 Build after final changes:
 
 ```text
-main JS   650.60 kB (gzip 172.71 kB)
-CSS       105.42 kB (gzip  18.26 kB)
+main JS   650.35 kB (gzip 172.63 kB)
+CSS       105.09 kB (gzip  18.20 kB)
 precache   48 entries / ~1005 KiB
 ```
 
@@ -134,11 +136,11 @@ precache   48 entries / ~1005 KiB
 - `visual-audit/library-all-centered-phone.png`
 - `visual-audit/library-all-filter-phone.png`
 - `visual-audit/library-all-hidden-phone.png`
-- `visual-audit/library-selection-rail-final-phone.png`
+- `visual-audit/library-selection-rail-final-phone.png`\n- `visual-audit/library-no-continue-chip-phone.png`
 
 ## Remaining concerns
 
-1. The progress chip (`Continue Ch. Ã¢â‚¬Â¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
+1. The progress chip (`Continue Ch. ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
 2. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
 3. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
 4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.

@@ -1565,7 +1565,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   selectable={selectionMode}
                   selected={selectedIds.has(manga.id)}
                   showBadges={appPreferences.libraryBadges}
-                  showProgress={appPreferences.libraryContinue}
                   onToggle={(shiftKey) =>
                     toggleSelected(index, manga.id, shiftKey)
                   }

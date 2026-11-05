@@ -9,7 +9,6 @@ export interface AppPreferences {
   readonly libraryDensity: LibraryDensity;
   readonly libraryView: LibraryView;
   readonly libraryBadges: boolean;
-  readonly libraryContinue: boolean;
   readonly accent: string;
   readonly locale: Locale;
   readonly downloadTarget: DownloadTarget;
@@ -20,7 +19,6 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   libraryDensity: 'compact',
   libraryView: 'grid',
   libraryBadges: true,
-  libraryContinue: true,
   accent: '#5b7cff',
   locale: 'en',
   downloadTarget: 'server',
@@ -47,7 +45,6 @@ function load(): AppPreferences {
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
       libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
       libraryBadges: parsed.libraryBadges !== false,
-      libraryContinue: parsed.libraryContinue !== false,
       accent:
         typeof parsed.accent === 'string' &&
         /^#[0-9a-f]{6}$/i.test(parsed.accent)
@@ -107,10 +104,6 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
       typeof patch.libraryBadges === 'boolean'
         ? patch.libraryBadges
         : state.libraryBadges,
-    libraryContinue:
-      typeof patch.libraryContinue === 'boolean'
-        ? patch.libraryContinue
-        : state.libraryContinue,
     accent:
       typeof patch.accent === 'string' && /^#[0-9a-f]{6}$/i.test(patch.accent)
         ? patch.accent
