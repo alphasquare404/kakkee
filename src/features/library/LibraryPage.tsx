@@ -1409,89 +1409,92 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
           aria-label="Bulk manga actions"
           aria-busy={bulkBusy}
         >
-          <span className="library-bulk-status" role="status">
-            {bulkBusy ? 'Working…' : ''}
-          </span>
-
-          {confirmRemove ? (
-            <div className="library-selection-confirm">
-              <span>Remove {selectedIds.size} manga from library?</span>
-              <button
-                className="library-action is-danger"
-                type="button"
-                disabled={bulkBusy}
-                onClick={() => void removeSelected()}
-              >
-                Confirm
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                onClick={() => setConfirmRemove(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <>
-              <label className="library-bulk-category">
-                <span className="sr-only">Add selected manga to category</span>
-                <select
-                  value={categoryChoice}
-                  onChange={(event) => setCategoryChoice(event.target.value)}
-                >
-                  <option value="">Add to category…</option>
-                  {categories.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                className="library-action"
-                type="button"
-                disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
-                onClick={() => void applyCategory()}
-              >
-                Apply category
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
-                onClick={() => void removeCategory()}
-              >
-                Remove from category
-              </button>
-              <button
-                className="library-action is-danger"
-                type="button"
-                disabled={bulkBusy || selectedIds.size === 0}
-                onClick={() => setConfirmRemove(true)}
-              >
-                Remove from library
-              </button>
-              <button
-                className="library-selection-clear"
-                type="button"
-                aria-label="Clear selection"
-                title="Clear selection"
-                onClick={() => {
-                  clearSelection();
-                  setSelectionMode(false);
-                }}
-              >
-                <IconClose />
-              </button>
-            </>
-          )}
-
-          {bulkError ? (
-            <span className="library-selection-error" role="alert">
-              Bulk action failed.
+          <div className="library-selection-rail">
+            <span className="library-bulk-status" role="status">
+              {bulkBusy ? 'Working…' : ''}
             </span>
-          ) : null}
+
+            {confirmRemove ? (
+              <div className="library-selection-confirm">
+                <span>Remove {selectedIds.size} manga from library?</span>
+                <button
+                  className="library-action is-danger"
+                  type="button"
+                  disabled={bulkBusy}
+                  onClick={() => void removeSelected()}
+                >
+                  Confirm
+                </button>
+                <button
+                  className="library-action"
+                  type="button"
+                  onClick={() => setConfirmRemove(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <>
+                <label className="library-bulk-category">
+                  <span className="sr-only">Add selected manga to category</span>
+                  <select
+                    value={categoryChoice}
+                    onChange={(event) => setCategoryChoice(event.target.value)}
+                  >
+                    <option value="">Add to category…</option>
+                    {categories.categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="library-action"
+                  type="button"
+                  disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
+                  onClick={() => void applyCategory()}
+                >
+                  Apply category
+                </button>
+                <button
+                  className="library-action"
+                  type="button"
+                  disabled={!categoryChoice || bulkBusy || selectedIds.size === 0}
+                  onClick={() => void removeCategory()}
+                >
+                  Remove from category
+                </button>
+                <button
+                  className="library-action is-danger"
+                  type="button"
+                  disabled={bulkBusy || selectedIds.size === 0}
+                  onClick={() => setConfirmRemove(true)}
+                >
+                  Remove from library
+                </button>
+              </>
+            )}
+
+            {bulkError ? (
+              <span className="library-selection-error" role="alert">
+                Bulk action failed.
+              </span>
+            ) : null}
+          </div>
+
+          <button
+            className="library-selection-clear"
+            type="button"
+            aria-label="Clear selection"
+            title="Clear selection"
+            onClick={() => {
+              clearSelection();
+              setSelectionMode(false);
+            }}
+          >
+            <IconClose />
+          </button>
         </div>
       ) : null}
 

@@ -58,7 +58,11 @@ When cards are selected:
 - Clear is now an **X** icon with `aria-label="Clear selection"` and `title`
 - X clears the selection and exits selection mode
 - category assignment, remove-from-category, remove-from-library confirmation and action status remain
-- the bar wraps on phone instead of clipping actions horizontally
+- category select, Apply category, Remove from category and Remove from library sit in one horizontal scroll rail
+- the rail does not wrap; on narrow screens it scrolls horizontally
+- **X stays outside the rail**, fixed on the right, but remains on the same row as the rail
+- the selection bar has a 12px gap below the category tabs
+- the rail uses a small right-edge fade to show that more controls continue off-screen
 
 ### 5. Card artwork fitting
 
@@ -75,10 +79,10 @@ The card cover keeps its 2:3 frame.
 Unread and downloaded badges are one pill:
 
 - only unread: `12`
-- only downloaded: `â†“1`
-- both: `12 Â· â†“1`
+- only downloaded: `Ã¢â€ â€œ1`
+- both: `12 Ã‚Â· Ã¢â€ â€œ1`
 - counts above 99 use `99+`
-- tooltip is combined, e.g. `12 unread chapters Â· 1 downloaded chapters`
+- tooltip is combined, e.g. `12 unread chapters Ã‚Â· 1 downloaded chapters`
 - visual numbers are `aria-hidden`; a single hidden label exposes the combined meaning
 
 ## Tests
@@ -113,8 +117,8 @@ npm run build           PASS
 Build after final changes:
 
 ```text
-main JS   650.54 kB (gzip 172.71 kB)
-CSS       104.50 kB (gzip  18.17 kB)
+main JS   650.60 kB (gzip 172.71 kB)
+CSS       105.42 kB (gzip  18.26 kB)
 precache   48 entries / ~1005 KiB
 ```
 
@@ -130,10 +134,11 @@ precache   48 entries / ~1005 KiB
 - `visual-audit/library-all-centered-phone.png`
 - `visual-audit/library-all-filter-phone.png`
 - `visual-audit/library-all-hidden-phone.png`
+- `visual-audit/library-selection-rail-final-phone.png`
 
 ## Remaining concerns
 
-1. The progress chip (`Continue Ch. â€¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
+1. The progress chip (`Continue Ch. Ã¢â‚¬Â¦`) remains as a non-interactive status overlay. The card button and footer CTA are gone; the context menu owns the action.
 2. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
 3. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
 4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.

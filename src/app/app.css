@@ -7179,3 +7179,67 @@ button.manga-card-link {
   max-height: none;
   object-fit: cover;
 }
+
+/* Selection controls scroll in one rail; Clear stays outside on the right. */
+.library-selection-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  align-items: center;
+  overflow: visible;
+  mask-image: none;
+}
+
+.library-selection-bar > .library-selection-rail {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.library-selection-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.library-selection-rail > * {
+  flex: 0 0 auto;
+}
+
+.library-selection-clear {
+  margin-left: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+@media (max-width: 720px) {
+  .library-selection-bar {
+    flex-wrap: nowrap;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .library-selection-clear {
+    margin-left: 0;
+  }
+}
+
+.library-selection-bar {
+  margin-top: 0.75rem;
+}
+
+.library-selection-bar > .library-selection-rail {
+  mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(100% - 0.75rem),
+    transparent 100%
+  );
+}
+
+.library-selection-clear {
+  color: var(--text);
+}

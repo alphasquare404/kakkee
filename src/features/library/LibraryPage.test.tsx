@@ -244,7 +244,10 @@ describe('LibraryPage initial states', () => {
       screen.getByRole('button', { name: 'Alpha, selected' }),
     ).toBeTruthy();
     expect(screen.getByRole('toolbar', { name: 'Bulk manga actions' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Clear selection' })).toBeTruthy();
+    const rail = document.querySelector('.library-selection-rail');
+    const clear = screen.getByRole('button', { name: 'Clear selection' });
+    expect(rail).toBeTruthy();
+    expect(rail?.contains(clear)).toBe(false);
     expect(screen.queryByRole('button', { name: 'Mark read' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Mark unread' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Download' })).toBeNull();
