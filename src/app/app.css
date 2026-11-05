@@ -1228,7 +1228,7 @@ h2 {
 }
 
 .category-tab:first-child {
-  padding-left: 0;
+  padding-left: var(--sp-3);
 }
 
 .category-tab:last-child {
@@ -1252,7 +1252,7 @@ h2 {
 }
 
 .category-tab:first-child::after {
-  left: 0;
+  left: var(--sp-3);
 }
 
 .category-tab:hover {

@@ -19,6 +19,7 @@ describe('library preferences', () => {
       statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
       hiddenCategoryIds: [3, 4],
+      showAllCategory: false,
       sort: { field: 'title', direction: 'asc' },
     });
 
@@ -27,10 +28,14 @@ describe('library preferences', () => {
       statuses: ['COMPLETED', 'ON_HIATUS'],
       categoryId: 7,
       hiddenCategoryIds: [3, 4],
+      showAllCategory: false,
       sort: { field: 'title', direction: 'asc' },
     });
     expect(
       window.localStorage.getItem('suwayomi.library-preferences.v1'),
     ).toContain('"categoryId":7');
+    expect(
+      window.localStorage.getItem('suwayomi.library-preferences.v1'),
+    ).toContain('"showAllCategory":false');
   });
 });

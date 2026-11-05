@@ -1,4 +1,4 @@
-﻿# Library interaction revision
+# Library interaction revision
 
 **Date:** 2026-11-05  
 **Scope:** Library category tabs, per-category visibility, manga-card context menu, selection menu, card artwork, merged badges.  
@@ -10,14 +10,16 @@
 
 - Category labels and counts now use a centered inline-flex layout.
 - Counts render in a compact pill, vertically centered with the label.
+- The first tab no longer has asymmetric left padding; **All 35** is centered inside its own tab instead of sitting against the left edge.
 - Hidden category preferences do not affect the All count.
 
 ### 2. Per-category visibility
 
 - The Library filter drawer now starts with **Show categories**.
+- **All** has its own checkbox. Hiding it removes the All tab and selects the first visible category; **Show all** restores it.
 - Each category has a checkbox controlling whether its tab appears in the Library strip.
-- Hidden category IDs persist in `suwayomi.library-preferences.v1`.
-- **Show all** appears when at least one category is hidden.
+- Hidden category IDs and the All-tab preference persist in `suwayomi.library-preferences.v1`.
+- **Show all** appears when at least one category or All is hidden.
 - If the currently selected category is hidden, the Library returns to All.
 - This controls category-strip visibility. It does not replace the existing single-category tab filter.
 
@@ -95,7 +97,7 @@ Added/updated Library tests for:
 - category visibility checkbox hiding a tab and Show all restoring it;
 - persistent hidden category IDs in preferences.
 
-Final suite: **425 passed, 7 skipped**.
+Final suite: **426 passed, 7 skipped**.
 
 ## Validation
 
@@ -104,15 +106,15 @@ npm run codegen:check   PASS
 npm run lint            PASS
 npm run typecheck       PASS
 npm run test            80 files passed, 3 skipped
-                        425 tests passed, 7 skipped
+                        426 tests passed, 7 skipped
 npm run build           PASS
 ```
 
 Build after final changes:
 
 ```text
-main JS   649.85 kB (gzip 172.57 kB)
-CSS       104.44 kB (gzip  18.16 kB)
+main JS   650.54 kB (gzip 172.71 kB)
+CSS       104.50 kB (gzip  18.17 kB)
 precache   48 entries / ~1005 KiB
 ```
 
@@ -125,6 +127,9 @@ precache   48 entries / ~1005 KiB
 - `visual-audit/library-revision-final-1280.png`
 - `visual-audit/library-final-context-phone.png`
 - `visual-audit/library-fit-phone.png`
+- `visual-audit/library-all-centered-phone.png`
+- `visual-audit/library-all-filter-phone.png`
+- `visual-audit/library-all-hidden-phone.png`
 
 ## Remaining concerns
 
@@ -132,5 +137,3 @@ precache   48 entries / ~1005 KiB
 2. `Show categories` controls category-strip visibility, not a multi-category content filter. Server-side filtering still supports the existing single-category selection through the category tabs.
 3. Right-click/long-press is the requested primary discovery path. Keyboard and screen-reader support exists through `aria-haspopup`, `Shift+F10`, and the context-menu key, but there is no permanent visible overflow button on the card.
 4. Some server thumbnails loaded slowly during runtime capture; this is separate from the fitted-artwork rule.
-
-

@@ -305,6 +305,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [hiddenCategoryIds, setHiddenCategoryIds] = useState<ReadonlySet<number>>(
     () => new Set(getLibraryPreferences().hiddenCategoryIds),
   );
+  const [showAllCategory, setShowAllCategory] = useState(
+    () => getLibraryPreferences().showAllCategory,
+  );
   const [contextMenu, setContextMenu] = useState<{
     readonly manga: LibraryManga;
     readonly index: number;
@@ -511,6 +514,17 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const visibleCategories = categories.categories.filter(
     (category) => !hiddenCategoryIds.has(category.id),
   );
+  const firstVisibleCategoryId = visibleCategories[0]?.id ?? null;
+
+  useEffect(() => {
+    if (
+      !showAllCategory &&
+      library.categoryId === null &&
+      firstVisibleCategoryId !== null
+    ) {
+      void controller.setCategory(firstVisibleCategoryId);
+    }
+  }, [controller, firstVisibleCategoryId, library.categoryId, showAllCategory]);
 
   const toggleFuzzy = () => {
     const next = !fuzzy;
@@ -532,6 +546,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       statuses: library.filter.statuses,
       categoryId: library.categoryId,
       hiddenCategoryIds: [...hiddenCategoryIds],
+      showAllCategory,
       sort: library.sort,
     });
   };
@@ -574,12 +589,36 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
+  const toggleAllCategory = () => {
+    const next = !showAllCategory;
+
+    if (
+      !next &&
+      library.categoryId === null &&
+      visibleCategories.length === 0
+    ) {
+      return;
+    }
+
+    setShowAllCategory(next);
+    updateLibraryPreferences({
+      ...getLibraryPreferences(),
+      showAllCategory: next,
+    });
+
+    if (!next && library.categoryId === null && visibleCategories[0]) {
+      handleCategory(visibleCategories[0]);
+    }
+  };
+
   const showAllCategories = () => {
     const next = new Set<number>();
     setHiddenCategoryIds(next);
+    setShowAllCategory(true);
     updateLibraryPreferences({
       ...getLibraryPreferences(),
       hiddenCategoryIds: [],
+      showAllCategory: true,
     });
   };
 
@@ -1168,6 +1207,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         onSelectSource={selectSource}
         categories={categories.categories}
         hiddenCategoryIds={hiddenCategoryIds}
+        showAllCategory={showAllCategory}
+        onToggleAllCategory={toggleAllCategory}
         onToggleCategoryVisibility={toggleCategoryVisibility}
         onShowAllCategories={showAllCategories}
         onReset={resetFilterState}
@@ -1305,18 +1346,20 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
       <nav className="category-nav" aria-label="Library categories">
         <div className="category-tabs">
-          <button
-            className="category-tab"
-            type="button"
-            aria-pressed={library.categoryId === null}
-            aria-label="All"
-            onClick={() => handleCategory(null)}
-          >
-            All
-            <span className="category-tab-count">
-              {library.totalCount.toLocaleString('en-US')}
-            </span>
-          </button>
+          {showAllCategory ? (
+            <button
+              className="category-tab"
+              type="button"
+              aria-pressed={library.categoryId === null}
+              aria-label="All"
+              onClick={() => handleCategory(null)}
+            >
+              All
+              <span className="category-tab-count">
+                {library.totalCount.toLocaleString('en-US')}
+              </span>
+            </button>
+          ) : null}
           {visibleCategories.map((category) => (
             <button
               className="category-tab"

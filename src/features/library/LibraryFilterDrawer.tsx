@@ -23,6 +23,8 @@ export interface LibraryFilterDrawerProps {
   readonly onSelectSource: (value: string) => void;
   readonly categories: readonly LibraryCategory[];
   readonly hiddenCategoryIds: ReadonlySet<number>;
+  readonly showAllCategory: boolean;
+  readonly onToggleAllCategory: () => void;
   readonly onToggleCategoryVisibility: (categoryId: number) => void;
   readonly onShowAllCategories: () => void;
   readonly onReset: () => void;
@@ -44,6 +46,8 @@ export function LibraryFilterDrawer({
   onSelectSource,
   categories,
   hiddenCategoryIds,
+  showAllCategory,
+  onToggleAllCategory,
   onToggleCategoryVisibility,
   onShowAllCategories,
   onReset,
@@ -78,7 +82,7 @@ export function LibraryFilterDrawer({
             <h3 className="filter-section-heading" id="library-filter-categories">
               {t('Show categories')}
             </h3>
-            {hiddenCategoryIds.size > 0 ? (
+            {hiddenCategoryIds.size > 0 || !showAllCategory ? (
               <button
                 className="library-action"
                 type="button"
@@ -92,6 +96,14 @@ export function LibraryFilterDrawer({
             {t('Choose which categories appear in the Library category strip.')}
           </p>
           <div className="filter-section-content filter-checkbox-list">
+            <label className="filter-checkbox">
+              <input
+                type="checkbox"
+                checked={showAllCategory}
+                onChange={onToggleAllCategory}
+              />
+              <span>{t('All')}</span>
+            </label>
             {categories.map((category) => (
               <label className="filter-checkbox" key={category.id}>
                 <input

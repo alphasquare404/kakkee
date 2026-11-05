@@ -402,6 +402,28 @@ describe('LibraryPage initial states', () => {
     expect(screen.getByRole('button', { name: 'Action' })).toBeTruthy();
   });
 
+  it('hides and restores the All category tab from the filter drawer', async () => {
+    const query = queryClient(async ({ query: document }) => {
+      if (document === LibraryCategoriesDocument) {
+        return data({ __typename: 'Query', categories: categoryData() });
+      }
+
+      return libraryQuery(page([manga(1, 'Alpha')]));
+    });
+    const user = userEvent.setup();
+    renderLibrary(query);
+    await screen.findByRole('heading', { name: 'Alpha' });
+
+    await user.click(screen.getByRole('button', { name: 'Filter' }));
+    await user.click(screen.getByRole('checkbox', { name: 'All' }));
+
+    expect(screen.queryByRole('button', { name: 'All' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Default' })).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: 'Show all' }));
+    expect(screen.getByRole('button', { name: 'All' })).toBeTruthy();
+  });
+
   it('keeps refine controls collapsed so the grid leads the page', async () => {
     const query = queryClient(async ({ query: document }) => {
       if (document === LibraryCategoriesDocument) {
