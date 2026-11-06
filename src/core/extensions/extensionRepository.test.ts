@@ -31,6 +31,11 @@ describe('createExtensionRepository', () => {
           __typename: 'ExtensionNodeList',
           totalCount: 1,
           nodes: [extension],
+          pageInfo: {
+            __typename: 'PageInfo',
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
     }));
@@ -84,12 +89,65 @@ describe('createExtensionRepository', () => {
     ]);
 
     expect(query).toHaveBeenCalledWith(
-      expect.objectContaining({ query: ExtensionsCatalogDocument }),
+      expect.objectContaining({
+        query: ExtensionsCatalogDocument,
+        variables: { first: 500 },
+      }),
     );
     expect(mutate).toHaveBeenNthCalledWith(2, {
       mutation: UpdateExtensionsDocument,
       variables: { input: { ids: ['example'], patch: { install: true } } },
     });
+  });
+
+  it('reads every extension page', async () => {
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: {
+          extensions: {
+            __typename: 'ExtensionNodeList',
+            totalCount: 2,
+            nodes: [extension],
+            pageInfo: {
+              __typename: 'PageInfo',
+              endCursor: 'next',
+              hasNextPage: true,
+            },
+          },
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          extensions: {
+            __typename: 'ExtensionNodeList',
+            totalCount: 2,
+            nodes: [
+              {
+                ...extension,
+                pkgName: 'second',
+                name: 'Second',
+              },
+            ],
+            pageInfo: {
+              __typename: 'PageInfo',
+              endCursor: null,
+              hasNextPage: false,
+            },
+          },
+        },
+      });
+    const repository = createExtensionRepository({
+      getClient: () => ({ query } as unknown as ApolloClient),
+    });
+
+    await expect(repository.getExtensions()).resolves.toHaveLength(2);
+    expect(query).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        variables: { first: 500, after: 'next' },
+      }),
+    );
   });
 
   it('adds and removes extension stores', async () => {

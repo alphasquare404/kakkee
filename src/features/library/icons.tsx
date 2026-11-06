@@ -24,6 +24,26 @@ function IconBase({ children, ...props }: SVGProps<SVGSVGElement> & { children: 
   );
 }
 
+export function IconExtensions(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      {...props}
+    >
+      <path d="M7.5 4.2a2 2 0 0 1 3.8-.7c.2.4.1.9.4 1.2.3.3.7.1 1.1.1h1.5a1.6 1.6 0 0 1 1.6 1.6v2.1c0 .4-.2.8-.5 1-.4.3-.9.1-1.3.4a2 2 0 0 0 0 3.2c.4.3.9.1 1.3.4.3.2.5.6.5 1v1.6a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 16.2v-2.1c0-.4.2-.8.5-1 .4-.3.9-.1 1.3-.4a2 2 0 0 0 0-3.2c-.4-.3-.9-.1-1.3-.4a1.4 1.4 0 0 1-.5-1V6.4a1.6 1.6 0 0 1 1.6-1.6h1.5c.4 0 .8.2 1-.1.3-.3.2-.8.4-1.2Z" />
+    </svg>
+  );
+}
+
 export function IconSearch(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

@@ -1,4 +1,4 @@
-query GlobalSearch($search: String!) {
+﻿query GlobalSearch($search: String!) {
   mangas(
     filter: { title: { includesInsensitive: $search } }
     order: [{ by: TITLE, byType: ASC }]
@@ -15,15 +15,6 @@ query GlobalSearch($search: String!) {
         id
         displayName
       }
-    }
-  }
-  sources(filter: { name: { includesInsensitive: $search } }, first: 20) {
-    totalCount
-    nodes {
-      id
-      name
-      displayName
-      lang
     }
   }
 }

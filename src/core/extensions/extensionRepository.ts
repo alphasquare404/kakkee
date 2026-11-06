@@ -8,6 +8,7 @@ import {
   RemoveExtensionStoreDocument,
   UpdateExtensionsDocument,
   type ExtensionsCatalogQuery,
+  type ExtensionsCatalogQueryVariables,
   type FetchExtensionsMutation,
   type UpdateExtensionPatchInput,
 } from '../graphql/generated/graphql';
@@ -43,21 +44,47 @@ export interface ExtensionRepositoryOptions {
   readonly fetchImpl?: typeof fetch;
 }
 
+const EXTENSION_PAGE_SIZE = 500;
+const EXTENSION_MAX_PAGES = 20;
+
 export function createExtensionRepository(
   options: ExtensionRepositoryOptions,
 ): ExtensionRepository {
   return {
     async getExtensions() {
-      const result = await options.getClient().query({
-        query: ExtensionsCatalogDocument,
-        fetchPolicy: 'network-only',
-      });
+      const byPkg = new Map<string, Extension>();
+      let after: string | null = null;
 
-      if (!result.data?.extensions) {
-        throw new Error('Extensions are unavailable.');
+      for (let page = 0; page < EXTENSION_MAX_PAGES; page += 1) {
+        const variables: ExtensionsCatalogQueryVariables = {
+          first: EXTENSION_PAGE_SIZE,
+          ...(after ? { after } : {}),
+        };
+        const result = await options.getClient().query({
+          query: ExtensionsCatalogDocument,
+          variables,
+          fetchPolicy: 'network-only',
+        });
+        const extensions = result.data?.extensions;
+
+        if (!extensions) {
+          throw new Error('Extensions are unavailable.');
+        }
+
+        for (const extension of extensions.nodes) {
+          byPkg.set(extension.pkgName, extension);
+        }
+
+        const pageInfo = extensions.pageInfo;
+
+        if (!pageInfo?.hasNextPage || !pageInfo.endCursor) {
+          break;
+        }
+
+        after = pageInfo.endCursor;
       }
 
-      return result.data.extensions.nodes;
+      return [...byPkg.values()];
     },
     async refresh() {
       const result = await options.getClient().mutate({

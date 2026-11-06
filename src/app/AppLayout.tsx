@@ -90,22 +90,7 @@ function DownloadsIcon() {
   );
 }
 
-function ExtensionsIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
-      <path d="M7.5 4.2a2 2 0 0 1 3.8-.7c.2.4.1.9.4 1.2.3.3.7.1 1.1.1h1.5a1.6 1.6 0 0 1 1.6 1.6v2.1c0 .4-.2.8-.5 1-.4.3-.9.1-1.3.4a2 2 0 0 0 0 3.2c.4.3.9.1 1.3.4.3.2.5.6.5 1v1.6a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 16.2v-2.1c0-.4.2-.8.5-1 .4-.3.9-.1 1.3-.4a2 2 0 0 0 0-3.2c-.4-.3-.9-.1-1.3-.4a1.4 1.4 0 0 1-.5-1V6.4a1.6 1.6 0 0 1 1.6-1.6h1.5c.4 0 .8.2 1-.1.3-.3.2-.8.4-1.2Z" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.2" />
-    </svg>
-  );
-}
 
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
-      <circle cx="8.8" cy="8.8" r="5.2" stroke="currentColor" strokeWidth="1.3" />
-      <path d="m12.7 12.7 3.2 3.2" stroke="currentColor" strokeLinecap="round" strokeWidth="1.3" />
-    </svg>
-  );
-}
 
 function SettingsIcon() {
   return (
@@ -135,9 +120,18 @@ const NAV_ITEMS: ReadonlyArray<{
 }> = [
   { to: '/library', labelKey: 'nav.library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
   { to: '/updates', labelKey: 'nav.updates', icon: ReadingIcon, mobile: true, match: (path: string) => path === '/updates' },
-  { to: '/browse', labelKey: 'nav.browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' || path.startsWith('/browse/') },
-  { to: '/search', labelKey: 'nav.search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
-  { to: '/extensions', labelKey: 'nav.extensions', icon: ExtensionsIcon, mobile: true, match: (path: string) => path === '/extensions' || path.startsWith('/extensions/') },
+  {
+    to: '/browse',
+    labelKey: 'nav.browse',
+    icon: BrowseIcon,
+    mobile: true,
+    match: (path: string) =>
+      path === '/browse' ||
+      path.startsWith('/browse/') ||
+      path === '/search' ||
+      path === '/extensions' ||
+      path.startsWith('/extensions/'),
+  },
   { to: '/categories', labelKey: 'nav.categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
   { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
   { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
@@ -148,7 +142,6 @@ const MOBILE_PRIMARY_ROUTES = new Set([
   '/library',
   '/updates',
   '/browse',
-  '/search',
 ]);
 
 export function AppLayout() {
@@ -228,13 +221,13 @@ export function AppLayout() {
   const originSectionPath: Partial<Record<string, string>> = {
     library: '/library',
     browse: '/browse',
-    search: '/search',
+    search: '/browse',
     updates: '/updates',
     history: '/history',
     downloads: '/downloads',
     categories: '/categories',
     settings: '/settings',
-    extensions: '/extensions',
+    extensions: '/browse',
   };
   const isItemActive = (item: (typeof NAV_ITEMS)[number]) =>
     mangaPath

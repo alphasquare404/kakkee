@@ -4,7 +4,7 @@ import {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -27,33 +27,27 @@ import {
   languageLabel,
   languageName,
   languageSummary,
-  sourceSearchText,
   type SourceGroup,
 } from './sourceDirectory';
 import {
   IconChevron,
   IconClose,
-  IconFilter,
+  IconExtensions,
   IconPin,
   IconSearch,
 } from '../library/icons';
 
 registerMessages('id', {
   Browse: 'Jelajah',
-  Sources: 'Sumber',
-  'Browse and search manga from available sources':
-    'Jelajah dan cari manga dari sumber yang tersedia',
-  'Search sources...': 'Cari sumber...',
+  'Search manga and browse sources installed on your server':
+    'Cari manga dan jelajahi sumber yang terpasang di server Anda',
+  'Search manga...': 'Cari manga...',
+  'Search manga': 'Cari manga',
   'All languages': 'Semua bahasa',
   'NSFW: All': 'NSFW: Semua',
   'NSFW: Hidden': 'NSFW: Disembunyikan',
   'Sort: Name': 'Urutkan: Nama',
   'Sort: Pinned first': 'Urutkan: Disematkan dulu',
-  'Sort: Recently used': 'Urutkan: Terakhir dipakai',
-  Filters: 'Filter',
-  'Preferred only': 'Hanya pilihan',
-  'Preferred languages': 'Bahasa pilihan',
-  'Pinned & recent': 'Disematkan & terakhir',
   'Pinned sources': 'Sumber disematkan',
   'All sources': 'Semua sumber',
   '{count} sources': '{count} sumber',
@@ -66,10 +60,11 @@ registerMessages('id', {
   'Show all {count} variants': 'Tampilkan semua {count} varian',
   'Show fewer variants': 'Tampilkan lebih sedikit',
   'No sources match': 'Tidak ada sumber yang cocok',
-  'Try a different search or filter.': 'Coba pencarian atau filter lain.',
-  'Clear search': 'Hapus pencarian',
+  'Try a different language or visibility filter.':
+    'Coba filter bahasa atau visibilitas lain.',
   'Clear filters': 'Hapus filter',
-  'Couldnâ€™t load sources': 'Tidak dapat memuat sumber',
+  'Clear manga search': 'Hapus pencarian manga',
+  'Couldn\'t load sources': 'Tidak dapat memuat sumber',
   'The source catalog could not be loaded from your server.':
     'Katalog sumber tidak dapat dimuat dari server Anda.',
   Retry: 'Coba lagi',
@@ -78,12 +73,10 @@ registerMessages('id', {
     'Pasang ekstensi sumber di Suwayomi Server untuk menjelajahi katalognya.',
   Pin: 'Sematkan',
   Unpin: 'Lepas sematan',
-  'Last used': 'Terakhir dipakai',
+  Extensions: 'Ekstensi',
 });
 
-
-
-type DirectorySort = 'name' | 'pinned' | 'recent';
+type DirectorySort = 'name' | 'pinned';
 
 interface LanguageFilter {
   readonly value: string;
@@ -145,14 +138,12 @@ function PinnedSourceCard({
   source,
   resources,
   pinned,
-  lastUsed,
   onPin,
   onOpen,
 }: {
   readonly source: CatalogSource;
   readonly resources: ConnectedContext['resources'];
   readonly pinned: boolean;
-  readonly lastUsed: boolean;
   readonly onPin: () => void;
   readonly onOpen: () => void;
 }) {
@@ -166,10 +157,7 @@ function PinnedSourceCard({
         <SourceIcon source={source} resources={resources} />
         <span className="source-entry-copy">
           <strong>{source.displayName}</strong>
-          <small>
-            {languageName(source.lang)}
-            {lastUsed ? ' · Last used' : ''}
-          </small>
+          <small>{languageName(source.lang)}</small>
         </span>
       </Link>
       <PinButton source={source} pinned={pinned} onToggle={onPin} />
@@ -181,14 +169,12 @@ function SourceRow({
   source,
   resources,
   pinned,
-  lastUsed,
   onPin,
   onOpen,
 }: {
   readonly source: CatalogSource;
   readonly resources: ConnectedContext['resources'];
   readonly pinned: boolean;
-  readonly lastUsed: boolean;
   readonly onPin: () => void;
   readonly onOpen: () => void;
 }) {
@@ -208,7 +194,6 @@ function SourceRow({
           <small>
             {languageName(source.lang)}
             {source.contentWarning === 'NSFW' ? ' · NSFW' : ''}
-            {lastUsed ? ' · Last used' : ''}
           </small>
         </span>
       </Link>
@@ -223,13 +208,11 @@ function SourceRow({
 function VariantChip({
   source,
   pinned,
-  lastUsed,
   onPin,
   onOpen,
 }: {
   readonly source: CatalogSource;
   readonly pinned: boolean;
-  readonly lastUsed: boolean;
   readonly onPin: () => void;
   readonly onOpen: () => void;
 }) {
@@ -246,7 +229,6 @@ function VariantChip({
       >
         <span>{languageLabel(source.lang)}</span>
         <small>{languageName(source.lang)}</small>
-        {lastUsed ? <em className="sr-only">Last used</em> : null}
       </Link>
       <PinButton source={source} pinned={pinned} onToggle={onPin} size="small" />
     </div>
@@ -257,7 +239,6 @@ function ProviderGroupRow({
   group,
   resources,
   pinnedIds,
-  lastSourceId,
   expanded,
   allVariants,
   onToggle,
@@ -268,7 +249,6 @@ function ProviderGroupRow({
   readonly group: SourceGroup;
   readonly resources: ConnectedContext['resources'];
   readonly pinnedIds: ReadonlySet<string>;
-  readonly lastSourceId: string | null;
   readonly expanded: boolean;
   readonly allVariants: boolean;
   readonly onToggle: () => void;
@@ -324,7 +304,6 @@ function ProviderGroupRow({
               key={source.id}
               source={source}
               pinned={pinnedIds.has(source.id)}
-              lastUsed={lastSourceId === source.id}
               onPin={() => onPin(source.id)}
               onOpen={() => onOpen(source.id)}
             />
@@ -360,10 +339,10 @@ export function BrowsePage() {
 
 function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const preferences = useSourcePreferences();
   const [language, setLanguage] = useState(preferences.language);
-  const [preferredOnly, setPreferredOnly] = useState(false);
-  const [search, setSearch] = useState('');
+  const [mangaQuery, setMangaQuery] = useState('');
   const [sort, setSort] = useState<DirectorySort>('name');
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
     new Set(),
@@ -402,7 +381,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const nsfwItems = preferences.showNsfw
     ? items
     : items.filter((source) => source.contentWarning !== 'NSFW');
-  const languageItems =
+  const filteredItems =
     language === 'all'
       ? nsfwItems
       : nsfwItems.filter((source) =>
@@ -410,15 +389,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
             ? source.lang.toLowerCase() === 'all'
             : source.lang.toLowerCase() === language,
         );
-  const preferredItems = preferredOnly
-    ? languageItems.filter((source) =>
-        preferences.preferredLanguages.includes(source.lang.toLowerCase()),
-      )
-    : languageItems;
-  const query = search.trim().toLowerCase();
-  const filteredItems = query
-    ? preferredItems.filter((source) => sourceSearchText(source).includes(query))
-    : preferredItems;
   const groups = groupSources(filteredItems);
   const entries = groups
     .map((group) =>
@@ -427,43 +397,22 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         : { kind: 'source' as const, source: group.sources[0] },
     )
     .sort((left, right) => {
-      const leftPinned =
-        left.kind === 'group'
-          ? left.group.sources.filter((source) => pinnedSet.has(source.id)).length
-          : pinnedSet.has(left.source.id)
-            ? 1
-            : 0;
-      const rightPinned =
-        right.kind === 'group'
-          ? right.group.sources.filter((source) => pinnedSet.has(source.id)).length
-          : pinnedSet.has(right.source.id)
-            ? 1
-            : 0;
-
-      if (sort === 'pinned' && leftPinned !== rightPinned) {
-        return rightPinned - leftPinned;
-      }
-
-      if (sort === 'recent') {
-        const leftRecent =
+      if (sort === 'pinned') {
+        const leftPinned =
           left.kind === 'group'
-            ? left.group.sources.some((source) => source.id === preferences.lastSourceId)
-              ? 1
-              : 0
-            : left.source.id === preferences.lastSourceId
+            ? left.group.sources.filter((source) => pinnedSet.has(source.id)).length
+            : pinnedSet.has(left.source.id)
               ? 1
               : 0;
-        const rightRecent =
+        const rightPinned =
           right.kind === 'group'
-            ? right.group.sources.some((source) => source.id === preferences.lastSourceId)
-              ? 1
-              : 0
-            : right.source.id === preferences.lastSourceId
+            ? right.group.sources.filter((source) => pinnedSet.has(source.id)).length
+            : pinnedSet.has(right.source.id)
               ? 1
               : 0;
 
-        if (leftRecent !== rightRecent) {
-          return rightRecent - leftRecent;
+        if (leftPinned !== rightPinned) {
+          return rightPinned - leftPinned;
         }
       }
 
@@ -474,14 +423,9 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
       return leftName.localeCompare(rightName);
     });
 
-  const quickIds = [
-    ...preferences.pinned,
-    ...(preferences.lastSourceId ? [preferences.lastSourceId] : []),
-  ];
-  const quickSources = [...new Set(quickIds)]
+  const pinnedSources = preferences.pinned
     .map((id) => nsfwItems.find((source) => source.id === id))
     .filter((source): source is CatalogSource => Boolean(source));
-  const showQuick = quickSources.length > 0;
 
   const toggleGroup = (key: string) => {
     setExpandedGroups((current) => {
@@ -512,41 +456,60 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   };
 
   const resetFilters = () => {
-    setSearch('');
     setLanguage('all');
-    setPreferredOnly(false);
     setSort('name');
   };
 
   return (
     <div className="app-shell page-shell browse-shell sources-shell">
       <PageHeader
-        title={t('Sources')}
-        subtitle={t('Browse and search manga from available sources')}
-      />
+        title={t('Browse')}
+        subtitle={t('Search manga and browse sources installed on your server')}
+      >
+        <Link
+          className="browse-extensions-button"
+          to="/extensions"
+          aria-label={t('Extensions')}
+          title={t('Extensions')}
+        >
+          <IconExtensions />
+        </Link>
+      </PageHeader>
 
       <div className="sources-toolbar">
-        <label className="sources-search">
+        <form
+          className="sources-search"
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const value = mangaQuery.trim();
+
+            if (value) {
+              navigate(`/search?q=${encodeURIComponent(value)}`);
+            }
+          }}
+        >
           <IconSearch />
-          <span className="sr-only">{t('Search sources...')}</span>
+          <span className="sr-only">{t('Search manga')}</span>
           <input
             type="search"
-            value={search}
-            placeholder={t('Search sources...')}
-            aria-label={t('Search sources...')}
-            onChange={(event) => setSearch(event.target.value)}
+            value={mangaQuery}
+            placeholder={t('Search manga...')}
+            aria-label={t('Search manga')}
+            enterKeyHint="search"
+            onChange={(event) => setMangaQuery(event.target.value)}
           />
-          {search ? (
+          {mangaQuery ? (
             <button
               type="button"
               className="sources-search-clear"
-              aria-label={t('Clear search')}
-              onClick={() => setSearch('')}
+              aria-label={t('Clear manga search')}
+              onClick={() => setMangaQuery('')}
             >
               <IconClose />
             </button>
           ) : null}
-        </label>
+        </form>
 
         <label className="sources-select">
           <span className="sr-only">{t('All languages')}</span>
@@ -583,49 +546,8 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
           >
             <option value="name">{t('Sort: Name')}</option>
             <option value="pinned">{t('Sort: Pinned first')}</option>
-            <option value="recent">{t('Sort: Recently used')}</option>
           </select>
         </label>
-
-        <details className="sources-advanced">
-          <summary>
-            <IconFilter />
-            {t('Filters')}
-            {preferredOnly ? <span>1</span> : null}
-          </summary>
-          <div className="sources-advanced-panel">
-            <button
-              className={preferredOnly ? 'is-active' : undefined}
-              type="button"
-              aria-pressed={preferredOnly}
-              disabled={preferences.preferredLanguages.length === 0}
-              onClick={() => setPreferredOnly((value) => !value)}
-            >
-              {t('Preferred only')}
-            </button>
-            <p>{t('Preferred languages')}</p>
-            <div className="sources-preferred-languages">
-              {languages
-                .filter((entry) => entry.value !== 'all' && entry.value !== 'multi')
-                .map((entry) => (
-                  <label key={entry.value}>
-                    <input
-                      type="checkbox"
-                      checked={preferences.preferredLanguages.includes(entry.value)}
-                      onChange={(event) => {
-                        const current = preferences.preferredLanguages;
-                        const next = event.target.checked
-                          ? [...current, entry.value]
-                          : current.filter((value) => value !== entry.value);
-                        updateSourcePreferences({ preferredLanguages: next });
-                      }}
-                    />
-                    {entry.label}
-                  </label>
-                ))}
-            </div>
-          </div>
-        </details>
       </div>
 
       {sources.isLoading && !sources.data ? (
@@ -638,7 +560,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
 
       {sources.error && !sources.data ? (
         <div className="library-state" role="alert">
-          <h1>{t('Couldnâ€™t load sources')}</h1>
+          <h1>{t("Couldn't load sources")}</h1>
           <p>{t('The source catalog could not be loaded from your server.')}</p>
           <button className="button" type="button" onClick={() => void controller.load()}>
             {t('Retry')}
@@ -653,26 +575,25 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         </div>
       ) : null}
 
-      {showQuick ? (
+      {pinnedSources.length > 0 ? (
         <section className="sources-section" aria-labelledby="pinned-sources-heading">
           <div className="sources-section-heading">
             <h2 id="pinned-sources-heading">
-              <IconPin /> {t('Pinned & recent')}
+              <IconPin /> {t('Pinned sources')}
             </h2>
             <span>
-              {quickSources.length === 1
+              {pinnedSources.length === 1
                 ? t('{count} source', { count: 1 })
-                : t('{count} sources', { count: quickSources.length })}
+                : t('{count} sources', { count: pinnedSources.length })}
             </span>
           </div>
           <div className="source-pinned-grid">
-            {quickSources.map((source) => (
+            {pinnedSources.map((source) => (
               <PinnedSourceCard
                 key={source.id}
                 source={source}
                 resources={context.resources}
-                pinned={pinnedSet.has(source.id)}
-                lastUsed={preferences.lastSourceId === source.id}
+                pinned
                 onPin={() => togglePinnedSource(source.id)}
                 onOpen={() => markSourceUsed(source.id)}
               />
@@ -706,7 +627,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         {filteredItems.length === 0 && items.length > 0 ? (
           <div className="source-empty">
             <h3>{t('No sources match')}</h3>
-            <p>{t('Try a different search or filter.')}</p>
+            <p>{t('Try a different language or visibility filter.')}</p>
             <button className="button button-secondary" type="button" onClick={resetFilters}>
               {t('Clear filters')}
             </button>
@@ -720,7 +641,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
                   group={entry.group}
                   resources={context.resources}
                   pinnedIds={pinnedSet}
-                  lastSourceId={preferences.lastSourceId}
                   expanded={expandedGroups.has(entry.group.key)}
                   allVariants={allVariants.has(entry.group.key)}
                   onToggle={() => toggleGroup(entry.group.key)}
@@ -734,7 +654,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
                   source={entry.source}
                   resources={context.resources}
                   pinned={pinnedSet.has(entry.source.id)}
-                  lastUsed={preferences.lastSourceId === entry.source.id}
                   onPin={() => togglePinnedSource(entry.source.id)}
                   onOpen={() => markSourceUsed(entry.source.id)}
                 />

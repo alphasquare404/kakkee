@@ -220,7 +220,7 @@ function renderPage(
 }
 
 describe('parity pages', () => {
-  it('searches manga and sources globally', async () => {
+  it('searches manga globally without a separate source or search tab', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === GlobalSearchDocument) {
         return {
@@ -260,14 +260,18 @@ describe('parity pages', () => {
     });
     renderPage('/search', query);
     const user = userEvent.setup();
-    const input = await screen.findByLabelText('Search all manga');
+    expect(await screen.findByRole('heading', { name: 'Browse' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Search' })).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Extensions' }).getAttribute('href'),
+    ).toBe('/extensions');
+    const input = await screen.findByRole('searchbox', { name: 'Search manga' });
     expect(screen.queryByRole('button', { name: 'Search installed sources' })).toBeNull();
 
     await user.type(input, 'alpha{Enter}');
 
-    expect(screen.getByRole('button', { name: 'Search installed sources' })).toBeTruthy();
     expect(await screen.findByText('Alpha')).toBeTruthy();
-    expect(screen.getByText('Example Source')).toBeTruthy();
+    expect(screen.queryByText('Example Source')).toBeNull();
     await user.click(input);
     expect(await screen.findByRole('option', { name: 'alpha' })).toBeTruthy();
   });
@@ -686,9 +690,10 @@ describe('parity pages', () => {
     });
     renderPage('/browse', query);
 
-    expect(await screen.findByRole('heading', { name: 'Sources' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Browse' })).toBeTruthy();
     expect(await screen.findByText('Actual Source')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Pin Actual Source' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Extensions' }).getAttribute('href')).toBe('/extensions');
   });
 
   it('groups provider variants, expands them, and keeps each source addressable', async () => {
@@ -749,6 +754,33 @@ describe('parity pages', () => {
       if (document === SourceCatalogDocument) {
         return { data };
       }
+
+      if (document === GlobalSearchDocument) {
+        return {
+          data: {
+            mangas: {
+              __typename: 'MangaNodeList',
+              totalCount: 1,
+              nodes: [
+                {
+                  __typename: 'MangaType',
+                  id: 1,
+                  title: 'Alpha',
+                  thumbnailUrl: null,
+                  inLibrary: true,
+                  unreadCount: 0,
+                },
+              ],
+            },
+            sources: {
+              __typename: 'SourceNodeList',
+              totalCount: 0,
+              nodes: [],
+            },
+          },
+        };
+      }
+
       throw new Error('unexpected query');
     });
     const user = userEvent.setup();
@@ -769,18 +801,18 @@ describe('parity pages', () => {
       screen.getByRole('link', { name: 'MangaDex (JA), Browse' }).getAttribute('href'),
     ).toBe('/browse/ja');
 
+    expect(screen.getByRole('searchbox', { name: 'Search manga' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'NSFW: Hidden' })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Sort sources' })).toBeTruthy();
+
     const pin = screen.getAllByRole('button', { name: 'Pin MangaDex (EN)' })[0];
     await user.click(pin);
+    expect(screen.getByRole('heading', { name: 'Pinned sources' })).toBeTruthy();
     expect(
       screen.getAllByRole('button', { name: 'Unpin MangaDex (EN)' }).length,
     ).toBeGreaterThan(0);
     await user.click(screen.getAllByRole('button', { name: 'Unpin MangaDex (EN)' })[0]);
-
-    const search = screen.getByRole('searchbox', { name: 'Search sources...' });
-    await user.type(search, 'zzzz-no-source');
-    expect(screen.getByText('No sources match')).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Clear search' }));
-    expect(await screen.findByRole('button', { name: 'MangaDex, 2 language variants' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Pinned sources' })).toBeNull();
 
     const languageFilter = screen.getByRole('combobox', {
       name: 'Filter sources by language',
@@ -793,6 +825,11 @@ describe('parity pages', () => {
     await user.click(screen.getByRole('button', { name: 'NSFW: Hidden' }));
     expect(await screen.findByText('Nsfw Source')).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'NSFW: All' }));
+
+    const mangaSearch = screen.getByRole('searchbox', { name: 'Search manga' });
+    await user.type(mangaSearch, 'alpha{Enter}');
+    expect(await screen.findByRole('heading', { name: 'Browse' })).toBeTruthy();
+    expect(await screen.findByText('Alpha')).toBeTruthy();
   });
 
   it('renders categories and their real manga counts', async () => {

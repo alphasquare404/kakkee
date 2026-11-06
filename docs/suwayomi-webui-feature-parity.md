@@ -182,11 +182,11 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Browse | Source catalog and language filter | `Implemented` | Yes | Grouped provider directory with local search, language/NSFW/preferred filters, pinned/recent sources, and source catalog navigation |
+| Browse | Source catalog, manga search, and extension access | `Implemented` | Yes | Grouped provider directory, pinned sources, language/NSFW/sort filters, manga search view, and top-right extension management |
 | Browse | Source manga browsing, search, filters, pagination | `Implemented` | Yes | Popular/Latest, search, pagination, and dynamic text/select/checkbox/tri-state/sort filters including one group level |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Implemented` | Metadata | Pin/last-used, multi-language preference list, saved language filter, and NSFW toggle |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Implemented` | Yes | Quick add/remove plus hide-in-library and duplicate-only filters |
-| Browse | Saved source searches and global search | `Implemented` | Client metadata + server | Per-source history, `/search`, and on-demand live search across installed sources |
+| Browse | Manga search | `Implemented` | Server | Search history and server-known manga search under the Browse title; no separate Search tab |
 | Browse | WebView/open-in-WebView | `Platform limitation` | Platform/server | Browser frontend cannot host the server-side WebView integration |
 | Extensions | Installed/available extensions, stores, language filters | `Implemented` | Yes | Catalog, installed/available sections, language filter, name/package search, updates-only filter, store add/remove |
 | Extensions | Install/uninstall/update, external JAR, obsolete handling | `Implemented` | Yes | Catalog install/uninstall/update, external JAR upload, and obsolete badge |

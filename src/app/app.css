@@ -8180,3 +8180,54 @@ button.manga-card-link {
     min-height: 2.5rem;
   }
 }
+
+.browse-extensions-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.browse-extensions-button:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+}
+
+.browse-extensions-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .browse-extensions-button {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+}
+
+.sources-shell .page-header {
+  position: relative;
+  align-items: flex-start;
+}
+
+.sources-shell .page-heading {
+  padding-right: 3.4rem;
+}
+
+.sources-shell .page-header-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.sources-search input::-webkit-search-cancel-button,
+.sources-search input::-webkit-search-decoration {
+  display: none;
+  -webkit-appearance: none;
+}

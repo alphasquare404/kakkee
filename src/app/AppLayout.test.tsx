@@ -59,10 +59,13 @@ describe('AppLayout navigation', () => {
     expect(activeLabels()).toContain('Browse');
   });
 
-  it('keeps Extensions active on an extension detail route', () => {
-    renderShell('/extensions/eu.kanade.tachiyomi.extension.all.example');
+  it('keeps Browse active on merged search and extension routes', () => {
+    renderShell('/search');
+    expect(activeLabels()).toContain('Browse');
 
-    expect(activeLabels()).toContain('Extensions');
+    cleanup();
+    renderShell('/extensions/eu.kanade.tachiyomi.extension.all.example');
+    expect(activeLabels()).toContain('Browse');
   });
 
   it('keeps Settings active on the About route', () => {
@@ -89,16 +92,18 @@ describe('AppLayout navigation', () => {
     expect(activeLabels()).toEqual([]);
   });
 
-  it('exposes Extensions in the mobile More menu', async () => {
+  it('does not expose Search or Extensions as separate navigation tabs', async () => {
     const user = userEvent.setup();
     renderShell('/library');
+
+    expect(screen.queryByRole('link', { name: 'Search' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Extensions' })).toBeNull();
 
     await user.click(screen.getByRole('button', { name: 'More' }));
 
     const menu = screen.getByRole('dialog', { name: 'More navigation' });
-    expect(
-      within(menu).getByRole('link', { name: 'Extensions' }).getAttribute('href'),
-    ).toBe('/extensions');
+    expect(within(menu).queryByRole('link', { name: 'Search' })).toBeNull();
+    expect(within(menu).queryByRole('link', { name: 'Extensions' })).toBeNull();
   });
 
   it('returns focus to More when the menu is closed with Escape', async () => {

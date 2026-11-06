@@ -5,7 +5,6 @@ import {
 } from '../graphql/generated/graphql';
 
 export type SearchManga = GlobalSearchQuery['mangas']['nodes'][number];
-export type SearchSource = GlobalSearchQuery['sources']['nodes'][number];
 export type SearchResult = GlobalSearchQuery;
 
 export interface SearchRepository {

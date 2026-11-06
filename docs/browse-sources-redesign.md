@@ -1,62 +1,110 @@
-# Browse Sources redesign
+# Browse sources + search + extensions
 
 **Date:** 2026-11-06  
-**Scope:** Sources section of Browse only. No Library, Reading, Manga Detail, Reader, Downloads, Extensions, Settings, or navigation redesign.
+**Scope:** Browse page and the source/extension/search surfaces reachable from it. No Library, Reading, Manga Detail, Reader, Downloads, or Settings redesign.
 
-## Root causes of the old UI
+## Final product decisions
 
-- 65 visible sources were rendered as nearly identical small cards in a four-column grid.
-- MangaDex alone had 61 visible language variants, producing dozens of repetitive rows.
-- Every row repeated language, content-warning, and `Latest` chips with equal visual weight.
-- Source icons were not used; every provider became a letter tile.
-- Pinning was a text button in the card corner and competed with the source name.
-- There was no local source search, no grouping, and no distinction between provider and variant.
-- The large source hero consumed the first viewport before users reached a source.
+- The navigation tab and page title are **Browse**.
+- There is no separate **Search** tab.
+- There is no separate **Extensions** tab.
+- Browse search is a **manga search**, not a source filter.
+- Submitting the Browse search opens the manga search view at `/search?q=…`; that view also has the Browse title and keeps Browse active.
+- Extensions are opened from the **Extensions icon button at the top-right of Browse**; the icon is the same puzzle icon previously used by the Extensions tab.
+- The Browse grid/grouping remains, but only **pinned** sources are promoted. Last-used/recent is no longer shown.
+- The separate Preferred filter and Preferred-languages editor were removed. Language filtering remains in the language select.
+- Extension loading now pages through the complete extension catalog instead of stopping at the first 500 rows.
 
-## Patterns considered
+## Source directory
 
-1. Keep the card grid but enlarge cards.
-2. Group all providers with expandable language variants.
-3. Hybrid pinned/recent strip plus a searchable directory.
-4. A table-like directory with inline language columns.
+### Pinned
 
-The chosen design is the **hybrid pinned/recent + grouped directory**. A larger card grid still repeats MangaDex 61 times. A table is too administrative. Provider groups are reliable because the server exposes the extension provider name in `SourceType.name`; variants remain independent sources with their own IDs.
-
-## Chosen interaction model
-
-### Pinned / recent
-
-- Pinned sources appear in a compact **Pinned & recent** section.
-- The last-used source is included even if it is not pinned.
-- Pinned cards show source icon, display name, language, and an icon-only pin control.
-- The directory still contains every source, so an unpinned variant is never hidden.
+- Only `preferences.pinned` sources appear under **Pinned sources**.
+- A source is pinned per source ID, including individual language variants inside a provider group.
+- Unpinning removes the pinned card immediately.
+- The directory still contains all sources.
 
 ### Provider groups
 
-- Variants are grouped by the exact server-provided `source.name` (provider identity), never by fuzzy string matching.
-- A group is used only when the current search/filter leaves at least two variants.
-- Group rows show provider icon, provider name, a common-language summary, a language count, and an accessible expand button.
-- Expanding reveals real variants as language chips. Each chip links to `/browse/:sourceId`; pinning is a separate control.
-- The first eight variants are shown; **Show all N variants** reveals the rest.
-- No source ID is rewritten, merged, or used as a group ID.
+- Variants are grouped by the exact server-provided `source.name`.
+- A group appears only when the active filters leave at least two variants.
+- Group rows show provider icon, name, language summary, count, and pinned count.
+- Expanding shows language chips; **Show all N variants** reveals the rest.
+- Every chip links to `/browse/:sourceId`; no source IDs are merged or rewritten.
 
-### Search and filters
+### Filters
 
-- Local search is immediate and matches display name, provider name, language code, and language name.
-- Language filter, NSFW visibility, preferred only, and preferred languages are preserved.
-- Sort options are Name, Pinned first, and Recently used.
-- Advanced preferred-language controls live behind a compact **Filters** disclosure.
-- There is no submit button.
+- Language select: all installed source languages.
+- NSFW visibility.
+- Sort by name or pinned-first.
+- There is no source search field and no Preferred filter.
+- The source count makes filtering explicit, for example `65 of 79 sources`.
 
-## Visual result
+## Manga search
 
-- Page title is **Sources** with a short subtitle; the large hero was removed.
-- Source rows use real server icons and readable provider/language hierarchy.
-- Pinned cards are compact and use the accent without glow or gradients.
-- Language chips replace repeated metadata cards.
-- Desktop uses one broad directory column; tablet keeps the same scan direction; phone uses full-width rows and two-column language chips.
+- Browse search field placeholder and accessible name are **Search manga**.
+- Source name/code search was removed.
+- Submitting the form navigates to the existing search route with `?q=`.
+- The search view:
+  - has the **Browse** title;
+  - only displays manga results;
+  - does not display sources;
+  - does not offer “Search installed sources”;
+  - keeps Browse active in desktop and mobile navigation.
+- The GraphQL `GlobalSearch` operation no longer requests source nodes.
 
-## Screenshots
+## Extensions
+
+- Extensions remain a full management page, opened from Browse's top-right icon.
+- Browse stays active while `/extensions` is open.
+- The Extensions catalog query now uses cursor pagination and reads every page.
+- Current live result: **1,470 extensions**, including MangaDex, Manga18fx, ToonGod, and Web Central in Installed.
+- Previously the query stopped after 500 rows, so some installed extensions were absent.
+
+## Navigation
+
+Desktop sidebar now contains:
+
+```text
+Library
+Reading
+Browse
+Categories
+History
+Downloads
+Settings
+```
+
+Mobile primary navigation now contains:
+
+```text
+Library
+Reading
+Browse
+More
+```
+
+Search and Extensions are removed from primary and More navigation. Their routes remain as views inside the Browse section.
+
+## Visual verification
+
+Browse:
+
+- `visual-audit/browse-v4-browse-1280x900.png`
+- `visual-audit/browse-v4-browse-390x844.png` — pinned section, top-right extension icon
+- `visual-audit/browse-v3-browse-1280x900.png` — pinned state
+- `visual-audit/browse-v2-browse-pinned-1280x900.png`
+
+Manga search:
+
+- `visual-audit/browse-v4-search-1280x900.png` — Browse title, manga-only results, extension icon
+- `visual-audit/browse-v2-search-1280x900.png`
+
+Extensions:
+
+- `visual-audit/browse-v4-extensions-1280x900.png` — 1,470 extensions loaded, 10 installed
+- `visual-audit/browse-v4-extensions-390x844.png`
+- `visual-audit/browse-v2-extensions-1280x900.png` — MangaDex/Manga18fx present after pagination fix
 
 Before:
 
@@ -66,57 +114,38 @@ Before:
 - `visual-audit/browse-before-430x932.png`
 - `visual-audit/browse-before-390x844.png`
 
-After:
+## Functional and regression checks
 
-- `visual-audit/browse-after2-1280x900.png`
-- `visual-audit/browse-after2-1180x820.png`
-- `visual-audit/browse-after2-820x1180.png`
-- `visual-audit/browse-after2-430x932.png`
-- `visual-audit/browse-after2-390x844.png`
-- `visual-audit/browse-final-1280x900.png` (3 pinned sources + expanded MangaDex)
-- `visual-audit/browse-final-390x844.png` (phone pinned rail + expanded variants)
-- `visual-audit/browse-final-390x844-filters.png` (advanced filter panel)
-- `visual-audit/browse-after2-search-1280x900.png`
-- `visual-audit/browse-final2-empty-1280x900.png`
-- `visual-audit/browse-final2-empty-390x844.png`
-- `visual-audit/browse-final2-filters-390x844.png`
-
-## Runtime verification
-
-```text
-Before: 65 identical cards, 0 source icons, 0 groups
-After : 65 of 106 source variants, 5 provider entries at default NSFW=Hidden
-        MangaDex: 61 variants in one expandable provider group
-        Real icons loaded for all visible provider entries
-        Expanded variants expose EN, ID, JA, KO, ZH-HANT, ZH-HANS, ES, FR first
-        NSFW: All exposes 106 sources across 16 provider entries
-        Search empty: 0 sources + Clear filters action
-        No horizontal overflow at 390px
-```
-
-## Tests
-
-- `src/features/browse/sourceDirectory.test.ts`: grouping by provider name, source IDs preserved, language labels, search text.
-- `ParityPages.test.tsx`: source rows render; provider group expands; EN/JA links resolve to `/browse/en` and `/browse/ja`; pin/unpin state; search empty/clear; language filter.
-- Existing source catalog/test coverage remains.
-
-Final suite: **440 passed, 7 skipped**.
+- 65 of 79 sources visible at default NSFW=Hidden; 79 with NSFW=All.
+- MangaDex remains a 61-variant provider group.
+- Individual source links keep their exact IDs.
+- Pinning/unpinning and pinned section state.
+- Language filter.
+- NSFW visibility.
+- Manga search submit and results.
+- Search page contains no source section and no source-search action.
+- Extension pagination across multiple pages.
+- Browse active on `/search` and `/extensions`.
+- Search/Extensions absent from navigation.
+- Extension icon top-right at desktop and 390px.
+- No horizontal overflow at 390px.
 
 ## Validation
 
 ```text
-npm run codegen:check  PASS
-npm run lint           PASS
-npm run typecheck      PASS
-npm run test           83 files passed, 3 skipped
-                       440 passed, 7 skipped
-npm run build          PASS
+npm run codegen:check   PASS
+npm run lint            PASS
+npm run typecheck       PASS
+npm run test            83 files passed, 3 skipped
+                        441 tests passed, 7 skipped
+npm run build           PASS
 ```
 
 ## Limitations
 
-- Provider grouping uses `SourceType.name`; it intentionally does not merge providers that lack a shared server name.
-- The source directory filters variants before grouping, so a language-filtered MangaDex group can collapse into a single individual row.
-- The local search is client-side; it does not add a server search API.
-- There is no historical frequency counter; "recent" means the persisted `lastSourceId`, not a ranked usage history.
-- The pinned section can contain a pinned source that does not match the current language filter; this is intentional so pinned access remains available.
+- The search route still exists as a Browse subview even though it has no tab.
+- Server-known manga search is used; the previous live “search installed sources” action was removed to honor the manga-only requirement.
+- Extension pagination reads up to 20 × 500 rows; larger catalogs would need a stricter virtualized/paged UI.
+- The extension page renders the complete 1,470-row catalog; virtualization is not implemented.
+- Source grouping still relies on `SourceType.name`.
+- Preferred-language metadata remains in storage for compatibility but is no longer exposed as a separate filter.
