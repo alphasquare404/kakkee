@@ -60,6 +60,22 @@ export function IconClose(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconPin(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M5 2.5h6v11l-3-2-3 2v-11Z" />
+    </IconBase>
+  );
+}
+
+export function IconChevron(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="m4.25 6 3.75 4 3.75-4" />
+    </IconBase>
+  );
+}
+
 export function IconCheck(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
