@@ -85,10 +85,11 @@ After:
 
 ```text
 Before: 65 identical cards, 0 source icons, 0 groups
-After : 65 source variants, 5 provider entries at default NSFW=Hidden
+After : 65 of 106 source variants, 5 provider entries at default NSFW=Hidden
         MangaDex: 61 variants in one expandable provider group
         Real icons loaded for all visible provider entries
         Expanded variants expose EN, ID, JA, KO, ZH-HANT, ZH-HANS, ES, FR first
+        NSFW: All exposes 106 sources across 16 provider entries
         Search empty: 0 sources + Clear filters action
         No horizontal overflow at 390px
 ```

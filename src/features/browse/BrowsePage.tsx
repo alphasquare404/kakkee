@@ -57,6 +57,7 @@ registerMessages('id', {
   'Pinned sources': 'Sumber disematkan',
   'All sources': 'Semua sumber',
   '{count} sources': '{count} sumber',
+  '{shown} of {total} sources': '{shown} dari {total} sumber',
   '{count} languages': '{count} bahasa',
   '{count} provider': '{count} penyedia',
   '{count} providers': '{count} penyedia',
@@ -684,9 +685,14 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         <div className="sources-section-heading">
           <h2 id="all-sources-heading">{t('All sources')}</h2>
           <span>
-            {filteredItems.length === 1
-              ? t('{count} source', { count: 1 })
-              : t('{count} sources', { count: filteredItems.length })}
+            {filteredItems.length === items.length
+              ? filteredItems.length === 1
+                ? t('{count} source', { count: 1 })
+                : t('{count} sources', { count: filteredItems.length })
+              : t('{shown} of {total} sources', {
+                  shown: filteredItems.length,
+                  total: items.length,
+                })}
             {entries.length > 0
               ? ` · ${
                   entries.length === 1

@@ -757,7 +757,7 @@ describe('parity pages', () => {
     const provider = await screen.findByRole('button', {
       name: 'MangaDex, 2 language variants',
     });
-    expect(screen.getByText(/3 sources/)).toBeTruthy();
+    expect(screen.getByText(/3 of 4 sources/)).toBeTruthy();
     expect(provider.getAttribute('aria-expanded')).toBe('false');
     await user.click(provider);
 
