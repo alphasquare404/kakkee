@@ -160,7 +160,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Updates | Latest chapters from library | `Implemented` | Yes | Day-grouped ChapterFeed plus a Recently Read section driven by LastReadAt and firstUnreadChapter |
+| Updates | Latest chapters from library | `Implemented` | Yes | One latestUploadedChapter per Library manga, sorted by uploadDate; manga-level count plus Recently Read section |
 | Updates | Unread/read filters, scanlator, state | `Implemented` | Yes | All/Unread/Read filters plus scanlator filter derived from the feed |
 | Updates | Chapter/manga actions | `Implemented` | Yes | Mark read/unread, download, open chapter, and open Manga Detail from the feed |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |

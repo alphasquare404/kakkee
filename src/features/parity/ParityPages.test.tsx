@@ -10,6 +10,7 @@ import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
   RecentlyReadDocument,
+  ReadingFeedDocument,
   DownloadQueueDocument,
   BackupSettingsDocument,
   CreateBackupDocument,
@@ -23,6 +24,7 @@ import {
   TrackingServicesDocument,
   type CategoryCatalogQuery,
   type ChapterFeedQuery,
+  type ReadingFeedQuery,
   type ServerSettingsQuery,
   type SourceCatalogQuery,
 } from '../../core/graphql/generated/graphql';
@@ -61,29 +63,36 @@ function resources(): ResourceService {
   } as unknown as ResourceService;
 }
 
-function chapterFeed(): ChapterFeedQuery {  return {
+function readingFeed(): ReadingFeedQuery {
+  return {
     __typename: 'Query',
-    chapters: {
-      __typename: 'ChapterNodeList',
-      totalCount: 12,
+    mangas: {
+      __typename: 'MangaNodeList',
+      totalCount: 1,
+      pageInfo: {
+        __typename: 'PageInfo',
+        endCursor: null,
+        hasNextPage: false,
+      },
       nodes: [
         {
-          __typename: 'ChapterType',
-          id: 9,
-          name: 'Chapter 9',
-          chapterNumber: 9,
-          pageCount: 18,
-          isRead: false,
-          isDownloaded: true,
-          lastPageRead: 0,
-          lastReadAt: '0',
-          uploadDate: String(Date.now() - 3_600_000),
-          scanlator: null,
-          manga: {
-            __typename: 'MangaType',
-            id: 1,
-            title: 'Actual Manga',
-            thumbnailUrl: '/api/v1/manga/1/thumbnail',
+          __typename: 'MangaType',
+          id: 1,
+          title: 'Actual Manga',
+          thumbnailUrl: '/api/v1/manga/1/thumbnail',
+          latestUploadedChapter: {
+            __typename: 'ChapterType',
+            id: 9,
+            name: 'Chapter 9',
+            chapterNumber: 9,
+            pageCount: 18,
+            isRead: false,
+            isDownloaded: true,
+            lastPageRead: 0,
+            lastReadAt: '0',
+            uploadDate: String(Date.now() - 3_600_000),
+            scanlator: null,
+            sourceOrder: 9,
           },
         },
       ],
@@ -579,8 +588,8 @@ describe('parity pages', () => {
 
   it('renders the real chapter feed on Updates', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
-      if (document === ChapterFeedDocument) {
-        return { data: chapterFeed() };
+      if (document === ReadingFeedDocument) {
+        return { data: readingFeed() };
       }
       if (document === RecentlyReadDocument) {
         return {
@@ -603,6 +612,7 @@ describe('parity pages', () => {
     renderPage('/updates', query);
 
     expect(await screen.findByRole('heading', { name: 'Reading' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Latest chapters' })).toBeTruthy();
     expect(await screen.findByText('Actual Manga')).toBeTruthy();
     expect(screen.getByText('Chapter 9')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();

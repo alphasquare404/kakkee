@@ -80,6 +80,20 @@ Implemented in `src/core/catalog/recentlyReadRepository.ts`.
 
 The 10-page cap protects against pathological libraries where one manga has thousands of read chapters. It is not expected to be reached for normal libraries.
 
+## Latest chapters
+
+The Latest chapters section is the library chapter feed.
+
+- Source: `mangas(condition: {inLibrary: true})`
+- Each manga contributes exactly one row: `latestUploadedChapter`.
+- Rows are sorted by the latest chapter's `uploadDate` descending.
+- A manga never appears twice, even when several chapters share the same upload date.
+- All/Unread/Read and scanlator filters apply to the latest chapter of each manga.
+- The page count is now a **manga count**: `Latest 35 of 35`, not a chapter count.
+- The feed paginates the manga list in pages of 200, with a safety cap of 20 pages.
+
+A manga with no chapters is omitted from the rows but remains part of the library total.
+
 ## Filter independence
 
 The Continue Reading controller is separate from the Update chapter feed controller. The `All/Unread/Read` and scanlator filters only affect the Update feed. They do not change the Continue Reading query or its contents.
@@ -98,7 +112,7 @@ Examples:
 - unfinished chapter: `Mob Psycho 100` → resumes `Chapter 3` at page 12;
 - unread-only manga were not included.
 
-Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/reading-rename-phone.png`.
+Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/reading-rename-phone.png`, `visual-audit/reading-latest-per-manga-phone.png`.
 
 ## Tests
 
@@ -111,4 +125,4 @@ Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/readi
 - pagination until enough unique manga are collected;
 - query document, network-only policy, and variables.
 
-Final suite: **430 passed, 7 skipped**.
+Final suite: **433 passed, 7 skipped**.

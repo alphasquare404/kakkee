@@ -1,0 +1,27 @@
+﻿query ReadingFeed($first: Int!, $after: Cursor) {
+  mangas(condition: { inLibrary: true }, first: $first, after: $after) {
+    nodes {
+      id
+      title
+      thumbnailUrl
+      latestUploadedChapter {
+        id
+        name
+        chapterNumber
+        pageCount
+        isRead
+        isDownloaded
+        lastPageRead
+        lastReadAt
+        uploadDate
+        scanlator
+        sourceOrder
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    totalCount
+  }
+}

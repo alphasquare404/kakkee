@@ -4,11 +4,9 @@ import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
-import {
-  createCatalogRepository,
-  type FeedChapter,
-} from '../../core/catalog/catalogRepository';
+import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
+import { createReadingFeedRepository } from '../../core/catalog/readingFeedRepository';
 import {
   createRecentlyReadRepository,
   type RecentlyReadEntry,
@@ -24,6 +22,7 @@ import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
   'Continue reading and new chapters': 'Lanjutkan bacaan dan chapter baru',
+  'Latest chapters': 'Chapter terbaru',
   'Latest {shown} of {total}': 'Terbaru {shown} dari {total}',
   All: 'Semua',
   Unread: 'Belum dibaca',
@@ -93,8 +92,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     new Set(),
   );
   const [actionError, setActionError] = useState(false);
-  const repository = useMemo(
-    () => createCatalogRepository({ getClient: () => context.graphQL }),
+  const readingFeedRepository = useMemo(
+    () => createReadingFeedRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
   );
   const mangaRepository = useMemo(
@@ -104,13 +103,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const controller = useMemo(
     () =>
       createLoadableController({
-        load: () =>
-          repository.getFeed({
-            filter: { inLibrary: { equalTo: true } },
-            order: [{ by: 'UPLOAD_DATE', byType: 'DESC' }],
-          }),
+        load: () => readingFeedRepository.get(),
       }),
-    [repository],
+    [readingFeedRepository],
   );
   const feed = useSyncExternalStore(controller.subscribe, controller.getState);
   const recentlyReadRepository = useMemo(
@@ -277,6 +272,13 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               {t('Show all updates')}
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {visible.length > 0 ? (
+        <div className="feed-group-heading feed-latest-heading">
+          <h2>{t('Latest chapters')}</h2>
+          <span>{visible.length}</span>
         </div>
       ) : null}
 
