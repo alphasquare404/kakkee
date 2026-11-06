@@ -29,12 +29,12 @@ frontend.
 
 ## Status legend
 
-- `Implemented` â€” usable end-to-end on desktop and mobile
-- `Partial` â€” some real functionality exists, but important official behavior is missing
-- `Missing` â€” no implementation yet
-- `Blocked by server` â€” pinned server contract cannot support it
-- `Platform limitation` â€” browser/PWA platform cannot support the full behavior
-- `Not applicable` â€” verified irrelevant to the supported product; requires a concrete reason
+- `Implemented` — usable end-to-end on desktop and mobile
+- `Partial` — some real functionality exists, but important official behavior is missing
+- `Missing` — no implementation yet
+- `Blocked by server` — pinned server contract cannot support it
+- `Platform limitation` — browser/PWA platform cannot support the full behavior
+- `Not applicable` — verified irrelevant to the supported product; requires a concrete reason
 
 ## Matrix
 
@@ -141,10 +141,10 @@ frontend.
 | Reader | Previous/next chapter navigation | `Implemented` | Yes | Number-based neighbors |
 | Reader | Infinite chapter scrolling and transition pages | `Implemented` | Client-side | Inline next-chapter append with transition headings and chained scroll loading when auto-advance is off |
 | Reader | Skip duplicate chapters | `Implemented` | Client-side | Full chapter scan deduplicates numbers across pagination boundaries |
-| Reader | Preload pages and next chapter | `Implemented` | Client-side | Current Â±1 eager pages, next chapter manifest prefetch, and first three next-chapter images prefetched |
+| Reader | Preload pages and next chapter | `Implemented` | Client-side | Current ±1 eager pages, next chapter manifest prefetch, and first three next-chapter images prefetched |
 | Reader | Image filters (brightness/contrast/etc.) | `Implemented` | Client-side | Presets plus brightness, contrast, and saturation sliders |
 | Reader | Failed-image retry | `Implemented` | Client-side | Per-page retry |
-| Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1â€“10Ã— speed, wheel/touch stop |
+| Reader | Auto-scroll and custom scroll amount | `Implemented` | Client-side | Auto-scroll toggle with 1–10× speed, wheel/touch stop |
 | Reader | Custom keybindings | `Implemented` | Client-side | Configurable previous/next page and back keys, with Shift chapter navigation |
 | Reader | Tap zones and touch drag scrolling | `Implemented` | Client-side | Left/right tap zones plus horizontal swipe paging in paged modes |
 | Reader | Keep screen on | `Platform limitation` | Wake Lock API availability | Wake Lock is used where supported; denial or missing API is non-fatal |
