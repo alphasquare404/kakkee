@@ -23,8 +23,7 @@ import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
-  Updates: 'Update',
-  'New chapters from your library': 'Chapter baru dari perpustakaan Anda',
+  'Continue reading and new chapters': 'Lanjutkan bacaan dan chapter baru',
   'Latest {shown} of {total}': 'Terbaru {shown} dari {total}',
   All: 'Semua',
   Unread: 'Belum dibaca',
@@ -166,8 +165,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   return (
     <div className="app-shell page-shell feed-shell">
       <PageHeader
-        title={t('Updates')}
-        subtitle={t('New chapters from your library')}
+        title={t('nav.updates')}
+        subtitle={t('Continue reading and new chapters')}
         count={
           feed.data
             ? t('Latest {shown} of {total}', {

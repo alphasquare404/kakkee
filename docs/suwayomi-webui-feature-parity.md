@@ -154,7 +154,9 @@ frontend.
 | Reader | Bookmark/library actions from reader | `Implemented` | Yes | Bookmark toggle and add/remove library from Reader |
 | Reader | Chapter list overlay/sidebar | `Implemented` | Yes | Right-side chapter overlay with active/read markers and chapter navigation |
 
-### Updates / History / Downloads
+### Reading / Updates / History / Downloads
+
+The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstream calls the area Updates.
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|

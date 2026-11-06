@@ -9,6 +9,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import {
   CategoryCatalogDocument,
   ChapterFeedDocument,
+  RecentlyReadDocument,
   DownloadQueueDocument,
   BackupSettingsDocument,
   CreateBackupDocument,
@@ -581,11 +582,27 @@ describe('parity pages', () => {
       if (document === ChapterFeedDocument) {
         return { data: chapterFeed() };
       }
+      if (document === RecentlyReadDocument) {
+        return {
+          data: {
+            __typename: 'Query',
+            chapters: {
+              __typename: 'ChapterNodeList',
+              nodes: [],
+              pageInfo: {
+                __typename: 'PageInfo',
+                endCursor: null,
+                hasNextPage: false,
+              },
+            },
+          },
+        };
+      }
       throw new Error('unexpected query');
     });
     renderPage('/updates', query);
 
-    expect(await screen.findByRole('heading', { name: 'Updates' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Reading' })).toBeTruthy();
     expect(await screen.findByText('Actual Manga')).toBeTruthy();
     expect(screen.getByText('Chapter 9')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();

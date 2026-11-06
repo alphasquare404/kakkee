@@ -1,11 +1,11 @@
-# Updates: Continue Reading
+# Reading: Continue Reading
 
 **Date:** 2026-11-06  
 **Status:** implemented and validated.
 
 ## Semantics
 
-The Updates page Continue Reading section is a **recently read manga** list, not a list of every manga with an unread chapter.
+The client presents this page as **Reading** (Indonesian: **Bacaan**), while the route remains `/updates` so existing links and installed PWAs keep working. The Continue Reading section is a **recently read manga** list, not a list of every manga with an unread chapter.
 
 A manga is shown only when:
 
@@ -98,7 +98,7 @@ Examples:
 - unfinished chapter: `Mob Psycho 100` → resumes `Chapter 3` at page 12;
 - unread-only manga were not included.
 
-Screenshot: `visual-audit/updates-continue-true-phone.png`.
+Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/reading-rename-phone.png`.
 
 ## Tests
 

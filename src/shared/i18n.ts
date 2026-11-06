@@ -2,7 +2,7 @@ import type { Locale } from '../core/preferences/appPreferences';
 
 const EN: Record<string, string> = {
   'nav.library': 'Library',
-  'nav.updates': 'Updates',
+  'nav.updates': 'Reading',
   'nav.browse': 'Browse',
   'nav.search': 'Search',
   'nav.extensions': 'Extensions',
@@ -21,7 +21,7 @@ const EN: Record<string, string> = {
 
 const ID: Record<string, string> = {
   'nav.library': 'Perpustakaan',
-  'nav.updates': 'Update',
+  'nav.updates': 'Bacaan',
   'nav.browse': 'Jelajah',
   'nav.search': 'Cari',
   'nav.extensions': 'Ekstensi',

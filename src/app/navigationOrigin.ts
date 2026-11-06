@@ -30,7 +30,7 @@ const SECTION_META: Record<
   library: { pathname: '/library', labelKey: 'Library' },
   browse: { pathname: '/browse', labelKey: 'Browse' },
   search: { pathname: '/search', labelKey: 'Search' },
-  updates: { pathname: '/updates', labelKey: 'Updates' },
+  updates: { pathname: '/updates', labelKey: 'nav.updates' },
   history: { pathname: '/history', labelKey: 'History' },
   downloads: { pathname: '/downloads', labelKey: 'Downloads' },
   categories: { pathname: '/categories', labelKey: 'Categories' },

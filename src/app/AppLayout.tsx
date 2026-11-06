@@ -42,11 +42,16 @@ function LibraryIcon() {
   );
 }
 
-function UpdatesIcon() {
+function ReadingIcon() {
   return (
     <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M4.5 13.5V8.7a5.5 5.5 0 0 1 11 0v4.8l1 1.2H3.5l1-1.2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-      <path d="M8.2 17a2 2 0 0 0 3.6 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M10 5.1C8.5 4.1 6.5 3.6 4 3.6v10.8c2.5 0 4.5.5 6 1.5 1.5-1 3.5-1.5 6-1.5V3.6c-2.5 0-4.5.5-6 1.5Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <path d="M10 5.1v10.8" stroke="currentColor" strokeWidth="1.3" />
     </svg>
   );
 }
@@ -129,7 +134,7 @@ const NAV_ITEMS: ReadonlyArray<{
   readonly match: (path: string) => boolean;
 }> = [
   { to: '/library', labelKey: 'nav.library', icon: LibraryIcon, mobile: true, match: (path: string) => path === '/library' || path.startsWith('/manga/') },
-  { to: '/updates', labelKey: 'nav.updates', icon: UpdatesIcon, mobile: true, match: (path: string) => path === '/updates' },
+  { to: '/updates', labelKey: 'nav.updates', icon: ReadingIcon, mobile: true, match: (path: string) => path === '/updates' },
   { to: '/browse', labelKey: 'nav.browse', icon: BrowseIcon, mobile: true, match: (path: string) => path === '/browse' || path.startsWith('/browse/') },
   { to: '/search', labelKey: 'nav.search', icon: SearchIcon, mobile: true, match: (path: string) => path === '/search' },
   { to: '/extensions', labelKey: 'nav.extensions', icon: ExtensionsIcon, mobile: true, match: (path: string) => path === '/extensions' || path.startsWith('/extensions/') },
