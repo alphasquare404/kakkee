@@ -69,6 +69,37 @@ export function IconCheck(props: SVGProps<SVGSVGElement>) {
 }
 
 
+export function IconSync(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M3 8a5 5 0 0 1 8.5-3.5L13 6" />
+      <path d="M13 3v3h-3" />
+      <path d="M13 8a5 5 0 0 1-8.5 3.5L3 10" />
+      <path d="M3 13v-3h3" />
+    </IconBase>
+  );
+}
+
+export function IconDownload(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M8 2.5v7.5" />
+      <path d="m5 7 3 3 3-3" />
+      <path d="M3.5 12.5v.8c0 .4.3.7.7.7h7.6c.4 0 .7-.3.7-.7v-.8" />
+    </IconBase>
+  );
+}
+
+export function IconInfo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <circle cx="8" cy="8" r="5.75" />
+      <path d="M8 7.2v3.5" />
+      <circle cx="8" cy="4.9" r="0.45" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
 export function IconGrid(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

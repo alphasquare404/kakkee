@@ -4,6 +4,7 @@ import { createLibraryUpdateRepository } from '../../core/library/libraryUpdateR
 import type { LibraryUpdateInfo } from '../../core/library/libraryUpdateRepository';
 import { LibraryUpdateStatusChangedDocument } from '../../core/graphql/generated/graphql';
 import { useI18n } from '../../shared/useI18n';
+import { IconSync } from './icons';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
@@ -27,10 +28,12 @@ export function LibrarySyncButton({
   context,
   className = 'button button-secondary',
   onComplete,
+  iconOnly = false,
 }: {
   readonly context: ConnectedContext;
   readonly className?: string;
   readonly onComplete?: () => void;
+  readonly iconOnly?: boolean;
 }) {
   const { t } = useI18n();
   const store = useMemo(() => {
@@ -122,28 +125,32 @@ export function LibrarySyncButton({
     return () => subscription.unsubscribe();
   }, [context.graphQL, store]);
 
+  const label = state.running
+    ? t('Updating {finished}/{total}', {
+        finished: state.finished,
+        total: state.total,
+      })
+    : state.error
+      ? t('Retry sync')
+      : state.started
+        ? t('Sync queued ({count})', { count: state.total })
+        : t('Sync library');
+
   return (
     <button
       className={className}
       type="button"
       disabled={state.running}
       onClick={() => void store.start()}
-      title={
-        state.started
-          ? t('Update queued: {count} jobs', { count: state.total })
-          : t('Update library')
-      }
+      aria-label={label}
+      aria-busy={state.running}
+      title={label}
     >
-      {state.running
-        ? t('Updating {finished}/{total}', {
-            finished: state.finished,
-            total: state.total,
-          })
-        : state.error
-          ? t('Retry sync')
-          : state.started
-            ? t('Sync queued ({count})', { count: state.total })
-            : t('Sync library')}
+      {iconOnly ? (
+        <IconSync className={state.running ? 'is-spinning' : undefined} />
+      ) : (
+        label
+      )}
     </button>
   );
 }

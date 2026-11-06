@@ -82,21 +82,30 @@ The 10-page cap protects against pathological libraries where one manga has thou
 
 ## Latest chapters
 
-The Latest chapters section is the library chapter feed.
+The **Updates** section is the library chapter feed.
 
 - Source: `mangas(condition: {inLibrary: true})`
 - Each manga contributes exactly one row: `latestUploadedChapter`.
 - Rows are sorted by the latest chapter's `uploadDate` descending.
 - A manga never appears twice, even when several chapters share the same upload date.
-- All/Unread/Read and scanlator filters apply to the latest chapter of each manga.
+- All/Unread/Read filters apply to the latest chapter of each manga. The scanlator selector was removed.
 - The page count is now a **manga count**: `Latest 35 of 35`, not a chapter count.
 - The feed paginates the manga list in pages of 200, with a safety cap of 20 pages.
 
 A manga with no chapters is omitted from the rows but remains part of the library total.
 
+## Layout
+
+- Page header: **Reading** with subtitle **Continue Reading and Updates**; sync is an icon-only button at the right.
+- Continue Reading: a horizontal rail of cards sized like Library cards. Covers follow the same rule as Library: portrait fill, landscape fit.
+- Updates: heading with a **manga-level** count (`Latest 35 of 35`).
+- Filters: All / Unread / Read only; scanlator selector removed.
+- Feed rows: adaptive small cover (64 px on phone, 84 px on tablet), title, `Chapter · relative time · pages`, and icon actions for read and Manga details.
+- Download action removed from Updates rows.
+
 ## Filter independence
 
-The Continue Reading controller is separate from the Update chapter feed controller. The `All/Unread/Read` and scanlator filters only affect the Update feed. They do not change the Continue Reading query or its contents.
+The Continue Reading controller is separate from the Updates feed controller. The `All/Unread/Read` filters only affect the Updates feed. They do not change the Continue Reading query or its contents.
 
 ## Runtime verification
 
@@ -112,7 +121,7 @@ Examples:
 - unfinished chapter: `Mob Psycho 100` → resumes `Chapter 3` at page 12;
 - unread-only manga were not included.
 
-Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/reading-rename-phone.png`, `visual-audit/reading-latest-per-manga-phone.png`.
+Screenshots: `visual-audit/updates-continue-true-phone.png`, `visual-audit/reading-rename-phone.png`, `visual-audit/reading-latest-per-manga-phone.png`, `visual-audit/reading-final-layout-phone.png`, `visual-audit/reading-layout-final-820.png`.
 
 ## Tests
 

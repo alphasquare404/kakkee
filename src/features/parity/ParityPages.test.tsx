@@ -612,10 +612,13 @@ describe('parity pages', () => {
     renderPage('/updates', query);
 
     expect(await screen.findByRole('heading', { name: 'Reading' })).toBeTruthy();
-    expect(await screen.findByRole('heading', { name: 'Latest chapters' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Updates' })).toBeTruthy();
     expect(await screen.findByText('Actual Manga')).toBeTruthy();
-    expect(screen.getByText('Chapter 9')).toBeTruthy();
+    expect(screen.getByText(/Chapter 9/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Sync library' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Mark read' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Download' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Manga details' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Actual Manga, Chapter 9' }).getAttribute('href')).toBe(
       '/manga/1/chapter/9',
     );
