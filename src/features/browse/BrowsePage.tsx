@@ -1,6 +1,7 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
 } from 'react';
@@ -14,6 +15,8 @@ import {
 import { createLoadableController } from '../../core/catalog/loadableController';
 import { PageHeader } from '../../shared/PageHeader';
 import { useSourcePreferences } from '../../shared/useSourcePreferences';
+import { useSearchPreferences } from '../../shared/useSearchPreferences';
+import { updateSearchPreferences } from '../../core/preferences/searchPreferences';
 import {
   markSourceUsed,
   togglePinnedSource,
@@ -29,12 +32,16 @@ import {
   languageSummary,
   type SourceGroup,
 } from './sourceDirectory';
+import { SearchCommandBar } from '../search/SearchCommandBar';
+import { SearchFilterDrawer } from '../search/SearchFilterDrawer';
+import {
+  activeSearchFilterCount,
+  eligibleSearchSources,
+} from '../search/searchScope';
 import {
   IconChevron,
-  IconClose,
   IconExtensions,
   IconPin,
-  IconSearch,
 } from '../library/icons';
 
 registerMessages('id', {
@@ -46,6 +53,8 @@ registerMessages('id', {
   'All languages': 'Semua bahasa',
   'NSFW: All': 'NSFW: Semua',
   'NSFW: Hidden': 'NSFW: Disembunyikan',
+  Name: 'Nama',
+  Pinned: 'Disematkan',
   'Sort: Name': 'Urutkan: Nama',
   'Sort: Pinned first': 'Urutkan: Disematkan dulu',
   'Pinned sources': 'Sumber disematkan',
@@ -77,11 +86,6 @@ registerMessages('id', {
 });
 
 type DirectorySort = 'name' | 'pinned';
-
-interface LanguageFilter {
-  readonly value: string;
-  readonly label: string;
-}
 
 function SourceIcon({
   source,
@@ -341,13 +345,15 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const preferences = useSourcePreferences();
-  const [language, setLanguage] = useState(preferences.language);
-  const [mangaQuery, setMangaQuery] = useState('');
+  const searchPreferences = useSearchPreferences();
   const [sort, setSort] = useState<DirectorySort>('name');
+  const [mangaQuery, setMangaQuery] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
     new Set(),
   );
   const [allVariants, setAllVariants] = useState<ReadonlySet<string>>(new Set());
+  const filterButton = useRef<HTMLButtonElement>(null);
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -362,34 +368,17 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
     void controller.load();
   }, [controller]);
 
-  useEffect(() => {
-    updateSourcePreferences({ language });
-  }, [language]);
-
   const items = sources.data?.items ?? [];
-  const languages: LanguageFilter[] = [
-    { value: 'all', label: 'All' },
-    ...(items.some((source) => source.lang.toLowerCase() === 'all')
-      ? [{ value: 'multi', label: 'Multi' }]
-      : []),
-    ...[...new Set(items.map((source) => source.lang.toLowerCase()))]
-      .filter((lang) => lang !== 'all')
-      .sort()
-      .map((lang) => ({ value: lang, label: languageLabel(lang) })),
-  ];
   const pinnedSet = new Set(preferences.pinned);
   const nsfwItems = preferences.showNsfw
     ? items
     : items.filter((source) => source.contentWarning !== 'NSFW');
-  const filteredItems =
-    language === 'all'
-      ? nsfwItems
-      : nsfwItems.filter((source) =>
-          language === 'multi'
-            ? source.lang.toLowerCase() === 'all'
-            : source.lang.toLowerCase() === language,
-        );
-  const groups = groupSources(filteredItems);
+  const directoryItems = eligibleSearchSources(
+    items,
+    searchPreferences.languages,
+    preferences.showNsfw,
+  );
+  const groups = groupSources(directoryItems);
   const entries = groups
     .map((group) =>
       group.sources.length > 1
@@ -426,6 +415,15 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const pinnedSources = preferences.pinned
     .map((id) => nsfwItems.find((source) => source.id === id))
     .filter((source): source is CatalogSource => Boolean(source));
+  const activeFilterCount = activeSearchFilterCount(
+    searchPreferences,
+    preferences.showNsfw,
+  );
+
+  const closeFilters = () => {
+    setFiltersOpen(false);
+    filterButton.current?.focus({ preventScroll: true });
+  };
 
   const toggleGroup = (key: string) => {
     setExpandedGroups((current) => {
@@ -456,16 +454,26 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   };
 
   const resetFilters = () => {
-    setLanguage('all');
+    updateSearchPreferences({
+      languages: [],
+      allSources: true,
+      sourceIds: [],
+    });
+    updateSourcePreferences({ showNsfw: false });
     setSort('name');
+  };
+
+  const submitSearch = () => {
+    const value = mangaQuery.trim();
+
+    if (value) {
+      navigate(`/search?q=${encodeURIComponent(value)}`);
+    }
   };
 
   return (
     <div className="app-shell page-shell browse-shell sources-shell">
-      <PageHeader
-        title={t('Browse')}
-        subtitle={t('Search manga and browse sources installed on your server')}
-      >
+      <PageHeader title={t('Browse')}>
         <Link
           className="browse-extensions-button"
           to="/extensions"
@@ -476,79 +484,15 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         </Link>
       </PageHeader>
 
-      <div className="sources-toolbar">
-        <form
-          className="sources-search"
-          role="search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const value = mangaQuery.trim();
-
-            if (value) {
-              navigate(`/search?q=${encodeURIComponent(value)}`);
-            }
-          }}
-        >
-          <IconSearch />
-          <span className="sr-only">{t('Search manga')}</span>
-          <input
-            type="search"
-            value={mangaQuery}
-            placeholder={t('Search manga...')}
-            aria-label={t('Search manga')}
-            enterKeyHint="search"
-            onChange={(event) => setMangaQuery(event.target.value)}
-          />
-          {mangaQuery ? (
-            <button
-              type="button"
-              className="sources-search-clear"
-              aria-label={t('Clear manga search')}
-              onClick={() => setMangaQuery('')}
-            >
-              <IconClose />
-            </button>
-          ) : null}
-        </form>
-
-        <label className="sources-select">
-          <span className="sr-only">{t('All languages')}</span>
-          <select
-            value={language}
-            onChange={(event) => setLanguage(event.target.value)}
-            aria-label="Filter sources by language"
-          >
-            {languages.map((lang) => (
-              <option key={lang.value} value={lang.value}>
-                {lang.value === 'all' ? t('All languages') : lang.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          className={`sources-filter-toggle${preferences.showNsfw ? ' is-active' : ''}`}
-          type="button"
-          aria-pressed={preferences.showNsfw}
-          onClick={() =>
-            updateSourcePreferences({ showNsfw: !preferences.showNsfw })
-          }
-        >
-          {preferences.showNsfw ? t('NSFW: All') : t('NSFW: Hidden')}
-        </button>
-
-        <label className="sources-select sources-sort">
-          <span className="sr-only">{t('Sort: Name')}</span>
-          <select
-            value={sort}
-            onChange={(event) => setSort(event.target.value as DirectorySort)}
-            aria-label="Sort sources"
-          >
-            <option value="name">{t('Sort: Name')}</option>
-            <option value="pinned">{t('Sort: Pinned first')}</option>
-          </select>
-        </label>
-      </div>
+      <SearchCommandBar
+        query={mangaQuery}
+        onQueryChange={setMangaQuery}
+        onSubmit={submitSearch}
+        onOpenFilters={() => setFiltersOpen(true)}
+        filterButtonRef={filterButton}
+        activeFilterCount={activeFilterCount}
+        filtersOpen={filtersOpen}
+      />
 
       {sources.isLoading && !sources.data ? (
         <div className="sources-directory" aria-hidden="true">
@@ -603,28 +547,43 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
       ) : null}
 
       <section className="sources-section" aria-labelledby="all-sources-heading">
-        <div className="sources-section-heading">
+        <div className="sources-section-heading sources-directory-heading">
           <h2 id="all-sources-heading">{t('All sources')}</h2>
-          <span>
-            {filteredItems.length === items.length
-              ? filteredItems.length === 1
-                ? t('{count} source', { count: 1 })
-                : t('{count} sources', { count: filteredItems.length })
-              : t('{shown} of {total} sources', {
-                  shown: filteredItems.length,
-                  total: items.length,
-                })}
-            {entries.length > 0
-              ? ` · ${
-                  entries.length === 1
-                    ? t('{count} provider', { count: 1 })
-                    : t('{count} providers', { count: entries.length })
-                }`
-              : ''}
-          </span>
+          <div className="sources-directory-summary">
+            <span>
+              {directoryItems.length === items.length
+                ? directoryItems.length === 1
+                  ? t('{count} source', { count: 1 })
+                  : t('{count} sources', { count: directoryItems.length })
+                : t('{shown} of {total} sources', {
+                    shown: directoryItems.length,
+                    total: items.length,
+                  })}
+              {entries.length > 0
+                ? ` · ${
+                    entries.length === 1
+                      ? t('{count} provider', { count: 1 })
+                      : t('{count} providers', { count: entries.length })
+                  }`
+                : ''}
+            </span>
+            <label className="source-directory-sort">
+              <span className="sr-only">{t('Sort: Name')}</span>
+              <select
+                value={sort}
+                onChange={(event) =>
+                  setSort(event.target.value as DirectorySort)
+                }
+                aria-label="Sort sources"
+              >
+                <option value="name">{t('Name')}</option>
+                <option value="pinned">{t('Pinned')}</option>
+              </select>
+            </label>
+          </div>
         </div>
 
-        {filteredItems.length === 0 && items.length > 0 ? (
+        {directoryItems.length === 0 && items.length > 0 ? (
           <div className="source-empty">
             <h3>{t('No sources match')}</h3>
             <p>{t('Try a different language or visibility filter.')}</p>
@@ -662,6 +621,13 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
           </div>
         )}
       </section>
+
+      <SearchFilterDrawer
+        open={filtersOpen}
+        sources={items}
+        triggerRef={filterButton}
+        onClose={closeFilters}
+      />
     </div>
   );
 }
