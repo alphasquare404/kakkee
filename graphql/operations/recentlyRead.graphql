@@ -1,0 +1,34 @@
+﻿query RecentlyRead($first: Int!, $after: Cursor) {
+  chapters(
+    filter: { inLibrary: { equalTo: true }, lastReadAt: { greaterThan: "0" } }
+    order: [{ by: LAST_READ_AT, byType: DESC }]
+    first: $first
+    after: $after
+  ) {
+    nodes {
+      id
+      name
+      chapterNumber
+      isRead
+      lastReadAt
+      lastPageRead
+      pageCount
+      manga {
+        id
+        title
+        thumbnailUrl
+        firstUnreadChapter {
+          id
+          name
+          chapterNumber
+          lastPageRead
+          pageCount
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

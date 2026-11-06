@@ -9,7 +9,10 @@ import {
   type FeedChapter,
 } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
-import { UpdatesContinueDocument, type UpdatesContinueQuery } from '../../core/graphql/generated/graphql';
+import {
+  createRecentlyReadRepository,
+  type RecentlyReadEntry,
+} from '../../core/catalog/recentlyReadRepository';
 import { feedDay, formatRelativeTime } from '../../shared/feedTime';
 import { FeedRow } from '../../shared/FeedRow';
 import { useImageResource } from '../../shared/useImageResource';
@@ -111,23 +114,19 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     [repository],
   );
   const feed = useSyncExternalStore(controller.subscribe, controller.getState);
+  const recentlyReadRepository = useMemo(
+    () =>
+      createRecentlyReadRepository({
+        getClient: () => context.graphQL,
+      }),
+    [context.graphQL],
+  );
   const continueController = useMemo(
     () =>
       createLoadableController({
-        load: async () => {
-          const result = await context.graphQL.query({
-            query: UpdatesContinueDocument,
-            fetchPolicy: 'network-only',
-          });
-
-          if (!result.data) {
-            throw new Error('Continue reading feed is unavailable.');
-          }
-
-          return result.data;
-        },
+        load: () => recentlyReadRepository.get(24),
       }),
-    [context.graphQL],
+    [recentlyReadRepository],
   );
   const continueFeed = useSyncExternalStore(
     continueController.subscribe,
@@ -139,9 +138,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     void continueController.load();
   }, [continueController, controller]);
 
-  const continueItems = (continueFeed.data?.mangas.nodes ?? []).filter(
-    (manga) => manga.firstUnreadChapter !== null,
-  );
+  const continueItems = continueFeed.data ?? [];
 
   const items = feed.data?.items ?? [];
   const unread = items.filter((item) => !item.isRead).length;
@@ -231,10 +228,10 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
             <span>{t('{count} manga', { count: continueItems.length })}</span>
           </summary>
           <div className="updates-continue-grid">
-            {continueItems.map((manga) => (
+            {continueItems.map((entry) => (
               <ContinueCard
-                key={manga.id}
-                manga={manga}
+                key={entry.manga.id}
+                entry={entry}
                 resources={context.resources}
               />
             ))}
@@ -369,24 +366,23 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
 }
 
 function ContinueCard({
-  manga,
+  entry,
   resources,
 }: {
-  readonly manga: UpdatesContinueQuery['mangas']['nodes'][number];
+  readonly entry: RecentlyReadEntry;
   readonly resources: ConnectedContext['resources'];
 }) {
-  const chapter = manga.firstUnreadChapter;
+  const { manga, targetChapter, lastReadChapter } = entry;
   const image = useImageResource(resources, manga.thumbnailUrl);
-
-  if (!chapter) {
-    return null;
-  }
+  const isNextChapter = targetChapter.id !== lastReadChapter.id;
 
   return (
     <Link
       className="updates-continue-card"
-      to={`/manga/${manga.id}/chapter/${chapter.id}${
-        chapter.lastPageRead > 0 ? `?page=${chapter.lastPageRead + 1}` : ''
+      to={`/manga/${manga.id}/chapter/${targetChapter.id}${
+        targetChapter.lastPageRead > 0
+          ? `?page=${targetChapter.lastPageRead + 1}`
+          : ''
       }`}
     >
       <span className="updates-continue-cover" aria-hidden="true">
@@ -398,7 +394,9 @@ function ContinueCard({
       </span>
       <span>
         <strong>{manga.title}</strong>
-        <small>{chapter.name}</small>
+        <small>
+          {isNextChapter ? `Next: ${targetChapter.name}` : targetChapter.name}
+        </small>
       </span>
     </Link>
   );

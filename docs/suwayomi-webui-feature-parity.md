@@ -158,7 +158,7 @@ frontend.
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Updates | Latest chapters from library | `Implemented` | Yes | Day-grouped ChapterFeed plus a Continue reading section driven by firstUnreadChapter |
+| Updates | Latest chapters from library | `Implemented` | Yes | Day-grouped ChapterFeed plus a Recently Read section driven by LastReadAt and firstUnreadChapter |
 | Updates | Unread/read filters, scanlator, state | `Implemented` | Yes | All/Unread/Read filters plus scanlator filter derived from the feed |
 | Updates | Chapter/manga actions | `Implemented` | Yes | Mark read/unread, download, open chapter, and open Manga Detail from the feed |
 | Updates | Sync button and refresh | `Implemented` | Yes | Starts library update, shows live progress, and refreshes feed on completion |
@@ -220,7 +220,7 @@ frontend.
 | Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
 | Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark and pure-black themes plus persisted custom accent color |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
-| Settings | Library preferences (fuzzy, badges, layout, continue reading) | `Implemented` | Metadata | Density, grid/list, badges, continue-reading visibility, and fuzzy filter |
+| Settings | Library preferences (fuzzy, badges, layout) | `Implemented` | Metadata | Density, grid/list, badges, and fuzzy filter |
 | Settings | Download preferences and cache | `Implemented` | Yes | Download toggles/limits, CBZ, conversion lists, and cache clearing |
 | Settings | Image processing settings | `Blocked by server` | Server metadata | Stable schema exposes no image-processing settings |
 | Settings | Browse/source/extension-store settings | `Implemented` | Yes | Extension stores add/remove and per-source preference editing |
