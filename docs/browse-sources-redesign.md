@@ -1,3 +1,9 @@
+> **Superseded for Browse header/search behavior:** see
+> [`browse-search-ux.md`](browse-search-ux.md). The source-directory,
+> pinned-source, provider-grouping, and extension-pagination decisions below
+> remain valid; the single-language header filter and Search-title details are
+> replaced by the shared filter/search implementation.
+
 # Browse sources + search + extensions
 
 **Date:** 2026-11-06  
