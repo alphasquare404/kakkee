@@ -31,6 +31,11 @@ import {
 import { FakeConnectionCoordinator, makeConnectedState } from '../../test/fakeConnectionCoordinator';
 import { resetReaderSettings } from '../../core/preferences/readerSettings';
 import { resetAppPreferences } from '../../core/preferences/appPreferences';
+import {
+  getLibraryPreferences,
+  resetLibraryPreferences,
+  updateLibraryPreferences,
+} from '../../core/preferences/libraryPreferences';
 import { resetHistoryPreferences } from '../../core/preferences/historyPreferences';
 
 vi.mock('../../app/pwaUpdate', () => ({
@@ -43,6 +48,7 @@ vi.mock('../../app/pwaUpdate', () => ({
 
 afterEach(() => {
   cleanup();
+  resetLibraryPreferences();
   window.history.replaceState({}, '', '/');
   resetReaderSettings();
   resetAppPreferences();
@@ -80,6 +86,7 @@ function readingFeed(): ReadingFeedQuery {
           id: 1,
           title: 'Actual Manga',
           thumbnailUrl: '/api/v1/manga/1/thumbnail',
+          categories: { __typename: 'CategoryNodeList', nodes: [] },
           latestUploadedChapter: {
             __typename: 'ChapterType',
             id: 9,
@@ -119,19 +126,28 @@ function historyFeed(): ChapterFeedQuery {
       id: mangaId,
       title,
       thumbnailUrl: `/api/v1/manga/${mangaId}/thumbnail`,
+      categories: {
+        __typename: 'CategoryNodeList' as const,
+        nodes: [] as Array<{ __typename: 'CategoryType'; id: number }>,
+      },
     },
   });
+
+  const nodes: ChapterFeedQuery['chapters']['nodes'] = [
+    chapter(10, 1, 'History Manga', 2),
+    chapter(9, 1, 'History Manga', 1),
+    chapter(8, 2, 'Other Manga', 0),
+  ];
+  nodes[2].manga.categories.nodes = [
+    { __typename: 'CategoryType', id: 2 },
+  ];
 
   return {
     __typename: 'Query',
     chapters: {
       __typename: 'ChapterNodeList',
       totalCount: 3,
-      nodes: [
-        chapter(10, 1, 'History Manga', 2),
-        chapter(9, 1, 'History Manga', 1),
-        chapter(8, 2, 'Other Manga', 0),
-      ],
+      nodes,
     },
   };
 }
@@ -584,6 +600,23 @@ describe('parity pages', () => {
     expect(
       screen.getByRole('link', { name: 'Other Manga, Chapter 8' }).getAttribute('href'),
     ).toBe('/manga/2/chapter/8');
+  });
+
+  it('filters history manga assigned to hidden categories', async () => {
+    updateLibraryPreferences({
+      ...getLibraryPreferences(),
+      hiddenCategoryIds: [2],
+    });
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ChapterFeedDocument) {
+        return { data: historyFeed() };
+      }
+      throw new Error('unexpected query');
+    });
+    renderPage('/history', query);
+
+    expect(await screen.findByRole('link', { name: 'History Manga, Chapter 10' })).toBeTruthy();
+    expect(screen.queryByText('Other Manga')).toBeNull();
   });
 
   it('renders the real chapter feed on Updates', async () => {

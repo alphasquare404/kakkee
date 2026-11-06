@@ -34,6 +34,7 @@ function chapter(
       id: mangaId,
       title: `Manga ${mangaId}`,
       thumbnailUrl: `/manga/${mangaId}/thumbnail`,
+      categories: { __typename: 'CategoryNodeList', nodes: [] },
       firstUnreadChapter: options.nextChapter
         ? {
             __typename: 'ChapterType',
@@ -123,6 +124,17 @@ describe('recently read repository', () => {
         variables: { first: 100 },
       }),
     );
+  });
+
+  it('excludes manga assigned to hidden categories', async () => {
+    const hidden = chapter(10, 1, { lastPageRead: 5 });
+    hidden.manga.categories.nodes = [{ __typename: 'CategoryType', id: 7 }];
+    const { client } = clientWith(page([hidden, chapter(20, 2)]));
+    const repository = createRecentlyReadRepository({ getClient: () => client });
+
+    const result = await repository.get(24, new Set([7]));
+
+    expect(result.map((entry) => entry.manga.id)).toEqual([2]);
   });
 
   it('advances a finished chapter to the next unread chapter and drops fully read manga', async () => {

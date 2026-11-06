@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
+import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
@@ -79,6 +80,7 @@ export function UpdatesPage() {
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const hiddenCategoryIds = useHiddenCategoryIds();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('updates', { pathname, search });
   const [filter, setFilter] = useState<FeedFilter>('all');
@@ -95,9 +97,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const controller = useMemo(
     () =>
       createLoadableController({
-        load: () => readingFeedRepository.get(),
+        load: () => readingFeedRepository.get(hiddenCategoryIds),
       }),
-    [readingFeedRepository],
+    [hiddenCategoryIds, readingFeedRepository],
   );
   const feed = useSyncExternalStore(controller.subscribe, controller.getState);
   const recentlyReadRepository = useMemo(
@@ -110,9 +112,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const continueController = useMemo(
     () =>
       createLoadableController({
-        load: () => recentlyReadRepository.get(24),
+        load: () => recentlyReadRepository.get(24, hiddenCategoryIds),
       }),
-    [recentlyReadRepository],
+    [hiddenCategoryIds, recentlyReadRepository],
   );
   const continueFeed = useSyncExternalStore(
     continueController.subscribe,

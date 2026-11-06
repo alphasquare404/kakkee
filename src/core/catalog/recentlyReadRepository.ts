@@ -36,7 +36,10 @@ export interface RecentlyReadEntry {
 }
 
 export interface RecentlyReadRepository {
-  get(limit?: number): Promise<readonly RecentlyReadEntry[]>;
+  get(
+    limit?: number,
+    hiddenCategoryIds?: ReadonlySet<number>,
+  ): Promise<readonly RecentlyReadEntry[]>;
 }
 
 export interface RecentlyReadRepositoryOptions {
@@ -88,7 +91,10 @@ export function createRecentlyReadRepository(
   options: RecentlyReadRepositoryOptions,
 ): RecentlyReadRepository {
   return {
-    async get(limit = DEFAULT_RECENTLY_READ_LIMIT) {
+    async get(
+      limit = DEFAULT_RECENTLY_READ_LIMIT,
+      hiddenCategoryIds: ReadonlySet<number> = new Set(),
+    ) {
       const requested = Math.max(1, Math.min(100, Math.trunc(limit)));
       const seen = new Set<number>();
       const entries: RecentlyReadEntry[] = [];
@@ -118,6 +124,14 @@ export function createRecentlyReadRepository(
           }
 
           seen.add(mangaId);
+
+          if (
+            chapter.manga.categories.nodes.some((category) =>
+              hiddenCategoryIds.has(category.id),
+            )
+          ) {
+            continue;
+          }
 
           const target = isChapterFinished(chapter)
             ? chapter.manga.firstUnreadChapter

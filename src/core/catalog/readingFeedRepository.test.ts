@@ -16,6 +16,7 @@ function manga(
     id,
     title: `Manga ${id}`,
     thumbnailUrl: `/manga/${id}/thumbnail`,
+    categories: { __typename: 'CategoryNodeList', nodes: [] },
     latestUploadedChapter: {
       __typename: 'ChapterType',
       id: chapterId,
@@ -95,6 +96,18 @@ describe('reading feed repository', () => {
         variables: { first: 200 },
       }),
     );
+  });
+
+  it('excludes manga assigned to hidden categories', async () => {
+    const hidden = manga(1, '3000');
+    hidden.categories.nodes = [{ __typename: 'CategoryType', id: 7 }];
+    const { client } = clientWith(page([hidden, manga(2, '2000')], 2));
+    const repository = createReadingFeedRepository({ getClient: () => client });
+
+    const result = await repository.get(new Set([7]));
+
+    expect(result.items.map((item) => item.manga.id)).toEqual([2]);
+    expect(result.totalCount).toBe(1);
   });
 
   it('skips manga without a latest chapter', async () => {

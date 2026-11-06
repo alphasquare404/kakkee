@@ -4,6 +4,11 @@
       id
       title
       thumbnailUrl
+      categories {
+        nodes {
+          id
+        }
+      }
       latestUploadedChapter {
         id
         name

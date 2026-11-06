@@ -21,7 +21,9 @@
 - Hidden category IDs and the All-tab preference persist in `suwayomi.library-preferences.v1`.
 - **Show all** appears when at least one category or All is hidden.
 - If the currently selected category is hidden, the Library returns to All.
-- This controls category-strip visibility. It does not replace the existing single-category tab filter.
+- This controls category-strip visibility and also excludes manga assigned to hidden categories from Library, Reading, Continue Reading, and History.
+- The All checkbox only controls the All tab; it does not hide content by itself.
+- The existing single-category tab filter remains available for visible categories.
 
 ### 3. Manga-card context menu
 

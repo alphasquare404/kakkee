@@ -15,7 +15,7 @@ export interface ReadingFeedPage {
 }
 
 export interface ReadingFeedRepository {
-  get(): Promise<ReadingFeedPage>;
+  get(hiddenCategoryIds?: ReadonlySet<number>): Promise<ReadingFeedPage>;
 }
 
 export interface ReadingFeedRepositoryOptions {
@@ -26,7 +26,7 @@ const PAGE_SIZE = 200;
 const MAX_PAGES = 20;
 
 function toFeedChapter(
-  manga: Pick<MangaNode, 'id' | 'title' | 'thumbnailUrl'>,
+  manga: Pick<MangaNode, 'id' | 'title' | 'thumbnailUrl' | 'categories'>,
   chapter: LatestChapter,
 ): FeedChapter {
   return {
@@ -46,6 +46,7 @@ function toFeedChapter(
       id: manga.id,
       title: manga.title,
       thumbnailUrl: manga.thumbnailUrl,
+      categories: manga.categories,
     },
   };
 }
@@ -61,10 +62,9 @@ export function createReadingFeedRepository(
   options: ReadingFeedRepositoryOptions,
 ): ReadingFeedRepository {
   return {
-    async get() {
+    async get(hiddenCategoryIds: ReadonlySet<number> = new Set()) {
       const items: FeedChapter[] = [];
       const seen = new Set<number>();
-      let totalCount = 0;
       let after: string | null = null;
 
       for (let page = 0; page < MAX_PAGES; page += 1) {
@@ -83,14 +83,20 @@ export function createReadingFeedRepository(
           throw new Error('Reading feed is unavailable.');
         }
 
-        totalCount = mangas.totalCount;
-
         for (const manga of mangas.nodes) {
           if (seen.has(manga.id)) {
             continue;
           }
 
           seen.add(manga.id);
+
+          if (
+            manga.categories.nodes.some((category) =>
+              hiddenCategoryIds.has(category.id),
+            )
+          ) {
+            continue;
+          }
 
           if (!manga.latestUploadedChapter) {
             continue;
@@ -112,7 +118,7 @@ export function createReadingFeedRepository(
         return difference !== 0 ? difference : right.id - left.id;
       });
 
-      return { items, totalCount };
+      return { items, totalCount: items.length };
     },
   };
 }

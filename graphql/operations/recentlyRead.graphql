@@ -17,6 +17,11 @@
         id
         title
         thumbnailUrl
+        categories {
+          nodes {
+            id
+          }
+        }
         firstUnreadChapter {
           id
           name

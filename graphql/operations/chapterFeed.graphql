@@ -19,6 +19,11 @@ query ChapterFeed(
         id
         title
         thumbnailUrl
+        categories {
+          nodes {
+            id
+          }
+        }
       }
     }
     totalCount

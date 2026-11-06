@@ -5,6 +5,7 @@ import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { FeedInput } from '../../core/catalog/catalogRepository';
 import { formatRelativeTime } from '../../shared/feedTime';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
+import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -28,6 +29,7 @@ const HISTORY_FEED: FeedInput = {
 
 export function HistoryPage() {
   const preferences = useHistoryPreferences();
+  const hiddenCategoryIds = useHiddenCategoryIds();
   const { t } = useI18n();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('history', { pathname, search });
@@ -66,7 +68,17 @@ export function HistoryPage() {
       groupByDay
       dedupeByManga
       origin={origin}
-      itemFilter={(chapter) => !preferences.hideRead || !chapter.isRead}
+      itemFilter={(chapter) => {
+        const hidden =
+          hiddenCategoryIds.size > 0 &&
+          chapter.manga.categories.nodes.some((category) =>
+            hiddenCategoryIds.has(category.id),
+          );
+
+        return (
+          !hidden && (!preferences.hideRead || !chapter.isRead)
+        );
+      }}
       rowTo={(chapter) => {
         const page =
           chapter.lastPageRead > 0 ? `?page=${chapter.lastPageRead + 1}` : '';

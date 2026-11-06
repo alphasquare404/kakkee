@@ -817,7 +817,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
-  const toggleSelected = (index: number, mangaId: number, shiftKey: boolean) => {
+  const toggleSelected = (
+    items: readonly LibraryManga[],
+    index: number,
+    mangaId: number,
+    shiftKey: boolean,
+  ) => {
     setSelectedIds((current) => {
       const next = new Set(current);
 
@@ -826,7 +831,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         const end = Math.max(lastSelectedIndex, index);
 
         for (let position = start; position <= end; position += 1) {
-          const item = library.items[position];
+          const item = items[position];
 
           if (item) {
             next.add(item.id);
@@ -923,10 +928,19 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     library.sort.direction !== 'desc';
   const hasAnyRefinement =
     isNarrowed || sortActive || searchActive || quickFilters.size > 0;
+  const categoryVisibleItems = library.items.filter(
+    (manga) =>
+      hiddenCategoryIds.size === 0 ||
+      !manga.categories.nodes.some((category) =>
+        hiddenCategoryIds.has(category.id),
+      ),
+  );
   const locallyFiltered =
     fuzzy && search.trim()
-      ? library.items.filter((manga) => fuzzyMatch(manga.title, search.trim()))
-      : library.items;
+      ? categoryVisibleItems.filter((manga) =>
+          fuzzyMatch(manga.title, search.trim()),
+        )
+      : categoryVisibleItems;
   const quickFiltered =
     quickFilters.size === 0
       ? locallyFiltered
@@ -1717,7 +1731,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
                   selected={selectedIds.has(manga.id)}
                   showBadges={appPreferences.libraryBadges}
                   onToggle={(shiftKey) =>
-                    toggleSelected(index, manga.id, shiftKey)
+                    toggleSelected(displayedItems, index, manga.id, shiftKey)
                   }
                   onContextMenu={(position, trigger) => {
                     setContextError(false);

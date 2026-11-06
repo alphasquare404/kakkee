@@ -48,6 +48,7 @@ function manga(
     title,
     thumbnailUrl: `/api/v1/manga/${id}/thumbnail`,
     thumbnailUrlLastFetched: null,
+    categories: { __typename: 'CategoryNodeList', nodes: [] },
     unreadCount,
     downloadCount,
     bookmarkCount,
@@ -390,7 +391,18 @@ describe('LibraryPage initial states', () => {
         return data({ __typename: 'Query', categories: categoryData() });
       }
 
-      return libraryQuery(page([manga(1, 'Alpha')]));
+      return libraryQuery(
+        page([
+          {
+            ...manga(1, 'Alpha'),
+            categories: {
+              __typename: 'CategoryNodeList',
+              nodes: [{ __typename: 'CategoryType', id: 3 }],
+            },
+          },
+          manga(2, 'Beta'),
+        ]),
+      );
     });
     const user = userEvent.setup();
     renderLibrary(query);
@@ -401,8 +413,11 @@ describe('LibraryPage initial states', () => {
     await user.click(screen.getByRole('checkbox', { name: 'Action' }));
 
     expect(screen.queryByRole('button', { name: 'Action' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Alpha' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Beta' })).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Show all' }));
     expect(screen.getByRole('button', { name: 'Action' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Alpha' })).toBeTruthy();
   });
 
   it('hides and restores the All category tab from the filter drawer', async () => {

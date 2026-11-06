@@ -93,7 +93,9 @@ export function LibraryFilterDrawer({
             ) : null}
           </div>
           <p className="filter-section-hint">
-            {t('Choose which categories appear in the Library category strip.')}
+            {t(
+              'Unchecking a category hides its manga from Library, Reading, and History.',
+            )}
           </p>
           <div className="filter-section-content filter-checkbox-list">
             <label className="filter-checkbox">
