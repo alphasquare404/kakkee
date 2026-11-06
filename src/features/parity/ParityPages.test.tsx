@@ -731,6 +731,17 @@ describe('parity pages', () => {
             supportsLatest: true,
             iconUrl: '',
           },
+          {
+            __typename: 'SourceType',
+            id: 'nsfw',
+            name: 'Nsfw Source',
+            displayName: 'Nsfw Source',
+            lang: 'en',
+            isNsfw: true,
+            contentWarning: 'NSFW',
+            supportsLatest: true,
+            iconUrl: '',
+          },
         ],
       },
     };
@@ -778,6 +789,10 @@ describe('parity pages', () => {
     expect(await screen.findByRole('link', { name: 'MangaDex (JA), Browse' })).toBeTruthy();
     expect(screen.queryByRole('link', { name: 'MangaDex (EN), Browse' })).toBeNull();
     await user.selectOptions(languageFilter, 'all');
+    expect(screen.queryByText('Nsfw Source')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'NSFW: Hidden' }));
+    expect(await screen.findByText('Nsfw Source')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'NSFW: All' }));
   });
 
   it('renders categories and their real manga counts', async () => {
