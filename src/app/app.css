@@ -8836,3 +8836,26 @@ button.manga-card-link {
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
+
+@media (max-width: 720px) {
+  .search-language-option {
+    min-height: 2.35rem;
+  }
+
+  .search-source-option {
+    min-height: 2.4rem;
+  }
+
+  .search-source-group-header {
+    min-height: 2.65rem;
+  }
+
+  .search-source-group-toggle {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  .search-filter-footer .button {
+    min-height: 2.6rem;
+  }
+}
