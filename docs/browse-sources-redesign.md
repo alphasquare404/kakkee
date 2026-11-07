@@ -42,7 +42,7 @@
 
 - Language select: all installed source languages.
 - NSFW visibility.
-- Sort by name or pinned-first.
+- Alphabetical directory order.
 - There is no source search field and no Preferred filter.
 - The source count makes filtering explicit, for example `65 of 79 sources`.
 
