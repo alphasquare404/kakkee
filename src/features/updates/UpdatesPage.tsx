@@ -145,7 +145,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         <LibrarySyncButton
           context={context}
           iconOnly
-          className="library-icon-button"
+          className="app-header-icon-button"
           onComplete={() => void controller.load()}
         />
       </PageHeader>

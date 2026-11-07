@@ -448,7 +448,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
     <div className="app-shell page-shell browse-shell sources-shell">
       <PageHeader title={t('Browse')}>
         <Link
-          className="browse-extensions-button"
+          className="app-header-icon-button"
           to="/extensions"
           aria-label={t('Extensions')}
           title={t('Extensions')}

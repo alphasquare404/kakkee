@@ -11,6 +11,7 @@ import {
 } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { IconArrowLeft, IconSearch, IconSync } from '../library/icons';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -25,6 +26,8 @@ registerMessages('id', {
   'The last extension change was rejected by the server.':
     'Perubahan ekstensi terakhir ditolak server.',
   'Search extensions': 'Cari ekstensi',
+  'Search extensions...': 'Cari ekstensi...',
+  'Back to Browse': 'Kembali ke Browse',
   Language: 'Bahasa',
   'All languages': 'Semua bahasa',
   'Search by name or package…': 'Cari berdasarkan nama atau paket…',
@@ -116,6 +119,16 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
       <PageHeader
         title={t('Extensions')}
         subtitle={t('Sources installed through your server')}
+        leading={
+          <Link
+            className="page-back-button"
+            to="/browse"
+            aria-label={t('Back to Browse')}
+            title={t('Back to Browse')}
+          >
+            <IconArrowLeft />
+          </Link>
+        }
         count={
           extensions.status === 'ready'
             ? extensions.items.length === 1
@@ -127,12 +140,19 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         }
       >
         <button
-          className="button button-secondary"
+          className="app-header-icon-button"
           type="button"
           disabled={extensions.refreshing}
+          aria-label={
+            extensions.refreshing ? t('Checking…') : t('Check for updates')
+          }
+          aria-busy={extensions.refreshing}
+          title={
+            extensions.refreshing ? t('Checking…') : t('Check for updates')
+          }
           onClick={() => void controller.refresh()}
         >
-          {extensions.refreshing ? 'Checking…' : 'Check for updates'}
+          <IconSync className={extensions.refreshing ? 'is-spinning' : undefined} />
         </button>
       </PageHeader>
 
@@ -142,9 +162,9 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         </p>
       ) : null}
 
-      <div className="browse-filters" role="group" aria-label="Filter extensions by language">
-        <label className="browse-language-select">
-          <span>{t('Language')}</span>
+      <div className="search-command-row extension-command-row">
+        <label className="sources-select extension-language-select">
+          <span className="sr-only">{t('Language')}</span>
           <select
             value={language}
             onChange={(event) => setLanguage(event.target.value)}
@@ -157,16 +177,18 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             ))}
           </select>
         </label>
-      </div>
 
-      <div className="extension-filter-row">
-        <input
-          type="search"
-          aria-label="Search extensions"
-          placeholder="Search by name or package…"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-        />
+        <label className="sources-search extension-search">
+          <IconSearch />
+          <span className="sr-only">{t('Search extensions')}</span>
+          <input
+            type="search"
+            aria-label={t('Search extensions')}
+            placeholder={t('Search extensions...')}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
       </div>
 
       {extensions.status === 'loading' && extensions.items.length === 0 ? (

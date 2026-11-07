@@ -88,6 +88,15 @@ export function IconPin(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconArrowLeft(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M13 8H3" />
+      <path d="m7 4-4 4 4 4" />
+    </IconBase>
+  );
+}
+
 export function IconChevron(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

@@ -674,6 +674,45 @@ describe('parity pages', () => {
     expect(screen.getByRole('button', { name: 'Uninstall' })).toBeTruthy();
   });
 
+  it('renders extension refresh as an icon-only accessible action', async () => {
+    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
+      if (document === ExtensionsCatalogDocument) {
+        return {
+          data: {
+            extensions: {
+              __typename: 'ExtensionNodeList',
+              totalCount: 0,
+              nodes: [],
+              pageInfo: {
+                __typename: 'PageInfo',
+                endCursor: null,
+                hasNextPage: false,
+              },
+            },
+          },
+        };
+      }
+
+      return { data: {} };
+    });
+    renderPage('/extensions', query);
+
+    const refresh = await screen.findByRole('button', {
+      name: 'Check for updates',
+    });
+    expect(refresh.textContent).toBe('');
+    expect(refresh.className).toContain('app-header-icon-button');
+    expect(refresh.getAttribute('aria-busy')).toBe('false');
+    expect(refresh.getAttribute('title')).toBe('Check for updates');
+    expect(
+      screen.getByRole('link', { name: 'Back to Browse' }).getAttribute('href'),
+    ).toBe('/browse');
+    expect(screen.getByRole('searchbox', { name: 'Search extensions' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Filter extensions by language' }),
+    ).toBeTruthy();
+  });
+
   it('installs an extension from the catalog', async () => {
     const query = vi.fn(async ({ query: document }: { query: unknown }) => {
       if (document === ExtensionsCatalogDocument) {
