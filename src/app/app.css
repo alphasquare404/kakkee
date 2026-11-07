@@ -8859,3 +8859,20 @@ button.manga-card-link {
     min-height: 2.6rem;
   }
 }
+
+/* Keep the absolute header action inside the header block so it does not
+   visually collide with the search row on phone. */
+.sources-shell .page-header {
+  min-height: 3rem;
+  padding-bottom: 0.55rem;
+}
+
+@media (max-width: 720px) {
+  .sources-shell .page-header {
+    min-height: 3.05rem;
+  }
+
+  .search-command-row {
+    margin-top: 0.15rem;
+  }
+}
