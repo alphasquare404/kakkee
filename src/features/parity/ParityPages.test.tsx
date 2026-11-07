@@ -995,7 +995,6 @@ describe('parity pages', () => {
 
     expect(screen.getByRole('searchbox', { name: 'Search manga' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Filter search' })).toBeTruthy();
-    expect(screen.getByRole('combobox', { name: 'Sort sources' })).toBeTruthy();
 
     const pin = screen.getAllByRole('button', { name: 'Pin MangaDex (EN)' })[0];
     await user.click(pin);

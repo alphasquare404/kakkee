@@ -53,10 +53,6 @@ registerMessages('id', {
   'All languages': 'Semua bahasa',
   'NSFW: All': 'NSFW: Semua',
   'NSFW: Hidden': 'NSFW: Disembunyikan',
-  Name: 'Nama',
-  Pinned: 'Disematkan',
-  'Sort: Name': 'Urutkan: Nama',
-  'Sort: Pinned first': 'Urutkan: Disematkan dulu',
   'Pinned sources': 'Sumber disematkan',
   'All sources': 'Semua sumber',
   '{count} sources': '{count} sumber',
@@ -84,8 +80,6 @@ registerMessages('id', {
   Unpin: 'Lepas sematan',
   Extensions: 'Ekstensi',
 });
-
-type DirectorySort = 'name' | 'pinned';
 
 function SourceIcon({
   source,
@@ -346,7 +340,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const navigate = useNavigate();
   const preferences = useSourcePreferences();
   const searchPreferences = useSearchPreferences();
-  const [sort, setSort] = useState<DirectorySort>('name');
   const [mangaQuery, setMangaQuery] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
@@ -386,25 +379,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
         : { kind: 'source' as const, source: group.sources[0] },
     )
     .sort((left, right) => {
-      if (sort === 'pinned') {
-        const leftPinned =
-          left.kind === 'group'
-            ? left.group.sources.filter((source) => pinnedSet.has(source.id)).length
-            : pinnedSet.has(left.source.id)
-              ? 1
-              : 0;
-        const rightPinned =
-          right.kind === 'group'
-            ? right.group.sources.filter((source) => pinnedSet.has(source.id)).length
-            : pinnedSet.has(right.source.id)
-              ? 1
-              : 0;
-
-        if (leftPinned !== rightPinned) {
-          return rightPinned - leftPinned;
-        }
-      }
-
       const leftName =
         left.kind === 'group' ? left.group.name : left.source.displayName;
       const rightName =
@@ -460,7 +434,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
       sourceIds: [],
     });
     updateSourcePreferences({ showNsfw: false });
-    setSort('name');
   };
 
   const submitSearch = () => {
@@ -567,19 +540,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
                   }`
                 : ''}
             </span>
-            <label className="source-directory-sort">
-              <span className="sr-only">{t('Sort: Name')}</span>
-              <select
-                value={sort}
-                onChange={(event) =>
-                  setSort(event.target.value as DirectorySort)
-                }
-                aria-label="Sort sources"
-              >
-                <option value="name">{t('Name')}</option>
-                <option value="pinned">{t('Pinned')}</option>
-              </select>
-            </label>
           </div>
         </div>
 

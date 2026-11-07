@@ -8325,22 +8325,6 @@ button.manga-card-link {
   font-size: var(--text-sm);
 }
 
-.source-directory-sort select {
-  height: 1.7rem;
-  max-width: 5.6rem;
-  padding: 0 0.35rem;
-  color: var(--muted);
-  font-size: 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--surface-sunken);
-}
-
-.source-directory-sort select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
 /* Search filter drawer --------------------------------------------------- */
 .search-filter-summary {
   display: flex;
@@ -8811,10 +8795,6 @@ button.manga-card-link {
 
   .sources-directory-summary {
     gap: 0.35rem;
-  }
-
-  .source-directory-sort select {
-    max-width: 5.2rem;
   }
 
   .search-filter-footer {

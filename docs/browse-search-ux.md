@@ -1,4 +1,4 @@
-# Browse & Search UX redesign
+﻿# Browse & Search UX redesign
 
 **Date:** 2026-11-07  
 **Scope:** Browse header, shared search/filter controls, language/source selection, multi-source manga search, source result tabs, result metadata, and search navigation. Pinned Sources and the All Sources rows remain the approved presentation.
@@ -18,7 +18,7 @@ New composition:
 Browse                              [Extensions]
 [Filter] [Search manga........................]
 Pinned sources
-All sources                         [count] [Name]
+All sources                         count
 ```
 
 - The title is compact and has no persistent subtitle.
@@ -66,7 +66,7 @@ Default policy:
 - Requests use bounded concurrency (4 workers).
 - A custom source selection persists across sessions and routes.
 
-Language and NSFW also filter the All Sources directory, so the approved directory still has its previous filtering functionality. Directory sort remains separate at the All Sources heading.
+Language and NSFW also filter the All Sources directory, so the approved directory still has its previous filtering functionality. The source-directory sort control was removed; sources stay alphabetical.
 
 ## Search results
 
@@ -81,7 +81,7 @@ Route: existing `/search?q=...&tab=...`.
 - Result cards show:
   - cover;
   - title;
-  - `source.name · language`;
+  - `source.name Â· language`;
   - library state.
 - Duplicate titles from different sources remain distinguishable.
 - Source metadata comes from the source catalog already loaded for search scope; no per-result source lookup.
@@ -91,7 +91,7 @@ Route: existing `/search?q=...&tab=...`.
 - Tab counts are loaded-result counts.
 - A `+` suffix means that source has another page; it is not presented as a total.
 - Page header count uses the active tab count with the same `+` qualifier.
-- Per-source tabs support **Load more from …** with independent pagination.
+- Per-source tabs support **Load more from â€¦** with independent pagination.
 - The All tab aggregates loaded pages; source tabs are used for further pagination.
 - Successful source results remain when another source fails.
 - Failed sources show `!` and a retry action; a compact banner reports the failure count.
@@ -141,7 +141,7 @@ Search:
 
 Findings/fixes during QA:
 
-- Initial Browse phone layout wrapped All Sources heading; constrained heading/count/sort to one row.
+- Initial Browse phone layout wrapped All Sources heading; constrained heading and count to one row.
 - Source tabs initially exposed too many equal MangaDex variants; limited visible tabs and added the all-source selector.
 - Header total implied completeness while pages remained; changed to loaded count with `+`.
 - Source-line text truncated in narrow cards; allowed a second line for source identity.
@@ -186,3 +186,4 @@ npm run build           PASS
 - Manga search does not preserve scroll position when returning from Manga Detail.
 - Source failures are represented in the UI but are not independently reproducible in deterministic visual fixtures.
 - No automated screen-reader audit was run.
+
