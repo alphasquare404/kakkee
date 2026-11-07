@@ -10,8 +10,9 @@ import {
   type Extension,
 } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { FilterDrawer } from '../../shared/FilterDrawer';
 import { PageHeader } from '../../shared/PageHeader';
-import { IconArrowLeft, IconSearch, IconSync } from '../library/icons';
+import { IconFilter, IconSearch, IconSync } from '../library/icons';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -27,6 +28,9 @@ registerMessages('id', {
     'Perubahan ekstensi terakhir ditolak server.',
   'Search extensions': 'Cari ekstensi',
   'Search extensions...': 'Cari ekstensi...',
+  'Filter extensions': 'Filter ekstensi',
+  'Choose a language for the extension list.':
+    'Pilih bahasa untuk daftar ekstensi.',
   'Back to Browse': 'Kembali ke Browse',
   Language: 'Bahasa',
   'All languages': 'Semua bahasa',
@@ -54,6 +58,12 @@ registerMessages('id', {
   Update: 'Update',
   Install: 'Pasang',
   Uninstall: 'Copot',
+  'Filter extensions, {count} active': 'Filter ekstensi, {count} aktif',
+  Filter: 'Filter',
+  Reset: 'Reset',
+  Cancel: 'Batal',
+  Apply: 'Terapkan',
+  'Filter extensions by language': 'Filter ekstensi berdasarkan bahasa',
 });
 
 export function ExtensionsPage() {
@@ -82,6 +92,9 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     controller.getState,
   );
   const [language, setLanguage] = useState('all');
+  const [languageDraft, setLanguageDraft] = useState('all');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filterButton = useRef<HTMLButtonElement>(null);
   const [query, setQuery] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
   const [jarFile, setJarFile] = useState<File | null>(null);
@@ -92,7 +105,9 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
 
   const languages = [
     'all',
-    ...[...new Set(extensions.items.map((item) => item.lang))].sort(),
+    ...[...new Set(extensions.items.map((item) => item.lang))]
+      .filter((lang) => lang !== 'all')
+      .sort(),
   ];
   const items = (
     language === 'all'
@@ -126,7 +141,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
             aria-label={t('Back to Browse')}
             title={t('Back to Browse')}
           >
-            <IconArrowLeft />
+            {'<'}
           </Link>
         }
         count={
@@ -163,20 +178,31 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
       ) : null}
 
       <div className="search-command-row extension-command-row">
-        <label className="sources-select extension-language-select">
-          <span className="sr-only">{t('Language')}</span>
-          <select
-            value={language}
-            onChange={(event) => setLanguage(event.target.value)}
-            aria-label="Filter extensions by language"
-          >
-            {languages.map((lang) => (
-              <option key={lang} value={lang}>
-                {lang === 'all' ? t('All languages') : lang.toUpperCase()}
-              </option>
-            ))}
-          </select>
-        </label>
+        <button
+          ref={filterButton}
+          className={`search-filter-trigger${language !== 'all' ? ' is-active' : ''}`}
+          type="button"
+          aria-label={
+            language !== 'all'
+              ? t('Filter extensions, {count} active', { count: 1 })
+              : t('Filter extensions')
+          }
+          aria-haspopup="dialog"
+          aria-expanded={filtersOpen}
+          title={t('Filter extensions')}
+          onClick={() => {
+            setLanguageDraft(language);
+            setFiltersOpen(true);
+          }}
+        >
+          <IconFilter />
+          <span>{t('Filter')}</span>
+          {language !== 'all' ? (
+            <span className="search-filter-count" aria-hidden="true">
+              1
+            </span>
+          ) : null}
+        </button>
 
         <label className="sources-search extension-search">
           <IconSearch />
@@ -190,6 +216,76 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
           />
         </label>
       </div>
+
+      <FilterDrawer
+        open={filtersOpen}
+        title={t('Filter extensions')}
+        description={t('Choose a language for the extension list.')}
+        triggerRef={filterButton}
+        onClose={() => {
+          setFiltersOpen(false);
+          filterButton.current?.focus({ preventScroll: true });
+        }}
+      >
+        <div
+          className="extension-language-options"
+          role="radiogroup"
+          aria-label={t('Filter extensions by language')}
+        >
+          {languages.map((lang) => (
+            <label
+              key={lang}
+              className={`extension-language-option${
+                languageDraft === lang ? ' is-selected' : ''
+              }`}
+            >
+              <input
+                type="radio"
+                name="extension-language"
+                value={lang}
+                checked={languageDraft === lang}
+                onChange={() => setLanguageDraft(lang)}
+              />
+              <span>
+                {lang === 'all' ? t('All languages') : lang.toUpperCase()}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <footer className="search-filter-footer">
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => setLanguageDraft('all')}
+          >
+            {t('Reset')}
+          </button>
+          <div>
+            <button
+              className="button button-secondary"
+              type="button"
+              onClick={() => {
+                setFiltersOpen(false);
+                filterButton.current?.focus({ preventScroll: true });
+              }}
+            >
+              {t('Cancel')}
+            </button>
+            <button
+              className="button"
+              type="button"
+              onClick={() => {
+                setLanguage(languageDraft);
+                setFiltersOpen(false);
+                filterButton.current?.focus({ preventScroll: true });
+              }}
+            >
+              {t('Apply')}
+            </button>
+          </div>
+        </footer>
+      </FilterDrawer>
 
       {extensions.status === 'loading' && extensions.items.length === 0 ? (
         <div className="extension-list" aria-hidden="true">

@@ -25,11 +25,11 @@ Reading passes this class through `LibrarySyncButton`.
 
 ## Extensions header and controls
 
-- A back arrow (`<`) precedes the Extensions title and links to `/browse`.
-- The language filter and extension search now share one compact row with
+- A plain `<` back control precedes the Extensions title and links to `/browse`.
+- The language filter is now a Discover-style **Filter** button with a funnel
+  icon, active-count badge, and a language drawer.
+- The Filter button and extension search share one compact row with
   Discover-style heights and search-field composition.
-- The language filter remains a real select; the search field has the same
-  icon, border, and height as Discover search.
 
 ## Browse separator
 
@@ -38,8 +38,8 @@ and extension action.
 
 ## Screenshots
 
-- `visual-audit/extui2-extensions-390x844.png`
-- `visual-audit/extui-extensions-1280x900.png`
+- `visual-audit/extfilter-extensions-390x844.png`
+- `visual-audit/extfilter-filter-390x844.png`
 - `visual-audit/extui-browse-390x844.png`
 - `visual-audit/extui-reading-390x844.png`
 

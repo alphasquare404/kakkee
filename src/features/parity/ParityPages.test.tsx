@@ -708,9 +708,17 @@ describe('parity pages', () => {
       screen.getByRole('link', { name: 'Back to Browse' }).getAttribute('href'),
     ).toBe('/browse');
     expect(screen.getByRole('searchbox', { name: 'Search extensions' })).toBeTruthy();
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: 'Filter extensions' }));
+    const filterDialog = screen.getByRole('dialog', { name: 'Filter extensions' });
     expect(
-      screen.getByRole('combobox', { name: 'Filter extensions by language' }),
-    ).toBeTruthy();
+      within(filterDialog).getAllByRole('radio', { name: 'All languages' }),
+    ).toHaveLength(1);
+    await userEvent
+      .setup()
+      .click(within(filterDialog).getByRole('button', { name: 'Apply' }));
+    expect(screen.queryByRole('dialog', { name: 'Filter extensions' })).toBeNull();
   });
 
   it('installs an extension from the catalog', async () => {
