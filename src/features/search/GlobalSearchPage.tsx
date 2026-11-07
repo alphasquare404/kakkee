@@ -33,7 +33,6 @@ import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
 import { useSourcePreferences } from '../../shared/useSourcePreferences';
 import { languageName } from '../browse/sourceDirectory';
-import { IconExtensions } from '../library/icons';
 import { SearchCommandBar } from './SearchCommandBar';
 import { SearchFilterDrawer } from './SearchFilterDrawer';
 import {
@@ -77,7 +76,6 @@ registerMessages('id', {
   'Recent searches': 'Pencarian terakhir',
   'Clear history': 'Hapus riwayat',
   Sources: 'Sumber',
-  Extensions: 'Ekstensi',
   'Filters': 'Filter',
   'Filter search': 'Filter pencarian',
   'Show NSFW sources': 'Tampilkan sumber NSFW',
@@ -341,16 +339,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell browse-shell sources-shell search-shell">
-      <PageHeader title={t('Search')} count={headerCount}>
-        <Link
-          className="browse-extensions-button"
-          to="/extensions"
-          aria-label={t('Extensions')}
-          title={t('Extensions')}
-        >
-          <IconExtensions />
-        </Link>
-      </PageHeader>
+      <PageHeader title={t('Search')} count={headerCount} />
 
       <SearchCommandBar
         query={queryInput}
