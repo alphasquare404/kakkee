@@ -100,6 +100,7 @@ body,
 
 html {
   background: var(--bg);
+  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   touch-action: pan-x pan-y;
@@ -8201,7 +8202,11 @@ button.manga-card-link {
 
 /* Browse / Search command row ------------------------------------------- */
 .sources-shell {
+  width: min(100%, 120rem);
+  max-width: 120rem;
   gap: 0.9rem;
+  padding-left: max(clamp(0.875rem, 1.6vw, 2rem), var(--safe-left));
+  padding-right: max(clamp(0.875rem, 1.6vw, 2rem), var(--safe-right));
 }
 
 .sources-shell .page-header {
@@ -9042,5 +9047,55 @@ button.manga-card-link {
 @media (max-width: 720px) {
   .page-header-toolbar:has(.header-search-form:not(.is-open)) {
     display: none;
+  }
+}
+
+/* Large desktop: mirror Library's compact header search column. */
+@media (min-width: 1361px) {
+  .page-header.has-toolbar {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .page-header.has-toolbar .page-heading {
+    order: 1;
+    flex: 1 1 auto;
+  }
+
+  .page-header.has-toolbar .page-header-toolbar {
+    order: 2;
+    flex: 0 1 20rem;
+    width: 20rem;
+    margin-top: 0;
+  }
+
+  .page-header.has-toolbar .page-header-actions {
+    position: static;
+    order: 3;
+    flex-wrap: nowrap;
+    margin-left: 0;
+    padding-top: 0;
+  }
+
+  .sources-shell .page-header .page-heading {
+    padding-right: 0;
+  }
+
+  .page-header.has-leading.has-toolbar {
+    align-items: flex-start;
+  }
+
+  .page-header.has-leading.has-toolbar .page-header-toolbar {
+    margin-top: 0.15rem;
+  }
+}
+
+.library-action.library-search-toggle {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .library-action.library-search-toggle {
+    display: inline-flex;
   }
 }

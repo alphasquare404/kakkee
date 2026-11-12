@@ -132,7 +132,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
   const updates = items.filter((item) => item.isInstalled && item.hasUpdate);
 
   return (
-    <div className="app-shell page-shell extensions-shell">
+    <div className="app-shell page-shell extensions-shell sources-shell">
       <PageHeader
         title={t('Extensions')}
         subtitle={t('Installed sources')}
@@ -154,6 +154,14 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
+            <button
+              className="library-search-submit"
+              type="submit"
+              aria-label={t('Search extensions')}
+              disabled={!query.trim()}
+            >
+              <IconSearch />
+            </button>
             {query ? (
               <button
                 type="button"
