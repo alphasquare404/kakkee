@@ -10780,3 +10780,12 @@ button.manga-card-link {
   border-color: var(--border-strong);
   box-shadow: none;
 }
+
+.manga-track-unlink {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  min-height: 1.9rem;
+  padding: 0;
+  place-content: center;
+}

@@ -6,7 +6,7 @@ import {
   createMangaTrackingRepository,
   type TrackRecord,
 } from '../../core/tracking/mangaTrackingRepository';
-import { IconSearch, IconSync } from '../library/icons';
+import { IconClose, IconSearch, IconSync } from '../library/icons';
 
 export function MangaTrackingSection({
   context,
@@ -319,12 +319,14 @@ function TrackRecordRow({
         </>
       ) : null}
       <button
-        className="library-action"
+        className="library-action manga-track-unlink"
         type="button"
         disabled={busy}
+        aria-label={busy ? 'Unlinking…' : 'Unlink tracker'}
+        title={busy ? 'Unlinking…' : 'Unlink tracker'}
         onClick={onUnbind}
       >
-        {busy ? 'Working…' : 'Unlink'}
+        <IconClose />
       </button>
     </article>
   );
