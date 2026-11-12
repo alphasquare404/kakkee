@@ -30,7 +30,7 @@ All sources                         count
 
 ## Shared search and filters
 
-`SearchCommandBar` is shared by Browse and Search. It provides:
+Browse, Search, and Extensions use the same Library-style header controls: a search field inside the header toolbar, a Filter icon action in the header actions, and a mobile search toggle. They provide:
 
 - one semantic `role="search"` form;
 - `type="search"` and `enterKeyHint="search"`;
@@ -150,7 +150,7 @@ Findings/fixes during QA:
 
 New/updated coverage:
 
-- shared Browse Filter + Search composition;
+- shared Library-style header search and filter composition;
 - Enter submission from Browse and Search;
 - source tabs and source identity;
 - duplicate titles across sources;

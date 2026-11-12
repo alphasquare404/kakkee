@@ -17,23 +17,33 @@ Every page header now follows the same hierarchy:
 - Header actions stay at the top-right.
 - Search and filter controls belong to the header, not a disconnected row.
 - A divider closes the header before page content.
+- Library category tabs have a small gap below the header and no underline of their own.
 - BackButton, when present, is a sibling of the title block and does not affect subtitle alignment.
 
 ## Implementations
 
 - `PageHeader` gained an optional `toolbar` slot rendered inside `<header>`.
-- Browse, Search, and Extensions pass their shared search/filter command row into that slot.
-- Library keeps its custom interactive search/history/filter controls, but now has the same title/subtitle hierarchy, header border, and search/filter placement inside its header.
+- Browse, Search, and Extensions use the same Library-style header search field and Filter icon action.
+- On phone, the search field is hidden until the search icon action is pressed; tablet/desktop show it below the title.
+- Library keeps its custom interactive search/history/filter controls with the same title/subtitle hierarchy, header border, and header placement.
+- Extension count text was removed so its title/subtitle height matches Browse.
 - Reading, Categories, History, Downloads, Settings, Extension Detail, Source pages, and Offline pages retain their existing PageHeader title/subtitle pattern.
 
 All page headers now show a subtitle. Added:
 
-- Library: “Your saved manga and reading progress”
-- Browse: “Search manga and browse sources installed on your server”
-- Search: “Search manga across selected sources”
+- Library: “Manga and progress”
+- Browse: “Search manga and sources”
+- Search: “Search selected sources”
+- Extensions: “Installed sources”
 
 ## Visual verification
 
+- `visual-audit/header3-library-390x844.png`
+- `visual-audit/header2-browse-390x844-closed.png`
+- `visual-audit/header2-browse-390x844-open.png`
+- `visual-audit/header2-extensions-390x844-closed.png`
+- `visual-audit/header2-extensions-820x1180.png`
+- `visual-audit/header4-search-390x844.png`
 - `visual-audit/header-uniform-library-390x844.png`
 - `visual-audit/header-uniform-library-820x1180.png`
 - `visual-audit/header-uniform-library-1280x900.png`

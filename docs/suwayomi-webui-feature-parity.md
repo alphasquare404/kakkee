@@ -182,7 +182,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 
 | Area | Official WebUI feature | New frontend status | Server/API support | Notes |
 |---|---|---|---|---|
-| Browse | Source catalog, manga search, and extension access | `Implemented` | Yes | Compact Filter + Search command row, multi-language/source scope, pinned sources, grouped source directory, source tabs, multi-source manga results, and top-right extension management |
+| Browse | Source catalog, manga search, and extension access | `Implemented` | Yes | Shared header search field and Filter action, multi-language/source scope, pinned sources, grouped source directory, source tabs, multi-source manga results, and top-right extension management |
 | Browse | Source manga browsing, search, filters, pagination | `Implemented` | Yes | Popular/Latest, search, pagination, and dynamic text/select/checkbox/tri-state/sort filters including one group level |
 | Browse | Pinned/last-used sources, preferred languages, NSFW visibility | `Implemented` | Metadata | Pin/last-used, multi-language preference list, saved language filter, and NSFW toggle |
 | Browse | Hide in-library manga, quick add/remove, duplicate check | `Implemented` | Yes | Quick add/remove plus hide-in-library and duplicate-only filters |
