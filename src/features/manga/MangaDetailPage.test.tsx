@@ -387,11 +387,10 @@ describe('MangaDetailPage', () => {
               }),
       };
     });
-    const user = userEvent.setup();
     renderDetail(query);
 
     await screen.findByRole('link', { name: /Chapter 1186/ });
-    await user.click(screen.getByRole('button', { name: 'Load more chapters' }));
+    fireEvent.scroll(window);
 
     expect(await screen.findByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
     expect(screen.getByRole('link', { name: /Chapter 1186/ })).toBeTruthy();

@@ -58,6 +58,11 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 - `visual-audit/manga-final10-download-menu-390x844.png`
 - `visual-audit/manga-final11-card-menu-390x844.png`
 - `visual-audit/manga-final13-badges-390x844.png`
+- `visual-audit/manga-bookmark-multi-390x844.png`
+- `visual-audit/manga-reader-off-390x844.png`
+- `visual-audit/manga-reader-on-390x844.png`
+- `visual-audit/manga-tracking-compact-390x844.png`
+- `visual-audit/manga-filter-menu-final-390x844.png`
 - `visual-audit/manga-final11-card-download-390x844.png`
 - `visual-audit/manga-final7-bookmark-390x844.png`
 - `visual-audit/manga-final5-toolbar-menu-390x844.png`
@@ -101,11 +106,16 @@ build           PASS
   both of each contextual pair. There are no text buttons or bordered icon boxes in the rail.
 - Server download status refreshes after DownloadStatusChanged events so the server badge appears
   once the queue completes.
-- The top bookmark control opens category choices. The current/default category is checked and the
-  selection can be changed; choosing a category adds the manga to the library.
+- The top bookmark control opens multi-select category choices. Current/default categories are
+  checked, several can be selected, and Save updates the library categories. Saving with no
+  categories selected removes the manga from the library.
+- The Categories picker was removed from Overview; category management lives only in the top
+  bookmark menu.
 - All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
   clamp horizontally, and scroll internally instead of leaving the screen.
 - Show more scrolls to the tabs with `scroll-margin-top` accounting for the safe area.
+- The filter menu has a divider before Hide duplicates and no longer contains Scan all chapters.
+- Chapters load automatically from a scroll sentinel; the manual Load more button is gone.
 
 ## Download indicators
 
@@ -119,3 +129,11 @@ build           PASS
 Indicators sit before the read icon in the chapter action cluster and do not add per-chapter API
 requests. Device state comes from OPFS records; server state comes from `isDownloaded` and is
 refreshed by the existing download-status subscription.
+
+## Overview compact controls
+
+- Reader section now has a **Use Custom Reader** toggle. Settings stay hidden while off. Enabling
+  it snapshots the current global reader settings, then shows per-manga mode, width, filter, scale,
+  direction, and background controls.
+- Tracking uses a compact row with tracker title, status, score, optional dates, and an icon-only
+  sync action. The redundant tracking-settings CTA is hidden once a tracker is linked.

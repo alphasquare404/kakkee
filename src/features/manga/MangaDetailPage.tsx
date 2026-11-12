@@ -7,7 +7,6 @@ import {
 } from '../../core/manga/mangaDetailController';
 import {
   createMangaRepository,
-  type MangaChapter,
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
@@ -24,7 +23,6 @@ import { useImageResource } from '../../shared/useImageResource';
 import { AmbientArt } from '../../shared/AmbientArt';
 import { MangaTrackingSection } from './MangaTrackingSection';
 import { MangaNotesSection } from './MangaNotesSection';
-import { MangaCategoryPicker } from './MangaCategoryPicker';
 import { MangaBookmarkChoices } from './MangaBookmarkChoices';
 import { MangaReaderModePicker } from './MangaReaderModePicker';
 import {
@@ -376,11 +374,6 @@ function ConnectedMangaDetail({
   } | null>(null);
   const [deviceError, setDeviceError] = useState(false);
   const loaded = useRef<MangaDetailController | null>(null);
-  const [scannedChapters, setScannedChapters] = useState<
-    readonly MangaChapter[] | null
-  >(null);
-  const [scanBusy, setScanBusy] = useState(false);
-  const [scanError, setScanError] = useState(false);
   const [section, setSection] = useState<'overview' | 'chapters'>(
     searchParams.get('section') === 'overview' ? 'overview' : 'chapters',
   );
@@ -410,6 +403,8 @@ function ConnectedMangaDetail({
     device: isOfflineStorageSupported(),
   });
   const chapterLongPressTimer = useRef<number | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const loadMorePending = useRef(false);
   const chapterLongPressTriggered = useRef(false);
   const [libraryPending, setLibraryPending] = useState(false);
   const [libraryActionError, setLibraryActionError] = useState(false);
@@ -441,11 +436,45 @@ function ConnectedMangaDetail({
   useEffect(() => {
     setSection(searchParams.get('section') === 'overview' ? 'overview' : 'chapters');
   }, [searchParams]);
-
   useEffect(() => {
-    setScannedChapters(null);
-    setScanError(false);
-  }, [mangaId]);
+    if (!detail.pageInfo.hasNextPage || detail.loadMoreError) {
+      return;
+    }
+
+    const check = () => {
+      const sentinel = loadMoreRef.current;
+
+      if (!sentinel || loadMorePending.current || detail.isLoadingMore) {
+        return;
+      }
+
+      if (
+        sentinel.getBoundingClientRect().top <=
+        window.innerHeight + 600
+      ) {
+        loadMorePending.current = true;
+        void controller.loadMore().finally(() => {
+          loadMorePending.current = false;
+        });
+      }
+    };
+
+    const frame = window.requestAnimationFrame(check);
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, [
+    controller,
+    detail.isLoadingMore,
+    detail.loadMoreError,
+    detail.pageInfo.hasNextPage,
+  ]);
+
 
   const changeSection = (next: 'overview' | 'chapters') => {
     setSection(next);
@@ -595,12 +624,12 @@ function ConnectedMangaDetail({
   ]
     .filter(Boolean)
     .join(' · ');
-  const ensureLibrary = async () => {
+  const setLibraryState = async (inLibrary: boolean) => {
     setLibraryActionError(false);
     setLibraryPending(true);
 
     try {
-      await controller.setInLibrary(true);
+      await controller.setInLibrary(inLibrary);
     } catch (error) {
       setLibraryActionError(true);
       throw error;
@@ -652,42 +681,12 @@ function ConnectedMangaDetail({
   );
   const scanlators = [
     ...new Set(
-      (scannedChapters ?? detail.chapters)
+      detail.chapters
         .map((chapter) => chapter.scanlator)
         .filter((value): value is string => Boolean(value)),
     ),
   ].sort((left, right) => left.localeCompare(right));
-  const scanAllChapters = async () => {
-    setScanBusy(true);
-    setScanError(false);
-    const collected: MangaChapter[] = [];
-    let after: string | null = null;
-
-    try {
-      for (;;) {
-        const page = await repository.getDetail({
-          mangaId,
-          first: 200,
-          after,
-          order: detail.order,
-        });
-        collected.push(...page.chapters);
-
-        if (!page.pageInfo.hasNextPage || !page.pageInfo.endCursor) {
-          break;
-        }
-
-        after = page.pageInfo.endCursor;
-      }
-
-      setScannedChapters(collected);
-    } catch {
-      setScanError(true);
-    } finally {
-      setScanBusy(false);
-    }
-  };
-  const filteredChapters = (scannedChapters ?? detail.chapters).filter((chapter) => {
+  const filteredChapters = detail.chapters.filter((chapter) => {
     if (scanlator !== 'all' && chapter.scanlator !== scanlator) {
       return false;
     }
@@ -802,7 +801,7 @@ function ConnectedMangaDetail({
   };
 
 
-  const selectedChapters = (scannedChapters ?? detail.chapters).filter((chapter) =>
+  const selectedChapters = detail.chapters.filter((chapter) =>
     selectedChapterIds.has(chapter.id),
   );
   const allSelectedRead =
@@ -893,7 +892,7 @@ function ConnectedMangaDetail({
             <MangaBookmarkChoices
               context={context}
               mangaId={manga.id}
-              onEnsureLibrary={ensureLibrary}
+              onSetLibrary={setLibraryState}
             />
           </ActionMenu>
           <ActionMenu
@@ -1132,7 +1131,6 @@ function ConnectedMangaDetail({
             />
 
             <MangaNotesSection context={context} mangaId={manga.id} />
-            <MangaCategoryPicker context={context} mangaId={manga.id} />
             <MangaReaderModePicker mangaId={manga.id} />
           </>
         ) : null}
@@ -1206,6 +1204,7 @@ function ConnectedMangaDetail({
                     {label}
                   </button>
                 ))}
+                <div className="action-menu-divider" />
                 <button
                   type="button"
                   className={hideDuplicates ? 'is-active' : undefined}
@@ -1213,19 +1212,6 @@ function ConnectedMangaDetail({
                   onClick={() => setHideDuplicates((value) => !value)}
                 >
                   {t('Hide duplicates')}
-                </button>
-                <button
-                  type="button"
-                  disabled={scanBusy}
-                  onClick={() => void scanAllChapters()}
-                >
-                  {scanBusy
-                    ? t('Scanning…')
-                    : scannedChapters
-                      ? scannedChapters.length === 1
-                        ? t('1 chapter')
-                        : t('{count} chapters', { count: scannedChapters.length })
-                      : t('Scan all chapters')}
                 </button>
                 {scanlators.length > 0 ? (
                   <label className="chapter-select">
@@ -1676,11 +1662,7 @@ function ConnectedMangaDetail({
             </ol>
           )}
 
-          {scanError ? (
-            <p className="alert alert-error" role="alert">
-              Could not scan the full chapter list.
-            </p>
-          ) : null}
+
 
           {chapterActionError ? (
             <p className="alert alert-error" role="alert">
@@ -1694,17 +1676,8 @@ function ConnectedMangaDetail({
             </p>
           ) : null}
 
-          {!scannedChapters && detail.pageInfo.hasNextPage ? (
-            <div className="chapter-load-more">
-              <button
-                className="button button-secondary"
-                type="button"
-                disabled={detail.isLoadingMore}
-                onClick={() => void controller.loadMore()}
-              >
-                {detail.isLoadingMore ? 'Loading…' : 'Load more chapters'}
-              </button>
-            </div>
+          {detail.pageInfo.hasNextPage ? (
+            <div ref={loadMoreRef} className="chapter-load-sentinel" aria-hidden="true" />
           ) : null}
         </section>
         ) : null}

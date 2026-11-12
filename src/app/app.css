@@ -10492,3 +10492,152 @@ button.manga-card-link {
     min-height: 1.9rem;
   }
 }
+
+
+/* Compact Manga tracking. */
+.manga-tracking {
+  padding: 0.75rem 0;
+}
+
+.manga-tracking-list {
+  gap: 0.3rem;
+}
+
+.manga-track-row {
+  gap: 0.3rem;
+  padding: 0.4rem 0.5rem;
+  align-items: center;
+}
+
+.manga-track-main {
+  flex: 1 1 9rem;
+  gap: 0;
+}
+
+.manga-track-main strong {
+  font-size: 0.78rem;
+}
+
+.manga-track-main span {
+  font-size: 0.66rem;
+}
+
+.manga-track-field {
+  display: flex;
+  gap: 0;
+  align-items: center;
+}
+
+.manga-track-field > span {
+  display: none;
+}
+
+.manga-track-field select,
+.manga-track-field input {
+  min-height: 1.8rem;
+  padding: 0 0.3rem;
+  font-size: 0.68rem;
+}
+
+.manga-track-field input[type="date"] {
+  width: 7rem;
+}
+
+.manga-track-row > .library-action {
+  min-height: 1.8rem;
+  padding: 0 0.4rem;
+  font-size: 0.68rem;
+}
+
+.manga-track-bind {
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  align-items: center;
+}
+
+.manga-track-bind label {
+  gap: 0;
+}
+
+.manga-track-bind label > span {
+  display: none;
+}
+
+.manga-track-bind select,
+.manga-track-bind input[type="text"],
+.manga-track-search input {
+  min-height: 1.9rem;
+}
+
+.manga-track-search {
+  flex: 1 1 10rem;
+}
+
+.manga-track-results {
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+}
+
+.manga-track-results li {
+  padding: 0.3rem 0.45rem;
+}
+
+@media (max-width: 760px) {
+  .manga-track-row {
+    gap: 0.25rem;
+  }
+
+  .manga-track-main {
+    flex-basis: 100%;
+  }
+
+  .manga-track-field input[type="date"] {
+    width: 6.6rem;
+  }
+}
+
+.bookmark-category-list {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.15rem 0;
+}
+
+.bookmark-category-option {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0 0.5rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bookmark-category-option:hover {
+  background: var(--surface-sunken);
+}
+
+.bookmark-category-option input {
+  accent-color: var(--accent);
+}
+
+.action-menu-divider {
+  height: 1px;
+  margin: 0.3rem 0.35rem;
+  background: var(--border);
+}
+
+.chapter-load-sentinel {
+  width: 100%;
+  height: 1px;
+}
+
+.manga-track-sync {
+  width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  place-content: center;
+}

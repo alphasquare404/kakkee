@@ -6,6 +6,7 @@ import {
   createMangaTrackingRepository,
   type TrackRecord,
 } from '../../core/tracking/mangaTrackingRepository';
+import { IconSync } from '../library/icons';
 
 export function MangaTrackingSection({
   context,
@@ -53,12 +54,14 @@ export function MangaTrackingSection({
           <span>{tracking.records.length} linked</span>
           {tracking.records.length > 0 ? (
             <button
-              className="library-action"
+              className="library-action manga-track-sync"
               type="button"
               disabled={tracking.syncing}
+              aria-label={tracking.syncing ? 'Syncing…' : 'Sync progress'}
+              title={tracking.syncing ? 'Syncing…' : 'Sync progress'}
               onClick={() => void controller.syncProgress()}
             >
-              {tracking.syncing ? 'Syncing…' : 'Sync progress'}
+              <IconSync className={tracking.syncing ? 'is-spinning' : undefined} />
             </button>
           ) : null}
         </div>
@@ -111,6 +114,7 @@ export function MangaTrackingSection({
           <label>
             <span>Tracker</span>
             <select
+              aria-label="Tracker"
               value={selectedTracker?.id ?? ''}
               onChange={(event) => setTrackerId(Number(event.target.value))}
             >
@@ -124,6 +128,8 @@ export function MangaTrackingSection({
           <label className="manga-track-search">
             <span>Search title</span>
             <input
+              aria-label="Search title"
+              placeholder="Search title"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
@@ -146,7 +152,7 @@ export function MangaTrackingSection({
             </label>
           ) : null}
         </form>
-      ) : (
+      ) : tracking.records.length === 0 ? (
         <div className="manga-track-empty">
           <p className="settings-save-state">
             Log in to a tracker in Settings to link this manga.
@@ -155,7 +161,7 @@ export function MangaTrackingSection({
             Open tracking settings
           </Link>
         </div>
-      )}
+      ) : null}
 
       {tracking.searchResults.length > 0 ? (
         <ul className="manga-track-results">
@@ -249,6 +255,7 @@ function TrackRecordRow({
       <label className="manga-track-field">
         <span>Status</span>
         <select
+          aria-label={`${record.tracker.name} status`}
           value={record.status}
           disabled={busy}
           onChange={(event) => onUpdate({ status: Number(event.target.value) })}

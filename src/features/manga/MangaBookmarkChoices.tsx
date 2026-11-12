@@ -13,17 +13,19 @@ registerMessages('id', {
   'Categories could not be loaded.': 'Kategori tidak dapat dimuat.',
   'Categories could not be saved.': 'Kategori tidak dapat disimpan.',
   'Add to library': 'Tambahkan ke perpustakaan',
+  'Remove from library': 'Hapus dari perpustakaan',
+  Save: 'Simpan',
   'Saving…': 'Menyimpan…',
 });
 
 export function MangaBookmarkChoices({
   context,
   mangaId,
-  onEnsureLibrary,
+  onSetLibrary,
 }: {
   readonly context: ConnectedContext;
   readonly mangaId: number;
-  readonly onEnsureLibrary: () => Promise<void>;
+  readonly onSetLibrary: (inLibrary: boolean) => Promise<void>;
 }) {
   const { t } = useI18n();
   const repository = useMemo(
@@ -71,19 +73,35 @@ export function MangaBookmarkChoices({
     };
   }, [mangaId, repository]);
 
-  const choose = async (categoryId: number) => {
+  const save = async () => {
     setSaveError(false);
     setSaving(true);
 
     try {
-      await onEnsureLibrary();
-      await repository.save(mangaId, [categoryId]);
-      setSelected(new Set([categoryId]));
+      await onSetLibrary(selected.size > 0);
+
+      if (selected.size > 0) {
+        await repository.save(mangaId, [...selected]);
+      }
     } catch {
       setSaveError(true);
     } finally {
       setSaving(false);
     }
+  };
+
+  const toggle = (categoryId: number) => {
+    setSelected((current) => {
+      const next = new Set(current);
+
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+
+      return next;
+    });
   };
 
   if (status === 'loading') {
@@ -111,7 +129,7 @@ export function MangaBookmarkChoices({
           onClick={() => {
             setSaveError(false);
             setSaving(true);
-            void onEnsureLibrary()
+            void onSetLibrary(true)
               .catch(() => setSaveError(true))
               .finally(() => setSaving(false));
           }}
@@ -124,21 +142,32 @@ export function MangaBookmarkChoices({
             const active = selected.has(category.id);
 
             return (
-              <button
-                type="button"
-                key={category.id}
-                className={active ? 'is-active' : undefined}
-                aria-pressed={active}
-                disabled={saving}
-                onClick={() => void choose(category.id)}
-              >
+              <label className="bookmark-category-option" key={category.id}>
+                <input
+                  type="checkbox"
+                  checked={active}
+                  disabled={saving}
+                  onChange={() => toggle(category.id)}
+                />
                 <span>{category.name}</span>
-                {active ? <span aria-hidden="true">✓</span> : null}
-              </button>
+              </label>
             );
           })}
         </div>
       )}
+
+      <button
+        className="button"
+        type="button"
+        disabled={saving}
+        onClick={() => void save()}
+      >
+        {saving
+          ? t('Saving…')
+          : selected.size > 0
+            ? t('Save')
+            : t('Remove from library')}
+      </button>
 
       {saveError ? (
         <p className="settings-inline-error" role="alert">
