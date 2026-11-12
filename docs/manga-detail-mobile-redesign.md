@@ -140,3 +140,8 @@ refreshed by the existing download-status subscription.
 - Tracking uses a compact row with visible compact labels for Status, Rating (with the tracker's
   actual scale, e.g. 0–10), Started, and Finished, plus an icon-only sync action. The redundant
   tracking-settings CTA is hidden once a tracker is linked.
+
+- Mobile information panel and bottom navigation are opaque; the cover does not bleed through.
+
+- Mobile section tabs are centered horizontally at a 20rem maximum width, not stretched from the
+  left edge.

@@ -10712,3 +10712,22 @@ button.manga-card-link {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Mobile detail: opaque lower panel/nav and centered section tabs. */
+@media (max-width: 760px) {
+  .detail-shell .manga-info-panel {
+    background: linear-gradient(180deg, var(--surface-strong) 0%, var(--bg) 100%);
+  }
+
+  .mobile-nav {
+    background: var(--bg-deep);
+    backdrop-filter: none;
+  }
+
+  .manga-detail .detail-tabs {
+    width: min(100%, 20rem);
+    max-width: 20rem;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
