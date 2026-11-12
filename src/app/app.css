@@ -11016,3 +11016,119 @@ button.manga-card-link {
 .manga-track-dates.is-open {
   order: 5;
 }
+
+.manga-track-controls {
+  display: contents;
+}
+
+@media (min-width: 761px) {
+  .manga-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .manga-overview-main {
+    padding-right: 1.5rem;
+  }
+
+  .manga-overview-side {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 760px) {
+  .manga-track-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manga-track-controls {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.1fr) minmax(0, 1fr)
+      auto auto;
+    gap: 0.25rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  .manga-track-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.18rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .manga-track-field select {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .manga-track-dates.is-open {
+    grid-column: 1 / -1;
+  }
+
+  .manga-track-unlink {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 760px) {
+  .manga-track-row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* The tracker card adapts to its column, not the viewport. */
+.manga-track-row {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  width: 100%;
+  container-type: inline-size;
+}
+
+.manga-track-main {
+  display: flex;
+  flex: none;
+  gap: 0.35rem;
+  align-items: baseline;
+  width: 100%;
+}
+
+.manga-track-controls {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.1fr) minmax(0, 1fr)
+    auto auto;
+  gap: 0.25rem;
+  align-items: center;
+  width: 100%;
+}
+
+.manga-track-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.18rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.manga-track-field select {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.manga-track-dates.is-open {
+  grid-column: 1 / -1;
+}
+
+.manga-track-unlink {
+  justify-self: end;
+}

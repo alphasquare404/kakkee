@@ -259,6 +259,7 @@ function TrackRecordRow({
         <strong>{record.tracker.name}</strong>
         <span>{record.title}</span>
       </div>
+      <div className="manga-track-controls">
       <label className="manga-track-field">
         <span>Status</span>
         <select
@@ -341,6 +342,7 @@ function TrackRecordRow({
       >
         <IconUnlink />
       </button>
+      </div>
     </article>
   );
 }

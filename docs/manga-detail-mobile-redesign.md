@@ -135,8 +135,8 @@ refreshed by the existing download-status subscription.
 ## Overview layout
 
 - Synopsis comes before Details.
-- Tablet/desktop Overview uses two columns: Synopsis, Details, and Tags on the left; Tracking,
-  Notes, and Use Custom Reader on the right.
+- Tablet/desktop Overview uses two equal-width columns with a vertical separator: Synopsis,
+  Details, and Tags on the left; Tracking, Notes, and Use Custom Reader on the right.
 - Mobile stays one column in the same order, with the tracker card full width.
 
 ## Overview compact controls
@@ -147,7 +147,9 @@ refreshed by the existing download-status subscription.
 - Tracking is adaptive. Desktop shows compact Status, Rating (with the tracker's actual scale,
   e.g. 0–10), Started, and Finished fields inline. Mobile collapses dates behind a small calendar icon, keeps Status/Rating/calendar/unlink on one
   row, and uses inline labels; the row shrinks from about 92px expanded to 63px collapsed.
-  Tracker cards fill their column; on mobile they are full content width. The redundant tracking-settings CTA is hidden once
+  Tracker cards fill their column at every breakpoint. Their controls use a width-aware grid so
+  Status, Rating, calendar, and unlink adapt to the card width; on mobile the card is full width.
+  The redundant tracking-settings CTA is hidden once
   a tracker is linked.
 - The tracker search is one compact row: tracker select, search-title field, icon search submit,
   and optional Private checkbox. Unlink is a compact broken-chain icon button with an accessible label.
