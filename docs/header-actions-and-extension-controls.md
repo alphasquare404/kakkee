@@ -25,7 +25,7 @@ Reading passes this class through `LibrarySyncButton`.
 
 ## Extensions header and controls
 
-- A plain `<` back control precedes the Extensions title and links to `/browse`.
+- The shared `BackButton` (chevron-left) precedes the Extensions title and links to `/browse`.
 - The language filter is now a Discover-style **Filter** button with a funnel
   icon, active-count badge, and a language drawer.
 - The Filter button and extension search share one compact row with
@@ -49,6 +49,6 @@ and extension action.
 codegen:check   PASS
 lint            PASS
 typecheck       PASS
-test            454 passed, 7 skipped
+test            458 passed, 7 skipped
 build           PASS
 ```
