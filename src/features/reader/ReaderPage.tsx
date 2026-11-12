@@ -22,6 +22,7 @@ import {
   originLabel,
 } from '../../app/navigationOrigin';
 import { useImageResource } from '../../shared/useImageResource';
+import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -160,10 +161,10 @@ function ConnectedReader({
   const backTarget =
     fromManga || !origin ? `/manga/${mangaId}` : originHref(origin);
   const backLabel = fromManga
-    ? `← ${t('Manga')}`
+    ? t('Manga')
     : originCrumb
-      ? `← ${originLabel(originCrumb, t)}`
-      : `← ${t('Manga')}`;
+      ? originLabel(originCrumb, t)
+      : t('Manga');
   const historyBack = canGoBack && (fromManga || Boolean(origin));
   const goBack = useCallback(() => {
     if (historyBack) {
@@ -729,9 +730,9 @@ function ConnectedReader({
       }
     >
       <header className="reader-header">
-        <Link
-          className="reader-back"
+        <BackButton
           to={backTarget}
+          label={backLabel}
           state={fromManga ? mangaState : undefined}
           onClick={(event) => {
             if (historyBack) {
@@ -739,9 +740,7 @@ function ConnectedReader({
               goBack();
             }
           }}
-        >
-          {backLabel}
-        </Link>
+        />
 
         <div className="reader-title">
           <p>{activeChapter?.manga.title ?? t('Reader')}</p>
@@ -976,9 +975,9 @@ function ConnectedReader({
             >
               Retry
             </button>
-            <Link
-              className="button button-secondary"
+            <BackButton
               to={backTarget}
+              label={t('Back')}
               state={fromManga ? mangaState : undefined}
               onClick={(event) => {
                 if (historyBack) {
@@ -986,9 +985,7 @@ function ConnectedReader({
                   goBack();
                 }
               }}
-            >
-              {t('Back')}
-            </Link>
+            />
           </div>
         </div>
       ) : null}

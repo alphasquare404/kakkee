@@ -10,6 +10,7 @@ import {
   type Extension,
 } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { BackButton } from '../../shared/BackButton';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import { PageHeader } from '../../shared/PageHeader';
 import { IconFilter, IconSearch, IconSync } from '../library/icons';
@@ -135,14 +136,7 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         title={t('Extensions')}
         subtitle={t('Sources installed through your server')}
         leading={
-          <Link
-            className="page-back-button"
-            to="/browse"
-            aria-label={t('Back to Browse')}
-            title={t('Back to Browse')}
-          >
-            {'<'}
-          </Link>
+          <BackButton to="/browse" label={t('Back to Browse')} />
         }
         count={
           extensions.status === 'ready'

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createExtensionController } from '../../core/extensions/extensionController';
 import { createExtensionRepository, type Extension } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { BackButton } from '../../shared/BackButton';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -72,12 +73,13 @@ function ExtensionDetailContent({ context }: { readonly context: ConnectedContex
   if (!extension) {
     return (
       <div className="app-shell page-shell extensions-shell">
-        <PageHeader title={t('Extension')} subtitle={pkgName} />
+        <PageHeader
+          title={t('Extension')}
+          subtitle={pkgName}
+          leading={<BackButton to="/extensions" label={t('Back to extensions')} />}
+        />
         <div className="library-state">
           <h1>{t('Extension not found')}</h1>
-          <Link className="button button-secondary" to="/extensions">
-            {t('Back to extensions')}
-          </Link>
         </div>
       </div>
     );
@@ -123,11 +125,11 @@ function ExtensionDetail({
 
   return (
     <div className="app-shell page-shell extensions-shell">
-      <PageHeader title={extension.name} subtitle={extension.pkgName}>
-        <Link className="button button-secondary" to="/extensions">
-          {t('Back to extensions')}
-        </Link>
-      </PageHeader>
+      <PageHeader
+        title={extension.name}
+        subtitle={extension.pkgName}
+        leading={<BackButton to="/extensions" label={t('Back to extensions')} />}
+      />
 
       <article className="extension-detail-card">
         <span className="extension-detail-icon" aria-hidden="true">

@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
+import { BackButton } from '../../shared/BackButton';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import {
   createSectionOrigin,
@@ -199,10 +200,8 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             ? t('{count} loaded', { count: visibleMangas.length })
             : undefined
         }
+        leading={<BackButton to="/browse" label={t('All sources')} />}
       >
-        <Link className="button button-secondary" to="/browse">
-          {t('All sources')}
-        </Link>
         <ActionMenu
           label={t('More')}
           ariaLabel={t('Source actions')}

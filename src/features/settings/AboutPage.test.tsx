@@ -67,7 +67,7 @@ describe('AboutPage navigation', () => {
     expect(await screen.findByRole('heading', { name: 'About' })).toBeTruthy();
     expect(screen.getByText('Suwayomi-Server')).toBeTruthy();
     expect(
-      screen.getAllByRole('link', { name: 'All settings' })[0].getAttribute('href'),
+      screen.getByRole('link', { name: 'Back' }).getAttribute('href'),
     ).toBe('/settings');
     await waitFor(() =>
       expect(

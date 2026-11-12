@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { PageHeader } from '../../shared/PageHeader';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Cinematic dark': 'Gelap sinematik',
@@ -27,11 +27,9 @@ export function AppearanceSettingsPage() {
 
   return (
     <div className="app-shell page-shell settings-shell">
-      <PageHeader title={t('appearance.title')} subtitle={t('appearance.subtitle')}>
-        <Link className="button button-secondary" to="/settings">
-          {t('common.allSettings')}
-        </Link>
-      </PageHeader>
+      <PageHeader title={t('appearance.title')} subtitle={t('appearance.subtitle')}
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="theme-heading">

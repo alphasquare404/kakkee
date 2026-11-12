@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Library settings': 'Pengaturan perpustakaan',
@@ -38,11 +38,8 @@ export function LibrarySettingsPage() {
       <PageHeader
         title={t('Library settings')}
         subtitle={t('Grid density and card size')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="density-heading">

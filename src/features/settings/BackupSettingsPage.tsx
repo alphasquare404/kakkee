@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createBackupController } from '../../core/backup/backupController';
@@ -9,6 +8,7 @@ import type { PartialBackupFlagsInput } from '../../core/graphql/generated/graph
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   Backup: 'Cadangan',
@@ -111,11 +111,8 @@ function BackupContent({ context }: { readonly context: ConnectedContext }) {
       <PageHeader
         title={t('Backup')}
         subtitle={t('Server backup and restore data')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="backup-create">

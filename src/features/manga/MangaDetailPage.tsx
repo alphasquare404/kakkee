@@ -13,6 +13,7 @@ import {
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
+import { BackButton } from '../../shared/BackButton';
 import {
   getLegacyReturnPath,
   getNavigationOrigin,
@@ -441,18 +442,16 @@ function ConnectedMangaDetail({
             <button className="button" type="button" onClick={() => void controller.load()}>
               Retry
             </button>
-            <Link
-              className="button button-secondary"
+            <BackButton
               to={returnTo}
+              label={returnLabel}
               onClick={(event) => {
                 if (origin && canGoBack) {
                   event.preventDefault();
                   navigate(-1);
                 }
               }}
-            >
-              {returnLabel}
-            </Link>
+            />
           </div>
         </div>
       </div>
@@ -635,9 +634,9 @@ function ConnectedMangaDetail({
           </Fragment>
         ))}
         <span className="page-nav-current">{manga.title}</span>
-        <Link
-          className="page-nav-back"
-          aria-label={returnLabel}
+        <BackButton
+          className="page-nav-back-button"
+          label={returnLabel}
           to={returnTo}
           onClick={(event) => {
             if (canGoBack && origin) {
@@ -645,9 +644,7 @@ function ConnectedMangaDetail({
               navigate(-1);
             }
           }}
-        >
-          {returnLabel}
-        </Link>
+        />
       </nav>
 
       <main className="manga-detail">

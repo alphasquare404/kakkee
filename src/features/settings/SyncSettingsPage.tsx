@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createSyncController } from '../../core/sync/syncController';
@@ -12,6 +11,7 @@ import {
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   Sync: 'Sinkronisasi',
@@ -123,11 +123,8 @@ function SyncContent({ context }: { readonly context: ConnectedContext }) {
       <PageHeader
         title={t('Sync')}
         subtitle={t('Server and Yomi synchronization')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="sync-start">

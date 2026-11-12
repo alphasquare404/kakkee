@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -13,6 +12,7 @@ import {
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Server settings': 'Pengaturan server',
@@ -121,11 +121,8 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
       <PageHeader
         title={t('Server settings')}
         subtitle={t('Server behavior stored by Suwayomi')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         {settings.status === 'loading' && !settings.settings ? (

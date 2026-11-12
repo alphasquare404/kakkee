@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import {
   READER_FILTER_CSS,
@@ -15,6 +14,7 @@ import { useReaderSettings } from '../../shared/useReaderSettings';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Reader settings': 'Pengaturan reader',
@@ -103,11 +103,8 @@ export function ReaderSettingsPage() {
       <PageHeader
         title={t('Reader settings')}
         subtitle={t('Defaults for every chapter')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="reader-layout-heading">

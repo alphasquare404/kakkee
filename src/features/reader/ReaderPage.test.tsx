@@ -212,7 +212,7 @@ describe('ReaderPage', () => {
     });
 
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: '← History' }).getAttribute('href')).toBe(
+    expect(screen.getByRole('link', { name: 'History' }).getAttribute('href')).toBe(
       '/history',
     );
   });
@@ -227,7 +227,7 @@ describe('ReaderPage', () => {
     });
 
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: '← Manga' }).getAttribute('href')).toBe(
+    expect(screen.getByRole('link', { name: 'Manga' }).getAttribute('href')).toBe(
       '/manga/1',
     );
   });

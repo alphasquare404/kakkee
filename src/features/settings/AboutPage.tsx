@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -14,6 +13,7 @@ import {
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   About: 'Tentang',
@@ -148,11 +148,8 @@ function AboutContent({ context }: { readonly context: ConnectedContext }) {
       <PageHeader
         title={t('About')}
         subtitle={t('Server and WebUI build information')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="about-server">

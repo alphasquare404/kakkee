@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   Device: 'Perangkat',
@@ -89,11 +89,8 @@ export function DeviceSettingsPage() {
       <PageHeader
         title={t('Device')}
         subtitle={t('Browser and display capabilities')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="device-info">

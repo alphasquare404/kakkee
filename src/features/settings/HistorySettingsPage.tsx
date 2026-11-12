@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
 import { updateHistoryPreferences } from '../../core/preferences/historyPreferences';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'History settings': 'Pengaturan riwayat',
@@ -24,11 +24,8 @@ export function HistorySettingsPage() {
       <PageHeader
         title={t('History settings')}
         subtitle={t('Reading history display')}
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       <div className="settings-content">
         <section className="settings-section" aria-labelledby="history-display">

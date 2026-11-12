@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   createOfflineStorage,
   type OfflineChapter,
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
+import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -91,10 +92,8 @@ export function OfflineReaderPage() {
     return (
       <div className="app-shell page-shell">
         <div className="library-state" role="alert">
+          <BackButton to="/offline" label={t('Back to offline downloads')} />
           <h1>{t('Chapter not stored on this device.')}</h1>
-          <Link className="button" to="/offline">
-            {t('Back to offline downloads')}
-          </Link>
         </div>
       </div>
     );
@@ -103,9 +102,7 @@ export function OfflineReaderPage() {
   return (
     <div className="offline-reader">
       <header className="reader-header">
-        <Link className="reader-back" to="/offline">
-          ← {t('Offline downloads')}
-        </Link>
+        <BackButton to="/offline" label={t('Offline downloads')} />
         <div className="reader-title">
           <p>{chapter.mangaTitle}</p>
           <h1>{chapter.chapterName}</h1>

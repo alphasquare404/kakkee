@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   createOfflineStorage,
   isOfflineStorageSupported,
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
+import { BackButton } from '../../shared/BackButton';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -91,11 +92,8 @@ export function OfflineDownloadsPage() {
         title={t('Offline downloads')}
         subtitle={t('Chapters stored in this browser with OPFS')}
         count={records.length > 0 ? `${records.length} · ${formatBytes(totalBytes)}` : undefined}
-      >
-        <Link className="button button-secondary" to={backTo}>
-          {t('Back')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to={backTo} label={t('Back')} />}
+      />
 
       {!supported ? (
         <div className="library-state">

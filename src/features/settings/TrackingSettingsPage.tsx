@@ -5,7 +5,6 @@ import {
   useSyncExternalStore,
   type FormEvent,
 } from 'react';
-import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { createTrackingController } from '../../core/tracking/trackingController';
@@ -19,6 +18,7 @@ import { setAutoSyncTracking } from '../../core/preferences/trackingPreferences'
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   Tracking: 'Tracking',
@@ -96,11 +96,8 @@ function TrackingContent({ context }: { readonly context: ConnectedContext }) {
               })
             : undefined
         }
-      >
-        <Link className="button button-secondary" to="/settings">
-          {t('All settings')}
-        </Link>
-      </PageHeader>
+        leading={<BackButton to="/settings" label={t('Back')} />}
+      />
 
       {tracking.error ? (
         <p className="settings-inline-error" role="alert">
