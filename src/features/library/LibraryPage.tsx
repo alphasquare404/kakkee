@@ -54,6 +54,8 @@ registerMessages('id', {
   Library: 'Perpustakaan',
   'Loading…': 'Memuat…',
   'Search library': 'Cari di perpustakaan',
+  'Your saved manga and reading progress':
+    'Manga tersimpan dan progres bacaan Anda',
   'Submit search': 'Cari',
   'Clear history': 'Hapus riwayat',
   Select: 'Pilih',
@@ -1121,9 +1123,14 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className="library-header">
         <div className="library-title">
-          <h1>{t('Library')}</h1>
-          <p className="library-count" aria-live="polite">
-            {countLabel(library.totalCount, library.isInitialLoading, t)}
+          <div className="library-title-row">
+            <h1>{t('Library')}</h1>
+            <p className="library-count" aria-live="polite">
+              {countLabel(library.totalCount, library.isInitialLoading, t)}
+            </p>
+          </div>
+          <p className="page-subtitle library-subtitle">
+            {t('Your saved manga and reading progress')}
           </p>
         </div>
 

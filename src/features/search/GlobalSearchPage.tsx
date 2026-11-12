@@ -43,6 +43,8 @@ import {
 registerMessages('id', {
   Search: 'Cari',
   'Search manga': 'Cari manga',
+  'Search manga across selected sources':
+    'Cari manga di sumber yang dipilih',
   '{count} results': '{count} hasil',
   '{count} result': '{count} hasil',
   'Search manga...': 'Cari manga...',
@@ -339,17 +341,22 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell browse-shell sources-shell search-shell">
-      <PageHeader title={t('Search')} count={headerCount} />
-
-      <SearchCommandBar
-        query={queryInput}
-        onQueryChange={setQueryInput}
-        onSubmit={submit}
-        onOpenFilters={() => setFiltersOpen(true)}
-        filterButtonRef={filterButton}
-        activeFilterCount={activeFilterCount}
-        filtersOpen={filtersOpen}
-        onClear={() => navigate('/browse')}
+      <PageHeader
+        title={t('Search')}
+        subtitle={t('Search manga across selected sources')}
+        count={headerCount}
+        toolbar={
+          <SearchCommandBar
+            query={queryInput}
+            onQueryChange={setQueryInput}
+            onSubmit={submit}
+            onOpenFilters={() => setFiltersOpen(true)}
+            filterButtonRef={filterButton}
+            activeFilterCount={activeFilterCount}
+            filtersOpen={filtersOpen}
+            onClear={() => navigate('/browse')}
+          />
+        }
       />
 
       <SearchFilterDrawer

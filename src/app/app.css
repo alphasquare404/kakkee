@@ -817,15 +817,28 @@ h2 {
   gap: var(--sp-2) var(--sp-3);
   align-items: center;
   padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border);
 }
 
 .library-title {
-  display: flex;
+  display: grid;
   grid-area: title;
+  gap: 0.2rem;
+  align-content: center;
+  min-width: 0;
+}
+
+.library-title-row {
+  display: flex;
   flex-wrap: wrap;
   gap: 0 var(--sp-3);
   align-items: baseline;
   min-width: 0;
+}
+
+.library-subtitle {
+  margin: 0;
+  font-size: var(--text-md);
 }
 
 .library-header h1 {
@@ -9000,4 +9013,21 @@ button.manga-card-link {
   .back-button:active {
     transform: none;
   }
+}
+
+/* Shared header toolbar: search and filter controls belong to the header. */
+.page-header.has-toolbar {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.page-header-toolbar {
+  flex: 1 0 100%;
+  min-width: 0;
+  order: 5;
+  margin-top: 0.55rem;
+}
+
+.page-header.has-toolbar .page-header-actions {
+  align-self: flex-start;
 }

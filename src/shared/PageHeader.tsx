@@ -6,6 +6,7 @@ export interface PageHeaderProps {
   readonly subtitle?: string;
   readonly count?: string;
   readonly leading?: ReactNode;
+  readonly toolbar?: ReactNode;
   readonly children?: ReactNode;
 }
 
@@ -15,10 +16,15 @@ export function PageHeader({
   subtitle,
   count,
   leading,
+  toolbar,
   children,
 }: PageHeaderProps) {
   return (
-    <header className={`page-header${leading ? ' has-leading' : ''}`}>
+    <header
+      className={`page-header${leading ? ' has-leading' : ''}${
+        toolbar ? ' has-toolbar' : ''
+      }`}
+    >
       {leading ? <div className="page-header-leading">{leading}</div> : null}
       <div className="page-heading">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
@@ -29,6 +35,7 @@ export function PageHeader({
         {subtitle ? <p className="page-subtitle">{subtitle}</p> : null}
       </div>
       {children ? <div className="page-header-actions">{children}</div> : null}
+      {toolbar ? <div className="page-header-toolbar">{toolbar}</div> : null}
     </header>
   );
 }

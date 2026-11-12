@@ -446,7 +446,21 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
 
   return (
     <div className="app-shell page-shell browse-shell sources-shell">
-      <PageHeader title={t('Browse')}>
+      <PageHeader
+        title={t('Browse')}
+        subtitle={t('Search manga and browse sources installed on your server')}
+        toolbar={
+          <SearchCommandBar
+            query={mangaQuery}
+            onQueryChange={setMangaQuery}
+            onSubmit={submitSearch}
+            onOpenFilters={() => setFiltersOpen(true)}
+            filterButtonRef={filterButton}
+            activeFilterCount={activeFilterCount}
+            filtersOpen={filtersOpen}
+          />
+        }
+      >
         <Link
           className="app-header-icon-button"
           to="/extensions"
@@ -456,16 +470,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
           <IconExtensions />
         </Link>
       </PageHeader>
-
-      <SearchCommandBar
-        query={mangaQuery}
-        onQueryChange={setMangaQuery}
-        onSubmit={submitSearch}
-        onOpenFilters={() => setFiltersOpen(true)}
-        filterButtonRef={filterButton}
-        activeFilterCount={activeFilterCount}
-        filtersOpen={filtersOpen}
-      />
 
       {sources.isLoading && !sources.data ? (
         <div className="sources-directory" aria-hidden="true">

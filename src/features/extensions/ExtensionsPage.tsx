@@ -147,6 +147,47 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
                 })
             : undefined
         }
+                toolbar={
+          <div className="search-command-row extension-command-row">
+            <button
+              ref={filterButton}
+              className={`search-filter-trigger${language !== 'all' ? ' is-active' : ''}`}
+              type="button"
+              aria-label={
+                language !== 'all'
+                  ? t('Filter extensions, {count} active', { count: 1 })
+                  : t('Filter extensions')
+              }
+              aria-haspopup="dialog"
+              aria-expanded={filtersOpen}
+              title={t('Filter extensions')}
+              onClick={() => {
+                setLanguageDraft(language);
+                setFiltersOpen(true);
+              }}
+            >
+              <IconFilter />
+              <span>{t('Filter')}</span>
+              {language !== 'all' ? (
+                <span className="search-filter-count" aria-hidden="true">
+                  1
+                </span>
+              ) : null}
+            </button>
+
+            <label className="sources-search extension-search">
+              <IconSearch />
+              <span className="sr-only">{t('Search extensions')}</span>
+              <input
+                type="search"
+                aria-label={t('Search extensions')}
+                placeholder={t('Search extensions...')}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+              />
+            </label>
+          </div>
+        }
       >
         <button
           className="app-header-icon-button"
@@ -171,45 +212,6 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
         </p>
       ) : null}
 
-      <div className="search-command-row extension-command-row">
-        <button
-          ref={filterButton}
-          className={`search-filter-trigger${language !== 'all' ? ' is-active' : ''}`}
-          type="button"
-          aria-label={
-            language !== 'all'
-              ? t('Filter extensions, {count} active', { count: 1 })
-              : t('Filter extensions')
-          }
-          aria-haspopup="dialog"
-          aria-expanded={filtersOpen}
-          title={t('Filter extensions')}
-          onClick={() => {
-            setLanguageDraft(language);
-            setFiltersOpen(true);
-          }}
-        >
-          <IconFilter />
-          <span>{t('Filter')}</span>
-          {language !== 'all' ? (
-            <span className="search-filter-count" aria-hidden="true">
-              1
-            </span>
-          ) : null}
-        </button>
-
-        <label className="sources-search extension-search">
-          <IconSearch />
-          <span className="sr-only">{t('Search extensions')}</span>
-          <input
-            type="search"
-            aria-label={t('Search extensions')}
-            placeholder={t('Search extensions...')}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-      </div>
 
       <FilterDrawer
         open={filtersOpen}
