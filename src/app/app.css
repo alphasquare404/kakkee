@@ -10871,18 +10871,27 @@ button.manga-card-link {
   }
 
   .manga-track-dates-toggle {
-    display: inline-flex;
-    align-items: center;
-    min-height: 1.65rem;
+    display: inline-grid;
+    width: 1.65rem;
     height: 1.65rem;
-    padding: 0 0.35rem;
+    min-height: 1.65rem;
+    padding: 0;
+    place-items: center;
     color: var(--muted);
-    font-size: 0.6rem;
-    font-weight: 600;
     border: 1px solid var(--border);
     border-radius: 5px;
     background: var(--surface-sunken);
     cursor: pointer;
+  }
+
+  .manga-track-dates-toggle.is-open {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  }
+
+  .manga-track-dates-toggle svg {
+    width: 14px;
+    height: 14px;
   }
 
   .manga-track-unlink {
@@ -10920,5 +10929,14 @@ button.manga-card-link {
 
   .manga-track-dates.is-open {
     order: 5;
+  }
+}
+
+
+@media (min-width: 761px) {
+  .manga-track-row,
+  .manga-track-bind,
+  .manga-track-results {
+    width: min(100%, 42rem);
   }
 }

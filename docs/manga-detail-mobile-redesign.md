@@ -138,9 +138,9 @@ refreshed by the existing download-status subscription.
   Enabling it snapshots the current global reader settings, then shows per-manga mode, width,
   filter, scale, direction, and background controls.
 - Tracking is adaptive. Desktop shows compact Status, Rating (with the tracker's actual scale,
-  e.g. 0–10), Started, and Finished fields inline. Mobile collapses dates behind a small Dates
-  control, keeps Status/Rating/Dates/unlink on one row, and uses inline labels; the row shrinks
-  from about 92px expanded to 63px collapsed. The redundant tracking-settings CTA is hidden once
+  e.g. 0–10), Started, and Finished fields inline. Mobile collapses dates behind a small calendar icon, keeps Status/Rating/calendar/unlink on one
+  row, and uses inline labels; the row shrinks from about 92px expanded to 63px collapsed.
+  Desktop tracker cards are capped at 42rem instead of stretching the full content width. The redundant tracking-settings CTA is hidden once
   a tracker is linked.
 - The tracker search is one compact row: tracker select, search-title field, icon search submit,
   and optional Private checkbox. Unlink is a compact broken-chain icon button with an accessible label.

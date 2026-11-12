@@ -6,7 +6,7 @@ import {
   createMangaTrackingRepository,
   type TrackRecord,
 } from '../../core/tracking/mangaTrackingRepository';
-import { IconSearch, IconSync, IconUnlink } from '../library/icons';
+import { IconCalendar, IconSearch, IconSync, IconUnlink } from '../library/icons';
 
 export function MangaTrackingSection({
   context,
@@ -294,12 +294,14 @@ function TrackRecordRow({
       {record.tracker.supportsReadingDates ? (
         <>
           <button
-            className="manga-track-dates-toggle"
+            className={`manga-track-dates-toggle${datesOpen ? ' is-open' : ''}`}
             type="button"
             aria-expanded={datesOpen}
+            aria-label={datesOpen ? 'Hide dates' : 'Show dates'}
+            title={datesOpen ? 'Hide dates' : 'Show dates'}
             onClick={() => setDatesOpen((open) => !open)}
           >
-            Dates
+            <IconCalendar />
           </button>
           <div className={`manga-track-dates${datesOpen ? ' is-open' : ''}`}>
             <label className="manga-track-field">
