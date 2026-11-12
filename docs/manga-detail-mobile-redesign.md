@@ -147,3 +147,12 @@ refreshed by the existing download-status subscription.
 
 - Section tabs are centered horizontally on tablet and desktop at a 27rem maximum width. On
   mobile they run full width from the same left/right margins as Continue reading.
+
+## Theme and accent integration
+
+- Manga Detail uses the app accent from Appearance settings (`--accent`) for active tabs, primary
+  actions, status accents, active menu items, and focus details. The detail ink color follows the
+  computed accent contrast.
+- Detail backgrounds use theme surfaces (`--surface-strong`, `--bg`, `--surface-sunken`) rather than
+  fixed navy values, so the dark and pure-black themes both apply.
+- The Notes textarea uses a neutral focus border with no accent outline.
