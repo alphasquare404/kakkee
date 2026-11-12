@@ -122,7 +122,7 @@ describe('MangaDetailPage', () => {
     expect(screen.getByRole('link', { name: /Chapter 1186/ }).getAttribute('href')).toBe(
       '/manga/1114/chapter/1186',
     );
-    expect(screen.getByText('2 chapters')).toBeTruthy();
+    expect(screen.getAllByText('2 chapters').length).toBeGreaterThan(0);
     expect(
       screen
         .getByRole('button', { name: 'Mark Chapter 1186 as read' })
@@ -299,7 +299,7 @@ describe('MangaDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Overview' }));
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
     expect(screen.getByRole('heading', { name: 'Synopsis' })).toBeTruthy();
-    expect(screen.getByText('A pirate adventure.')).toBeTruthy();
+    expect(screen.getAllByText('A pirate adventure.').length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole('button', { name: 'Chapters' }));
     expect(await screen.findByRole('link', { name: /Chapter 1186/ })).toBeTruthy();
