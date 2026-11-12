@@ -8,7 +8,6 @@ import {
 import {
   createMangaRepository,
   type MangaChapter,
-  type MangaChapterOrder,
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
@@ -82,6 +81,11 @@ registerMessages('id', {
   More: 'Lainnya',
   'More manga actions': 'Aksi manga lainnya',
   'More actions': 'Aksi lainnya',
+  'Sort by': 'Urutkan',
+  'Download chapters': 'Unduh chapter',
+  'Download server': 'Unduh ke server',
+  'Download device': 'Unduh ke perangkat',
+  'Select chapters': 'Pilih chapter',
   'More chapter actions': 'Aksi chapter lainnya',
   'Scan all chapters': 'Pindai semua chapter',
   'Mark earlier': 'Tandai sebelumnya',
@@ -164,14 +168,6 @@ function MangaReadIcon() {
     <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <path d="M10 5.2C8.4 4.1 6.3 3.6 3.8 3.6v10.7c2.5 0 4.6.5 6.2 1.6 1.6-1.1 3.7-1.6 6.2-1.6V3.6c-2.5 0-4.6.5-6.2 1.6Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
       <path d="M10 5.2v10.7" stroke="currentColor" strokeWidth="1.4" />
-    </svg>
-  );
-}
-
-function MangaLibraryIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M4 3.5h4v13H4v-13Zm7 0h4v13h-4v-13Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -359,6 +355,7 @@ function ConnectedMangaDetail({
   const [refreshPending, setRefreshPending] = useState(false);
   const [refreshError, setRefreshError] = useState(false);
   const [shareState, setShareState] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [coverPortrait, setCoverPortrait] = useState(false);
   const cover = useImageResource(
     context.resources,
     detail.manga?.thumbnailUrl ?? null,
@@ -451,23 +448,6 @@ function ConnectedMangaDetail({
         setDeviceProgress(null);
         setPendingChapterId(null);
       }
-    }
-  };
-
-  const removeDeviceDownload = async (chapterId: number) => {
-    setPendingChapterId(chapterId);
-
-    try {
-      await clientDownloads.deleteChapter(chapterId);
-      setDeviceRecords((current) => {
-        const next = new Set(current);
-        next.delete(chapterId);
-        return next;
-      });
-    } catch {
-      setDeviceError(true);
-    } finally {
-      setPendingChapterId(null);
     }
   };
 
@@ -723,68 +703,112 @@ function ConnectedMangaDetail({
     }
   };
 
+
+  const downloadSelection = (target: 'server' | 'device') => {
+    const ids = [...selectedChapterIds];
+
+    if (ids.length === 0) {
+      setChapterSelectionMode(true);
+      return;
+    }
+
+    updateAppPreferences({ downloadTarget: target });
+
+    if (target === 'device') {
+      void downloadToDevice(ids).then(() => {
+        setSelectedChapterIds(new Set());
+        setChapterSelectionMode(false);
+        setLastSelectedChapterIndex(null);
+      });
+      return;
+    }
+
+    void runChapterBulkAction(async (selected) => {
+      setQueuedChapters((current) => {
+        const next = new Set(current);
+        selected.forEach((id) => next.add(id));
+        return next;
+      });
+      await controller.enqueueChapterDownloads(selected);
+    });
+  };
+
   return (
     <div className="app-shell detail-shell">
       <AmbientArt imageUrl={cover.objectUrl} className="detail-ambient" />
       <nav className="page-nav" aria-label="Breadcrumb">
-        {origin?.trail.map((crumb, index) => (
-          <Fragment key={`${crumb.pathname}-${index}`}>
-            <Link to={originHref(crumb)}>{originLabel(crumb, t)}</Link>
-            <span aria-hidden="true">/</span>
-          </Fragment>
-        ))}
-        <span className="page-nav-current">{manga.title}</span>
+        <BackButton
+          className="detail-nav-back"
+          label={returnLabel}
+          to={returnTo}
+          onClick={(event) => {
+            if (canGoBack && origin) {
+              event.preventDefault();
+              navigate(-1);
+            }
+          }}
+        />
+        <div className="page-nav-trail">
+          {origin?.trail.map((crumb, index) => (
+            <Fragment key={`${crumb.pathname}-${index}`}>
+              <Link to={originHref(crumb)}>{originLabel(crumb, t)}</Link>
+              <span aria-hidden="true">/</span>
+            </Fragment>
+          ))}
+          <span className="page-nav-current">{manga.title}</span>
+        </div>
+        <div className="manga-hero-controls">
+          <button
+            className={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
+            type="button"
+            disabled={libraryPending}
+            aria-label={
+              manga.inLibrary
+                ? t('Remove from library')
+                : t('Add to library')
+            }
+            aria-pressed={manga.inLibrary}
+            title={
+              manga.inLibrary ? t('Remove from library') : t('Add to library')
+            }
+            onClick={toggleLibrary}
+          >
+            <MangaBookmarkIcon filled={manga.inLibrary} />
+          </button>
+          <ActionMenu
+            label={<MangaDotsIcon />}
+            ariaLabel={t('More manga actions')}
+            summaryClassName="hero-control hero-more"
+          >
+            {mangaMenu}
+          </ActionMenu>
+        </div>
       </nav>
 
       <main className="manga-detail">
         <div className="manga-top">
-          <header className="manga-hero" id="overview">
+          <header
+            className={`manga-hero${coverPortrait ? ' is-portrait-cover' : ''}`}
+            id="overview"
+          >
             <div className="manga-hero-cover">
               {cover.objectUrl ? (
-                <img src={cover.objectUrl} alt="" decoding="async" />
+                <img
+                  src={cover.objectUrl}
+                  alt=""
+                  decoding="async"
+                  onLoad={(event) =>
+                    setCoverPortrait(
+                      event.currentTarget.naturalHeight >
+                        event.currentTarget.naturalWidth * 1.1,
+                    )
+                  }
+                />
               ) : (
                 <span className="manga-hero-placeholder" aria-hidden="true">
                   {manga.title.trim().charAt(0).toUpperCase() || '·'}
                 </span>
               )}
-            </div>
-
-            <div className="manga-hero-controls">
-              <BackButton
-                className="hero-control hero-back"
-                label={returnLabel}
-                to={returnTo}
-                onClick={(event) => {
-                  if (canGoBack && origin) {
-                    event.preventDefault();
-                    navigate(-1);
-                  }
-                }}
-              />
-              <button
-                className={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
-                type="button"
-                disabled={libraryPending}
-                aria-label={
-                  manga.inLibrary
-                    ? t('Remove manga bookmark')
-                    : t('Bookmark manga')
-                }
-                aria-pressed={manga.inLibrary}
-                title={
-                  manga.inLibrary ? t('Remove from library') : t('Add to library')
-                }
-                onClick={toggleLibrary}
-              >
-                <MangaBookmarkIcon filled={manga.inLibrary} />
-              </button>
-              <ActionMenu
-                label={<MangaDotsIcon />}
-                ariaLabel={t('More manga actions')}
-                summaryClassName="hero-control hero-more"
-              >
-                {mangaMenu}
-              </ActionMenu>
             </div>
           </header>
 
@@ -858,28 +882,6 @@ function ConnectedMangaDetail({
                       : t('Read last chapter')}
                 </Link>
               ) : null}
-              <button
-                className={`button button-secondary${manga.inLibrary ? ' is-library' : ''}`}
-                type="button"
-                aria-pressed={manga.inLibrary}
-                disabled={libraryPending}
-                title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
-                onClick={toggleLibrary}
-              >
-                <MangaLibraryIcon />
-                {libraryPending
-                  ? t('Saving…')
-                  : manga.inLibrary
-                    ? t('In library')
-                    : t('Add to library')}
-              </button>
-              <ActionMenu
-                label={<MangaDotsIcon />}
-                ariaLabel={t('More actions')}
-                summaryClassName="manga-action-more"
-              >
-                {mangaMenu}
-              </ActionMenu>
             </div>
 
             {libraryActionError ? (
@@ -1025,39 +1027,9 @@ function ConnectedMangaDetail({
                   : t('{count} chapters', { count: detail.totalCount })}
               </p>
             </div>
-
-            <label className="chapter-order">
-              <span>{t('Order')}</span>
-              <select
-                aria-label="Chapter order"
-                value={detail.order}
-                onChange={(event) =>
-                  void controller.setOrder(event.target.value as MangaChapterOrder)
-                }
-              >
-                <option value="newest">{t('Newest first')}</option>
-                <option value="oldest">{t('Oldest first')}</option>
-              </select>
-            </label>
           </div>
 
           <div className="chapter-toolbar">
-            <button
-              className={`library-action${chapterSelectionMode ? ' is-active' : ''}`}
-              type="button"
-              aria-pressed={chapterSelectionMode}
-              onClick={() => {
-                if (chapterSelectionMode) {
-                  setSelectedChapterIds(new Set());
-                  setLastSelectedChapterIndex(null);
-                  setChapterDeleteConfirm(false);
-                }
-                setChapterSelectionMode((value) => !value);
-              }}
-            >
-              {chapterSelectionMode ? t('Done') : t('Select')}
-            </button>
-
             <label className="chapter-search">
               <span className="sr-only">Search chapters</span>
               <input
@@ -1068,35 +1040,62 @@ function ConnectedMangaDetail({
               />
             </label>
 
-            <label className="chapter-select">
-              <span className="sr-only">{t('Chapters')}</span>
-              <select
-                aria-label="Filter chapters"
-                value={chapterFilter}
-                onChange={(event) =>
-                  setChapterFilter(
-                    event.target.value as
-                      | 'all'
-                      | 'unread'
-                      | 'read'
-                      | 'downloaded'
-                      | 'bookmarked',
-                  )
-                }
+            <ActionMenu
+              label={t('Sort by')}
+              ariaLabel={t('Sort by')}
+              summaryClassName="chapter-toolbar-button"
+            >
+              <button
+                type="button"
+                className={detail.order === 'newest' ? 'is-active' : undefined}
+                aria-pressed={detail.order === 'newest'}
+                onClick={() => void controller.setOrder('newest')}
               >
-                <option value="all">{t('All chapters')}</option>
-                <option value="unread">{t('Unread')}</option>
-                <option value="read">{t('Read')}</option>
-                <option value="downloaded">{t('Downloaded')}</option>
-                <option value="bookmarked">{t('Bookmarked')}</option>
-              </select>
-            </label>
+                {t('Newest first')}
+              </button>
+              <button
+                type="button"
+                className={detail.order === 'oldest' ? 'is-active' : undefined}
+                aria-pressed={detail.order === 'oldest'}
+                onClick={() => void controller.setOrder('oldest')}
+              >
+                {t('Oldest first')}
+              </button>
+            </ActionMenu>
 
             <ActionMenu
               label={t('More')}
               ariaLabel={t('More chapter actions')}
-              summaryClassName="library-action"
+              summaryClassName="chapter-toolbar-button"
             >
+              <p className="action-menu-section">Filters</p>
+              {(
+                [
+                  ['all', t('All chapters')],
+                  ['unread', t('Unread')],
+                  ['read', t('Read')],
+                  ['downloaded', t('Downloaded')],
+                  ['bookmarked', t('Bookmarked')],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={chapterFilter === value ? 'is-active' : undefined}
+                  aria-pressed={chapterFilter === value}
+                  onClick={() => setChapterFilter(value)}
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                type="button"
+                className={hideDuplicates ? 'is-active' : undefined}
+                aria-pressed={hideDuplicates}
+                onClick={() => setHideDuplicates((value) => !value)}
+              >
+                {t('Hide duplicates')}
+              </button>
               <button
                 type="button"
                 disabled={scanBusy}
@@ -1106,56 +1105,60 @@ function ConnectedMangaDetail({
                   ? t('Scanning…')
                   : scannedChapters
                     ? scannedChapters.length === 1
-                    ? t('1 chapter')
-                    : t('{count} chapters', { count: scannedChapters.length })
+                      ? t('1 chapter')
+                      : t('{count} chapters', { count: scannedChapters.length })
                     : t('Scan all chapters')}
               </button>
-              <p className="action-menu-section">Chapter filters</p>
-            <button
-              className={`library-action${hideDuplicates ? ' is-active' : ''}`}
-              type="button"
-              aria-pressed={hideDuplicates}
-              onClick={() => setHideDuplicates((value) => !value)}
+              {scanlators.length > 0 ? (
+                <label className="chapter-select">
+                  <span className="sr-only">Filter by scanlator</span>
+                  <select
+                    aria-label="Filter by scanlator"
+                    value={scanlator}
+                    onChange={(event) => setScanlator(event.target.value)}
+                  >
+                    <option value="all">{t('All scanlators')}</option>
+                    {scanlators.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+            </ActionMenu>
+
+            <ActionMenu
+              label={t('Download')}
+              ariaLabel={t('Download chapters')}
+              summaryClassName="chapter-toolbar-button"
             >
-              {t('Hide duplicates')}
-            </button>
-
-            {isOfflineStorageSupported() ? (
-              <label className="chapter-select">
-                <span className="sr-only">{t('Download target')}</span>
-                <select
-                  aria-label={t('Download target')}
-                  value={appPreferences.downloadTarget}
-                  onChange={(event) =>
-                    updateAppPreferences({
-                      downloadTarget:
-                        event.target.value === 'device' ? 'device' : 'server',
-                    })
-                  }
+              <button
+                type="button"
+                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                onClick={() => downloadSelection('server')}
+              >
+                {t('Download server')}
+              </button>
+              <button
+                type="button"
+                disabled={
+                  chapterBulkBusy ||
+                  selectedChapterIds.size === 0 ||
+                  !isOfflineStorageSupported()
+                }
+                onClick={() => downloadSelection('device')}
+              >
+                {t('Download device')}
+              </button>
+              {selectedChapterIds.size === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setChapterSelectionMode(true)}
                 >
-                  <option value="server">{t('Server')}</option>
-                  <option value="device">{t('This device')}</option>
-                </select>
-              </label>
-            ) : null}
-
-            {scanlators.length > 0 ? (
-              <label className="chapter-select">
-                <span className="sr-only">Filter by scanlator</span>
-                <select
-                  aria-label="Filter by scanlator"
-                  value={scanlator}
-                  onChange={(event) => setScanlator(event.target.value)}
-                >
-                  <option value="all">{t('All scanlators')}</option>
-                  {scanlators.map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
+                  {t('Select chapters')}
+                </button>
+              ) : null}
             </ActionMenu>
           </div>
 
@@ -1228,23 +1231,7 @@ function ConnectedMangaDetail({
                 className="library-action"
                 type="button"
                 disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() => {
-                  const ids = [...selectedChapterIds];
-
-                  if (appPreferences.downloadTarget === 'device') {
-                    void downloadToDevice(ids);
-                    return;
-                  }
-
-                  setQueuedChapters((current) => {
-                    const next = new Set(current);
-                    ids.forEach((id) => next.add(id));
-                    return next;
-                  });
-                  void runChapterBulkAction((selected) =>
-                    controller.enqueueChapterDownloads(selected),
-                  );
-                }}
+                onClick={() => downloadSelection(appPreferences.downloadTarget)}
               >
                 {t('Download')}
               </button>
@@ -1374,76 +1361,59 @@ function ConnectedMangaDetail({
                       </span>
                     </Link>
                     <div className="chapter-actions">
-                      <button
-                        className="chapter-icon-button chapter-bookmark-button"
-                        type="button"
-                        disabled={pendingChapterId === chapter.id}
-                        aria-label={`${
-                          chapter.isBookmarked ? 'Remove bookmark' : 'Bookmark'
-                        } ${chapter.name}`}
-                        aria-pressed={chapter.isBookmarked}
-                        onClick={() => {
-                          setChapterActionError(false);
-                          setPendingChapterId(chapter.id);
-                          void controller
-                            .setChapterBookmark(
-                              chapter.id,
-                              !chapter.isBookmarked,
-                            )
-                            .catch(() => setChapterActionError(true))
-                            .finally(() => setPendingChapterId(null));
-                        }}
-                      >
-                        {chapter.isBookmarked ? '★' : '☆'}
-                      </button>
-                      <button
-                        className="chapter-icon-button"
-                        type="button"
-                        disabled={pendingChapterId === chapter.id}
-                        aria-label={`${
-                          downloaded
-                            ? 'Delete download for'
-                            : queued
-                              ? 'Queued download for'
-                              : 'Download'
-                        } ${chapter.name}`}
-                        aria-pressed={downloaded}
-                        onClick={() => {
-                          if (deviceMode) {
-                            if (downloaded) {
-                              void removeDeviceDownload(chapter.id);
-                            } else {
-                              void downloadToDevice([chapter.id]);
-                            }
-                            return;
-                          }
+                      {!downloaded ? (
+                        <button
+                          className={`chapter-icon-button${queued ? ' is-queued' : ''}`}
+                          type="button"
+                          disabled={pendingChapterId === chapter.id}
+                          aria-label={`${
+                            queued ? 'Cancel download for' : 'Download'
+                          } ${chapter.name}`}
+                          aria-pressed={queued}
+                          onClick={() => {
+                            setChapterActionError(false);
 
-                          setChapterActionError(false);
-                          setPendingChapterId(chapter.id);
-                          void controller
-                            .setChapterDownloaded(
-                              chapter.id,
-                              chapter.isDownloaded,
-                            )
-                            .then(() => {
-                              if (!chapter.isDownloaded) {
+                            if (deviceMode) {
+                              void downloadToDevice([chapter.id]);
+                              return;
+                            }
+
+                            if (queued) {
+                              setPendingChapterId(chapter.id);
+                              setQueuedChapters((current) => {
+                                const next = new Set(current);
+                                next.delete(chapter.id);
+                                return next;
+                              });
+                              void controller
+                                .dequeueChapterDownload(chapter.id)
+                                .catch(() => setChapterActionError(true))
+                                .finally(() => setPendingChapterId(null));
+                              return;
+                            }
+
+                            setPendingChapterId(chapter.id);
+                            setQueuedChapters((current) => {
+                              const next = new Set(current);
+                              next.add(chapter.id);
+                              return next;
+                            });
+                            void controller
+                              .enqueueChapterDownloads([chapter.id])
+                              .catch(() => {
                                 setQueuedChapters((current) => {
                                   const next = new Set(current);
-                                  next.add(chapter.id);
+                                  next.delete(chapter.id);
                                   return next;
                                 });
-                              }
-                            })
-                            .catch(() => setChapterActionError(true))
-                            .finally(() => setPendingChapterId(null));
-                        }}
-                      >
-                        {downloaded
-                          ? '×'
-                          : queued
-                            ? '✓'
-                            : '↓'}
-                      </button>
+                                setChapterActionError(true);
+                              })
+                              .finally(() => setPendingChapterId(null));
+                          }}
+                        >
+                          {queued ? '×' : '↓'}
+                        </button>
+                      ) : null}
                       <button
                         className={`chapter-read-toggle${
                           chapter.isRead ? ' is-read' : ''
@@ -1468,13 +1438,23 @@ function ConnectedMangaDetail({
                             .finally(() => setPendingChapterId(null));
                         }}
                       >
-                        {t('Read')}
+                        {chapter.isRead ? t('Read') : t('Unread')}
                       </button>
                       <ActionMenu
                         label="⋯"
                         ariaLabel={`${t('More chapter actions for')} ${chapter.name}`}
                         summaryClassName="chapter-icon-button chapter-row-more"
                       >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChapterSelectionMode(true);
+                            setSelectedChapterIds(new Set([chapter.id]));
+                            setLastSelectedChapterIndex(index);
+                          }}
+                        >
+                          {t('Select')}
+                        </button>
                         <button
                           type="button"
                           disabled={pendingChapterId === chapter.id}
@@ -1491,8 +1471,8 @@ function ConnectedMangaDetail({
                           }}
                         >
                           {chapter.isBookmarked
-                            ? 'Remove bookmark'
-                            : 'Bookmark'}
+                            ? t('Remove bookmark')
+                            : t('Bookmark')}
                         </button>
                         <button
                           type="button"

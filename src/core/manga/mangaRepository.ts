@@ -1,6 +1,7 @@
 import type { ApolloClient } from '@apollo/client';
 import {
   DeleteDownloadedChapterDocument,
+  DequeueDownloadDocument,
   DeleteDownloadedChaptersDocument,
   EnqueueChapterDownloadsDocument,
   EnqueueDownloadDocument,
@@ -47,6 +48,7 @@ export interface MangaRepository {
     isBookmarked: boolean,
   ): Promise<void>;
   enqueueDownload(chapterId: number): Promise<void>;
+  dequeueDownload(chapterId: number): Promise<void>;
   enqueueDownloads(ids: readonly number[]): Promise<void>;
   deleteDownloads(ids: readonly number[]): Promise<void>;
   deleteDownload(chapterId: number): Promise<void>;
@@ -164,6 +166,16 @@ export function createMangaRepository(
 
       if (!result.data?.enqueueChapterDownload) {
         throw new Error('Chapter tidak dapat dimasukkan ke antrean download.');
+      }
+    },
+    async dequeueDownload(chapterId) {
+      const result = await options.getClient().mutate({
+        mutation: DequeueDownloadDocument,
+        variables: { input: { id: chapterId } },
+      });
+
+      if (!result.data?.dequeueChapterDownload) {
+        throw new Error('Download chapter tidak dapat dibatalkan.');
       }
     },
     async enqueueDownloads(ids) {

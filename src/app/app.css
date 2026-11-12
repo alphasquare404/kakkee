@@ -9937,3 +9937,274 @@ button.manga-card-link {
     padding-bottom: calc(5rem + var(--safe-bottom));
   }
 }
+
+/* Detail top controls: breadcrumb row on desktop, overlay only on phones. */
+.detail-shell {
+  position: relative;
+}
+
+.detail-shell .page-nav {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  position: relative;
+  z-index: 12;
+}
+
+.page-nav-trail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.detail-nav-back {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--muted);
+  border: 0;
+  background: transparent;
+}
+
+.detail-nav-back:hover {
+  color: var(--text);
+  background: transparent;
+}
+
+.manga-hero-controls {
+  position: static;
+  top: auto;
+  right: auto;
+  left: auto;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.2rem;
+  align-items: center;
+  margin-left: auto;
+  pointer-events: auto;
+}
+
+.hero-control {
+  display: inline-grid;
+  width: 2.45rem;
+  height: 2.45rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  list-style: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.hero-control:hover,
+.hero-control[open] {
+  color: var(--text);
+  background: transparent;
+}
+
+.hero-control.is-active {
+  color: var(--detail-accent);
+}
+
+.hero-control .action-menu-chevron,
+.hero-more .action-menu-chevron {
+  display: none;
+}
+
+.hero-more {
+  list-style: none;
+}
+
+.hero-more::-webkit-details-marker {
+  display: none;
+}
+
+.manga-hero.is-portrait-cover {
+  /* desktop sizing stays cover-card based */
+}
+
+.manga-detail .detail-tabs button.is-active::after {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .detail-shell .page-nav {
+    position: absolute;
+    z-index: 20;
+    top: max(0.75rem, var(--safe-top));
+    right: max(0.8rem, var(--safe-right));
+    left: max(0.8rem, var(--safe-left));
+    display: flex;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .page-nav-trail {
+    display: none;
+  }
+
+  .detail-nav-back,
+  .hero-control {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  }
+
+  .detail-nav-back:hover,
+  .hero-control:hover,
+  .hero-control[open] {
+    color: #fff;
+    background: transparent;
+  }
+
+  .manga-hero.is-portrait-cover {
+    height: clamp(21rem, 53vh, 34rem);
+  }
+
+  .manga-actions {
+    display: block;
+  }
+
+  .manga-actions .detail-primary {
+    width: 100%;
+    min-height: 3rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* Chapter toolbar: compact sort, filters, and download actions. */
+.detail-shell .chapter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.chapter-toolbar-button {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0 0.7rem;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  list-style: none;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chapter-toolbar-button::-webkit-details-marker {
+  display: none;
+}
+
+.chapter-toolbar-button .action-menu-chevron {
+  display: none;
+}
+
+.chapter-toolbar-button:hover,
+.chapter-toolbar-button[open] {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+
+.detail-shell .chapter-search {
+  flex: 1 1 15rem;
+}
+
+.detail-shell .chapter-search input {
+  min-height: 2.35rem;
+  border-radius: 999px;
+}
+
+.action-menu-panel button.is-active {
+  color: var(--detail-accent);
+}
+
+.detail-shell .chapter-item {
+  content-visibility: visible;
+}
+
+.detail-shell .chapter-actions {
+  gap: 0.1rem;
+}
+
+.detail-shell .chapter-read-toggle {
+  width: auto;
+  height: auto;
+  min-height: 1.85rem;
+  padding: 0 0.15rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+}
+
+.detail-shell .chapter-read-toggle::before {
+  content: none;
+}
+
+.detail-shell .chapter-read-toggle.is-read {
+  color: var(--success);
+  border: 0;
+  background: transparent;
+}
+
+.detail-shell .chapter-read-toggle:hover:not(:disabled) {
+  color: var(--text);
+  background: transparent;
+}
+
+.detail-shell .chapter-icon-button.is-queued {
+  color: var(--detail-accent);
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (max-width: 760px) {
+  .detail-shell .chapter-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .detail-shell .chapter-search {
+    grid-column: 1 / -1;
+    order: -1;
+    width: 100%;
+  }
+
+  .detail-shell .chapter-toolbar > .action-menu {
+    width: 100%;
+  }
+
+  .detail-shell .chapter-toolbar-button {
+    width: 100%;
+    min-height: 2.4rem;
+    padding: 0 0.35rem;
+    font-size: 0.72rem;
+  }
+
+  .detail-shell .chapter-read-toggle {
+    min-width: 2.1rem;
+    font-size: 0.64rem;
+  }
+}
+
+.detail-shell .detail-nav-back {
+  margin-left: 0;
+}

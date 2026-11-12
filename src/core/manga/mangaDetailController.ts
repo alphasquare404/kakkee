@@ -36,6 +36,7 @@ export interface MangaDetailController {
     isBookmarked: boolean,
   ): Promise<void>;
   enqueueChapterDownloads(ids: readonly number[]): Promise<void>;
+  dequeueChapterDownload(chapterId: number): Promise<void>;
   deleteChapterDownloads(ids: readonly number[]): Promise<void>;
   setChapterDownloaded(
     chapterId: number,
@@ -361,6 +362,7 @@ export function createMangaDetailController(
     setChaptersRead,
     setChaptersBookmark,
     enqueueChapterDownloads,
+    dequeueChapterDownload: (chapterId) => options.repository.dequeueDownload(chapterId),
     deleteChapterDownloads,
     setChapterDownloaded,
     setInLibrary,

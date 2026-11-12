@@ -236,7 +236,8 @@ describe('MangaDetailPage', () => {
     renderDetail(query);
     await screen.findByRole('heading', { name: 'One Piece' });
 
-    await user.selectOptions(screen.getByLabelText('Chapter order'), 'oldest');
+    fireEvent.click(screen.getByLabelText('Sort by'));
+    await user.click(screen.getByRole('button', { name: 'Oldest first' }));
 
     await waitFor(() =>
       expect(query).toHaveBeenCalledWith(
@@ -273,7 +274,8 @@ describe('MangaDetailPage', () => {
     renderDetail(query);
     await screen.findByRole('link', { name: /Chapter 1186/ });
 
-    await user.selectOptions(screen.getByLabelText('Filter chapters'), 'read');
+    fireEvent.click(screen.getByLabelText('More chapter actions'));
+    await user.click(screen.getByRole('button', { name: 'Read' }));
     expect(screen.queryByRole('link', { name: /Chapter 1186/ })).toBeNull();
     expect(screen.getByRole('link', { name: /Chapter 1185/ })).toBeTruthy();
 
@@ -313,7 +315,11 @@ describe('MangaDetailPage', () => {
     renderDetail(query);
     await screen.findByRole('link', { name: /Chapter 1186/ });
 
-    await user.click(screen.getByRole('button', { name: 'Select' }));
+    const chapterMenu = screen
+      .getByLabelText('More chapter actions for Chapter 1186')
+      .closest('details') as HTMLElement;
+    fireEvent.click(screen.getByLabelText('More chapter actions for Chapter 1186'));
+    await user.click(within(chapterMenu).getByRole('button', { name: 'Select' }));
     await user.click(screen.getByRole('button', { name: 'Select Chapter 1186' }));
     fireEvent.click(
       screen.getByRole('button', { name: 'Select Chapter 1185' }),
