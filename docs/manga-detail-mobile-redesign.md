@@ -57,6 +57,7 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 - `visual-audit/manga-final10-rail-390x844.png`
 - `visual-audit/manga-final10-download-menu-390x844.png`
 - `visual-audit/manga-final11-card-menu-390x844.png`
+- `visual-audit/manga-final12-badges-390x844.png`
 - `visual-audit/manga-final11-card-download-390x844.png`
 - `visual-audit/manga-final7-bookmark-390x844.png`
 - `visual-audit/manga-final5-toolbar-menu-390x844.png`
@@ -85,16 +86,36 @@ build           PASS
   scanlator filtering.
 - Download exposes Server / This device checkboxes (both can be active) and the scopes Download all,
   Download unread, and Next chapter. It no longer offers Select chapters.
+- Card More has a Download row with a chevron. Pressing it replaces the row with Download server /
+  Download device.
 - Select was removed from the toolbar. Selection starts from a long press or the card More menu.
-- Card actions are borderless Unread/Read and More only.
+- Card actions are an Unread/Read icon and More only.
+- Server/device download state is shown by compact success-colored icons immediately before the
+  read icon: a server drive icon for server downloads, a phone icon for device downloads, and both
+  when present. Each group has an accessible label.
 - Delete downloaded chapter is not shown on chapter cards.
 - Card menus contain Select, Download (with a submenu arrow and server/device choices), conditional
   Bookmark/Remove bookmark, and Mark earlier as read.
 - Selection uses an unboxed, horizontally scrollable icon rail with a fixed × at the right. It
-  shows only contextual read/bookmark icons plus Download and Delete downloads. Mixed selections
-  show both of each contextual pair. There are no text buttons or bordered icon boxes in the rail.
+  shows contextual read/bookmark icons plus Download and Delete downloads. Mixed selections show
+  both of each contextual pair. There are no text buttons or bordered icon boxes in the rail.
+- Server download status refreshes after DownloadStatusChanged events so the server badge appears
+  once the queue completes.
 - The top bookmark control opens category choices. The current/default category is checked and the
   selection can be changed; choosing a category adds the manga to the library.
 - All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
   clamp horizontally, and scroll internally instead of leaving the screen.
 - Show more scrolls to the tabs with `scroll-margin-top` accounting for the safe area.
+
+## Download indicators
+
+| State | Indicator |
+|---|---|
+| Downloaded on server | Server drive icon |
+| Saved on device | Device icon |
+| Both | Both icons |
+| Neither | No indicator |
+
+Indicators sit before the read icon in the chapter action cluster and do not add per-chapter API
+requests. Device state comes from OPFS records; server state comes from `isDownloaded` and is
+refreshed by the existing download-status subscription.

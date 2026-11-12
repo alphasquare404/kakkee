@@ -10464,3 +10464,39 @@ button.manga-card-link {
   margin-left: auto;
   color: var(--faint);
 }
+
+.chapter-download-badges {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.18rem;
+  align-items: center;
+  color: var(--success);
+}
+
+.chapter-download-badges svg {
+  display: block;
+}
+
+.detail-shell .chapter-read-toggle {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 0;
+  background: transparent;
+}
+
+.detail-shell .chapter-read-toggle.is-read {
+  color: var(--success);
+}
+
+@media (max-width: 760px) {
+  .detail-shell .chapter-read-toggle {
+    width: 1.9rem;
+    height: 1.9rem;
+    min-height: 1.9rem;
+  }
+}

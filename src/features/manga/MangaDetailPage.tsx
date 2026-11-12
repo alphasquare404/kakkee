@@ -10,6 +10,7 @@ import {
   type MangaChapter,
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
+import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
 import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { BackButton } from '../../shared/BackButton';
@@ -190,6 +191,34 @@ function ChapterTrashIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <path d="M4.5 6.2h11M8 6.2V4.4h4v1.8M6.2 6.2l.6 9.4h6.4l.6-9.4M8.5 9v4M11.5 9v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ChapterReadIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="6.3" stroke="currentColor" strokeWidth="1.5" />
+      <path d="m7 10.2 2 2 4-4.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ServerDownloadedIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="3.2" y="4" width="13.6" height="4.2" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+      <rect x="3.2" y="11.5" width="13.6" height="4.2" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M6.2 6.1h.01M6.2 13.6h.01M11.6 13.4l1.3 1.3 2.2-2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DeviceDownloadedIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x="5.4" y="2.6" width="9.2" height="14.8" rx="1.8" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M8.8 5.1h2.4M8.2 13.4l1.2 1.2 2.4-2.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -448,6 +477,39 @@ function ConnectedMangaDetail({
       )
       .catch(() => setDeviceError(true));
   }, [clientDownloads, mangaId]);
+
+  const downloadRefreshTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (typeof context.graphQL.subscribe !== 'function') {
+      return;
+    }
+
+    const subscription = context.graphQL
+      .subscribe({ query: DownloadStatusChangedDocument })
+      .subscribe({
+        next: () => {
+          if (downloadRefreshTimer.current !== null) {
+            window.clearTimeout(downloadRefreshTimer.current);
+          }
+
+          downloadRefreshTimer.current = window.setTimeout(() => {
+            downloadRefreshTimer.current = null;
+            void controller.load();
+          }, 700);
+        },
+        error: () => undefined,
+      });
+
+    return () => {
+      subscription.unsubscribe();
+
+      if (downloadRefreshTimer.current !== null) {
+        window.clearTimeout(downloadRefreshTimer.current);
+        downloadRefreshTimer.current = null;
+      }
+    };
+  }, [context.graphQL, controller]);
 
   const downloadToDevice = async (chapterIds: readonly number[]) => {
     if (deviceProgress) {
@@ -1400,6 +1462,14 @@ function ConnectedMangaDetail({
                 const chapter = entry.chapter;
                 const index = visibleChapters.indexOf(chapter);
                 const uploaded = formatDate(chapter.uploadDate);
+                const onServer = chapter.isDownloaded;
+                const onDevice = deviceRecords.has(chapter.id);
+                const downloadLabel =
+                  onServer && onDevice
+                    ? 'Downloaded on server and device'
+                    : onServer
+                      ? 'Downloaded on server'
+                      : 'Saved on device';
                 return (
                   <li className="chapter-item" key={chapter.id}>
                     {chapterSelectionMode ? (
@@ -1457,7 +1527,17 @@ function ConnectedMangaDetail({
                       </span>
                     </Link>
                     <div className="chapter-actions">
-
+                      {onServer || onDevice ? (
+                        <span
+                          className="chapter-download-badges"
+                          role="img"
+                          aria-label={downloadLabel}
+                          title={downloadLabel}
+                        >
+                          {onServer ? <ServerDownloadedIcon /> : null}
+                          {onDevice ? <DeviceDownloadedIcon /> : null}
+                        </span>
+                      ) : null}
                       <button
                         className={`chapter-read-toggle${
                           chapter.isRead ? ' is-read' : ''
@@ -1482,7 +1562,7 @@ function ConnectedMangaDetail({
                             .finally(() => setPendingChapterId(null));
                         }}
                       >
-                        {chapter.isRead ? t('Read') : t('Unread')}
+                        {chapter.isRead ? <ChapterReadIcon /> : <ChapterUnreadIcon />}
                       </button>
                       <ActionMenu
                         label="⋯"
