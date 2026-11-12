@@ -9906,14 +9906,6 @@ button.manga-card-link {
     border-radius: 999px;
   }
 
-  .detail-shell .chapter-read-toggle::before {
-    font-size: 0.78rem;
-    content: "○";
-  }
-
-  .detail-shell .chapter-read-toggle.is-read::before {
-    content: "✓";
-  }
 }
 
 @media (min-width: 761px) and (max-width: 1100px) {
