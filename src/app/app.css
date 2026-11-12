@@ -10127,7 +10127,7 @@ button.manga-card-link {
 
 .detail-shell .chapter-search input {
   min-height: 2.35rem;
-  border-radius: 999px;
+  border-radius: 9px;
 }
 
 .action-menu-panel button.is-active {
@@ -10318,4 +10318,80 @@ button.manga-card-link {
 .manga-description {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+/* Contextual chapter selection rail, mirroring Library selection behavior. */
+.chapter-bulk-rail {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--sp-2);
+  padding: 0.5rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  border-radius: 10px;
+  background: rgba(20, 29, 48, 0.82);
+}
+
+.chapter-bulk-rail > strong {
+  flex: 0 0 auto;
+  color: var(--text);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.chapter-bulk-rail-actions {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.3rem;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chapter-bulk-rail-actions::-webkit-scrollbar {
+  display: none;
+}
+
+.chapter-bulk-rail-actions .library-action {
+  flex: 0 0 auto;
+  min-height: 2rem;
+  white-space: nowrap;
+  border-color: var(--border);
+}
+
+.chapter-bulk-cancel {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  font-size: 1.15rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chapter-bulk-cancel:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+@media (max-width: 760px) {
+  .chapter-bulk-rail {
+    gap: 0.3rem;
+    padding: 0.4rem;
+  }
+
+  .chapter-bulk-cancel {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+}
+
+.detail-shell .chapter-search-panel {
+  order: 0;
 }

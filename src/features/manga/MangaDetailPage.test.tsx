@@ -327,11 +327,47 @@ describe('MangaDetailPage', () => {
     );
 
     expect(screen.getByText('2 selected')).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Delete download' }));
+    const rail = screen.getByRole('toolbar', { name: 'Bulk chapter actions' });
+    expect(within(rail).getByRole('button', { name: 'Mark read' })).toBeTruthy();
+    expect(within(rail).getByRole('button', { name: 'Bookmark' })).toBeTruthy();
+    expect(within(rail).queryByRole('button', { name: 'Mark unread' })).toBeNull();
     expect(
-      screen.getByRole('button', { name: 'Confirm delete' }),
+      within(rail).queryByRole('button', { name: 'Remove bookmark' }),
+    ).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel selection' }));
+    expect(screen.queryByText('2 selected')).toBeNull();
+  });
+
+  it('shows both read and bookmark actions for a mixed selection', async () => {
+    const query = vi.fn(async () => ({
+      data: detailData({
+        nodes: [
+          chapter(1186),
+          { ...chapter(1185), isRead: true, isBookmarked: true },
+        ],
+      }),
+    }));
+    const user = userEvent.setup();
+    renderDetail(query);
+    await screen.findByRole('link', { name: /Chapter 1186/ });
+
+    const chapterMenu = screen
+      .getByLabelText('More chapter actions for Chapter 1186')
+      .closest('details') as HTMLElement;
+    fireEvent.click(screen.getByLabelText('More chapter actions for Chapter 1186'));
+    await user.click(within(chapterMenu).getByRole('button', { name: 'Select' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Select Chapter 1185' }), {
+      shiftKey: true,
+    });
+
+    const rail = screen.getByRole('toolbar', { name: 'Bulk chapter actions' });
+    expect(within(rail).getByRole('button', { name: 'Mark read' })).toBeTruthy();
+    expect(within(rail).getByRole('button', { name: 'Mark unread' })).toBeTruthy();
+    expect(within(rail).getByRole('button', { name: 'Bookmark' })).toBeTruthy();
+    expect(
+      within(rail).getByRole('button', { name: 'Remove bookmark' }),
     ).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeTruthy();
   });
 
   it('loads more chapters without discarding the first page', async () => {    let call = 0;

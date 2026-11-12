@@ -24,6 +24,7 @@ import { AmbientArt } from '../../shared/AmbientArt';
 import { MangaTrackingSection } from './MangaTrackingSection';
 import { MangaNotesSection } from './MangaNotesSection';
 import { MangaCategoryPicker } from './MangaCategoryPicker';
+import { MangaBookmarkChoices } from './MangaBookmarkChoices';
 import { MangaReaderModePicker } from './MangaReaderModePicker';
 import {
   getChapterViewPreferences,
@@ -80,6 +81,7 @@ registerMessages('id', {
   Details: 'Detail',
   'Bookmark manga': 'Tandai manga',
   'Remove manga bookmark': 'Hapus tanda manga',
+  'Library categories': 'Kategori perpustakaan',
   Overview: 'Ringkasan',
   Synopsis: 'Sinopsis',
   Chapters: 'Chapter',
@@ -92,6 +94,7 @@ registerMessages('id', {
   'Download server': 'Unduh ke server',
   'Download device': 'Unduh ke perangkat',
   'Select chapters': 'Pilih chapter',
+  'Cancel selection': 'Batal pilih',
   'More chapter actions': 'Aksi chapter lainnya',
   'Scan all chapters': 'Pindai semua chapter',
   'Mark earlier': 'Tandai sebelumnya',
@@ -348,7 +351,6 @@ function ConnectedMangaDetail({
   const [lastSelectedChapterIndex, setLastSelectedChapterIndex] = useState<
     number | null
   >(null);
-  const [chapterDeleteConfirm, setChapterDeleteConfirm] = useState(false);
   const [chapterBulkBusy, setChapterBulkBusy] = useState(false);
   const [chapterActionError, setChapterActionError] = useState(false);
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
@@ -508,13 +510,18 @@ function ConnectedMangaDetail({
   ]
     .filter(Boolean)
     .join(' · ');
-  const toggleLibrary = () => {
+  const ensureLibrary = async () => {
     setLibraryActionError(false);
     setLibraryPending(true);
-    void controller
-      .setInLibrary(!manga.inLibrary)
-      .catch(() => setLibraryActionError(true))
-      .finally(() => setLibraryPending(false));
+
+    try {
+      await controller.setInLibrary(true);
+    } catch (error) {
+      setLibraryActionError(true);
+      throw error;
+    } finally {
+      setLibraryPending(false);
+    }
   };
   const mangaMenu = (
     <>
@@ -702,7 +709,6 @@ function ConnectedMangaDetail({
       setSelectedChapterIds(new Set());
       setChapterSelectionMode(false);
       setLastSelectedChapterIndex(null);
-      setChapterDeleteConfirm(false);
     } catch {
       setChapterActionError(true);
     } finally {
@@ -710,6 +716,20 @@ function ConnectedMangaDetail({
     }
   };
 
+
+  const selectedChapters = (scannedChapters ?? detail.chapters).filter((chapter) =>
+    selectedChapterIds.has(chapter.id),
+  );
+  const allSelectedRead =
+    selectedChapters.length > 0 && selectedChapters.every((chapter) => chapter.isRead);
+  const allSelectedUnread =
+    selectedChapters.length > 0 && selectedChapters.every((chapter) => !chapter.isRead);
+  const allSelectedBookmarked =
+    selectedChapters.length > 0 &&
+    selectedChapters.every((chapter) => chapter.isBookmarked);
+  const allSelectedUnbookmarked =
+    selectedChapters.length > 0 &&
+    selectedChapters.every((chapter) => !chapter.isBookmarked);
 
   const downloadSelection = (target: 'server' | 'device') => {
     const ids = [...selectedChapterIds];
@@ -765,23 +785,20 @@ function ConnectedMangaDetail({
           <span className="page-nav-current">{manga.title}</span>
         </div>
         <div className="manga-hero-controls">
-          <button
-            className={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
-            type="button"
-            disabled={libraryPending}
-            aria-label={
-              manga.inLibrary
-                ? t('Remove from library')
-                : t('Add to library')
+          <ActionMenu
+            label={<MangaBookmarkIcon filled={manga.inLibrary} />}
+            ariaLabel={
+              manga.inLibrary ? t('Library categories') : t('Add to library')
             }
-            aria-pressed={manga.inLibrary}
-            title={
-              manga.inLibrary ? t('Remove from library') : t('Add to library')
-            }
-            onClick={toggleLibrary}
+            className={libraryPending ? 'is-busy' : ''}
+            summaryClassName={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
           >
-            <MangaBookmarkIcon filled={manga.inLibrary} />
-          </button>
+            <MangaBookmarkChoices
+              context={context}
+              mangaId={manga.id}
+              onEnsureLibrary={ensureLibrary}
+            />
+          </ActionMenu>
           <ActionMenu
             label={<MangaDotsIcon />}
             ariaLabel={t('More manga actions')}
@@ -1192,100 +1209,78 @@ function ConnectedMangaDetail({
           ) : null}
 
           {chapterSelectionMode ? (
-            <div className="chapter-bulk-bar" role="toolbar" aria-label="Bulk chapter actions">
-              <strong>
-                {t('{count} selected', { count: selectedChapterIds.size })}
-              </strong>
+            <div className="chapter-bulk-rail" role="toolbar" aria-label="Bulk chapter actions">
+              <strong>{t('{count} selected', { count: selectedChapterIds.size })}</strong>
+              <div className="chapter-bulk-rail-actions">
+                {!allSelectedRead ? (
+                  <button
+                    className="library-action"
+                    type="button"
+                    disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        controller.setChaptersRead(ids, true),
+                      )
+                    }
+                  >
+                    {t('Mark read')}
+                  </button>
+                ) : null}
+                {!allSelectedUnread ? (
+                  <button
+                    className="library-action"
+                    type="button"
+                    disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        controller.setChaptersRead(ids, false),
+                      )
+                    }
+                  >
+                    {t('Mark unread')}
+                  </button>
+                ) : null}
+                {!allSelectedBookmarked ? (
+                  <button
+                    className="library-action"
+                    type="button"
+                    disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        controller.setChaptersBookmark(ids, true),
+                      )
+                    }
+                  >
+                    {t('Bookmark')}
+                  </button>
+                ) : null}
+                {!allSelectedUnbookmarked ? (
+                  <button
+                    className="library-action"
+                    type="button"
+                    disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        controller.setChaptersBookmark(ids, false),
+                      )
+                    }
+                  >
+                    {t('Remove bookmark')}
+                  </button>
+                ) : null}
+              </div>
               <button
-                className="library-action"
+                className="chapter-bulk-cancel"
                 type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() =>
-                  void runChapterBulkAction((ids) =>
-                    controller.setChaptersRead(ids, true),
-                  )
-                }
-              >
-                {t('Mark read')}
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() =>
-                  void runChapterBulkAction((ids) =>
-                    controller.setChaptersRead(ids, false),
-                  )
-                }
-              >
-                {t('Mark unread')}
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() =>
-                  void runChapterBulkAction((ids) =>
-                    controller.setChaptersBookmark(ids, true),
-                  )
-                }
-              >
-                {t('Bookmark')}
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() =>
-                  void runChapterBulkAction((ids) =>
-                    controller.setChaptersBookmark(ids, false),
-                  )
-                }
-              >
-                {t('Remove bookmark')}
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() => downloadSelection(appPreferences.downloadTarget)}
-              >
-                {t('Download')}
-              </button>
-              <button
-                className="library-action"
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() => {
-                  if (!chapterDeleteConfirm) {
-                    setChapterDeleteConfirm(true);
-                    return;
-                  }
-                  void runChapterBulkAction((ids) =>
-                    controller.deleteChapterDownloads(ids),
-                  );
-                }}
-              >
-                {chapterDeleteConfirm ? t('Confirm delete') : t('Delete download')}
-              </button>
-              {chapterDeleteConfirm ? (
-                <button
-                  className="library-action"
-                  type="button"
-                  onClick={() => setChapterDeleteConfirm(false)}
-                >
-                  {t('Cancel')}
-                </button>
-              ) : null}
-              <button
-                className="library-action"
-                type="button"
+                aria-label={t('Cancel selection')}
+                title={t('Cancel selection')}
                 onClick={() => {
                   setSelectedChapterIds(new Set());
                   setLastSelectedChapterIndex(null);
+                  setChapterSelectionMode(false);
                 }}
               >
-                {t('Clear')}
+                ×
               </button>
             </div>
           ) : null}

@@ -5,6 +5,8 @@ query MangaCategoryPicker($mangaId: Int!) {
       nodes {
         id
         name
+        default
+        isDefaultCategory
       }
     }
   }
@@ -12,6 +14,8 @@ query MangaCategoryPicker($mangaId: Int!) {
     nodes {
       id
       name
+      default
+      isDefaultCategory
     }
   }
 }

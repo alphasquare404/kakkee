@@ -48,12 +48,13 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 
 ## Visual verification
 
-- `visual-audit/manga-final6-1920x1080.png`
-- `visual-audit/manga-final6-1366x768.png`
-- `visual-audit/manga-final6-1180x820.png`
-- `visual-audit/manga-final6-820x1180.png`
-- `visual-audit/manga-final6-390x844.png`
-- `visual-audit/manga-final6-chapters-390x844.png`
+- `visual-audit/manga-final7-1920x1080.png`
+- `visual-audit/manga-final7-820x1180.png`
+- `visual-audit/manga-final7-390x844.png`
+- `visual-audit/manga-final7-chapters-390x844.png`
+- `visual-audit/manga-final8-search-390x844.png`
+- `visual-audit/manga-final7-bulk-390x844.png`
+- `visual-audit/manga-final7-bookmark-390x844.png`
 - `visual-audit/manga-final5-toolbar-menu-390x844.png`
 - `visual-audit/manga-final5-card-menu-390x844.png`
 - `visual-audit/manga-final6-showmore-390x844.png`
@@ -67,7 +68,7 @@ overflow. No horizontal overflow was found at the five target sizes.
 codegen:check   PASS
 lint            PASS
 typecheck       PASS
-test            461 passed, 7 skipped
+test            462 passed, 7 skipped
 build           PASS
 ```
 
@@ -75,7 +76,7 @@ build           PASS
 
 - Search, Sort, More/filter, and Download are icon buttons in the right side of the Chapters title
   box, using the Library icon family.
-- Search expands a field below the header.
+- Search expands a rounded-rectangle field below the Chapters header (not a pill).
 - Sort exposes Newest first / Oldest first.
 - More contains all/unread/read/downloaded/bookmarked filters, duplicate hiding, scan-all, and
   scanlator filtering.
@@ -85,6 +86,11 @@ build           PASS
 - Card actions are download (or × to cancel a queued download), borderless Unread/Read, and More.
 - Delete downloaded chapter is not shown on chapter cards.
 - Card menus contain Select, conditional Bookmark/Remove bookmark, and Mark earlier as read.
+- Selection uses a horizontal action rail with a fixed × at the right. It shows only contextual
+  actions: Mark read or Mark unread, Bookmark or Remove bookmark. Mixed selections show both of
+  each pair. Download, Delete download, and Clear were removed from the rail.
+- The top bookmark control opens category choices. The current/default category is checked and the
+  selection can be changed; choosing a category adds the manga to the library.
 - All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
   clamp horizontally, and scroll internally instead of leaving the screen.
 - Show more scrolls to the tabs with `scroll-margin-top` accounting for the safe area.
