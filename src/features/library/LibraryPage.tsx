@@ -1120,7 +1120,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       onClickCapture={handleLibraryClickCapture}
     >
       <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
-      <header className="library-header">
+      <header className={`library-header${searchOpen ? ' is-search-open' : ''}`}>
         <div className="library-title">
           <div className="library-title-row">
             <h1>{t('Library')}</h1>
