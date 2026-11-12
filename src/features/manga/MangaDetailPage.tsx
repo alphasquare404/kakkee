@@ -207,9 +207,9 @@ function ChapterReadIcon() {
 function ServerDownloadedIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <rect x="3.2" y="4" width="13.6" height="4.2" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
-      <rect x="3.2" y="11.5" width="13.6" height="4.2" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M6.2 6.1h.01M6.2 13.6h.01M11.6 13.4l1.3 1.3 2.2-2.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="3.2" y="3.6" width="13.6" height="4.1" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+      <rect x="3.2" y="12.3" width="13.6" height="4.1" rx="1.2" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M6.1 5.7h.01M6.1 14.3h.01M10 8.7v3.1m0 0-1.4-1.4m1.4 1.4 1.4-1.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -218,7 +218,7 @@ function DeviceDownloadedIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
       <rect x="5.4" y="2.6" width="9.2" height="14.8" rx="1.8" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8.8 5.1h2.4M8.2 13.4l1.2 1.2 2.4-2.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8.8 5.1h2.4M10 8.5v4m0 0-1.3-1.3m1.3 1.3 1.3-1.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

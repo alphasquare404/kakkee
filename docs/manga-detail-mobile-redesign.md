@@ -57,7 +57,7 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 - `visual-audit/manga-final10-rail-390x844.png`
 - `visual-audit/manga-final10-download-menu-390x844.png`
 - `visual-audit/manga-final11-card-menu-390x844.png`
-- `visual-audit/manga-final12-badges-390x844.png`
+- `visual-audit/manga-final13-badges-390x844.png`
 - `visual-audit/manga-final11-card-download-390x844.png`
 - `visual-audit/manga-final7-bookmark-390x844.png`
 - `visual-audit/manga-final5-toolbar-menu-390x844.png`
@@ -111,8 +111,8 @@ build           PASS
 
 | State | Indicator |
 |---|---|
-| Downloaded on server | Server drive icon |
-| Saved on device | Device icon |
+| Downloaded on server | Server drive with download arrow |
+| Saved on device | Phone with download arrow |
 | Both | Both icons |
 | Neither | No indicator |
 
