@@ -6,7 +6,7 @@ import {
   createMangaTrackingRepository,
   type TrackRecord,
 } from '../../core/tracking/mangaTrackingRepository';
-import { IconClose, IconSearch, IconSync } from '../library/icons';
+import { IconSearch, IconSync, IconUnlink } from '../library/icons';
 
 export function MangaTrackingSection({
   context,
@@ -326,7 +326,7 @@ function TrackRecordRow({
         title={busy ? 'Unlinking…' : 'Unlink tracker'}
         onClick={onUnbind}
       >
-        <IconClose />
+        <IconUnlink />
       </button>
     </article>
   );

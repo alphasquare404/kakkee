@@ -80,6 +80,16 @@ export function IconClose(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function IconUnlink(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M6.2 4.8H5.1a3.2 3.2 0 0 0 0 6.4h1.7" />
+      <path d="M9.8 4.8h1.1a3.2 3.2 0 0 1 0 6.4H9.2" />
+      <path d="M2.6 2.6l10.8 10.8" />
+    </IconBase>
+  );
+}
+
 export function IconPin(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>

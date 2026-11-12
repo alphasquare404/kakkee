@@ -141,7 +141,7 @@ refreshed by the existing download-status subscription.
   actual scale, e.g. 0–10), Started, and Finished, plus an icon-only sync action. The redundant
   tracking-settings CTA is hidden once a tracker is linked.
 - The tracker search is one compact row: tracker select, search-title field, icon search submit,
-  and optional Private checkbox. Unlink is an icon button with an accessible label.
+  and optional Private checkbox. Unlink is a compact broken-chain icon button with an accessible label.
 
 - Mobile information panel and bottom navigation are opaque; the cover does not bleed through.
 
