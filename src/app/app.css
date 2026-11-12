@@ -10523,13 +10523,16 @@ button.manga-card-link {
 }
 
 .manga-track-field {
-  display: flex;
-  gap: 0;
+  display: grid;
+  gap: 0.1rem;
   align-items: center;
 }
 
 .manga-track-field > span {
-  display: none;
+  display: block;
+  color: var(--muted);
+  font-size: 0.58rem;
+  line-height: 1;
 }
 
 .manga-track-field select,
@@ -10561,7 +10564,10 @@ button.manga-card-link {
 }
 
 .manga-track-bind label > span {
-  display: none;
+  display: block;
+  color: var(--muted);
+  font-size: 0.58rem;
+  line-height: 1;
 }
 
 .manga-track-bind select,
@@ -10640,4 +10646,69 @@ button.manga-card-link {
   min-height: 2rem;
   padding: 0;
   place-content: center;
+}
+
+.switch-toggle {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  color: var(--text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.switch-control {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 2.6rem;
+  height: 1.5rem;
+}
+
+.switch-control input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 0.18rem;
+  left: 0.18rem;
+  width: 1.02rem;
+  height: 1.02rem;
+  border-radius: 50%;
+  background: var(--muted);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.switch-control input:checked + .switch-track {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switch-control input:checked + .switch-track .switch-thumb {
+  background: #fff;
+  transform: translateX(1.1rem);
+}
+
+.switch-control input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

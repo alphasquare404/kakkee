@@ -60,8 +60,10 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 - `visual-audit/manga-final13-badges-390x844.png`
 - `visual-audit/manga-bookmark-multi-390x844.png`
 - `visual-audit/manga-reader-off-390x844.png`
+- `visual-audit/manga-reader-switch-390x844.png`
 - `visual-audit/manga-reader-on-390x844.png`
 - `visual-audit/manga-tracking-compact-390x844.png`
+- `visual-audit/manga-tracking-labels-390x844.png`
 - `visual-audit/manga-filter-menu-final-390x844.png`
 - `visual-audit/manga-final11-card-download-390x844.png`
 - `visual-audit/manga-final7-bookmark-390x844.png`
@@ -132,8 +134,9 @@ refreshed by the existing download-status subscription.
 
 ## Overview compact controls
 
-- Reader section now has a **Use Custom Reader** toggle. Settings stay hidden while off. Enabling
-  it snapshots the current global reader settings, then shows per-manga mode, width, filter, scale,
-  direction, and background controls.
-- Tracking uses a compact row with tracker title, status, score, optional dates, and an icon-only
-  sync action. The redundant tracking-settings CTA is hidden once a tracker is linked.
+- Reader section shows only **Use Custom Reader** and a switch. Settings stay hidden while off.
+  Enabling it snapshots the current global reader settings, then shows per-manga mode, width,
+  filter, scale, direction, and background controls.
+- Tracking uses a compact row with visible compact labels for Status, Rating (with the tracker's
+  actual scale, e.g. 0–10), Started, and Finished, plus an icon-only sync action. The redundant
+  tracking-settings CTA is hidden once a tracker is linked.

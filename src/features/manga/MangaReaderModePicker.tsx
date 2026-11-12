@@ -25,33 +25,34 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
   const enabled = override !== null;
 
   return (
-    <section className="manga-reader-override" aria-labelledby="manga-reader-heading">
-      <div className="section-heading-row">
-        <h2 id="manga-reader-heading">Reader</h2>
-      </div>
-
-      <label className="settings-toggle">
+    <section className="manga-reader-override">
+      <label className="switch-toggle">
         <span>Use Custom Reader</span>
-        <input
-          type="checkbox"
-          checked={enabled}
-          onChange={(event) => {
-            if (!event.target.checked) {
-              setMangaReaderOverride(mangaId, null);
-              return;
-            }
+        <span className="switch-control">
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(event) => {
+              if (!event.target.checked) {
+                setMangaReaderOverride(mangaId, null);
+                return;
+              }
 
-            setMangaReaderOverride(mangaId, {
-              mode: global.mode,
-              widthRem: global.widthRem,
-              gapPx: global.gapPx,
-              background: global.background,
-              filter: global.filter,
-              scale: global.scale,
-              direction: global.direction,
-            });
-          }}
-        />
+              setMangaReaderOverride(mangaId, {
+                mode: global.mode,
+                widthRem: global.widthRem,
+                gapPx: global.gapPx,
+                background: global.background,
+                filter: global.filter,
+                scale: global.scale,
+                direction: global.direction,
+              });
+            }}
+          />
+          <span className="switch-track" aria-hidden="true">
+            <span className="switch-thumb" />
+          </span>
+        </span>
       </label>
 
       {enabled ? (
@@ -154,15 +155,8 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
               />
             </label>
           </div>
-          <p className="settings-save-state">
-            Changes apply only to this manga.
-          </p>
         </>
-      ) : (
-        <p className="settings-save-state">
-          This manga uses the global Reader settings.
-        </p>
-      )}
+      ) : null}
     </section>
   );
 }

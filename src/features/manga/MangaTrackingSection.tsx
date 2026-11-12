@@ -234,17 +234,21 @@ function TrackRecordRow({
   }) => void;
   readonly onUnbind: () => void;
 }) {
-  const [score, setScore] = useState(record.displayScore);
+  const ratingOptions = [...new Set(record.tracker.scores)];
+  const numericRatings = ratingOptions
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+  const ratingLabel =
+    numericRatings.length > 0
+      ? `Rating (${Math.min(...numericRatings)}–${Math.max(...numericRatings)})`
+      : 'Rating';
 
-  useEffect(() => {
-    setScore(record.displayScore);
-  }, [record.displayScore]);
-
-  const commitScore = () => {
-    if (score !== record.displayScore) {
-      onUpdate({ scoreString: score });
-    }
-  };
+  if (
+    record.displayScore &&
+    !ratingOptions.includes(record.displayScore)
+  ) {
+    ratingOptions.unshift(record.displayScore);
+  }
 
   return (
     <article className="manga-track-row">
@@ -268,20 +272,21 @@ function TrackRecordRow({
         </select>
       </label>
       <label className="manga-track-field">
-        <span>Score</span>
-        <input
-          value={score}
+        <span>{ratingLabel}</span>
+        <select
+          value={record.displayScore}
           disabled={busy}
-          aria-label={`${record.tracker.name} score`}
-          onChange={(event) => setScore(event.target.value)}
-          onBlur={commitScore}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              commitScore();
-              event.currentTarget.blur();
-            }
-          }}
-        />
+          aria-label={`${record.tracker.name} ${ratingLabel.toLowerCase()}`}
+          onChange={(event) =>
+            onUpdate({ scoreString: event.target.value })
+          }
+        >
+          {ratingOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
       </label>
       {record.tracker.supportsReadingDates ? (
         <>
