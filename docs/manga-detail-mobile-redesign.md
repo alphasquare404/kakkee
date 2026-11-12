@@ -136,7 +136,8 @@ refreshed by the existing download-status subscription.
 
 - Synopsis comes before Details.
 - Tablet/desktop Overview uses two equal-width columns with a vertical separator: Synopsis,
-  Details, and Tags on the left; Tracking, Notes, and Use Custom Reader on the right.
+  Details, and Tags on the left; Tracking, Notes, and Use Custom Reader on the right. The synopsis
+  text fills its column instead of being capped by the legacy 68ch width.
 - Mobile stays one column in the same order, with the tracker card full width.
 
 ## Overview compact controls

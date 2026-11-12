@@ -11132,3 +11132,12 @@ button.manga-card-link {
 .manga-track-unlink {
   justify-self: end;
 }
+
+.manga-overview-synopsis .manga-description {
+  width: 100%;
+  max-width: none;
+}
+
+.manga-overview-synopsis {
+  min-width: 0;
+}
