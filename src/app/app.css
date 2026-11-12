@@ -9507,7 +9507,7 @@ button.manga-card-link {
   gap: 0.2rem;
   width: 100%;
   max-width: 27rem;
-  margin: 0 0 1rem;
+  margin: 0 auto 1rem;
   padding: 0.22rem;
   border: 1px solid var(--border-strong);
   border-radius: 999px;
@@ -10725,9 +10725,9 @@ button.manga-card-link {
   }
 
   .manga-detail .detail-tabs {
-    width: min(100%, 20rem);
-    max-width: 20rem;
-    margin-right: auto;
-    margin-left: auto;
+    width: 100%;
+    max-width: none;
+    margin-right: 0;
+    margin-left: 0;
   }
 }

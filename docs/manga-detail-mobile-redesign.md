@@ -143,5 +143,5 @@ refreshed by the existing download-status subscription.
 
 - Mobile information panel and bottom navigation are opaque; the cover does not bleed through.
 
-- Mobile section tabs are centered horizontally at a 20rem maximum width, not stretched from the
-  left edge.
+- Section tabs are centered horizontally on tablet and desktop at a 27rem maximum width. On
+  mobile they run full width from the same left/right margins as Continue reading.
