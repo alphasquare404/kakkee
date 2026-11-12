@@ -10395,3 +10395,72 @@ button.manga-card-link {
 .detail-shell .chapter-search-panel {
   order: 0;
 }
+
+/* Chapter selection rail: unboxed icon actions with a pinned cancel. */
+.chapter-bulk-rail {
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.chapter-bulk-rail > strong {
+  padding-left: 0.15rem;
+}
+
+.chapter-bulk-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chapter-bulk-icon:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+.chapter-bulk-icon.is-danger:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+.chapter-bulk-icon:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.chapter-bulk-cancel {
+  margin-left: auto;
+}
+
+.download-target-options {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.25rem var(--sp-2) 0.4rem;
+}
+
+.download-target-options label {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.download-target-options input {
+  accent-color: var(--accent);
+}
+
+.chapter-menu-chevron {
+  display: inline-flex;
+  margin-left: auto;
+  color: var(--faint);
+}

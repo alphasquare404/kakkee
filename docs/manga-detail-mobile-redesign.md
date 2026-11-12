@@ -49,14 +49,17 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 ## Visual verification
 
 - `visual-audit/manga-final7-1920x1080.png`
+- `visual-audit/manga-final7-1366x768.png`
+- `visual-audit/manga-final7-1180x820.png`
 - `visual-audit/manga-final7-820x1180.png`
 - `visual-audit/manga-final7-390x844.png`
-- `visual-audit/manga-final7-chapters-390x844.png`
 - `visual-audit/manga-final8-search-390x844.png`
-- `visual-audit/manga-final7-bulk-390x844.png`
+- `visual-audit/manga-final10-rail-390x844.png`
+- `visual-audit/manga-final10-download-menu-390x844.png`
+- `visual-audit/manga-final11-card-menu-390x844.png`
+- `visual-audit/manga-final11-card-download-390x844.png`
 - `visual-audit/manga-final7-bookmark-390x844.png`
 - `visual-audit/manga-final5-toolbar-menu-390x844.png`
-- `visual-audit/manga-final5-card-menu-390x844.png`
 - `visual-audit/manga-final6-showmore-390x844.png`
 
 Checked for clipping, safe-area placement, tab/action overflow, chapter card density, and horizontal
@@ -80,15 +83,16 @@ build           PASS
 - Sort exposes Newest first / Oldest first.
 - More contains all/unread/read/downloaded/bookmarked filters, duplicate hiding, scan-all, and
   scanlator filtering.
-- Download always exposes Download server / Download device. With no selected chapters it also
-  offers Select chapters.
+- Download exposes Server / This device checkboxes (both can be active) and the scopes Download all,
+  Download unread, and Next chapter. It no longer offers Select chapters.
 - Select was removed from the toolbar. Selection starts from a long press or the card More menu.
-- Card actions are download (or × to cancel a queued download), borderless Unread/Read, and More.
+- Card actions are borderless Unread/Read and More only.
 - Delete downloaded chapter is not shown on chapter cards.
-- Card menus contain Select, conditional Bookmark/Remove bookmark, and Mark earlier as read.
-- Selection uses a horizontal action rail with a fixed × at the right. It shows only contextual
-  actions: Mark read or Mark unread, Bookmark or Remove bookmark. Mixed selections show both of
-  each pair. Download, Delete download, and Clear were removed from the rail.
+- Card menus contain Select, Download (with a submenu arrow and server/device choices), conditional
+  Bookmark/Remove bookmark, and Mark earlier as read.
+- Selection uses an unboxed, horizontally scrollable icon rail with a fixed × at the right. It
+  shows only contextual read/bookmark icons plus Download and Delete downloads. Mixed selections
+  show both of each contextual pair. There are no text buttons or bordered icon boxes in the rail.
 - The top bookmark control opens category choices. The current/default category is checked and the
   selection can be changed; choosing a category adds the manga to the library.
 - All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
