@@ -37,6 +37,7 @@ export interface ActivityPageProps {
   readonly rowTo?: (chapter: FeedChapter) => string;
   readonly origin: NavigationOrigin;
   readonly itemFilter?: (chapter: FeedChapter) => boolean;
+  readonly rowTrailing?: (chapter: FeedChapter) => ReactNode;
 }
 
 export function ActivityPage(props: ActivityPageProps) {
@@ -65,6 +66,7 @@ function ActivityContent({
   rowTo,
   origin,
   itemFilter,
+  rowTrailing,
 }: ActivityPageProps & { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const repository = useMemo(
@@ -173,6 +175,7 @@ function ActivityContent({
                     stateLabel={stateLabel?.(chapter)}
                     to={rowTo?.(chapter)}
                     state={{ origin }}
+                    trailing={rowTrailing?.(chapter)}
                   />
                 ))}
               </div>

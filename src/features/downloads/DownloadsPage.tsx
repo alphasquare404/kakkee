@@ -18,6 +18,7 @@ import {
   type DownloadItem,
 } from '../../core/downloads/downloadRepository';
 import type { ResourceService } from '../../core/resources/resourceService';
+import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createReaderRepository } from '../../core/reader/readerRepository';
 import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
 import {
@@ -26,15 +27,26 @@ import {
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
 import { useImageResource } from '../../shared/useImageResource';
-import { FeedRow } from '../../shared/FeedRow';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { IconClose, IconDownload, IconSync } from '../library/icons';
 
 registerMessages('id', {
   Downloads: 'Unduhan',
-  'Manage the download queue on your server':
-    'Kelola antrean unduhan di server Anda',
+  'Server and device downloads': 'Unduhan server dan perangkat',
+  Status: 'Status',
+  'Download to device': 'Unduh ke perangkat',
+  'Delete downloaded chapter': 'Hapus chapter terunduh',
+  'Delete device download': 'Hapus unduhan perangkat',
+  'No device queue': 'Tidak ada antrean perangkat',
+  'Device downloads start from a downloaded server chapter.':
+    'Unduhan perangkat dimulai dari chapter server yang sudah terunduh.',
+  'Server': 'Server',
+  Device: 'Perangkat',
+  'Device storage': 'Penyimpanan perangkat',
+  Ready: 'Siap',
+  Unavailable: 'Tidak tersedia',
   '{count} queued': '{count} dalam antrean',
   'Resume downloads': 'Lanjutkan unduhan',
   'Pause downloads': 'Jeda unduhan',
@@ -186,7 +198,6 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     0,
   );
   const isPaused = downloads.queue?.state === 'STOPPED';
-  const failedCount = queue.filter((item) => item.state === 'ERROR').length;
   const groups = Array.from(
     queue
       .reduce((result, item) => {
@@ -226,6 +237,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   );
   const [deviceBusyId, setDeviceBusyId] = useState<number | null>(null);
   const [deviceError, setDeviceError] = useState(false);
+  const [tab, setTab] = useState<'server' | 'device'>('server');
 
   const loadDeviceRecords = () => {
     if (!isOfflineStorageSupported()) {
@@ -277,287 +289,452 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
+  const devicePages = deviceRecords.reduce(
+    (total, record) => total + record.pageCount,
+    0,
+  );
+  const deviceBytes = deviceRecords.reduce(
+    (total, record) => total + record.bytes,
+    0,
+  );
+  const supportedDeviceStorage = isOfflineStorageSupported();
+
   return (
     <div className="app-shell page-shell downloads-shell">
       <PageHeader
         title={t('Downloads')}
-        subtitle={t('Manage the download queue on your server')}
+        subtitle={t('Server and device downloads')}
       >
-        {queue.length > 0 || isPaused ? (
+        <button
+          className="app-header-icon-button"
+          type="button"
+          disabled={downloads.isLoading}
+          aria-label={t('Refresh')}
+          title={t('Refresh')}
+          onClick={() => void controller.load()}
+        >
+          <IconSync className={downloads.isLoading ? 'is-spinning' : undefined} />
+        </button>
+      </PageHeader>
+
+      <div className="download-tabs" role="tablist" aria-label={t('Downloads')}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'server'}
+          className={tab === 'server' ? 'is-active' : undefined}
+          onClick={() => setTab('server')}
+        >
+          {t('Server')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'device'}
+          className={tab === 'device' ? 'is-active' : undefined}
+          onClick={() => setTab('device')}
+        >
+          {t('Device')}
+        </button>
+      </div>
+
+      {tab === 'server' ? (
+        <>
+          <section className="download-section" aria-labelledby="download-status-heading">
+            <div className="section-heading-row">
+              <h2 id="download-status-heading">{t('Status')}</h2>
+            </div>
+            <div className="download-stats">
+              <div>
+                <strong>{queue.length}</strong>
+                <span>{t('In queue')}</span>
+              </div>
+              <div>
+                <strong>{downloaded.data?.totalCount ?? '—'}</strong>
+                <span>{t('Downloaded')}</span>
+              </div>
+              <div>
+                <strong>{pages.toLocaleString('en-US')}</strong>
+                <span>{t('Downloaded pages')}</span>
+              </div>
+              <div>
+                <strong>{isPaused ? t('Paused') : t('Running')}</strong>
+                <span>{t('Downloader')}</span>
+              </div>
+            </div>
+          </section>
+
+          {downloads.actionError ? (
+            <p className="alert alert-error" role="alert">
+              {t('The download action failed.')}
+            </p>
+          ) : null}
+
+          {downloads.error ? (
+            <div className="library-state" role="alert">
+              <h1>{t('Couldn’t load downloads')}</h1>
+              <p>{t('The download queue could not be loaded from your server.')}</p>
+              <button className="button" type="button" onClick={() => void controller.load()}>
+                {t('Retry')}
+              </button>
+            </div>
+          ) : null}
+
+          <section className="download-section" aria-labelledby="download-queue-heading">
+            <div className="section-heading-row">
+              <h2 id="download-queue-heading">{t('Queue')}</h2>
+              <span>{queue.length}</span>
+            </div>
+
+            {downloads.isLoading && !downloads.queue ? (
+              <div className="feed-skeleton" aria-hidden="true">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div className="feed-skeleton-row" key={index} />
+                ))}
+              </div>
+            ) : null}
+
+            {!downloads.isLoading && queue.length === 0 ? (
+              <div className="download-empty">
+                <p>{t('The download queue is empty.')}</p>
+                <Link className="button button-secondary" to="/library">
+                  {t('Browse library')}
+                </Link>
+              </div>
+            ) : null}
+
+            <div className="download-list">
+              {groups.map((group) => {
+                const progress = Math.round(
+                  (group.items.reduce((total, item) => total + item.progress, 0) /
+                    group.items.length) *
+                    100,
+                );
+
+                return (
+                  <section className="download-group" key={group.manga.id}>
+                    <div className="download-group-heading">
+                      <strong>{group.manga.title}</strong>
+                      <span>
+                        {group.items.length === 1
+                          ? t('1 chapter')
+                          : t('{count} chapters', { count: group.items.length })}{' '}
+                        · {progress}%
+                      </span>
+                      <button
+                        className="download-icon-action is-danger"
+                        type="button"
+                        disabled={downloads.isActing}
+                        aria-label={t('Cancel series')}
+                        title={t('Cancel series')}
+                        onClick={() =>
+                          void controller.dequeueMany(
+                            group.items.map((item) => item.chapter.id),
+                          )
+                        }
+                      >
+                        <IconClose />
+                      </button>
+                    </div>
+                    <div className="download-group-rows">
+                      {group.items.map((item) => (
+                        <DownloadRow
+                          key={item.chapter.id}
+                          item={item}
+                          resources={context.resources}
+                          controller={controller}
+                          disabled={downloads.isActing}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="download-section" aria-labelledby="downloaded-heading">
+            <div className="section-heading-row">
+              <h2 id="downloaded-heading">{t('Downloaded chapters')}</h2>
+              <span>
+                {downloaded.data
+                  ? t('{shown} of {total}', {
+                      shown: downloaded.data.items.length,
+                      total: downloaded.data.totalCount,
+                    })
+                  : 0}
+              </span>
+            </div>
+
+            {downloaded.isLoading && !downloaded.data ? (
+              <div className="feed-skeleton" aria-hidden="true">
+                {Array.from({ length: 4 }, (_, index) => (
+                  <div className="feed-skeleton-row" key={index} />
+                ))}
+              </div>
+            ) : null}
+
+            {!downloaded.isLoading && (downloaded.data?.items.length ?? 0) === 0 ? (
+              <div className="download-empty">
+                <p>{t('No downloaded chapters on this server.')}</p>
+                <Link className="button button-secondary" to="/library">
+                  {t('Browse library')}
+                </Link>
+              </div>
+            ) : null}
+
+            {downloaded.data && downloaded.data.items.length > 0 ? (
+              <div className="feed-list">
+                {downloaded.data.items.map((chapter) => (
+                  <ServerDownloadedRow
+                    key={chapter.id}
+                    chapter={chapter}
+                    resources={context.resources}
+                    origin={origin}
+                    deviceBusy={deviceBusyId === chapter.id}
+                    canDownloadToDevice={supportedDeviceStorage}
+                    disabled={downloads.isActing}
+                    onDownloadToDevice={() => void saveChapterToDevice(chapter.id)}
+                    onDelete={() => void controller.deleteDownloaded(chapter.id)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </section>
+        </>
+      ) : (
+        <>
+          <section className="download-section" aria-labelledby="device-status-heading">
+            <div className="section-heading-row">
+              <h2 id="device-status-heading">{t('Status')}</h2>
+            </div>
+            <div className="download-stats">
+              <div>
+                <strong>{deviceRecords.length}</strong>
+                <span>{t('Downloaded chapters')}</span>
+              </div>
+              <div>
+                <strong>{devicePages.toLocaleString('en-US')}</strong>
+                <span>{t('Downloaded pages')}</span>
+              </div>
+              <div>
+                <strong>{formatBytes(deviceBytes)}</strong>
+                <span>{t('Device storage')}</span>
+              </div>
+              <div>
+                <strong>
+                  {supportedDeviceStorage
+                    ? t('Ready')
+                    : t('Unavailable')}
+                </strong>
+                <span>{t('Downloader')}</span>
+              </div>
+            </div>
+          </section>
+
+          <section className="download-section" aria-labelledby="device-queue-heading">
+            <div className="section-heading-row">
+              <h2 id="device-queue-heading">{t('Queue')}</h2>
+              <span>0</span>
+            </div>
+            <div className="download-empty">
+              <p>{t('No device queue')}</p>
+              <p>{t('Device downloads start from a downloaded server chapter.')}</p>
+            </div>
+          </section>
+
+          <section className="download-section" aria-labelledby="device-downloads-heading">
+            <div className="section-heading-row">
+              <h2 id="device-downloads-heading">{t('Downloaded chapters')}</h2>
+              <span>{deviceRecords.length}</span>
+            </div>
+
+            {!supportedDeviceStorage ? (
+              <p className="download-empty">
+                {t('Device storage is not available in this browser.')}
+              </p>
+            ) : null}
+
+            {deviceLoading ? (
+              <p className="settings-save-state" role="status">
+                {t('Loading…')}
+              </p>
+            ) : null}
+
+            {deviceError ? (
+              <p className="settings-inline-error" role="alert">
+                {t('Device download failed.')}
+              </p>
+            ) : null}
+
+            {supportedDeviceStorage && !deviceLoading && deviceRecords.length === 0 ? (
+              <p className="download-empty">
+                {t('No chapters saved to this device.')}
+              </p>
+            ) : null}
+
+            {deviceRecords.length > 0 ? (
+              <div className="feed-list">
+                {deviceRecords.map((record) => (
+                  <DeviceDownloadedRow
+                    key={record.chapterId}
+                    record={record}
+                    busy={deviceBusyId === record.chapterId}
+                    onDelete={() => void removeDeviceRecord(record.chapterId)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ServerDownloadedRow({
+  chapter,
+  resources,
+  origin,
+  deviceBusy,
+  canDownloadToDevice,
+  disabled,
+  onDownloadToDevice,
+  onDelete,
+}: {
+  readonly chapter: FeedChapter;
+  readonly resources: ResourceService;
+  readonly origin: unknown;
+  readonly deviceBusy: boolean;
+  readonly canDownloadToDevice: boolean;
+  readonly disabled: boolean;
+  readonly onDownloadToDevice: () => void;
+  readonly onDelete: () => void;
+}) {
+  const { t } = useI18n();
+  const [portrait, setPortrait] = useState(false);
+  const image = useImageResource(resources, chapter.manga.thumbnailUrl);
+  const pageLabel =
+    chapter.pageCount === 1
+      ? t('1 page')
+      : t('{count} pages', { count: chapter.pageCount });
+
+  return (
+    <div className="reading-row-shell">
+      <Link
+        className="reading-row"
+        to={`/manga/${chapter.manga.id}/chapter/${chapter.id}`}
+        state={{ origin }}
+        aria-label={`${chapter.manga.title}, ${chapter.name}`}
+      >
+        <span
+          className={`reading-row-art${portrait ? ' is-portrait-fill' : ''}`}
+          aria-hidden="true"
+        >
+          {image.objectUrl ? (
+            <img
+              src={image.objectUrl}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onLoad={(event) =>
+                setPortrait(
+                  event.currentTarget.naturalHeight >
+                    event.currentTarget.naturalWidth,
+                )
+              }
+            />
+          ) : (
+            <span>{chapter.manga.title.trim().charAt(0).toUpperCase() || '·'}</span>
+          )}
+        </span>
+        <span className="reading-row-main">
+          <strong className="reading-row-title">{chapter.manga.title}</strong>
+          <span className="reading-row-meta">
+            {chapter.name}
+            <span aria-hidden="true"> · </span>
+            {t('Downloaded')}
+            <span aria-hidden="true"> · </span>
+            {pageLabel}
+          </span>
+        </span>
+      </Link>
+      <div className="reading-row-actions">
+        {canDownloadToDevice ? (
           <button
-            className="button button-secondary"
+            className="download-icon-action"
             type="button"
-            disabled={downloads.isActing || !downloads.queue}
-            onClick={() => void controller.togglePaused()}
+            disabled={deviceBusy}
+            aria-label={t('Download to device')}
+            title={t('Download to device')}
+            onClick={onDownloadToDevice}
           >
-            {isPaused ? t('Resume downloads') : t('Pause downloads')}
+            <IconDownload />
           </button>
         ) : null}
         <button
-          className="button button-secondary"
+          className="download-icon-action is-danger"
           type="button"
-          disabled={downloads.isLoading}
-          onClick={() => void controller.load()}
+          disabled={disabled}
+          aria-label={t('Delete downloaded chapter')}
+          title={t('Delete downloaded chapter')}
+          onClick={onDelete}
         >
-          {t('Refresh')}
+          <IconClose />
         </button>
-        {failedCount > 0 ? (
-          <button
-            className="button button-secondary"
-            type="button"
-            disabled={downloads.isActing}
-            onClick={() => void controller.retryFailed()}
-          >
-            {t('Retry failed')} ({failedCount})
-          </button>
-        ) : null}
-      </PageHeader>
-
-      <div className="download-stats">
-        <div>
-          <strong>{queue.length}</strong>
-          <span>{t('In queue')}</span>
-        </div>
-        <div>
-          <strong>{downloaded.data?.totalCount ?? '—'}</strong>
-          <span>{t('Downloaded')}</span>
-        </div>
-        <div>
-          <strong>{pages.toLocaleString('en-US')}</strong>
-          <span>{t('Downloaded pages')}</span>
-        </div>
-        <div>
-          <strong>{isPaused ? t('Paused') : t('Running')}</strong>
-          <span>{t('Downloader')}</span>
-        </div>
       </div>
+    </div>
+  );
+}
 
-      {downloads.actionError ? (
-        <p className="alert alert-error" role="alert">
-          {t('The download action failed.')}
-        </p>
-      ) : null}
+function DeviceDownloadedRow({
+  record,
+  busy,
+  onDelete,
+}: {
+  readonly record: OfflineChapterRecord;
+  readonly busy: boolean;
+  readonly onDelete: () => void;
+}) {
+  const { t } = useI18n();
+  const pageLabel =
+    record.pageCount === 1
+      ? t('1 page')
+      : t('{count} pages', { count: record.pageCount });
 
-      {downloads.error ? (
-        <div className="library-state" role="alert">
-          <h1>{t('Couldn’t load downloads')}</h1>
-          <p>{t('The download queue could not be loaded from your server.')}</p>
-          <button className="button" type="button" onClick={() => void controller.load()}>
-            {t('Retry')}
-          </button>
-        </div>
-      ) : null}
-
-      <section className="download-section" aria-labelledby="download-queue-heading">
-        <div className="section-heading-row">
-          <h2 id="download-queue-heading">{t('Queue')}</h2>
-          <span>{queue.length}</span>
-        </div>
-
-        {downloads.isLoading && !downloads.queue ? (
-          <div className="feed-skeleton" aria-hidden="true">
-            {Array.from({ length: 4 }, (_, index) => (
-              <div className="feed-skeleton-row" key={index} />
-            ))}
-          </div>
-        ) : null}
-
-        {!downloads.isLoading && queue.length === 0 ? (
-          <div className="download-empty">
-            <p>{t('The download queue is empty.')}</p>
-            <Link className="button button-secondary" to="/library">
-              {t('Browse library')}
-            </Link>
-          </div>
-        ) : null}
-
-        <div className="download-list">
-          {groups.map((group) => {
-            const progress = Math.round(
-              (group.items.reduce((total, item) => total + item.progress, 0) /
-                group.items.length) *
-                100,
-            );
-
-            return (
-              <section className="download-group" key={group.manga.id}>
-                <div className="download-group-heading">
-                  <strong>{group.manga.title}</strong>
-                  <span>
-                    {group.items.length === 1 ? t('1 chapter') : t('{count} chapters', { count: group.items.length })} ·{' '}
-                    {progress}%
-                  </span>
-                  <button
-                    className="library-action is-danger"
-                    type="button"
-                    disabled={downloads.isActing}
-                    onClick={() =>
-                      void controller.dequeueMany(
-                        group.items.map((item) => item.chapter.id),
-                      )
-                    }
-                  >
-                    {t('Cancel series')}
-                  </button>
-                </div>
-                <div className="download-group-rows">
-                  {group.items.map((item) => (
-                    <DownloadRow
-                      key={item.chapter.id}
-                      item={item}
-                      resources={context.resources}
-                      controller={controller}
-                      disabled={downloads.isActing}
-                    />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="download-section" aria-labelledby="downloaded-heading">
-        <div className="section-heading-row">
-          <h2 id="downloaded-heading">{t('Downloaded chapters')}</h2>
-          <span>
-            {downloaded.data
-              ? t('{shown} of {total}', {
-                  shown: downloaded.data.items.length,
-                  total: downloaded.data.totalCount,
-                })
-              : 0}
+  return (
+    <div className="reading-row-shell">
+      <Link
+        className="reading-row"
+        to={`/offline/read/${record.chapterId}`}
+        aria-label={`${record.mangaTitle}, ${record.chapterName}`}
+      >
+        <span className="reading-row-art" aria-hidden="true">
+          <span>{record.mangaTitle.trim().charAt(0).toUpperCase() || '·'}</span>
+        </span>
+        <span className="reading-row-main">
+          <strong className="reading-row-title">{record.mangaTitle}</strong>
+          <span className="reading-row-meta">
+            {record.chapterName}
+            <span aria-hidden="true"> · </span>
+            {formatBytes(record.bytes)}
+            <span aria-hidden="true"> · </span>
+            {pageLabel}
           </span>
-        </div>
-
-        {downloaded.isLoading && !downloaded.data ? (
-          <div className="feed-skeleton" aria-hidden="true">
-            {Array.from({ length: 4 }, (_, index) => (
-              <div className="feed-skeleton-row" key={index} />
-            ))}
-          </div>
-        ) : null}
-
-        {!downloaded.isLoading && (downloaded.data?.items.length ?? 0) === 0 ? (
-          <div className="download-empty">
-            <p>{t('No downloaded chapters on this server.')}</p>
-            <Link className="button button-secondary" to="/library">
-              {t('Browse library')}
-            </Link>
-          </div>
-        ) : null}
-
-        {downloaded.data && downloaded.data.items.length > 0 ? (
-          <div className="feed-list">
-            {downloaded.data.items.map((chapter) => (
-              <div className="downloaded-row" key={chapter.id}>
-                <FeedRow
-                  chapter={chapter}
-                  resources={context.resources}
-                  state={{ origin }}
-                  detail={`${chapter.pageCount === 1 ? t('1 page') : t('{count} pages', { count: chapter.pageCount })} · ${t('Downloaded')}`}
-                />
-                {isOfflineStorageSupported() ? (
-                  <button
-                    className="button button-secondary"
-                    type="button"
-                    disabled={deviceBusyId === chapter.id}
-                    onClick={() => void saveChapterToDevice(chapter.id)}
-                  >
-                    {deviceBusyId === chapter.id
-                      ? t('Saving…')
-                      : t('Save to device')}
-                  </button>
-                ) : null}
-                <button
-                  className="download-cancel"
-                  type="button"
-                  disabled={downloads.isActing}
-                  aria-label={`Delete download for ${chapter.name}`}
-                  onClick={() => void controller.deleteDownloaded(chapter.id)}
-                >
-                  {t('Delete')}
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </section>
-
-      <section className="download-section" aria-labelledby="device-downloads-heading">
-        <div className="section-heading-row">
-          <h2 id="device-downloads-heading">{t('This device')}</h2>
-          <span>
-            {deviceRecords.length > 0
-              ? `${deviceRecords.length} · ${formatBytes(
-                  deviceRecords.reduce((total, record) => total + record.bytes, 0),
-                )}`
-              : 0}
-          </span>
-          <Link className="library-action" to="/offline" state={{ from: '/downloads' }}>
-            {t('Open offline library')}
-          </Link>
-        </div>
-
-        {!isOfflineStorageSupported() ? (
-          <p className="download-empty">
-            {t('Device storage is not available in this browser.')}
-          </p>
-        ) : null}
-
-        {deviceLoading ? (
-          <p className="settings-save-state" role="status">
-            {t('Loading…')}
-          </p>
-        ) : null}
-
-        {deviceError ? (
-          <p className="settings-inline-error" role="alert">
-            {t('Device download failed.')}
-          </p>
-        ) : null}
-
-        {isOfflineStorageSupported() &&
-        !deviceLoading &&
-        deviceRecords.length === 0 ? (
-          <p className="download-empty">
-            {t('No chapters saved to this device.')}
-          </p>
-        ) : null}
-
-        {deviceRecords.length > 0 ? (
-          <div className="feed-list">
-            {deviceRecords.map((record) => (
-              <div className="downloaded-row" key={record.chapterId}>
-                <div className="download-copy">
-                  <strong>{record.chapterName}</strong>
-                  <span className="download-meta">
-                    {record.mangaTitle} ·{' '}
-                    {record.pageCount === 1 ? t('1 page') : t('{count} pages', { count: record.pageCount })} ·{' '}
-                    {formatBytes(record.bytes)}
-                  </span>
-                </div>
-                <Link
-                  className="button"
-                  to={`/offline/read/${record.chapterId}`}
-                >
-                  {t('Read offline')}
-                </Link>
-                <button
-                  className="download-cancel"
-                  type="button"
-                  disabled={deviceBusyId === record.chapterId}
-                  onClick={() => void removeDeviceRecord(record.chapterId)}
-                >
-                  {deviceBusyId === record.chapterId
-                    ? t('Deleting…')
-                    : t('Delete')}
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </section>
+        </span>
+      </Link>
+      <div className="reading-row-actions">
+        <button
+          className="download-icon-action is-danger"
+          type="button"
+          disabled={busy}
+          aria-label={t('Delete device download')}
+          title={t('Delete device download')}
+          onClick={onDelete}
+        >
+          <IconClose />
+        </button>
+      </div>
     </div>
   );
 }
@@ -610,13 +787,14 @@ function DownloadRow({
         </span>
       </div>
       <button
-        className="download-cancel"
+        className="download-icon-action is-danger"
         type="button"
         disabled={disabled}
         aria-label={`Cancel download for ${item.chapter.name}`}
+        title={t('Cancel')}
         onClick={() => void controller.dequeue(item.chapter.id)}
       >
-        {t('Cancel')}
+        <IconClose />
       </button>
     </div>
   );

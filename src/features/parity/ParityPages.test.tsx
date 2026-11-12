@@ -1176,11 +1176,13 @@ describe('parity pages', () => {
     expect(screen.getByRole('button', { name: 'Create' })).toBeTruthy();
   });
 
-  it('renders real server information on Settings', async () => {
+  it('renders real server information on Server settings', async () => {
     const query = vi.fn(async () => ({ data: {} }));
-    renderPage('/settings', query);
+    renderPage('/settings/server', query);
 
-    expect(await screen.findByRole('heading', { name: 'Settings' })).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { name: 'Server settings' }),
+    ).toBeTruthy();
     expect(screen.getByText('v2.4.2366 · Stable')).toBeTruthy();
     expect(screen.getByText('https://server.example/suwayomi')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Disconnect server' })).toBeTruthy();
@@ -1299,6 +1301,8 @@ describe('parity pages', () => {
     expect(await screen.findByRole('heading', { name: 'Downloads' })).toBeTruthy();
     expect(await screen.findByText('The download queue is empty.')).toBeTruthy();
     expect(screen.getByText('No downloaded chapters on this server.')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Resume downloads' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Server' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Device' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeTruthy();
   });
 });

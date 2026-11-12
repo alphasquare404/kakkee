@@ -65,14 +65,6 @@ function BrowseIcon() {
   );
 }
 
-function CategoriesIcon() {
-  return (
-    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M3.5 6.2A1.7 1.7 0 0 1 5.2 4.5h3l1.4 1.7h5.2a1.7 1.7 0 0 1 1.7 1.7v7.4a1.7 1.7 0 0 1-1.7 1.7H5.2a1.7 1.7 0 0 1-1.7-1.7V6.2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function HistoryIcon() {
   return (
     <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -132,7 +124,6 @@ const NAV_ITEMS: ReadonlyArray<{
       path === '/extensions' ||
       path.startsWith('/extensions/'),
   },
-  { to: '/categories', labelKey: 'nav.categories', icon: CategoriesIcon, mobile: true, match: (path: string) => path === '/categories' },
   { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
   { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
   { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') || path === '/about' },
@@ -225,7 +216,7 @@ export function AppLayout() {
     updates: '/updates',
     history: '/history',
     downloads: '/downloads',
-    categories: '/categories',
+    categories: '/settings/categories',
     settings: '/settings',
     extensions: '/browse',
   };

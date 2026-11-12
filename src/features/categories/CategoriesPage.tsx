@@ -9,6 +9,7 @@ import {
   type Category,
 } from '../../core/categories/categoryRepository';
 import { PageHeader } from '../../shared/PageHeader';
+import { BackButton } from '../../shared/BackButton';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -44,6 +45,7 @@ registerMessages('id', {
   'Move down': 'Turunkan',
   'Set default': 'Jadikan default',
   Delete: 'Hapus',
+  Back: 'Kembali',
 });
 
 export function CategoriesPage() {
@@ -120,6 +122,7 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
       <PageHeader
         title={t('Categories')}
         subtitle={t('Organize your library')}
+        leading={<BackButton to="/settings" label={t('Back')} />}
         count={
           categories.status === 'ready'
             ? t('{count} categories', { count: items.length })

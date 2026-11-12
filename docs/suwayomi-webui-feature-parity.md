@@ -167,16 +167,18 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 | History | Reading history entries | `Implemented` | Yes | Real lastReadAt feed; reader progress writes populate it |
 | History | Last chapter per manga / per day | `Implemented` | Client-side | Dedupes to newest chapter per manga and groups Today/Yesterday |
 | History | Resume history entry | `Implemented` | Yes | Resume link includes the saved page |
-| History | Clear/remove history | `Blocked by server` | Server metadata | Stable schema exposes no clear/remove-history mutation |
+| History | Clear/remove history | `Partial` | Client metadata | Stable schema exposes no clear/remove-history mutation; History offers a persisted per-client Hide action instead |
 | History | Client hide-read filter | `Implemented` | Metadata | Client-side hide-read filter stored per device |
+| History | Hide individual history row | `Implemented` | Client metadata | Row context menu hides the manga locally and can be restored from History settings |
 | History | Server-side hidden history | `Blocked by server` | Server metadata | No setting or mutation to prevent server history recording |
-| Downloads | Download queue, active/queued/failed states | `Implemented` | DownloadStatus + subscriptions | Queue, state, progress, tries, pause/resume/cancel, grouping, and live subscription refresh |
-| Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Pause/resume, cancel, delete, and retry-all-failed via bulk enqueue |
+| Downloads | Download queue, active/queued/failed states | `Implemented` | DownloadStatus + subscriptions | Queue, state, progress, tries, cancel, grouping, and live subscription refresh |
+| Downloads | Pause/resume, retry, cancel, delete | `Implemented` | Yes | Repository supports pause/resume and retry; the compact Downloads header exposes refresh, cancel, delete, and device save |
 | Downloads | Grouping, bulk series actions, progress | `Implemented` | Yes | Manga grouping, series cancel, and progress |
 | Downloads | Download speed | `Blocked by server` | Server metadata | DownloadStatus/DownloadType expose no speed field |
-| Downloads | List downloaded chapters | `Implemented` | Yes | Real `isDownloaded` feed with delete action |
+| Downloads | List downloaded chapters | `Implemented` | Yes | Real `isDownloaded` feed in Updates-style cards with icon-only device save and delete |
 | Downloads | Download/serve conversion lists | `Implemented` | Yes | Download and serve conversion list editor |
 | Downloads | Image processing settings | `Blocked by server` | Server metadata | Stable schema exposes no image-processing settings |
+| Downloads | Server/Device tabs | `Implemented` | Mixed | Both tabs share Status, Queue, and Downloaded chapters; Device reads OPFS records |
 
 ### Browse / Sources / Extensions
 
@@ -205,7 +207,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 | Tracking | Tracker auth/config and services | `Implemented` | Yes | OAuth login links, username/password login mutation, token state, and logout |
 | Tracking | Manga search, bind/unbind, private binding | `Implemented` | Yes | Tracker search, bind, private option, unlink, status/score editing |
 | Tracking | Score/progress/status and sync behavior | `Implemented` | Yes | Score/status, reading dates, manual sync, and optional auto-sync after finishing a Reader chapter |
-| Categories | List categories and counts | `Implemented` | Yes | Categories page with real manga counts |
+| Categories | List categories and counts | `Implemented` | Yes | Categories lives under Settings with real manga counts |
 | Categories | Create/rename/reorder/delete with confirmation | `Implemented` | Yes | Create, rename, move up/down, set default, and delete with confirmation; default is protected |
 | Categories | Assignment and default-category behavior | `Implemented` | Yes | Per-manga category picker plus Set default action |
 | Categories | Category update/download inclusion flags | `Implemented` | Yes | Per-category include in updates/downloads toggles |
@@ -219,7 +221,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 | Backup | Automatic backup settings | `Implemented` | Yes | Editable auto-backup path/interval/time/TTL and include flags |
 | Sync | Sync button and sync status | `Implemented` | Yes | Start sync, result state, and live `syncStatusChanged` status |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Implemented` | Yes | Data toggles, Yomi enablement/host, interval, and API key editing |
-| Settings | Real server/connection information | `Implemented` | Yes | Settings shows actual server, version, and capability data |
+| Settings | Real server/connection information | `Implemented` | Yes | Connection details and disconnect live at the top of Server settings |
 | Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark and pure-black themes plus persisted custom accent color |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout) | `Implemented` | Metadata | Density, grid/list, badges, and fuzzy filter |

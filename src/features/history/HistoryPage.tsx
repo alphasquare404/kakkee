@@ -6,6 +6,9 @@ import type { FeedInput } from '../../core/catalog/catalogRepository';
 import { formatRelativeTime } from '../../shared/feedTime';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
+import { useHiddenHistory } from '../../shared/useHiddenHistory';
+import { hideHistoryManga } from '../../core/preferences/hiddenHistory';
+import { ActionMenu } from '../../shared/ActionMenu';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -20,6 +23,8 @@ registerMessages('id', {
   '1 page': '1 halaman',
   Read: 'Sudah dibaca',
   'In progress': 'Sedang dibaca',
+  Hide: 'Sembunyikan',
+  'History actions': 'Aksi riwayat',
 });
 
 const HISTORY_FEED: FeedInput = {
@@ -30,6 +35,7 @@ const HISTORY_FEED: FeedInput = {
 export function HistoryPage() {
   const preferences = useHistoryPreferences();
   const hiddenCategoryIds = useHiddenCategoryIds();
+  const hiddenHistoryIds = useHiddenHistory();
   const { t } = useI18n();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('history', { pathname, search });
@@ -76,7 +82,9 @@ export function HistoryPage() {
           );
 
         return (
-          !hidden && (!preferences.hideRead || !chapter.isRead)
+          !hidden &&
+          !hiddenHistoryIds.has(chapter.manga.id) &&
+          (!preferences.hideRead || !chapter.isRead)
         );
       }}
       rowTo={(chapter) => {
@@ -85,6 +93,20 @@ export function HistoryPage() {
 
         return `/manga/${chapter.manga.id}/chapter/${chapter.id}${page}`;
       }}
+      rowTrailing={(chapter) => (
+        <ActionMenu
+          label={<span aria-hidden="true">···</span>}
+          ariaLabel={t('History actions')}
+          summaryClassName="feed-row-menu"
+        >
+          <button
+            type="button"
+            onClick={() => hideHistoryManga(chapter.manga.id)}
+          >
+            {t('Hide')}
+          </button>
+        </ActionMenu>
+      )}
     />
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
@@ -16,8 +17,18 @@ import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Server settings': 'Pengaturan server',
-  'Server behavior stored by Suwayomi':
-    'Perilaku server yang disimpan Suwayomi',
+  'Connection and server behavior':
+    'Koneksi dan perilaku server',
+  Connection: 'Koneksi',
+  Connected: 'Terhubung',
+  Server: 'Server',
+  Version: 'Versi',
+  Endpoint: 'Endpoint',
+  'No authentication': 'Tanpa autentikasi',
+  'UI login': 'Login UI',
+  Compatibility: 'Kompatibilitas',
+  'Stable baseline {version}': 'Baseline stabil {version}',
+  'Disconnect server': 'Putuskan server',
   'All settings': 'Semua pengaturan',
   'Couldn’t load server settings':
     'Tidak dapat memuat pengaturan server',
@@ -36,8 +47,6 @@ registerMessages('id', {
   System: 'Sistem',
   WebUI: 'WebUI',
   'Image cache': 'Cache gambar',
-  'No authentication': 'Tanpa autentikasi',
-  'UI login': 'Login UI',
   Mode: 'Mode',
   Username: 'Username',
   Password: 'Password',
@@ -103,6 +112,8 @@ export function ServerSettingsPage() {
 
 function ServerSettingsContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const navigate = useNavigate();
+  const { disconnect } = useConnection();
   const controller = useMemo(() => {
     const repository = createServerSettingsRepository({
       getClient: () => context.graphQL,
@@ -120,11 +131,64 @@ function ServerSettingsContent({ context }: { readonly context: ConnectedContext
     <div className="app-shell page-shell settings-shell">
       <PageHeader
         title={t('Server settings')}
-        subtitle={t('Server behavior stored by Suwayomi')}
+        subtitle={t('Connection and server behavior')}
         leading={<BackButton to="/settings" label={t('Back')} />}
       />
 
       <div className="settings-content">
+        <section className="settings-section" aria-labelledby="server-connection">
+          <div className="section-heading-row">
+            <h2 id="server-connection">{t('Connection')}</h2>
+            <span className="settings-badge">{t('Connected')}</span>
+          </div>
+          <dl className="settings-rows">
+            <div>
+              <dt>{t('Server')}</dt>
+              <dd>{context.serverInfo.name}</dd>
+            </div>
+            <div>
+              <dt>{t('Version')}</dt>
+              <dd>
+                {context.serverInfo.version} · {context.serverInfo.buildType}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('Endpoint')}</dt>
+              <dd className="settings-endpoint">{context.config.serverBaseUrl}</dd>
+            </div>
+            <div>
+              <dt>{t('Authentication')}</dt>
+              <dd>
+                {context.authMode === 'NONE'
+                  ? t('No authentication')
+                  : t('UI login')}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('Compatibility')}</dt>
+              <dd>
+                {context.compatibility.status === 'compatible'
+                  ? t('Stable baseline {version}', {
+                      version: context.compatibility.baseline,
+                    })
+                  : (context.compatibility.warning ??
+                    context.compatibility.status)}
+              </dd>
+            </div>
+          </dl>
+          <div className="settings-actions">
+            <button
+              className="button button-secondary is-danger"
+              type="button"
+              onClick={() => {
+                void disconnect().then(() => navigate('/', { replace: true }));
+              }}
+            >
+              {t('Disconnect server')}
+            </button>
+          </div>
+        </section>
+
         {settings.status === 'loading' && !settings.settings ? (
           <p className="library-state" role="status">
             Loading server settings…

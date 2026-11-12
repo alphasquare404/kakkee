@@ -12,6 +12,7 @@ interface FeedRowProps {
   readonly to?: string;
   readonly state?: unknown;
   readonly actions?: ReactNode;
+  readonly trailing?: ReactNode;
 }
 
 export function FeedRow({
@@ -22,6 +23,7 @@ export function FeedRow({
   to,
   state,
   actions,
+  trailing,
 }: FeedRowProps) {
   const image = useImageResource(resources, chapter.manga.thumbnailUrl);
   const row = (
@@ -47,14 +49,15 @@ export function FeedRow({
     </Link>
   );
 
-  if (!actions) {
+  if (!actions && !trailing) {
     return row;
   }
 
   return (
-    <div className="feed-row-shell">
+    <div className={`feed-row-shell${trailing ? ' has-trailing' : ''}`}>
       {row}
-      <div className="feed-row-actions">{actions}</div>
+      {trailing ? <div className="feed-row-trailing">{trailing}</div> : null}
+      {actions ? <div className="feed-row-actions">{actions}</div> : null}
     </div>
   );
 }

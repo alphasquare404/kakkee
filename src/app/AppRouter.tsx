@@ -233,7 +233,8 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/extensions" element={<ExtensionsPage />} />
             <Route path="/extensions/:pkgName" element={<ExtensionDetailPage />} />
             <Route path="/search" element={<GlobalSearchPage />} />
-            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/categories" element={<Navigate to="/settings/categories" replace />} />
+            <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/downloads" element={<DownloadsPage />} />
             <Route path="/settings" element={<SettingsPage />} />

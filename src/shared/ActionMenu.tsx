@@ -6,7 +6,7 @@ import {
 } from 'react';
 
 export interface ActionMenuProps {
-  readonly label: string;
+  readonly label: ReactNode;
   readonly children: ReactNode;
   readonly className?: string;
   readonly summaryClassName?: string;
@@ -87,7 +87,7 @@ export function ActionMenu({
       <summary
         ref={triggerRef}
         className={summaryClassName}
-        aria-label={ariaLabel ?? label}
+        aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
       >
         {label}
         <span className="action-menu-chevron" aria-hidden="true">
