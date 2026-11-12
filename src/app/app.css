@@ -11141,3 +11141,192 @@ button.manga-card-link {
 .manga-overview-synopsis {
   min-width: 0;
 }
+
+/* Compact Reader chrome across desktop, tablet, and mobile. */
+.reader-header {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.4rem 0.6rem;
+  min-height: 3rem;
+  padding:
+    max(0.42rem, var(--safe-top))
+    max(0.6rem, var(--safe-right))
+    0.42rem
+    max(0.6rem, var(--safe-left));
+  background: var(--bg);
+  backdrop-filter: none;
+}
+
+.reader-back {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+.reader-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 0.45rem;
+  align-items: end;
+}
+
+.reader-title p {
+  grid-column: 1 / -1;
+  font-size: 0.6rem;
+  line-height: 1.2;
+}
+
+.reader-title h1 {
+  grid-column: 1;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.reader-page-total {
+  grid-column: 2;
+  align-self: end;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.reader-chapter-nav {
+  flex-wrap: nowrap;
+  gap: 0.12rem;
+  justify-content: flex-end;
+  font-size: 0.68rem;
+}
+
+.reader-icon-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  text-decoration: none;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reader-icon-button:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+.reader-icon-button.is-disabled,
+.reader-icon-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.reader-icon-prev {
+  transform: rotate(90deg);
+}
+
+.reader-icon-next {
+  transform: rotate(-90deg);
+}
+
+.reader-page-nav {
+  gap: 0.45rem;
+  padding-top: 0.3rem;
+  font-size: 0.65rem;
+}
+
+.reader-page-nav button {
+  min-height: 1.75rem;
+  padding: 0 0.5rem;
+  font-size: 0.65rem;
+}
+
+.reader-footer {
+  padding: 0.75rem 0 calc(1rem + var(--safe-bottom));
+  font-size: 0.7rem;
+}
+
+.reader-footer .reader-chapter-nav {
+  gap: 0.5rem;
+}
+
+.reader-rail {
+  width: 10rem;
+  padding: 0.35rem;
+}
+
+.reader-rail h2 {
+  font-size: 0.58rem;
+}
+
+.reader-rail a {
+  padding: 0.3rem 0.35rem;
+  font-size: 0.66rem;
+}
+
+@media (max-width: 760px) {
+  .reader-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.3rem 0.35rem;
+    padding:
+      max(0.35rem, var(--safe-top))
+      max(0.45rem, var(--safe-right))
+      0.35rem
+      max(0.45rem, var(--safe-left));
+  }
+
+  .reader-header .reader-chapter-nav {
+    grid-column: auto;
+    justify-content: flex-end;
+    padding-top: 0;
+  }
+
+  .reader-title h1 {
+    font-size: 0.78rem;
+  }
+
+  .reader-title p {
+    display: none;
+  }
+
+  .reader-page-total {
+    font-size: 0.58rem;
+  }
+
+  .reader-icon-button {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .reader-page-nav {
+    gap: 0.3rem;
+  }
+
+  .reader-page-nav button {
+    min-height: 1.65rem;
+    padding: 0 0.4rem;
+    font-size: 0.6rem;
+  }
+}
+
+.reader-icon-button .action-menu-chevron {
+  display: none;
+}
+
+.reader-chapter-nav a.reader-icon-button,
+.reader-chapter-nav a.reader-icon-button:hover {
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.reader-chapter-nav a.reader-icon-button:hover {
+  color: var(--text);
+}
+
+.reader-rail {
+  width: 7.5rem;
+  right: 0.4rem;
+}

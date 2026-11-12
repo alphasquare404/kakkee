@@ -153,8 +153,12 @@ Used by:
   - first 2 pages load immediately;
   - remaining pages observe intersection with `rootMargin: 1200px`;
   - images use `loading="lazy"` and are only fetched when near viewport.
-- Header contains chapter/manga title, Previous/Next chapter, and back to Manga.
-- Footer repeats chapter navigation.
+- Header is a compact 54–56px sticky bar: back icon, chapter title, page progress, then
+  icon-only Previous chapter / Next chapter / Chapter list / More controls. The manga title is
+  hidden on mobile to keep the bar one row.
+- Footer repeats full chapter navigation.
+- Desktop chapter rail is compact (7.5rem) and sits outside the page column where space allows;
+  it is hidden on tablet/mobile.
 - Keyboard:
   - `ArrowLeft` → previous chapter
   - `ArrowRight` → next chapter
@@ -174,7 +178,7 @@ Real server `https://suwayomi.alphasquare.my.id`, auth `NONE`, v2.4.2366:
 - Next: `/manga/1114/chapter/2821`; Previous: `/manga/1114/chapter/2819`.
 - Browser back to detail worked; real breadcrumb click returned to `/library`.
 - 390×844 detail and reader: `scrollWidth = 390`, no horizontal overflow.
-- Reader header ~81 px; touch navigation available.
+- Reader header ~56px on mobile and ~54px on desktop; touch navigation available and icon-only.
 - Console errors: 0.
 - Failed network requests: 0 (one missing thumbnail was an HTTP response, handled as placeholder).
 
@@ -206,3 +210,10 @@ PWA production preview at root:
 - SIMPLE_LOGIN relies on the server session cookie and works best same-origin or with credential-capable CORS.
 - iOS/Android physical PWA install and Safari/Firefox validation remain unperformed.
 - BASIC_AUTH credentials are held in memory only and are not persisted across reloads.
+
+## Compact reader chrome screenshots
+
+- `visual-audit/reader-current-390.png` (before)
+- `visual-audit/reader-compact-final-390.png` (after, mobile)
+- `visual-audit/reader-compact-live-820.png` (tablet)
+- `visual-audit/reader-compact-live-1280.png` (desktop)

@@ -25,6 +25,7 @@ import { useImageResource } from '../../shared/useImageResource';
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { IconChevron, IconList } from '../library/icons';
 
 registerMessages('id', {
   Manga: 'Manga',
@@ -63,6 +64,23 @@ import { useReaderSettings } from '../../shared/useReaderSettings';
 import { useMangaReaderOverride } from '../../shared/useMangaReaderOverride';
 import { buildReaderFilter } from '../../core/preferences/readerSettings';
 import type { CSSProperties, MouseEvent, PointerEvent } from 'react';
+
+function ReaderMoreIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <circle cx="3" cy="8" r="1.15" />
+      <circle cx="8" cy="8" r="1.15" />
+      <circle cx="13" cy="8" r="1.15" />
+    </svg>
+  );
+}
 
 export function ReaderPage() {
   const { state } = useConnection();
@@ -754,30 +772,58 @@ function ConnectedReader({
 
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">
           {previousChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={readerState}>
-              {t('Previous')}
+            <Link
+              className="reader-icon-button"
+              to={`/manga/${mangaId}/chapter/${previousChapter.id}`}
+              state={readerState}
+              aria-label={t('Previous chapter')}
+              title={t('Previous chapter')}
+            >
+              <IconChevron className="reader-icon-prev" />
             </Link>
           ) : (
-            <span aria-disabled="true">{t('Previous')}</span>
+            <span
+              className="reader-icon-button is-disabled"
+              aria-disabled="true"
+              aria-label={t('Previous chapter')}
+              title={t('Previous chapter')}
+            >
+              <IconChevron className="reader-icon-prev" />
+            </span>
           )}
           {nextChapter ? (
-            <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={readerState}>
-              {t('Next')}
+            <Link
+              className="reader-icon-button"
+              to={`/manga/${mangaId}/chapter/${nextChapter.id}`}
+              state={readerState}
+              aria-label={t('Next chapter')}
+              title={t('Next chapter')}
+            >
+              <IconChevron className="reader-icon-next" />
             </Link>
           ) : (
-            <span aria-disabled="true">{t('Next')}</span>
+            <span
+              className="reader-icon-button is-disabled"
+              aria-disabled="true"
+              aria-label={t('Next chapter')}
+              title={t('Next chapter')}
+            >
+              <IconChevron className="reader-icon-next" />
+            </span>
           )}
           <button
-            className="reader-quick-action"
+            className="reader-icon-button"
             type="button"
+            aria-label={t('Chapters')}
+            title={t('Chapters')}
             onClick={() => setChaptersOpen(true)}
           >
-            {t('Chapters')}
+            <IconList />
           </button>
           <ActionMenu
-            label={t('More')}
+            label={<ReaderMoreIcon />}
             ariaLabel={t('Reader actions')}
-            summaryClassName="reader-quick-action"
+            summaryClassName="reader-icon-button"
           >
           <button
             className="reader-quick-action"
