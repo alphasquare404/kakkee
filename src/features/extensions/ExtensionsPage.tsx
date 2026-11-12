@@ -13,14 +13,13 @@ import { useImageResource } from '../../shared/useImageResource';
 import { BackButton } from '../../shared/BackButton';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import { PageHeader } from '../../shared/PageHeader';
-import { IconFilter, IconSearch, IconSync } from '../library/icons';
+import { IconClose, IconFilter, IconSearch, IconSync } from '../library/icons';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
   Extensions: 'Ekstensi',
-  'Sources installed through your server':
-    'Source yang terpasang melalui server Anda',
+  'Installed sources': 'Sumber terpasang',
   '{count} extensions': '{count} ekstensi',
   '1 extension': '1 ekstensi',
   'Checking…': 'Memeriksa…',
@@ -95,7 +94,9 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
   const [language, setLanguage] = useState('all');
   const [languageDraft, setLanguageDraft] = useState('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const filterButton = useRef<HTMLButtonElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
   const [jarFile, setJarFile] = useState<File | null>(null);
@@ -134,61 +135,80 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     <div className="app-shell page-shell extensions-shell">
       <PageHeader
         title={t('Extensions')}
-        subtitle={t('Sources installed through your server')}
-        leading={
-          <BackButton to="/browse" label={t('Back to Browse')} />
-        }
-        count={
-          extensions.status === 'ready'
-            ? extensions.items.length === 1
-              ? t('1 extension')
-              : t('{count} extensions', {
-                  count: extensions.items.length,
-                })
-            : undefined
-        }
-                toolbar={
-          <div className="search-command-row extension-command-row">
-            <button
-              ref={filterButton}
-              className={`search-filter-trigger${language !== 'all' ? ' is-active' : ''}`}
-              type="button"
-              aria-label={
-                language !== 'all'
-                  ? t('Filter extensions, {count} active', { count: 1 })
-                  : t('Filter extensions')
-              }
-              aria-haspopup="dialog"
-              aria-expanded={filtersOpen}
-              title={t('Filter extensions')}
-              onClick={() => {
-                setLanguageDraft(language);
-                setFiltersOpen(true);
-              }}
-            >
-              <IconFilter />
-              <span>{t('Filter')}</span>
-              {language !== 'all' ? (
-                <span className="search-filter-count" aria-hidden="true">
-                  1
-                </span>
-              ) : null}
-            </button>
-
-            <label className="sources-search extension-search">
-              <IconSearch />
-              <span className="sr-only">{t('Search extensions')}</span>
-              <input
-                type="search"
-                aria-label={t('Search extensions')}
-                placeholder={t('Search extensions...')}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </label>
-          </div>
+        subtitle={t('Installed sources')}
+        leading={<BackButton to="/browse" label={t('Back to Browse')} />}
+        toolbar={
+          <form
+            id="extension-search-form"
+            className={`library-search header-search-form${searchOpen ? ' is-open' : ''}`}
+            role="search"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <IconSearch className="library-search-icon" />
+            <span className="sr-only">{t('Search extensions')}</span>
+            <input
+              ref={searchInput}
+              type="search"
+              aria-label={t('Search extensions')}
+              placeholder={t('Search extensions...')}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            {query ? (
+              <button
+                type="button"
+                className="library-search-clear"
+                aria-label={t('Clear search')}
+                onClick={() => setQuery('')}
+              >
+                <IconClose />
+              </button>
+            ) : null}
+          </form>
         }
       >
+        <button
+          className={`library-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
+          type="button"
+          aria-label={searchOpen ? t('Close search') : t('Search extensions')}
+          aria-expanded={searchOpen}
+          aria-controls="extension-search-form"
+          onClick={() => {
+            if (searchOpen) {
+              setSearchOpen(false);
+            } else {
+              setSearchOpen(true);
+              window.setTimeout(() => searchInput.current?.focus(), 0);
+            }
+          }}
+        >
+          <IconSearch />
+        </button>
+        <button
+          ref={filterButton}
+          className={`library-action${language !== 'all' ? ' is-active' : ''}`}
+          type="button"
+          aria-label={
+            language !== 'all'
+              ? t('Filter extensions, {count} active', { count: 1 })
+              : t('Filter extensions')
+          }
+          aria-haspopup="dialog"
+          aria-expanded={filtersOpen}
+          title={t('Filter extensions')}
+          onClick={() => {
+            setLanguageDraft(language);
+            setFiltersOpen(true);
+          }}
+        >
+          <IconFilter />
+          <span className="library-action-label">{t('Filter')}</span>
+          {language !== 'all' ? (
+            <span className="library-action-count" aria-hidden="true">
+              1
+            </span>
+          ) : null}
+        </button>
         <button
           className="app-header-icon-button"
           type="button"

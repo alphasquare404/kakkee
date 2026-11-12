@@ -33,7 +33,7 @@ import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
 import { useSourcePreferences } from '../../shared/useSourcePreferences';
 import { languageName } from '../browse/sourceDirectory';
-import { SearchCommandBar } from './SearchCommandBar';
+import { IconClose, IconFilter, IconSearch } from '../library/icons';
 import { SearchFilterDrawer } from './SearchFilterDrawer';
 import {
   activeSearchFilterCount,
@@ -43,8 +43,8 @@ import {
 registerMessages('id', {
   Search: 'Cari',
   'Search manga': 'Cari manga',
-  'Search manga across selected sources':
-    'Cari manga di sumber yang dipilih',
+  'Close search': 'Tutup pencarian',
+  'Search selected sources': 'Cari sumber yang dipilih',
   '{count} results': '{count} hasil',
   '{count} result': '{count} hasil',
   'Search manga...': 'Cari manga...',
@@ -343,21 +343,76 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     <div className="app-shell page-shell browse-shell sources-shell search-shell">
       <PageHeader
         title={t('Search')}
-        subtitle={t('Search manga across selected sources')}
+        subtitle={t('Search selected sources')}
         count={headerCount}
         toolbar={
-          <SearchCommandBar
-            query={queryInput}
-            onQueryChange={setQueryInput}
-            onSubmit={submit}
-            onOpenFilters={() => setFiltersOpen(true)}
-            filterButtonRef={filterButton}
-            activeFilterCount={activeFilterCount}
-            filtersOpen={filtersOpen}
-            onClear={() => navigate('/browse')}
-          />
+          <form
+            className="library-search header-search-form is-open"
+            id="search-page-form"
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submit();
+            }}
+          >
+            <IconSearch className="library-search-icon" />
+            <span className="sr-only">{t('Search manga')}</span>
+            <input
+              type="search"
+              value={queryInput}
+              placeholder={t('Search manga...')}
+              aria-label={t('Search manga')}
+              enterKeyHint="search"
+              autoComplete="off"
+              onChange={(event) => setQueryInput(event.target.value)}
+            />
+            <button
+              className="library-search-submit"
+              type="submit"
+              aria-label={t('Search manga')}
+              disabled={!queryInput.trim()}
+            >
+              <IconSearch />
+            </button>
+            {queryInput ? (
+              <button
+                type="button"
+                className="library-search-clear"
+                aria-label={t('Clear manga search')}
+                onClick={() => {
+                  setQueryInput('');
+                  navigate('/browse');
+                }}
+              >
+                <IconClose />
+              </button>
+            ) : null}
+          </form>
         }
-      />
+      >
+        <button
+          ref={filterButton}
+          className={`library-action${activeFilterCount > 0 ? ' is-active' : ''}`}
+          type="button"
+          aria-label={
+            activeFilterCount > 0
+              ? t('Filter search, {count} active', { count: activeFilterCount })
+              : t('Filter search')
+          }
+          aria-haspopup="dialog"
+          aria-expanded={filtersOpen}
+          title={t('Filter')}
+          onClick={() => setFiltersOpen(true)}
+        >
+          <IconFilter />
+          <span className="library-action-label">{t('Filter')}</span>
+          {activeFilterCount > 0 ? (
+            <span className="library-action-count" aria-hidden="true">
+              {activeFilterCount}
+            </span>
+          ) : null}
+        </button>
+      </PageHeader>
 
       <SearchFilterDrawer
         open={filtersOpen}

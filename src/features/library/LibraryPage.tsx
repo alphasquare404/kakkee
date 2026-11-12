@@ -54,8 +54,7 @@ registerMessages('id', {
   Library: 'Perpustakaan',
   'Loading…': 'Memuat…',
   'Search library': 'Cari di perpustakaan',
-  'Your saved manga and reading progress':
-    'Manga tersimpan dan progres bacaan Anda',
+  'Manga and progress': 'Manga dan progres',
   'Submit search': 'Cari',
   'Clear history': 'Hapus riwayat',
   Select: 'Pilih',
@@ -1130,7 +1129,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             </p>
           </div>
           <p className="page-subtitle library-subtitle">
-            {t('Your saved manga and reading progress')}
+            {t('Manga and progress')}
           </p>
         </div>
 

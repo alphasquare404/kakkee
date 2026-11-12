@@ -32,7 +32,6 @@ import {
   languageSummary,
   type SourceGroup,
 } from './sourceDirectory';
-import { SearchCommandBar } from '../search/SearchCommandBar';
 import { SearchFilterDrawer } from '../search/SearchFilterDrawer';
 import {
   activeSearchFilterCount,
@@ -40,14 +39,16 @@ import {
 } from '../search/searchScope';
 import {
   IconChevron,
+  IconClose,
   IconExtensions,
+  IconFilter,
   IconPin,
+  IconSearch,
 } from '../library/icons';
 
 registerMessages('id', {
   Browse: 'Jelajah',
-  'Search manga and browse sources installed on your server':
-    'Cari manga dan jelajahi sumber yang terpasang di server Anda',
+  'Search manga and sources': 'Cari manga dan sumber',
   'Search manga...': 'Cari manga...',
   'Search manga': 'Cari manga',
   'All languages': 'Semua bahasa',
@@ -341,12 +342,14 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const preferences = useSourcePreferences();
   const searchPreferences = useSearchPreferences();
   const [mangaQuery, setMangaQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(
     new Set(),
   );
   const [allVariants, setAllVariants] = useState<ReadonlySet<string>>(new Set());
   const filterButton = useRef<HTMLButtonElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const repository = useMemo(
     () => createCatalogRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -448,19 +451,89 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
     <div className="app-shell page-shell browse-shell sources-shell">
       <PageHeader
         title={t('Browse')}
-        subtitle={t('Search manga and browse sources installed on your server')}
+        subtitle={t('Search manga and sources')}
         toolbar={
-          <SearchCommandBar
-            query={mangaQuery}
-            onQueryChange={setMangaQuery}
-            onSubmit={submitSearch}
-            onOpenFilters={() => setFiltersOpen(true)}
-            filterButtonRef={filterButton}
-            activeFilterCount={activeFilterCount}
-            filtersOpen={filtersOpen}
-          />
+          <form
+            id="browse-search-form"
+            className={`library-search header-search-form${searchOpen ? ' is-open' : ''}`}
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSearch();
+            }}
+          >
+            <IconSearch className="library-search-icon" />
+            <span className="sr-only">{t('Search manga')}</span>
+            <input
+              ref={searchInput}
+              type="search"
+              value={mangaQuery}
+              placeholder={t('Search manga...')}
+              aria-label={t('Search manga')}
+              enterKeyHint="search"
+              autoComplete="off"
+              onChange={(event) => setMangaQuery(event.target.value)}
+            />
+            <button
+              className="library-search-submit"
+              type="submit"
+              aria-label={t('Search manga')}
+              disabled={!mangaQuery.trim()}
+            >
+              <IconSearch />
+            </button>
+            {mangaQuery ? (
+              <button
+                type="button"
+                className="library-search-clear"
+                aria-label={t('Clear manga search')}
+                onClick={() => setMangaQuery('')}
+              >
+                <IconClose />
+              </button>
+            ) : null}
+          </form>
         }
       >
+        <button
+          className={`library-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
+          type="button"
+          aria-label={searchOpen ? t('Close search') : t('Search manga')}
+          aria-expanded={searchOpen}
+          aria-controls="browse-search-form"
+          onClick={() => {
+            if (searchOpen) {
+              setSearchOpen(false);
+            } else {
+              setSearchOpen(true);
+              window.setTimeout(() => searchInput.current?.focus(), 0);
+            }
+          }}
+        >
+          <IconSearch />
+        </button>
+        <button
+          ref={filterButton}
+          className={`library-action${activeFilterCount > 0 ? ' is-active' : ''}`}
+          type="button"
+          aria-label={
+            activeFilterCount > 0
+              ? t('Filter search, {count} active', { count: activeFilterCount })
+              : t('Filter search')
+          }
+          aria-haspopup="dialog"
+          aria-expanded={filtersOpen}
+          title={t('Filter')}
+          onClick={() => setFiltersOpen(true)}
+        >
+          <IconFilter />
+          <span className="library-action-label">{t('Filter')}</span>
+          {activeFilterCount > 0 ? (
+            <span className="library-action-count" aria-hidden="true">
+              {activeFilterCount}
+            </span>
+          ) : null}
+        </button>
         <Link
           className="app-header-icon-button"
           to="/extensions"

@@ -8946,6 +8946,7 @@ button.manga-card-link {
   flex: 0 0 auto;
   align-items: center;
   align-self: flex-start;
+  margin-top: -0.4rem;
 }
 
 .page-header.has-leading .page-heading {
@@ -8954,7 +8955,7 @@ button.manga-card-link {
 }
 
 .page-header.has-leading .page-title-row {
-  min-height: 2.5rem;
+  min-height: 0;
   align-items: center;
 }
 
@@ -8995,8 +8996,8 @@ button.manga-card-link {
 }
 
 @media (max-width: 720px) {
-  .page-header.has-leading .page-title-row {
-    min-height: 2.75rem;
+  .page-header-leading {
+    margin-top: -0.55rem;
   }
 
   .back-button {
@@ -9030,4 +9031,16 @@ button.manga-card-link {
 
 .page-header.has-toolbar .page-header-actions {
   align-self: flex-start;
+}
+
+/* Library header breathing room and tab treatment */
+.library-shell .category-tabs {
+  margin-top: 0.65rem;
+  border-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .page-header-toolbar:has(.header-search-form:not(.is-open)) {
+    display: none;
+  }
 }
