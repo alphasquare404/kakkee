@@ -24,7 +24,10 @@ Every page header now follows the same hierarchy:
 
 - `PageHeader` gained an optional `toolbar` slot rendered inside `<header>`.
 - Browse, Search, and Extensions use the same Library-style header search field and Filter icon action.
-- On phone, the search field is hidden until the search icon action is pressed; tablet/desktop show it below the title.
+- On phone, the search field is hidden until the search icon action is pressed.
+- Between 861px and 1360px, the search field spans the full header row.
+- At 1361px and above, it uses Library's compact 20rem search column.
+- `scrollbar-gutter: stable` keeps the header width fixed whether or not the page scrolls.
 - Library keeps its custom interactive search/history/filter controls with the same title/subtitle hierarchy, header border, and header placement.
 - Extension count text was removed so its title/subtitle height matches Browse.
 - Reading, Categories, History, Downloads, Settings, Extension Detail, Source pages, and Offline pages retain their existing PageHeader title/subtitle pattern.
@@ -38,6 +41,9 @@ All page headers now show a subtitle. Added:
 
 ## Visual verification
 
+- `visual-audit/final1920-library.png` (captured before the final gutter check)
+- `visual-audit/final1920-browse.png`
+- `visual-audit/final1920-extensions.png`
 - `visual-audit/header3-library-390x844.png`
 - `visual-audit/header2-browse-390x844-closed.png`
 - `visual-audit/header2-browse-390x844-open.png`
