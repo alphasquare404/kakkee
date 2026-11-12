@@ -236,6 +236,7 @@ function TrackRecordRow({
   }) => void;
   readonly onUnbind: () => void;
 }) {
+  const [datesOpen, setDatesOpen] = useState(false);
   const ratingOptions = [...new Set(record.tracker.scores)];
   const numericRatings = ratingOptions
     .map((value) => Number(value))
@@ -292,30 +293,40 @@ function TrackRecordRow({
       </label>
       {record.tracker.supportsReadingDates ? (
         <>
-          <label className="manga-track-field">
-            <span>Started</span>
-            <input
-              type="date"
-              value={readingDateInput(record.startDate)}
-              disabled={busy}
-              aria-label={`${record.tracker.name} start date`}
-              onChange={(event) =>
-                onUpdate({ startDate: readingDateEpoch(event.target.value) })
-              }
-            />
-          </label>
-          <label className="manga-track-field">
-            <span>Finished</span>
-            <input
-              type="date"
-              value={readingDateInput(record.finishDate)}
-              disabled={busy}
-              aria-label={`${record.tracker.name} finish date`}
-              onChange={(event) =>
-                onUpdate({ finishDate: readingDateEpoch(event.target.value) })
-              }
-            />
-          </label>
+          <button
+            className="manga-track-dates-toggle"
+            type="button"
+            aria-expanded={datesOpen}
+            onClick={() => setDatesOpen((open) => !open)}
+          >
+            Dates
+          </button>
+          <div className={`manga-track-dates${datesOpen ? ' is-open' : ''}`}>
+            <label className="manga-track-field">
+              <span>Started</span>
+              <input
+                type="date"
+                value={readingDateInput(record.startDate)}
+                disabled={busy}
+                aria-label={`${record.tracker.name} start date`}
+                onChange={(event) =>
+                  onUpdate({ startDate: readingDateEpoch(event.target.value) })
+                }
+              />
+            </label>
+            <label className="manga-track-field">
+              <span>Finished</span>
+              <input
+                type="date"
+                value={readingDateInput(record.finishDate)}
+                disabled={busy}
+                aria-label={`${record.tracker.name} finish date`}
+                onChange={(event) =>
+                  onUpdate({ finishDate: readingDateEpoch(event.target.value) })
+                }
+              />
+            </label>
+          </div>
         </>
       ) : null}
       <button

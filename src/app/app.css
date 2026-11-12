@@ -10794,3 +10794,131 @@ button.manga-card-link {
   width: 14px;
   height: 14px;
 }
+
+.manga-track-dates {
+  display: contents;
+}
+
+.manga-track-dates-toggle {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .manga-tracking {
+    padding: 0.55rem 0;
+  }
+
+  .manga-track-row {
+    gap: 0.22rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .manga-track-main {
+    display: flex;
+    flex-basis: 100%;
+    gap: 0.35rem;
+    align-items: baseline;
+  }
+
+  .manga-track-main strong,
+  .manga-track-main span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .manga-track-main span {
+    font-size: 0.62rem;
+  }
+
+  .manga-track-field {
+    display: flex;
+    gap: 0.18rem;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .manga-track-field > span {
+    font-size: 0.54rem;
+    white-space: nowrap;
+  }
+
+  .manga-track-field select,
+  .manga-track-field input {
+    min-height: 1.65rem;
+    height: 1.65rem;
+    padding: 0 0.25rem;
+    font-size: 0.64rem;
+  }
+
+  .manga-track-field select {
+    max-width: 7rem;
+  }
+
+  .manga-track-field input[type="date"] {
+    width: 6.3rem;
+  }
+
+  .manga-track-dates {
+    display: none;
+  }
+
+  .manga-track-dates.is-open {
+    display: flex;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .manga-track-dates-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.65rem;
+    height: 1.65rem;
+    padding: 0 0.35rem;
+    color: var(--muted);
+    font-size: 0.6rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface-sunken);
+    cursor: pointer;
+  }
+
+  .manga-track-unlink {
+    width: 1.5rem;
+    height: 1.5rem;
+    min-height: 1.5rem;
+  }
+
+  .manga-track-bind {
+    gap: 0.25rem;
+  }
+
+  .manga-track-bind select,
+  .manga-track-bind input[type="text"],
+  .manga-track-search input,
+  .manga-track-submit,
+  .manga-track-private {
+    min-height: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .manga-track-submit {
+    width: 1.7rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .manga-track-dates-toggle {
+    order: 3;
+  }
+
+  .manga-track-unlink {
+    order: 4;
+  }
+
+  .manga-track-dates.is-open {
+    order: 5;
+  }
+}
