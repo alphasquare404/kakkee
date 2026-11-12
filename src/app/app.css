@@ -10940,3 +10940,79 @@ button.manga-card-link {
     width: min(100%, 42rem);
   }
 }
+
+/* Overview: synopsis/details/tags left, tracking/notes/reader right on wide screens. */
+.manga-overview-grid {
+  display: block;
+}
+
+.manga-overview-main,
+.manga-overview-side {
+  min-width: 0;
+}
+
+@media (min-width: 761px) {
+  .manga-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .manga-track-row,
+  .manga-track-bind,
+  .manga-track-results {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Dates are optional and collapsed behind the calendar icon on every layout. */
+.manga-track-dates {
+  display: none;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.manga-track-dates.is-open {
+  display: flex;
+}
+
+.manga-track-dates-toggle {
+  display: inline-grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  min-height: 1.65rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface-sunken);
+  cursor: pointer;
+}
+
+.manga-track-dates-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.manga-track-dates-toggle.is-open {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.manga-track-dates-toggle {
+  order: 3;
+}
+
+.manga-track-unlink {
+  order: 4;
+}
+
+.manga-track-dates.is-open {
+  order: 5;
+}

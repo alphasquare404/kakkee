@@ -33,7 +33,7 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 - Reading route/state, page progress, Back provenance, and browser history.
 - Library toggle, Refresh metadata, Share, reader mode, tracking, notes, category picker.
 - Chapter sorting, search, state/scanlator filters, duplicate hiding, long-press/card-menu selection,
-  read/bookmark toggles, server/device downloads, queued-download cancel, and Load more.
+  read/bookmark toggles and server/device downloads.
 - URL `section=overview` behavior and tab state.
 
 ## Responsive behavior
@@ -108,9 +108,9 @@ build           PASS
   both of each contextual pair. There are no text buttons or bordered icon boxes in the rail.
 - Server download status refreshes after DownloadStatusChanged events so the server badge appears
   once the queue completes.
-- The top bookmark control opens multi-select category choices. Current/default categories are
-  checked, several can be selected, and Save updates the library categories. Saving with no
-  categories selected removes the manga from the library.
+- The top bookmark control opens multi-select category choices. Library membership is automatic:
+  checking a category adds/saves it, unchecking updates the remaining categories, and clearing the
+  last category removes the manga from the library. There is no Save or Delete button in the menu.
 - The Categories picker was removed from Overview; category management lives only in the top
   bookmark menu.
 - All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
@@ -132,6 +132,13 @@ Indicators sit before the read icon in the chapter action cluster and do not add
 requests. Device state comes from OPFS records; server state comes from `isDownloaded` and is
 refreshed by the existing download-status subscription.
 
+## Overview layout
+
+- Synopsis comes before Details.
+- Tablet/desktop Overview uses two columns: Synopsis, Details, and Tags on the left; Tracking,
+  Notes, and Use Custom Reader on the right.
+- Mobile stays one column in the same order, with the tracker card full width.
+
 ## Overview compact controls
 
 - Reader section shows only **Use Custom Reader** and a switch. Settings stay hidden while off.
@@ -140,7 +147,7 @@ refreshed by the existing download-status subscription.
 - Tracking is adaptive. Desktop shows compact Status, Rating (with the tracker's actual scale,
   e.g. 0–10), Started, and Finished fields inline. Mobile collapses dates behind a small calendar icon, keeps Status/Rating/calendar/unlink on one
   row, and uses inline labels; the row shrinks from about 92px expanded to 63px collapsed.
-  Desktop tracker cards are capped at 42rem instead of stretching the full content width. The redundant tracking-settings CTA is hidden once
+  Tracker cards fill their column; on mobile they are full content width. The redundant tracking-settings CTA is hidden once
   a tracker is linked.
 - The tracker search is one compact row: tracker select, search-title field, icon search submit,
   and optional Private checkbox. Unlink is a compact broken-chain icon button with an accessible label.

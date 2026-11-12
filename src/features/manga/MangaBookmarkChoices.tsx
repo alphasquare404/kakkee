@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createMangaCategoryRepository,
@@ -13,18 +13,18 @@ registerMessages('id', {
   'Categories could not be loaded.': 'Kategori tidak dapat dimuat.',
   'Categories could not be saved.': 'Kategori tidak dapat disimpan.',
   'Add to library': 'Tambahkan ke perpustakaan',
-  'Remove from library': 'Hapus dari perpustakaan',
-  Save: 'Simpan',
   'Saving…': 'Menyimpan…',
 });
 
 export function MangaBookmarkChoices({
   context,
   mangaId,
+  inLibrary,
   onSetLibrary,
 }: {
   readonly context: ConnectedContext;
   readonly mangaId: number;
+  readonly inLibrary: boolean;
   readonly onSetLibrary: (inLibrary: boolean) => Promise<void>;
 }) {
   const { t } = useI18n();
@@ -32,6 +32,7 @@ export function MangaBookmarkChoices({
     () => createMangaCategoryRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
   );
+  const initialInLibraryRef = useRef(inLibrary);
   const [all, setAll] = useState<readonly MangaCategory[]>([]);
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -48,15 +49,7 @@ export function MangaBookmarkChoices({
           return;
         }
 
-        const defaults = result.all.filter(
-          (category) => category.default || category.isDefaultCategory,
-        );
-        const initial =
-          result.selected.length > 0
-            ? result.selected
-            : defaults.length > 0
-              ? defaults
-              : result.all.slice(0, 1);
+        const initial = initialInLibraryRef.current ? result.selected : [];
 
         setAll(result.all);
         setSelected(new Set(initial.map((category) => category.id)));
@@ -73,35 +66,37 @@ export function MangaBookmarkChoices({
     };
   }, [mangaId, repository]);
 
-  const save = async () => {
+  const toggle = async (categoryId: number) => {
+    if (saving) {
+      return;
+    }
+
+    const previous = selected;
+    const next = new Set(previous);
+
+    if (next.has(categoryId)) {
+      next.delete(categoryId);
+    } else {
+      next.add(categoryId);
+    }
+
+    setSelected(next);
     setSaveError(false);
     setSaving(true);
 
     try {
-      await onSetLibrary(selected.size > 0);
-
-      if (selected.size > 0) {
-        await repository.save(mangaId, [...selected]);
+      if (next.size === 0) {
+        await onSetLibrary(false);
+      } else {
+        await onSetLibrary(true);
+        await repository.save(mangaId, [...next]);
       }
     } catch {
+      setSelected(previous);
       setSaveError(true);
     } finally {
       setSaving(false);
     }
-  };
-
-  const toggle = (categoryId: number) => {
-    setSelected((current) => {
-      const next = new Set(current);
-
-      if (next.has(categoryId)) {
-        next.delete(categoryId);
-      } else {
-        next.add(categoryId);
-      }
-
-      return next;
-    });
   };
 
   if (status === 'loading') {
@@ -155,19 +150,6 @@ export function MangaBookmarkChoices({
           })}
         </div>
       )}
-
-      <button
-        className="button"
-        type="button"
-        disabled={saving}
-        onClick={() => void save()}
-      >
-        {saving
-          ? t('Saving…')
-          : selected.size > 0
-            ? t('Save')
-            : t('Remove from library')}
-      </button>
 
       {saveError ? (
         <p className="settings-inline-error" role="alert">

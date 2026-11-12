@@ -892,6 +892,7 @@ function ConnectedMangaDetail({
             <MangaBookmarkChoices
               context={context}
               mangaId={manga.id}
+              inLibrary={manga.inLibrary}
               onSetLibrary={setLibraryState}
             />
           </ActionMenu>
@@ -1040,6 +1041,42 @@ function ConnectedMangaDetail({
 
         {section === 'overview' ? (
           <>
+            <div className="manga-overview-grid">
+              <div className="manga-overview-main">
+            <section
+              className="manga-overview-synopsis"
+              aria-labelledby="manga-synopsis-heading"
+            >
+              <h2 id="manga-synopsis-heading">{t('Synopsis')}</h2>
+              {manga.description ? (
+                <>
+                  <p
+                    className={`manga-description${
+                      !descriptionExpanded && manga.description.length > 240
+                        ? ' is-clamped'
+                        : ''
+                    }`}
+                  >
+                    {manga.description}
+                  </p>
+                  {manga.description.length > 240 ? (
+                    <button
+                      className="description-toggle"
+                      type="button"
+                      aria-expanded={descriptionExpanded}
+                      onClick={() => setDescriptionExpanded((value) => !value)}
+                    >
+                      {descriptionExpanded ? t('Show less') : t('Show more')}
+                    </button>
+                  ) : null}
+                </>
+              ) : (
+                <p className="manga-description manga-description-empty">
+                  {t('No description.')}
+                </p>
+              )}
+            </section>
+
             <section
               className="manga-overview-facts"
               aria-labelledby="manga-facts-heading"
@@ -1079,39 +1116,6 @@ function ConnectedMangaDetail({
               </dl>
             </section>
 
-            <section
-              className="manga-overview-synopsis"
-              aria-labelledby="manga-synopsis-heading"
-            >
-              <h2 id="manga-synopsis-heading">{t('Synopsis')}</h2>
-              {manga.description ? (
-                <>
-                  <p
-                    className={`manga-description${
-                      !descriptionExpanded && manga.description.length > 240
-                        ? ' is-clamped'
-                        : ''
-                    }`}
-                  >
-                    {manga.description}
-                  </p>
-                  {manga.description.length > 240 ? (
-                    <button
-                      className="description-toggle"
-                      type="button"
-                      aria-expanded={descriptionExpanded}
-                      onClick={() => setDescriptionExpanded((value) => !value)}
-                    >
-                      {descriptionExpanded ? t('Show less') : t('Show more')}
-                    </button>
-                  ) : null}
-                </>
-              ) : (
-                <p className="manga-description manga-description-empty">
-                  {t('No description.')}
-                </p>
-              )}
-            </section>
 
             {manga.genre.length > 0 ? (
               <section className="manga-overview-tags" aria-labelledby="manga-tags-heading">
@@ -1124,6 +1128,8 @@ function ConnectedMangaDetail({
               </section>
             ) : null}
 
+              </div>
+              <div className="manga-overview-side">
             <MangaTrackingSection
               context={context}
               mangaId={manga.id}
@@ -1132,6 +1138,8 @@ function ConnectedMangaDetail({
 
             <MangaNotesSection context={context} mangaId={manga.id} />
             <MangaReaderModePicker mangaId={manga.id} />
+              </div>
+            </div>
           </>
         ) : null}
 
