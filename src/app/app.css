@@ -9077,6 +9077,14 @@ button.manga-card-link {
     padding-top: 0;
   }
 
+  .page-header.has-toolbar:not(.has-leading) {
+    align-items: center;
+  }
+
+  .page-header.has-toolbar:not(.has-leading) .page-header-actions {
+    align-self: center;
+  }
+
   .sources-shell .page-header .page-heading {
     padding-right: 0;
   }
@@ -9086,7 +9094,7 @@ button.manga-card-link {
   }
 
   .page-header.has-leading.has-toolbar .page-header-toolbar {
-    margin-top: 0.15rem;
+    margin-top: 0;
   }
 }
 
