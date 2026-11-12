@@ -18,11 +18,11 @@ export function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <header className="page-header">
+    <header className={`page-header${leading ? ' has-leading' : ''}`}>
+      {leading ? <div className="page-header-leading">{leading}</div> : null}
       <div className="page-heading">
         {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
         <div className="page-title-row">
-          {leading}
           <h1>{title}</h1>
           {count ? <span className="page-count">{count}</span> : null}
         </div>

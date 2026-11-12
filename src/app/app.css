@@ -5915,14 +5915,8 @@ button.manga-card-link {
   gap: var(--sp-1);
 }
 
-.page-nav-back {
+.page-nav .back-button {
   margin-left: auto;
-  color: var(--muted);
-  font-size: var(--text-xs);
-  text-decoration: none;
-}
-
-.page-nav-back:hover {
   color: var(--text);
 }
 
@@ -6655,11 +6649,6 @@ button.manga-card-link {
     overflow: hidden;
     color: var(--text);
     text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .page-nav-back {
-    flex: 0 0 auto;
     white-space: nowrap;
   }
 }
@@ -8904,29 +8893,6 @@ button.manga-card-link {
   }
 }
 
-.page-back-button {
-  width: 1.35rem;
-  height: 1.6rem;
-  color: var(--muted);
-  font-size: 1.35rem;
-  font-weight: 500;
-  line-height: 1;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.page-back-button:hover {
-  color: var(--text);
-  border-color: transparent;
-  background: transparent;
-}
-
-.page-back-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .extension-language-options {
   display: grid;
   gap: 0.25rem;
@@ -8953,4 +8919,85 @@ button.manga-card-link {
 
 .extension-language-option input {
   flex: 0 0 auto;
+}
+
+/* Shared contextual back action, matching Nuvio Web's chevron pattern ----- */
+.page-header.has-leading {
+  flex-direction: row;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.page-header-leading {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  align-self: flex-start;
+}
+
+.page-header.has-leading .page-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.page-header.has-leading .page-title-row {
+  min-height: 2.5rem;
+  align-items: center;
+}
+
+.back-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-left: -0.35rem;
+  padding: 0;
+  color: var(--text);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.back-button:hover {
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.back-button svg {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .page-header.has-leading .page-title-row {
+    min-height: 2.75rem;
+  }
+
+  .back-button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-button {
+    transition: none;
+  }
+
+  .back-button:active {
+    transform: none;
+  }
 }
