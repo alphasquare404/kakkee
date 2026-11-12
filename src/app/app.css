@@ -10208,3 +10208,114 @@ button.manga-card-link {
 .detail-shell .detail-nav-back {
   margin-left: 0;
 }
+
+/* Chapter header icon actions. */
+.detail-shell .chapter-section-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chapter-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.1rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.chapter-header-action {
+  display: inline-grid;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  list-style: none;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.chapter-header-action::-webkit-details-marker {
+  display: none;
+}
+
+.chapter-header-action .action-menu-chevron {
+  display: none;
+}
+
+.chapter-header-action:hover,
+.chapter-header-action[open],
+.chapter-header-action.is-active {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+.chapter-search-panel {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.55rem;
+}
+
+@media (max-width: 760px) {
+  .detail-shell .chapter-section-header {
+    display: flex;
+    grid-template-columns: none;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .detail-shell .chapter-section-header > div:first-child {
+    display: grid;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    gap: 0.1rem;
+  }
+
+  .chapter-header-actions {
+    gap: 0;
+  }
+
+  .chapter-header-action {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+}
+
+.hero-control {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.manga-sections {
+  scroll-margin-top: calc(var(--safe-top) + 0.75rem);
+}
+
+@media (max-width: 760px) {
+  .manga-hero.is-portrait-cover {
+    height: clamp(23rem, 62vh, 38rem);
+  }
+}
+
+.detail-shell .chapter-section-header > .chapter-header-actions {
+  display: flex;
+  width: auto;
+  gap: 0.1rem;
+}
+
+@media (max-width: 760px) {
+  .detail-shell .chapter-section-header > .chapter-header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    width: auto;
+  }
+}
+
+.manga-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

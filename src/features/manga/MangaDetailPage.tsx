@@ -40,6 +40,12 @@ import {
 } from '../../core/offline/offlineStorage';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import {
+  IconDownload,
+  IconFilter,
+  IconSearch,
+  IconSort,
+} from '../library/icons';
 
 registerMessages('id', {
   Library: 'Perpustakaan',
@@ -327,6 +333,7 @@ function ConnectedMangaDetail({
   );
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chapterSearch, setChapterSearch] = useState('');
+  const [chapterSearchOpen, setChapterSearchOpen] = useState(false);
   const [chapterFilter, setChapterFilter] = useState<ChapterFilter>(
     savedView?.filter ?? 'all',
   );
@@ -847,11 +854,11 @@ function ConnectedMangaDetail({
                   onClick={() => {
                     changeSection('overview');
                     setDescriptionExpanded(true);
-                    window.requestAnimationFrame(() =>
+                    window.setTimeout(() => {
                       document
                         .getElementById('manga-sections')
-                        ?.scrollIntoView({ block: 'start' }),
-                    );
+                        ?.scrollIntoView({ block: 'start' });
+                    }, 180);
                   }}
                 >
                   {t('Show more')}
@@ -1027,140 +1034,150 @@ function ConnectedMangaDetail({
                   : t('{count} chapters', { count: detail.totalCount })}
               </p>
             </div>
+            <div className="chapter-header-actions">
+              <button
+                className={`chapter-header-action${chapterSearchOpen || chapterSearch ? ' is-active' : ''}`}
+                type="button"
+                aria-label={t('Search chapters')}
+                aria-expanded={chapterSearchOpen}
+                title={t('Search chapters')}
+                onClick={() => setChapterSearchOpen((value) => !value)}
+              >
+                <IconSearch />
+              </button>
+              <ActionMenu
+                label={<IconSort />}
+                ariaLabel={t('Sort by')}
+                summaryClassName="chapter-header-action"
+              >
+                <button
+                  type="button"
+                  className={detail.order === 'newest' ? 'is-active' : undefined}
+                  aria-pressed={detail.order === 'newest'}
+                  onClick={() => void controller.setOrder('newest')}
+                >
+                  {t('Newest first')}
+                </button>
+                <button
+                  type="button"
+                  className={detail.order === 'oldest' ? 'is-active' : undefined}
+                  aria-pressed={detail.order === 'oldest'}
+                  onClick={() => void controller.setOrder('oldest')}
+                >
+                  {t('Oldest first')}
+                </button>
+              </ActionMenu>
+              <ActionMenu
+                label={<IconFilter />}
+                ariaLabel={t('More chapter actions')}
+                summaryClassName="chapter-header-action"
+              >
+                <p className="action-menu-section">Filters</p>
+                {(
+                  [
+                    ['all', t('All chapters')],
+                    ['unread', t('Unread')],
+                    ['read', t('Read')],
+                    ['downloaded', t('Downloaded')],
+                    ['bookmarked', t('Bookmarked')],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={chapterFilter === value ? 'is-active' : undefined}
+                    aria-pressed={chapterFilter === value}
+                    onClick={() => setChapterFilter(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={hideDuplicates ? 'is-active' : undefined}
+                  aria-pressed={hideDuplicates}
+                  onClick={() => setHideDuplicates((value) => !value)}
+                >
+                  {t('Hide duplicates')}
+                </button>
+                <button
+                  type="button"
+                  disabled={scanBusy}
+                  onClick={() => void scanAllChapters()}
+                >
+                  {scanBusy
+                    ? t('Scanning…')
+                    : scannedChapters
+                      ? scannedChapters.length === 1
+                        ? t('1 chapter')
+                        : t('{count} chapters', { count: scannedChapters.length })
+                      : t('Scan all chapters')}
+                </button>
+                {scanlators.length > 0 ? (
+                  <label className="chapter-select">
+                    <span className="sr-only">Filter by scanlator</span>
+                    <select
+                      aria-label="Filter by scanlator"
+                      value={scanlator}
+                      onChange={(event) => setScanlator(event.target.value)}
+                    >
+                      <option value="all">{t('All scanlators')}</option>
+                      {scanlators.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
+              </ActionMenu>
+              <ActionMenu
+                label={<IconDownload />}
+                ariaLabel={t('Download chapters')}
+                summaryClassName="chapter-header-action"
+              >
+                <button
+                  type="button"
+                  disabled={chapterBulkBusy || selectedChapterIds.size === 0}
+                  onClick={() => downloadSelection('server')}
+                >
+                  {t('Download server')}
+                </button>
+                <button
+                  type="button"
+                  disabled={
+                    chapterBulkBusy ||
+                    selectedChapterIds.size === 0 ||
+                    !isOfflineStorageSupported()
+                  }
+                  onClick={() => downloadSelection('device')}
+                >
+                  {t('Download device')}
+                </button>
+                {selectedChapterIds.size === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setChapterSelectionMode(true)}
+                  >
+                    {t('Select chapters')}
+                  </button>
+                ) : null}
+              </ActionMenu>
+            </div>
           </div>
 
-          <div className="chapter-toolbar">
-            <label className="chapter-search">
+          {chapterSearchOpen || chapterSearch ? (
+            <label className="chapter-search chapter-search-panel">
               <span className="sr-only">Search chapters</span>
               <input
+                autoFocus
                 type="search"
                 placeholder="Search chapters…"
                 value={chapterSearch}
                 onChange={(event) => setChapterSearch(event.target.value)}
               />
             </label>
-
-            <ActionMenu
-              label={t('Sort by')}
-              ariaLabel={t('Sort by')}
-              summaryClassName="chapter-toolbar-button"
-            >
-              <button
-                type="button"
-                className={detail.order === 'newest' ? 'is-active' : undefined}
-                aria-pressed={detail.order === 'newest'}
-                onClick={() => void controller.setOrder('newest')}
-              >
-                {t('Newest first')}
-              </button>
-              <button
-                type="button"
-                className={detail.order === 'oldest' ? 'is-active' : undefined}
-                aria-pressed={detail.order === 'oldest'}
-                onClick={() => void controller.setOrder('oldest')}
-              >
-                {t('Oldest first')}
-              </button>
-            </ActionMenu>
-
-            <ActionMenu
-              label={t('More')}
-              ariaLabel={t('More chapter actions')}
-              summaryClassName="chapter-toolbar-button"
-            >
-              <p className="action-menu-section">Filters</p>
-              {(
-                [
-                  ['all', t('All chapters')],
-                  ['unread', t('Unread')],
-                  ['read', t('Read')],
-                  ['downloaded', t('Downloaded')],
-                  ['bookmarked', t('Bookmarked')],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={chapterFilter === value ? 'is-active' : undefined}
-                  aria-pressed={chapterFilter === value}
-                  onClick={() => setChapterFilter(value)}
-                >
-                  {label}
-                </button>
-              ))}
-              <button
-                type="button"
-                className={hideDuplicates ? 'is-active' : undefined}
-                aria-pressed={hideDuplicates}
-                onClick={() => setHideDuplicates((value) => !value)}
-              >
-                {t('Hide duplicates')}
-              </button>
-              <button
-                type="button"
-                disabled={scanBusy}
-                onClick={() => void scanAllChapters()}
-              >
-                {scanBusy
-                  ? t('Scanning…')
-                  : scannedChapters
-                    ? scannedChapters.length === 1
-                      ? t('1 chapter')
-                      : t('{count} chapters', { count: scannedChapters.length })
-                    : t('Scan all chapters')}
-              </button>
-              {scanlators.length > 0 ? (
-                <label className="chapter-select">
-                  <span className="sr-only">Filter by scanlator</span>
-                  <select
-                    aria-label="Filter by scanlator"
-                    value={scanlator}
-                    onChange={(event) => setScanlator(event.target.value)}
-                  >
-                    <option value="all">{t('All scanlators')}</option>
-                    {scanlators.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-            </ActionMenu>
-
-            <ActionMenu
-              label={t('Download')}
-              ariaLabel={t('Download chapters')}
-              summaryClassName="chapter-toolbar-button"
-            >
-              <button
-                type="button"
-                disabled={chapterBulkBusy || selectedChapterIds.size === 0}
-                onClick={() => downloadSelection('server')}
-              >
-                {t('Download server')}
-              </button>
-              <button
-                type="button"
-                disabled={
-                  chapterBulkBusy ||
-                  selectedChapterIds.size === 0 ||
-                  !isOfflineStorageSupported()
-                }
-                onClick={() => downloadSelection('device')}
-              >
-                {t('Download device')}
-              </button>
-              {selectedChapterIds.size === 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setChapterSelectionMode(true)}
-                >
-                  {t('Select chapters')}
-                </button>
-              ) : null}
-            </ActionMenu>
-          </div>
+          ) : null}
 
           {deviceProgress ? (
             <p className="settings-save-state" role="status">

@@ -1,6 +1,9 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
+  useState,
+  type CSSProperties,
   type ReactNode,
   type RefObject,
 } from 'react';
@@ -25,6 +28,58 @@ export function ActionMenu({
   triggerRef,
 }: ActionMenuProps) {
   const details = useRef<HTMLDetailsElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>();
+
+
+  useLayoutEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const position = () => {
+      const summary = details.current?.querySelector('summary');
+      const menu = panel.current;
+
+      if (!summary || !menu) {
+        return;
+      }
+
+      const rect = summary.getBoundingClientRect();
+      const width = Math.min(240, window.innerWidth - 24);
+      const height = menu.offsetHeight;
+      let top = rect.bottom + 8;
+
+      if (top + height > window.innerHeight - 12) {
+        top = Math.max(12, rect.top - height - 8);
+      }
+
+      let left = align === 'end' ? rect.right - width : rect.left;
+      left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+
+      setPanelStyle({
+        position: 'fixed',
+        top,
+        left,
+        right: 'auto',
+        width,
+        maxHeight: 'calc(100vh - 24px)',
+        overflowY: 'auto',
+      });
+    };
+
+    position();
+    const frame = window.requestAnimationFrame(position);
+    window.addEventListener('resize', position);
+    window.addEventListener('scroll', position, true);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', position);
+      window.removeEventListener('scroll', position, true);
+    };
+  }, [align, open]);
 
   useEffect(() => {
     const node = details.current;
@@ -83,6 +138,7 @@ export function ActionMenu({
     <details
       ref={details}
       className={`action-menu action-menu-${align}${className ? ` ${className}` : ''}`}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary
         ref={triggerRef}
@@ -94,7 +150,7 @@ export function ActionMenu({
           ▾
         </span>
       </summary>
-      <div className="action-menu-panel">{children}</div>
+      <div ref={panel} className="action-menu-panel" style={panelStyle}>{children}</div>
     </details>
   );
 }

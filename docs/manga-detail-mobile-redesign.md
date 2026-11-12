@@ -8,8 +8,8 @@
 
 Mobile uses the requested top-to-bottom composition:
 
-1. Full-bleed cover hero with safe-area-aware Back, Add to Library, and More controls. Controls are icon-only without circular backgrounds.
-2. Rounded dark information panel overlapping the hero. Portrait covers use a taller hero (53vh at phone widths) than wide covers (46vh).
+1. Full-bleed cover hero with safe-area-aware Back, Add to Library, and More controls. Controls are icon-only without circular backgrounds or backdrop blur.
+2. Rounded dark information panel overlapping the hero. Portrait covers use a taller hero (62vh at phone widths) than wide covers (46vh).
 3. Compact metadata row, title, author/artist, and three-line synopsis preview.
 4. A single full-width Continue/Read action on phones. Add to Library and More live in the top bar; the duplicate bottom actions were removed.
 5. Rounded Chapters / Overview segmented control without the legacy underline.
@@ -48,13 +48,15 @@ Add to Library/More controls sit in the same top row rather than inside the cove
 
 ## Visual verification
 
-- `visual-audit/manga-final3-1920x1080.png`
-- `visual-audit/manga-final3-1366x768.png`
-- `visual-audit/manga-final3-1180x820.png`
-- `visual-audit/manga-final3-820x1180.png`
-- `visual-audit/manga-final3-390x844.png`
-- `visual-audit/manga-final3-chapters-390x844.png`
-- `visual-audit/manga-chapter-menu-390x844.png`
+- `visual-audit/manga-final6-1920x1080.png`
+- `visual-audit/manga-final6-1366x768.png`
+- `visual-audit/manga-final6-1180x820.png`
+- `visual-audit/manga-final6-820x1180.png`
+- `visual-audit/manga-final6-390x844.png`
+- `visual-audit/manga-final6-chapters-390x844.png`
+- `visual-audit/manga-final5-toolbar-menu-390x844.png`
+- `visual-audit/manga-final5-card-menu-390x844.png`
+- `visual-audit/manga-final6-showmore-390x844.png`
 
 Checked for clipping, safe-area placement, tab/action overflow, chapter card density, and horizontal
 overflow. No horizontal overflow was found at the five target sizes.
@@ -71,8 +73,10 @@ build           PASS
 
 ## Chapter controls
 
-- Sort by is a menu button (Newest first / Oldest first).
-- Search remains a compact field.
+- Search, Sort, More/filter, and Download are icon buttons in the right side of the Chapters title
+  box, using the Library icon family.
+- Search expands a field below the header.
+- Sort exposes Newest first / Oldest first.
 - More contains all/unread/read/downloaded/bookmarked filters, duplicate hiding, scan-all, and
   scanlator filtering.
 - Download always exposes Download server / Download device. With no selected chapters it also
@@ -81,4 +85,6 @@ build           PASS
 - Card actions are download (or × to cancel a queued download), borderless Unread/Read, and More.
 - Delete downloaded chapter is not shown on chapter cards.
 - Card menus contain Select, conditional Bookmark/Remove bookmark, and Mark earlier as read.
-- The card More menu is no longer clipped by content-visibility.
+- All ActionMenu popovers now use viewport-fixed positioning, flip above the trigger when needed,
+  clamp horizontally, and scroll internally instead of leaving the screen.
+- Show more scrolls to the tabs with `scroll-margin-top` accounting for the safe area.
