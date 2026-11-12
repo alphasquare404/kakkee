@@ -6,7 +6,7 @@ import {
   createMangaTrackingRepository,
   type TrackRecord,
 } from '../../core/tracking/mangaTrackingRepository';
-import { IconSync } from '../library/icons';
+import { IconSearch, IconSync } from '../library/icons';
 
 export function MangaTrackingSection({
   context,
@@ -112,7 +112,7 @@ export function MangaTrackingSection({
           }}
         >
           <label>
-            <span>Tracker</span>
+            <span className="sr-only">Tracker</span>
             <select
               aria-label="Tracker"
               value={selectedTracker?.id ?? ''}
@@ -126,7 +126,7 @@ export function MangaTrackingSection({
             </select>
           </label>
           <label className="manga-track-search">
-            <span>Search title</span>
+            <span className="sr-only">Search title</span>
             <input
               aria-label="Search title"
               placeholder="Search title"
@@ -135,11 +135,13 @@ export function MangaTrackingSection({
             />
           </label>
           <button
-            className="library-action"
+            className="library-action manga-track-submit"
             type="submit"
             disabled={tracking.searching || !query.trim()}
+            aria-label={tracking.searching ? 'Searching…' : 'Search tracker'}
+            title={tracking.searching ? 'Searching…' : 'Search tracker'}
           >
-            {tracking.searching ? 'Searching…' : 'Search tracker'}
+            <IconSearch />
           </button>
           {selectedTracker?.supportsPrivateTracking ? (
             <label className="manga-track-private">
@@ -148,7 +150,7 @@ export function MangaTrackingSection({
                 checked={isPrivate}
                 onChange={(event) => setIsPrivate(event.target.checked)}
               />
-              Private
+              <span>Private</span>
             </label>
           ) : null}
         </form>

@@ -10731,3 +10731,45 @@ button.manga-card-link {
     margin-left: 0;
   }
 }
+
+/* One-line tracker search row. */
+.manga-track-bind {
+  flex-wrap: nowrap;
+}
+
+.manga-track-bind > label:first-child {
+  flex: 0 1 8rem;
+  min-width: 5.5rem;
+}
+
+.manga-track-bind label > span:not(.sr-only) {
+  display: inline;
+  color: var(--muted);
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+
+.manga-track-bind select {
+  width: 100%;
+}
+
+.manga-track-search {
+  flex: 1 1 auto;
+  min-width: 4.5rem;
+}
+
+.manga-track-submit {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  min-height: 1.9rem;
+  padding: 0;
+  place-content: center;
+}
+
+.manga-track-private {
+  flex: 0 0 auto;
+  gap: 0.2rem !important;
+  min-height: 1.9rem;
+  white-space: nowrap;
+}
