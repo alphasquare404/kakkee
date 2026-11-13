@@ -174,3 +174,11 @@ refreshed by the existing download-status subscription.
 On mobile the hero is sticky at the top while the opaque information panel scrolls over
 it. The cover image scales from 1.00 to 1.16 over the first viewport of scroll, then the
 panel fully covers the hero. Desktop/tablet keep the static two-column hero.
+
+## Search/source chapter bootstrap
+
+Manga rows created by source search contain metadata but may not have chapter rows yet.
+When Manga Detail opens with an empty chapter list, it calls `fetchMangaAndChapters`
+once for that manga before presenting the empty state. This makes search and Browse
+results behave like Library manga. Sources that genuinely return no chapters still
+show the normal empty state.

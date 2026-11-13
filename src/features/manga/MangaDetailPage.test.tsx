@@ -97,13 +97,14 @@ function fakeResources(): ResourceService {
 function renderDetail(
   query: ReturnType<typeof vi.fn>,
   locationState: unknown = {},
+  mutate: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   const connected = makeConnectedState();
   const state = {
     ...connected,
     context: {
       ...connected.context,
-      graphQL: { query } as unknown as ApolloClient,
+      graphQL: { query, mutate } as unknown as ApolloClient,
       resources: fakeResources(),
     },
   };
@@ -131,6 +132,49 @@ describe('MangaDetailPage', () => {
     expect(screen.getByRole('link', { name: 'Back to library' }).getAttribute('href')).toBe(
       '/library',
     );
+  });
+
+  it('fetches chapters once when opened from a source search with no rows', async () => {
+    const empty = detailData({
+      nodes: [],
+      totalCount: 0,
+      pageInfo: {
+        __typename: 'PageInfo',
+        endCursor: null,
+        hasNextPage: false,
+      },
+    });
+    let detailCalls = 0;
+    const query = vi.fn(async (request: { query: unknown }) => {
+      if (request.query === MangaDetailDocument) {
+        detailCalls += 1;
+        return { data: detailCalls === 1 ? empty : detailData() };
+      }
+
+      return {
+        data: {
+          downloadStatus: { queue: [] },
+          extensions: { totalCount: 0 },
+        },
+      };
+    });
+    const mutate = vi.fn(async () => ({
+      data: {
+        fetchMangaAndChapters: {
+          manga: { id: 1114, title: 'One Piece', thumbnailUrl: null },
+          chapters: [],
+        },
+      },
+    }));
+
+    renderDetail(query, {}, mutate);
+
+    expect(await screen.findByRole('heading', { name: 'One Piece' })).toBeTruthy();
+    await waitFor(() => expect(mutate).toHaveBeenCalledTimes(1));
+    expect(
+      await screen.findByRole('link', { name: /Chapter 1186/ }),
+    ).toBeTruthy();
+    expect(detailCalls).toBeGreaterThanOrEqual(2);
   });
 
   it('returns to the originating page when opened from Updates', async () => {

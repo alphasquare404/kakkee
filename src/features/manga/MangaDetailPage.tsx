@@ -378,6 +378,7 @@ function ConnectedMangaDetail({
   } | null>(null);
   const [deviceError, setDeviceError] = useState(false);
   const loaded = useRef<MangaDetailController | null>(null);
+  const autoFetchedChapters = useRef<Set<number>>(new Set());
   const [section, setSection] = useState<'overview' | 'chapters'>(
     searchParams.get('section') === 'overview' ? 'overview' : 'chapters',
   );
@@ -427,6 +428,30 @@ function ConnectedMangaDetail({
       void controller.load();
     }
   }, [controller]);
+
+  useEffect(() => {
+    const manga = detail.manga;
+
+    if (
+      !manga ||
+      detail.isLoading ||
+      detail.chapters.length > 0 ||
+      autoFetchedChapters.current.has(manga.id)
+    ) {
+      return;
+    }
+
+    // Source results are created with metadata but no chapter rows. Fetch
+    // them before showing the empty chapter list.
+    autoFetchedChapters.current.add(manga.id);
+    setRefreshError(false);
+    void controller.refresh().catch(() => setRefreshError(true));
+  }, [
+    controller,
+    detail.chapters.length,
+    detail.isLoading,
+    detail.manga,
+  ]);
 
   useEffect(() => {
     saveChapterViewPreferences(mangaId, {
