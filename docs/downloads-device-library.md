@@ -50,7 +50,13 @@ Pemeriksaan perangkat menggunakan OPFS untuk server yang sedang terhubung.
 
 ## Continuous next chapter
 
-Auto-append chapter berikutnya yang sebelumnya rusak sudah dihapus dari
-ReaderPage. Transisi chapter sekarang eksplisit. Infinite scroll yang benar
-(menyambung halaman chapter berikutnya sekaligus mempromosikan chapter aktif)
-belum diaktifkan.
+Pada mode `vertical` dan `webtoon`, halaman chapter berikutnya dimuat di bawah
+chapter aktif tanpa reload. Saat pembaca masuk ke halaman appended:
+
+- judul dan URL berubah ke chapter appended;
+- page indicator memakai halaman lokal chapter appended;
+- progress disimpan untuk chapter appended;
+- scrolling kembali ke atas memulihkan chapter semula;
+- chapter list menandai chapter appended sebagai current.
+
+Mode paged (single/double) dan horizontal tetap memakai transisi eksplisit.

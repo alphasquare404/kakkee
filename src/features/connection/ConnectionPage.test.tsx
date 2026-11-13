@@ -2,7 +2,7 @@
 
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { clearLastServerUrl } from '../../core/preferences/connectionPreferences';
 import { ConnectionProvider } from '../../app/ConnectionProvider';
@@ -15,6 +15,11 @@ import {
   makeLoginRequiredState,
 } from '../../test/fakeConnectionCoordinator';
 
+function LocationProbe() {
+  const location = useLocation();
+  return <p data-testid="location">{location.pathname}</p>;
+}
+
 function renderPage(initialState: ConnectionState = { status: 'disconnected' }) {
   const coordinator = new FakeConnectionCoordinator(initialState);
 
@@ -22,6 +27,7 @@ function renderPage(initialState: ConnectionState = { status: 'disconnected' }) 
     <MemoryRouter>
       <ConnectionProvider createCoordinator={() => coordinator}>
         <ConnectionPage />
+        <LocationProbe />
       </ConnectionProvider>
     </MemoryRouter>,
   );
@@ -198,29 +204,16 @@ describe('ConnectionPage login', () => {
 });
 
 describe('ConnectionPage connected', () => {
-  it('shows server information, auth mode, compatibility warning, and disconnects', async () => {
-    const user = userEvent.setup();
-    const coordinator = renderPage(
-      makeConnectedState({
-        status: 'unknown',
-        baseline: 'v2.4.2366',
-        version: 'nightly',
-        buildType: 'Stable',
-        warning: 'Versi server tidak dapat diparse; hanya operasi baseline yang terbukti dijalankan.',
-      }),
+  it('redirects directly to the library without a connected panel', async () => {
+    const coordinator = renderPage(makeConnectedState());
+
+    await waitFor(() =>
+      expect(screen.getByTestId('location').textContent).toBe('/library'),
     );
-
-    expect(screen.getByRole('heading', { name: 'Suwayomi-Server' })).toBeTruthy();
-    expect(screen.getByText('https://server.example/suwayomi')).toBeTruthy();
-    expect(screen.getByText('v2.4.2366')).toBeTruthy();
-    expect(screen.getByText('Stable')).toBeTruthy();
-    expect(screen.getByText('NONE')).toBeTruthy();
-    expect(screen.getByText('Linux 6.0')).toBeTruthy();
-    expect(screen.getByText('amd64')).toBeTruthy();
-    expect(screen.getByText(/Versi server tidak dapat diparse/)).toBeTruthy();
-
-    await user.click(screen.getByRole('button', { name: 'Disconnect' }));
-    expect(coordinator.disconnectCalls).toHaveLength(1);
+    expect(screen.queryByRole('heading', { name: 'Suwayomi-Server' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Disconnect' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Open library' })).toBeNull();
+    expect(coordinator.disconnectCalls).toHaveLength(0);
   });
 
   it('maps a failed connection to human text without raw diagnostics', () => {

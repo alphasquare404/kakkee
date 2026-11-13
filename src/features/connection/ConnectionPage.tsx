@@ -4,7 +4,7 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
@@ -19,10 +19,6 @@ import {
   getRememberedSession,
   saveRememberedSession,
 } from '../../core/preferences/sessionPreferences';
-import {
-  createOfflineStorage,
-  isOfflineStorageSupported,
-} from '../../core/offline/offlineStorage';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 
@@ -149,13 +145,6 @@ function serverAddress(state: ConnectionState, fallback: string): string {
   return 'serverBaseUrl' in state ? (state.serverBaseUrl ?? fallback) : fallback;
 }
 
-function platformLabel(state: Extract<ConnectionState, { status: 'connected' }>): string {
-  const platform = state.context.serverInfo.platformInfo;
-  const os = [platform.os.name, platform.os.version].filter(Boolean).join(' ');
-
-  return os || platform.arch;
-}
-
 export function ConnectionPage() {
   const { t } = useI18n();
   const location = useLocation();
@@ -187,11 +176,9 @@ export function ConnectionPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
-  const [offlineCount, setOfflineCount] = useState(0);
   const serverInput = useRef<HTMLInputElement>(null);
   const usernameInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
-  const connectedHeading = useRef<HTMLHeadingElement>(null);
 
   const loginErrorCode = state.status === 'login-required' ? state.error?.code : undefined;
   const lastServer = getLastServerUrl();
@@ -201,21 +188,12 @@ export function ConnectionPage() {
   }, [state.status]);
 
   useEffect(() => {
-    if (state.status === 'connected' && redirectFrom) {
-      navigate(redirectFrom, { replace: true });
-    }
-  }, [navigate, redirectFrom, state.status]);
-
-  useEffect(() => {
-    if (!isOfflineStorageSupported()) {
+    if (state.status !== 'connected') {
       return;
     }
 
-    void createOfflineStorage()
-      .list()
-      .then((records) => setOfflineCount(records.length))
-      .catch(() => undefined);
-  }, []);
+    navigate(redirectFrom ?? '/library', { replace: true });
+  }, [navigate, redirectFrom, state.status]);
 
   useEffect(() => {
     if (state.status === 'connected') {
@@ -258,10 +236,6 @@ export function ConnectionPage() {
         setPassword('');
         passwordInput.current?.focus();
       }
-    }
-
-    if (state.status === 'connected') {
-      connectedHeading.current?.focus();
     }
 
     if (state.status === 'failed') {
@@ -395,11 +369,6 @@ export function ConnectionPage() {
             'Connect to your server and continue reading from your Library.',
           )}
         </p>
-        {offlineCount > 0 ? (
-          <Link className="button button-secondary" to="/offline">
-            {t('Offline downloads')} ({offlineCount})
-          </Link>
-        ) : null}
       </header>
 
       <main className="app-main">
@@ -545,77 +514,6 @@ export function ConnectionPage() {
                 server: state.serverBaseUrl,
               })}
             </p>
-          </section>
-        ) : null}
-
-        {state.status === 'connected' ? (
-          <section className="panel" aria-labelledby="connected-heading">
-            <div className="status-heading">
-              <span className="status-dot" aria-hidden="true" />
-              <div>
-                <p className="panel-kicker">{t('Connected')}</p>
-                <h2 id="connected-heading" ref={connectedHeading} tabIndex={-1}>
-                  {state.context.serverInfo.name}
-                </h2>
-              </div>
-            </div>
-
-            <p className="panel-copy">
-              {t(
-                'The connection to Suwayomi Server is active. Library and Reader are available.',
-              )}
-            </p>
-
-            {state.context.compatibility.status !== 'compatible' ? (
-              <p className="alert alert-warning" role="status">
-                {state.context.compatibility.warning ??
-                  t('Server compatibility is not fully verified.')}
-              </p>
-            ) : null}
-
-            <dl className="info-grid">
-              <div className="info-item">
-                <dt>{t('Server URL')}</dt>
-                <dd className="breakable">{state.context.config.serverBaseUrl}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Server')}</dt>
-                <dd>{state.context.serverInfo.name}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Version')}</dt>
-                <dd>{state.context.serverInfo.version}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Build type')}</dt>
-                <dd>{state.context.serverInfo.buildType}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Platform')}</dt>
-                <dd>{platformLabel(state)}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Architecture')}</dt>
-                <dd>{state.context.serverInfo.platformInfo.arch}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Auth mode')}</dt>
-                <dd>{state.context.authMode}</dd>
-              </div>
-              <div className="info-item">
-                <dt>{t('Compatibility')}</dt>
-                <dd>{state.context.compatibility.status}</dd>
-              </div>
-            </dl>
-
-            <div className="actions">
-              <Link className="button" to="/library">
-                {t('Open library')}
-              </Link>
-              <button className="button button-secondary" type="button" onClick={handleDisconnect}>
-                {t('Disconnect')}
-              </button>
-            </div>
           </section>
         ) : null}
 

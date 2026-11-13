@@ -258,10 +258,10 @@ antar scanlator tanpa sadar.
 
 ## Status perbaikan yang diterapkan
 
-- Auto-append halaman chapter berikutnya dihapus. Transisi chapter sekarang
-  eksplisit lewat Previous/Next, chapter list, keyboard Shift, atau auto-advance,
-  sehingga URL, judul, chapter list, page indicator, dan progress tidak berbeda
-  dari chapter yang sedang dibaca.
+- Vertical/webtoon sekarang memakai chapter-chain: halaman chapter berikutnya
+  dimuat di bawah, lalu chapter tersebut dipromosikan menjadi chapter aktif
+  (judul, URL, progress, indicator, chapter list). Paged/horizontal tetap
+  memakai transisi eksplisit.
 - Horizontal ArrowLeft/ArrowRight menggerakkan halaman, bukan chapter.
 - Tap zone dan swipe sekarang mengikuti `direction` LTR/RTL.
 - Page indicator double page memakai rentang spread (`3-4`) dan dinormalkan

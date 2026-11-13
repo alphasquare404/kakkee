@@ -27,6 +27,11 @@ export interface ReaderController {
     lastPageRead: number,
     isRead?: boolean,
   ): Promise<void>;
+  saveProgressForChapter(
+    chapterId: number,
+    lastPageRead: number,
+    isRead?: boolean,
+  ): Promise<void>;
   downloadChapter(chapterId: number): Promise<void>;
   deleteDownload(chapterId: number): Promise<void>;
   setBookmark(isBookmarked: boolean): Promise<void>;
@@ -220,17 +225,11 @@ export function createReaderController(
     }
   }
 
-  async function saveProgress(
+  async function saveProgressForChapter(
     chapterId: number,
     lastPageRead: number,
     isRead?: boolean,
   ): Promise<void> {
-    const chapter = state.chapter;
-
-    if (!chapter || chapter.id !== chapterId) {
-      return;
-    }
-
     const requestGeneration = generation;
 
     await options.repository.updateProgress(chapterId, lastPageRead, isRead);
@@ -254,6 +253,20 @@ export function createReaderController(
     });
   }
 
+  async function saveProgress(
+    chapterId: number,
+    lastPageRead: number,
+    isRead?: boolean,
+  ): Promise<void> {
+    const chapter = state.chapter;
+
+    if (!chapter || chapter.id !== chapterId) {
+      return;
+    }
+
+    await saveProgressForChapter(chapterId, lastPageRead, isRead);
+  }
+
   return {
     getState: () => state,
     subscribe: (listener) => {
@@ -267,6 +280,7 @@ export function createReaderController(
     preload,
     retryPages,
     saveProgress,
+    saveProgressForChapter,
     downloadChapter,
     deleteDownload,
     setBookmark,

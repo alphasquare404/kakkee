@@ -112,7 +112,7 @@ Dokumen ini menjelaskan fitur yang sudah tersedia di frontend dalam bahasa Indon
 - **Progress dan status baca**: halaman terakhir dan status selesai disimpan.
 - **Resume**: membuka kembali di halaman terakhir.
 - **Navigasi chapter**: previous/next dan daftar chapter.
-- **Transisi chapter eksplisit**: previous/next, chapter list, keyboard, atau auto-advance. Auto-append halaman chapter berikutnya dihapus karena tidak sinkron dengan state chapter.
+- **Infinite scroll vertical/webtoon**: halaman chapter berikutnya disambung di bawah; chapter aktif, URL, progress, dan indikator ikut berpindah saat pembaca menyeberang. Mode paged/horizontal tetap transisi eksplisit.
 - **Skip chapter duplikat**.
 - **Preload**: halaman sekitar dan chapter berikutnya disiapkan lebih awal.
 - **Filter gambar**: brightness, contrast, saturation, grayscale, sepia, invert, high contrast.

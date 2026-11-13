@@ -158,7 +158,7 @@ Used by:
   hidden on mobile to keep the bar one row.
 - Footer repeats full chapter navigation.
 - Device download priority: device OPFS copy > server download > online. Device chapters open the offline reader.
-- Silent auto-append of the next chapter was removed; chapter changes are explicit (Next/Previous, chapter list, keyboard Shift, or auto-advance).
+- Vertical/webtoon modes append the next chapter below and promote it to the active chapter while scrolling. Paged/horizontal modes keep explicit transitions.
 - Desktop chapter rail is compact (7.5rem) and sits outside the page column where space allows;
   it is hidden on tablet/mobile.
 - Keyboard:
