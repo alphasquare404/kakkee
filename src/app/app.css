@@ -365,11 +365,6 @@ h2[tabindex="-1"]:focus {
   z-index: 1;
 }
 
-.library-ambient {
-  height: 31rem;
-  top: -3rem;
-}
-
 .detail-ambient {
   height: 42rem;
   top: -2rem;

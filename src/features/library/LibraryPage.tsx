@@ -32,10 +32,8 @@ import {
 import { useConnection } from '../../app/useConnection';
 import { getAutoConnect, getLastServerUrl } from '../../core/preferences/connectionPreferences';
 import { useAppPath } from '../../app/useAppPath';
-import { useImageResource } from '../../shared/useImageResource';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { ContextMenu } from '../../shared/ContextMenu';
-import { AmbientArt } from '../../shared/AmbientArt';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { useSearchHistory } from '../../shared/useSearchHistory';
@@ -280,10 +278,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const categories = useSyncExternalStore(
     categoryController.subscribe,
     categoryController.getState,
-  );
-  const ambient = useImageResource(
-    context.resources,
-    library.items[1]?.thumbnailUrl ?? library.items[0]?.thumbnailUrl ?? null,
   );
   const appPreferences = useAppPreferences();
   const searchHistory = useSearchHistory();
@@ -1143,7 +1137,6 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       }}
       onClickCapture={handleLibraryClickCapture}
     >
-      <AmbientArt imageUrl={ambient.objectUrl} className="library-ambient" />
       <header className={`library-header${searchOpen ? ' is-search-open' : ''}`}>
         <div className="library-title">
           <div className="library-title-row">
