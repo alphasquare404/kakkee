@@ -317,7 +317,6 @@ h2[tabindex="-1"]:focus {
   color: inherit;
   text-align: center;
   text-decoration: none;
-  border-top: 1px solid var(--border);
 }
 
 .sidebar-account div {
