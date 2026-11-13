@@ -12425,27 +12425,43 @@ button.manga-card-link {
   cursor: pointer;
 }
 
-.device-offline-dialog {
-  width: min(100%, 28rem);
+.offline-detail-layout {
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: start;
 }
 
-.device-offline-dialog header > div {
+.offline-detail-cover {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  place-items: center;
+  color: var(--muted);
+  font-size: 2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-cover);
+  background: var(--surface-sunken);
+}
+
+.offline-detail-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.offline-detail-chapters {
   min-width: 0;
 }
 
-.device-offline-dialog header .panel-kicker {
-  margin-bottom: 0.15rem;
+.offline-detail-chapter {
+  padding-inline: 0.7rem;
 }
 
-.device-offline-chapters a strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.device-offline-chapters a span {
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: var(--text-xs);
-  white-space: nowrap;
+@media (max-width: 760px) {
+  .offline-detail-layout {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 0.9rem;
+  }
 }

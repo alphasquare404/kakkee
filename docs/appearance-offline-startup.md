@@ -57,6 +57,9 @@ Tanggal: 13 November 2026
 - Device Library hanya menampilkan grid manga; daftar chapter tidak diulang di
   halaman ini. Daftar downloaded chapter dikelola di tab Device halaman
   Downloads.
+- Card manga membuka halaman detail `/manga/:id`. Saat offline, halaman detail
+  dirender dari record OPFS: cover, judul, dan chapter yang tersimpan. Chapter
+  di halaman detail membuka `/offline/read/:chapterId`.
 
 ## App icon
 

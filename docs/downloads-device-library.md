@@ -22,8 +22,9 @@ Tanggal: 13 November 2026
 - Isinya grid manga seperti Library, tetapi hanya manga yang punya chapter
   tersimpan di OPFS perangkat untuk server aktif.
 - Setiap card menampilkan cover, judul, dan jumlah chapter yang tersimpan.
-- Card membuka Manga Detail; chapter yang dibuka dari sana mengikuti prioritas
-  Reader di bawah.
+- Card membuka Manga Detail. Saat offline, route `/manga/:id` memakai halaman
+  detail lokal dari record OPFS; chapter yang dibuka dari sana mengikuti
+  prioritas Reader di bawah.
 - Daftar downloaded chapters tidak diulang di halaman ini; daftar tersebut
   dikelola di tab Device pada halaman Downloads.
 - Halaman lama `/offline` (Offline Downloads) dihapus. Offline Reader tetap

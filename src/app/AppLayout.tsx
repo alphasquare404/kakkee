@@ -245,10 +245,12 @@ export function AppLayout() {
     getAutoConnect() &&
     Boolean(getLastServerUrl());
   const offlineDeviceLibrary = appPathname === '/downloads/device';
+  const offlineMangaDetail = /^\/manga\/\d+$/.test(appPathname);
 
   if (
     state.status !== 'connected' &&
     !offlineDeviceLibrary &&
+    !offlineMangaDetail &&
     !(autoStarting && appPathname === '/library')
   ) {
     return (

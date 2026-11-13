@@ -13,7 +13,6 @@ import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { PageHeader } from '../../shared/PageHeader';
-import { IconClose } from '../library/icons';
 
 registerMessages('id', {
   'Device Downloaded Library': 'Pustaka Terunduh di Perangkat',
@@ -60,7 +59,6 @@ function DeviceLibraryContent({
   const [records, setRecords] = useState<readonly OfflineChapterRecord[]>([]);
   const [loading, setLoading] = useState(supported);
   const [error, setError] = useState(false);
-  const [selectedManga, setSelectedManga] = useState<DeviceManga | null>(null);
 
   useEffect(() => {
     if (!supported) {
@@ -93,21 +91,6 @@ function DeviceLibraryContent({
       active = false;
     };
   }, [context?.config.serverBaseUrl, storage, supported]);
-
-  useEffect(() => {
-    if (!selectedManga) {
-      return;
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setSelectedManga(null);
-      }
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedManga]);
 
   const manga = useMemo(() => {
     const grouped = new Map<number, DeviceManga>();
@@ -181,63 +164,11 @@ function DeviceLibraryContent({
               key={item.id}
               manga={item}
               origin={origin}
-              offline={!context}
-              onOpen={() => setSelectedManga(item)}
             />
           ))}
         </div>
       ) : null}
 
-      {selectedManga ? (
-        <div
-          className="reader-chapter-overlay"
-          role="presentation"
-          onClick={() => setSelectedManga(null)}
-        >
-          <section
-            className="reader-chapter-dialog device-offline-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${selectedManga.title} chapters`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <header>
-              <div>
-                <p className="panel-kicker">{t('Choose a chapter')}</p>
-                <h2>{selectedManga.title}</h2>
-              </div>
-              <button
-                className="reader-dialog-close"
-                type="button"
-                aria-label={t('Close chapter list')}
-                title={t('Close chapter list')}
-                onClick={() => setSelectedManga(null)}
-              >
-                <IconClose />
-              </button>
-            </header>
-            <ol className="device-offline-chapters">
-              {selectedManga.chapters.map((chapter) => (
-                <li key={chapter.chapterId}>
-                  <Link
-                    to={`/offline/read/${chapter.chapterId}`}
-                    onClick={() => setSelectedManga(null)}
-                  >
-                    <strong>{chapter.chapterName}</strong>
-                    <span>
-                      {chapter.pageCount === 1
-                        ? '1 page'
-                        : `${chapter.pageCount} pages`}
-                      {' · '}
-                      {t('Read offline')}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -245,13 +176,9 @@ function DeviceLibraryContent({
 function DeviceMangaCard({
   manga,
   origin,
-  offline,
-  onOpen,
 }: {
   readonly manga: DeviceManga;
   readonly origin: unknown;
-  readonly offline: boolean;
-  readonly onOpen: () => void;
 }) {
   const { t } = useI18n();
   const count = manga.chapters.length;
@@ -284,14 +211,6 @@ function DeviceMangaCard({
       </h2>
     </article>
   );
-
-  if (offline) {
-    return (
-      <button className="manga-card-link" type="button" onClick={onOpen}>
-        {card}
-      </button>
-    );
-  }
 
   return (
     <Link

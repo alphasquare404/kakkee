@@ -10,7 +10,6 @@ import {
 } from '../../core/manga/mangaRepository';
 import { useConnection } from '../../app/useConnection';
 import { DownloadStatusChangedDocument } from '../../core/graphql/generated/graphql';
-import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { BackButton } from '../../shared/BackButton';
 import {
@@ -24,6 +23,7 @@ import { MangaTrackingSection } from './MangaTrackingSection';
 import { MangaNotesSection } from './MangaNotesSection';
 import { MangaBookmarkChoices } from './MangaBookmarkChoices';
 import { MangaReaderModePicker } from './MangaReaderModePicker';
+import { OfflineMangaDetailPage } from '../downloads/OfflineMangaDetailPage';
 import {
   getChapterViewPreferences,
   saveChapterViewPreferences,
@@ -299,20 +299,15 @@ function chapterEntries<T extends { readonly chapterNumber: number }>(
 
 export function MangaDetailPage() {
   const { state } = useConnection();
-  const { from } = useAppPath();
   const { mangaId } = useParams();
   const id = Number(mangaId);
 
   if (state.status !== 'connected') {
-    return (
-      <Navigate
-        to="/"
-        replace
-        state={{
-          from,
-        }}
-      />
-    );
+    if (!mangaId || !Number.isSafeInteger(id) || id <= 0) {
+      return <Navigate to="/downloads/device" replace />;
+    }
+
+    return <OfflineMangaDetailPage mangaId={id} />;
   }
 
   if (!mangaId || !Number.isSafeInteger(id) || id <= 0) {
