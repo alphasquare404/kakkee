@@ -12,6 +12,7 @@ import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { MangaReaderModePicker } from '../manga/MangaReaderModePicker';
+import { useGhostMode } from '../../core/preferences/ghostMode';
 import {
   IconChevron,
   IconClose,
@@ -66,8 +67,7 @@ export function OfflineReaderPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [controlsEpoch, setControlsEpoch] = useState(0);
-  const [ghostMode, setGhostMode] = useState(false);
-  const [ghostNotice, setGhostNotice] = useState<string | null>(null);
+  const ghostMode = useGhostMode();
   const [resumeReady, setResumeReady] = useState(false);
   const [searchParams] = useSearchParams();
   const seekbarTouching = useRef(false);
@@ -158,26 +158,6 @@ export function OfflineReaderPage() {
     setControlsVisible(true);
     setControlsEpoch((value) => value + 1);
   };
-
-  const toggleGhostMode = () => {
-    const next = !ghostMode;
-    setGhostMode(next);
-    setGhostNotice(
-      next
-        ? 'Ghost Mode Activated'
-        : 'Ghost Mode Deactivated',
-    );
-    showControls();
-  };
-
-  useEffect(() => {
-    if (!ghostNotice) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setGhostNotice(null), 3_200);
-    return () => window.clearTimeout(timer);
-  }, [ghostNotice]);
 
   const restorePage = (page: number) => {
     const element = pageElements.current[page - 1];
@@ -461,16 +441,6 @@ export function OfflineReaderPage() {
             <IconGrid />
           </button>
           <button
-            className={`reader-icon-button reader-ghost-toggle${ghostMode ? ' is-active' : ''}`}
-            type="button"
-            aria-label="Ghost mode"
-            title="Ghost mode"
-            aria-pressed={ghostMode}
-            onClick={toggleGhostMode}
-          >
-            <GhostIcon />
-          </button>
-          <button
             className="reader-icon-button"
             type="button"
             aria-label={t('Reader settings')}
@@ -665,27 +635,7 @@ export function OfflineReaderPage() {
         </div>
       ) : null}
 
-      {ghostNotice ? (
-        <div className="reader-ghost-notice" role="status" aria-live="polite">
-          {ghostNotice}
-        </div>
-      ) : null}
     </div>
   );
 }
 
-function GhostIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M5 16.8V8.7a5 5 0 0 1 10 0v8.1l-2.5-1.5L10 16.8l-2.5-1.5L5 16.8Z"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.3"
-      />
-      <circle cx="8.2" cy="9.2" r="0.8" fill="currentColor" />
-      <circle cx="11.8" cy="9.2" r="0.8" fill="currentColor" />
-    </svg>
-  );
-}

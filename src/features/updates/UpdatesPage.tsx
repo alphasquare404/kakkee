@@ -23,6 +23,11 @@ import {
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { ContextMenu } from '../../shared/ContextMenu';
+import { GhostIcon } from '../../shared/GhostIcon';
+import {
+  setGhostMode,
+  useGhostMode,
+} from '../../core/preferences/ghostMode';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
 import { IconCheck, IconInfo } from '../library/icons';
 import { createMangaRepository } from '../../core/manga/mangaRepository';
@@ -58,6 +63,9 @@ registerMessages('id', {
   'Open manga page': 'Buka halaman manga',
   Hide: 'Sembunyikan',
   'Continue reading actions': 'Aksi lanjut membaca',
+  'Ghost mode': 'Mode ghost',
+  'Ghost Mode Activated': 'Ghost Mode Aktif',
+  'Ghost Mode Deactivated': 'Ghost Mode Nonaktif',
   Today: 'Hari ini',
   Yesterday: 'Kemarin',
   Earlier: 'Sebelumnya',
@@ -186,6 +194,23 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     x: number;
     y: number;
   } | null>(null);
+  const ghostMode = useGhostMode();
+  const [ghostNotice, setGhostNotice] = useState<string | null>(null);
+
+  const toggleGhostMode = () => {
+    const next = !ghostMode;
+    setGhostMode(next);
+    setGhostNotice(next ? 'Ghost Mode Activated' : 'Ghost Mode Deactivated');
+  };
+
+  useEffect(() => {
+    if (!ghostNotice) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setGhostNotice(null), 3_200);
+    return () => window.clearTimeout(timer);
+  }, [ghostNotice]);
 
   useEffect(() => {
     void controller.load();
@@ -305,6 +330,16 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
         title={t('nav.updates')}
         subtitle={t('Continue Reading and Updates')}
       >
+        <button
+          className={`app-header-icon-button ghost-mode-toggle${ghostMode ? ' is-active' : ''}`}
+          type="button"
+          aria-label={t('Ghost mode')}
+          title={t('Ghost mode')}
+          aria-pressed={ghostMode}
+          onClick={toggleGhostMode}
+        >
+          <GhostIcon />
+        </button>
         <LibrarySyncButton
           context={context}
           iconOnly
@@ -312,6 +347,12 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           onComplete={() => void controller.load()}
         />
       </PageHeader>
+
+      {ghostNotice ? (
+        <div className="ghost-mode-notice" role="status" aria-live="polite">
+          {ghostNotice}
+        </div>
+      ) : null}
 
       {continueItems.length > 0 ? (
         <section

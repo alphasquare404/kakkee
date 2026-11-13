@@ -12716,11 +12716,11 @@ button.manga-card-link {
   max-height: 100dvh;
 }
 
-.reader-ghost-toggle.is-active {
+.ghost-mode-toggle.is-active {
   color: var(--accent);
 }
 
-.reader-ghost-notice {
+.ghost-mode-notice {
   position: fixed;
   top: calc(var(--safe-top) + 4rem);
   left: 50%;
