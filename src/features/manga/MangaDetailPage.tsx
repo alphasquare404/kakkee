@@ -578,6 +578,50 @@ function ConnectedMangaDetail({
     }
   };
 
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 760px)');
+    let frame = 0;
+
+    const update = () => {
+      frame = 0;
+      const hero = document.querySelector<HTMLElement>(
+        '.detail-shell .manga-hero',
+      );
+
+      if (!hero) {
+        return;
+      }
+
+      if (!query.matches) {
+        hero.style.removeProperty('--hero-scale');
+        return;
+      }
+
+      const heroHeight = Math.max(1, hero.getBoundingClientRect().height);
+      const progress = Math.min(1, Math.max(0, window.scrollY / heroHeight));
+      hero.style.setProperty('--hero-scale', String(1 + progress * 0.16));
+    };
+
+    const onScroll = () => {
+      if (frame === 0) {
+        frame = window.requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      window.cancelAnimationFrame(frame);
+      document
+        .querySelector<HTMLElement>('.detail-shell .manga-hero')
+        ?.style.removeProperty('--hero-scale');
+    };
+  }, [detail.manga?.id]);
+
   if (!detail.manga && !detail.error) {
     return (
       <div className="app-shell detail-shell">

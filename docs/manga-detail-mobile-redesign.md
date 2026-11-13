@@ -168,3 +168,9 @@ refreshed by the existing download-status subscription.
 - Detail backgrounds use theme surfaces (`--surface-strong`, `--bg`, `--surface-sunken`) rather than
   fixed navy values, so the dark and pure-black themes both apply.
 - The Notes textarea uses a neutral focus border with no accent outline.
+
+## Scroll-linked hero
+
+On mobile the hero is sticky at the top while the opaque information panel scrolls over
+it. The cover image scales from 1.00 to 1.16 over the first viewport of scroll, then the
+panel fully covers the hero. Desktop/tablet keep the static two-column hero.

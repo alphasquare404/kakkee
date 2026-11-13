@@ -11551,3 +11551,27 @@ a.button,
 .category-tab[aria-pressed="true"] {
   color: var(--accent-contrast);
 }
+
+/* Mobile detail: hero stays pinned and zooms while the opaque panel rises over it. */
+@media (max-width: 760px) {
+  .detail-shell .manga-top {
+    position: relative;
+  }
+
+  .detail-shell .manga-hero {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    align-self: start;
+  }
+
+  .detail-shell .manga-hero-cover img {
+    transform: scale(var(--hero-scale, 1));
+    transform-origin: center 42%;
+    will-change: transform;
+  }
+
+  .detail-shell .manga-info-panel {
+    z-index: 3;
+  }
+}
