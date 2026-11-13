@@ -579,6 +579,10 @@ function ConnectedMangaDetail({
   };
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return;
+    }
+
     const query = window.matchMedia('(max-width: 760px)');
     let frame = 0;
 
