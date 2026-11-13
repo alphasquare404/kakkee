@@ -321,9 +321,6 @@ export function AppLayout() {
 
         {state.status === 'connected' ? (
           <Link className="sidebar-account" to="/" aria-label="Server connection settings">
-            <span className="account-avatar" aria-hidden="true">
-              {state.context.serverInfo.name.charAt(0).toUpperCase()}
-            </span>
             <div>
               <p>{state.context.serverInfo.name}</p>
               <span>{state.context.serverInfo.version}</span>
