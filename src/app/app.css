@@ -7401,6 +7401,15 @@ button.manga-card-link {
   white-space: nowrap;
 }
 
+.reading-continue-state {
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .reading-updates {
   display: grid;
   gap: var(--sp-2);

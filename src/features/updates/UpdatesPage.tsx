@@ -3,15 +3,17 @@ import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
+import { useHiddenHistory } from '../../shared/useHiddenHistory';
+import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
 import { createReadingFeedRepository } from '../../core/catalog/readingFeedRepository';
 import {
-  createRecentlyReadRepository,
-  type RecentlyReadEntry,
-} from '../../core/catalog/recentlyReadRepository';
+  createCatalogRepository,
+  type FeedInput,
+} from '../../core/catalog/catalogRepository';
 import { feedDay, formatRelativeTime } from '../../shared/feedTime';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
@@ -44,12 +46,20 @@ registerMessages('id', {
   'Show all updates': 'Tampilkan semua update',
   'Try another update filter.': 'Coba filter update lain.',
   'Manga details': 'Detail manga',
+  'Page {page} of {total}': 'Halaman {page} dari {total}',
+  'In progress': 'Sedang dibaca',
   Today: 'Hari ini',
   Yesterday: 'Kemarin',
   Earlier: 'Sebelumnya',
 });
 
 type FeedFilter = 'all' | 'unread' | 'read';
+
+const HISTORY_FEED: FeedInput = {
+  filter: { lastReadAt: { greaterThan: '0' } },
+  order: [{ by: 'LAST_READ_AT', byType: 'DESC' }],
+  first: 40,
+};
 
 function groupFeed(items: readonly FeedChapter[]) {
   const groups = new Map<string, FeedChapter[]>();
@@ -81,6 +91,8 @@ export function UpdatesPage() {
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const hiddenCategoryIds = useHiddenCategoryIds();
+  const hiddenHistoryIds = useHiddenHistory();
+  const historyPreferences = useHistoryPreferences();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('updates', { pathname, search });
   const [filter, setFilter] = useState<FeedFilter>('all');
@@ -102,9 +114,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     [hiddenCategoryIds, readingFeedRepository],
   );
   const feed = useSyncExternalStore(controller.subscribe, controller.getState);
-  const recentlyReadRepository = useMemo(
+  const historyRepository = useMemo(
     () =>
-      createRecentlyReadRepository({
+      createCatalogRepository({
         getClient: () => context.graphQL,
       }),
     [context.graphQL],
@@ -112,9 +124,33 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const continueController = useMemo(
     () =>
       createLoadableController({
-        load: () => recentlyReadRepository.get(24, hiddenCategoryIds),
+        load: async () => {
+          const page = await historyRepository.getFeed(HISTORY_FEED);
+          const seen = new Set<number>();
+
+          return page.items.filter((chapter) => {
+            if (
+              seen.has(chapter.manga.id) ||
+              hiddenHistoryIds.has(chapter.manga.id) ||
+              (historyPreferences.hideRead && chapter.isRead) ||
+              chapter.manga.categories.nodes.some((category) =>
+                hiddenCategoryIds.has(category.id),
+              )
+            ) {
+              return false;
+            }
+
+            seen.add(chapter.manga.id);
+            return true;
+          });
+        },
       }),
-    [hiddenCategoryIds, recentlyReadRepository],
+    [
+      hiddenCategoryIds,
+      hiddenHistoryIds,
+      historyPreferences.hideRead,
+      historyRepository,
+    ],
   );
   const continueFeed = useSyncExternalStore(
     continueController.subscribe,
@@ -161,7 +197,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           <div className="reading-continue-rail">
             {continueItems.map((entry) => (
               <ContinueCard
-                key={entry.manga.id}
+                key={entry.id}
                 entry={entry}
                 origin={origin}
                 resources={context.resources}
@@ -378,31 +414,34 @@ function ContinueCard({
   origin,
   resources,
 }: {
-  readonly entry: RecentlyReadEntry;
+  readonly entry: FeedChapter;
   readonly origin: unknown;
   readonly resources: ConnectedContext['resources'];
 }) {
-  const { manga, targetChapter, lastReadChapter } = entry;
+  const { t } = useI18n();
   const [portrait, setPortrait] = useState(false);
-  const image = useImageResource(resources, manga.thumbnailUrl);
-  const isNextChapter = targetChapter.id !== lastReadChapter.id;
+  const image = useImageResource(resources, entry.manga.thumbnailUrl);
+  const page =
+    !entry.isRead && entry.lastPageRead > 0
+      ? t('Page {page} of {total}', {
+          page: entry.lastPageRead + 1,
+          total: entry.pageCount,
+        })
+      : entry.isRead
+        ? t('Read')
+        : t('In progress');
+  const when = formatRelativeTime(entry.lastReadAt);
 
   return (
     <Link
       className="reading-continue-card"
-      to={`/manga/${manga.id}/chapter/${targetChapter.id}${
-        targetChapter.lastPageRead > 0
-          ? `?page=${targetChapter.lastPageRead + 1}`
-          : ''
+      to={`/manga/${entry.manga.id}/chapter/${entry.id}${
+        entry.lastPageRead > 0 ? `?page=${entry.lastPageRead + 1}` : ''
       }`}
       state={{ origin }}
+      aria-label={`${entry.manga.title}, ${entry.name}`}
     >
-      <span
-        className={`reading-continue-cover${
-          portrait ? ' is-portrait-fill' : ''
-        }`}
-        aria-hidden="true"
-      >
+      <span className={`reading-continue-cover${portrait ? ' is-portrait-fill' : ''}`} aria-hidden="true">
         {image.objectUrl ? (
           <img
             src={image.objectUrl}
@@ -417,12 +456,14 @@ function ContinueCard({
             }
           />
         ) : (
-          <span>{manga.title.charAt(0).toUpperCase() || 'M'}</span>
+          <span>{entry.manga.title.trim().charAt(0).toUpperCase() || '·'}</span>
         )}
       </span>
-      <strong className="reading-continue-title">{manga.title}</strong>
-      <span className="reading-continue-chapter">
-        {isNextChapter ? `Next: ${targetChapter.name}` : targetChapter.name}
+      <strong className="reading-continue-title">{entry.manga.title}</strong>
+      <span className="reading-continue-chapter">{entry.name}</span>
+      <span className="reading-continue-state">
+        {page}
+        {when ? ` · ${when}` : ''}
       </span>
     </Link>
   );
