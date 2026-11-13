@@ -163,6 +163,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               <ContinueCard
                 key={entry.manga.id}
                 entry={entry}
+                origin={origin}
                 resources={context.resources}
               />
             ))}
@@ -374,9 +375,11 @@ function ReadingRow({
 
 function ContinueCard({
   entry,
+  origin,
   resources,
 }: {
   readonly entry: RecentlyReadEntry;
+  readonly origin: unknown;
   readonly resources: ConnectedContext['resources'];
 }) {
   const { manga, targetChapter, lastReadChapter } = entry;
@@ -392,6 +395,7 @@ function ContinueCard({
           ? `?page=${targetChapter.lastPageRead + 1}`
           : ''
       }`}
+      state={{ origin }}
     >
       <span
         className={`reading-continue-cover${
