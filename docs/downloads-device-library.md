@@ -28,7 +28,10 @@ Tanggal: 13 November 2026
 - Daftar downloaded chapters tidak diulang di halaman ini; daftar tersebut
   dikelola di tab Device pada halaman Downloads.
 - Halaman lama `/offline` (Offline Downloads) dihapus. Offline Reader tetap
-  tersedia di `/offline/read/:chapterId`, dengan back ke Device Library.
+  tersedia di `/offline/read/:chapterId`, dengan back ke detail manga offline.
+- Offline Reader memakai chrome yang sama dengan Reader online: header ringkas,
+  auto-hide, chapter list, page picker, seekbar dengan navigasi chapter, reader
+  settings per manga, filter, width, gap, mode, dan background.
 
 ## Offline device library
 

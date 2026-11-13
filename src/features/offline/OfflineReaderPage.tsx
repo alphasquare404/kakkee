@@ -1,14 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   createOfflineStorage,
   type OfflineChapter,
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
+import { buildReaderFilter } from '../../core/preferences/readerSettings';
+import { useMangaReaderOverride } from '../../shared/useMangaReaderOverride';
+import { useReaderSettings } from '../../shared/useReaderSettings';
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
-import { IconChevron } from '../library/icons';
+import { MangaReaderModePicker } from '../manga/MangaReaderModePicker';
+import {
+  IconChevron,
+  IconClose,
+  IconGrid,
+  IconList,
+} from '../library/icons';
 
 registerMessages('id', {
   'Offline reader': 'Reader offline',
@@ -18,7 +27,28 @@ registerMessages('id', {
   'Loading…': 'Memuat…',
   Previous: 'Sebelumnya',
   Next: 'Berikutnya',
+  Chapters: 'Chapter',
+  Pages: 'Halaman',
+  'Page picker': 'Pilih halaman',
+  'Reader settings': 'Pengaturan reader',
+  Close: 'Tutup',
+  'Previous chapter': 'Chapter sebelumnya',
+  'Next chapter': 'Chapter berikutnya',
 });
+
+function SettingsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M10 3.2v1.5M10 15.3v1.5M3.2 10h1.5M15.3 10h1.5M5.2 5.2l1.1 1.1M13.7 13.7l1.1 1.1M14.8 5.2l-1.1 1.1M6.3 13.7l-1.1 1.1"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.4"
+      />
+    </svg>
+  );
+}
 
 export function OfflineReaderPage() {
   const { t } = useI18n();
@@ -30,6 +60,21 @@ export function OfflineReaderPage() {
   const [siblings, setSiblings] = useState<readonly OfflineChapterRecord[]>([]);
   const [urls, setUrls] = useState<readonly string[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [pagesOpen, setPagesOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [controlsEpoch, setControlsEpoch] = useState(0);
+  const seekbarTouching = useRef(false);
+  const pointerNearEdge = useRef(false);
+  const pageElements = useRef<Array<HTMLDivElement | null>>([]);
+  const globalReaderSettings = useReaderSettings();
+  const mangaOverride = useMangaReaderOverride(chapter?.mangaId ?? 0);
+  const readerSettings = mangaOverride
+    ? { ...globalReaderSettings, ...mangaOverride }
+    : globalReaderSettings;
+  const imageFilter = buildReaderFilter(readerSettings);
 
   useEffect(() => {
     let active = true;
@@ -58,6 +103,7 @@ export function OfflineReaderPage() {
         setChapter(value);
         setUrls(created);
         setSiblings(all.filter((item) => item.mangaId === value.mangaId));
+        setCurrentPage(1);
         setStatus('ready');
       })
       .catch(() => {
@@ -78,6 +124,131 @@ export function OfflineReaderPage() {
   const index = ordered.findIndex((item) => item.chapterId === chapterId);
   const previous = index > 0 ? ordered[index - 1] : undefined;
   const next = index >= 0 ? ordered[index + 1] : undefined;
+  const readingMode = readerSettings.mode;
+  const isPaged = readingMode === 'single' || readingMode === 'double';
+  const step = readingMode === 'double' ? 2 : 1;
+  const spreadStart = isPaged
+    ? Math.max(1, currentPage - ((currentPage - 1) % (readingMode === 'double' ? 2 : 1)))
+    : currentPage;
+  const visiblePageIndices = isPaged
+    ? (readingMode === 'double' ? [spreadStart - 1, spreadStart] : [spreadStart - 1])
+        .filter((value) => value >= 0 && value < urls.length)
+        .sort((left, right) => left - right)
+    : urls.map((_, pageIndex) => pageIndex);
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, urls.length));
+
+  const showControls = () => {
+    setControlsVisible(true);
+    setControlsEpoch((value) => value + 1);
+  };
+
+  useEffect(() => {
+    if (
+      !controlsVisible ||
+      !readerSettings.autoHideControls ||
+      chaptersOpen ||
+      pagesOpen ||
+      settingsOpen
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!seekbarTouching.current) {
+        setControlsVisible(false);
+      }
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    chaptersOpen,
+    controlsEpoch,
+    controlsVisible,
+    pagesOpen,
+    readerSettings.autoHideControls,
+    settingsOpen,
+  ]);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    const onScroll = () => {
+      const current = window.scrollY;
+
+      if (current < lastScrollY - 6) {
+        showControls();
+      }
+
+      lastScrollY = current;
+
+      if (!isPaged && status === 'ready') {
+        const middle = window.innerHeight / 2;
+        let visible = 1;
+
+        pageElements.current.forEach((element, pageIndex) => {
+          if (!element) {
+            return;
+          }
+
+          const rect = element.getBoundingClientRect();
+
+          if (rect.top <= middle) {
+            visible = pageIndex + 1;
+          }
+        });
+
+        setCurrentPage(visible);
+      }
+    };
+    const onMove = (event: PointerEvent) => {
+      const nearEdge =
+        event.clientY <= 56 || event.clientY >= window.innerHeight - 76;
+
+      if (nearEdge && !pointerNearEdge.current) {
+        showControls();
+      }
+
+      pointerNearEdge.current = nearEdge;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('pointermove', onMove, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('pointermove', onMove);
+    };
+  }, [isPaged, status]);
+
+  const jumpToPage = (page: number) => {
+    const target = Math.min(Math.max(1, page), Math.max(1, urls.length));
+    setCurrentPage(target);
+    showControls();
+
+    if (!isPaged) {
+      pageElements.current[target - 1]?.scrollIntoView({ block: 'start' });
+    }
+  };
+
+  const handlePageTap = (event: MouseEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const offset = event.clientX - rect.left;
+    const middle = offset > rect.width / 3 && offset < (rect.width * 2) / 3;
+
+    if (middle) {
+      setControlsVisible((value) => !value);
+      return;
+    }
+
+    if (!isPaged) {
+      return;
+    }
+
+    if (offset < rect.width / 3) {
+      setCurrentPage((page) => Math.max(1, page - step));
+    } else if (offset > (rect.width * 2) / 3) {
+      setCurrentPage((page) => Math.min(urls.length, page + step));
+    }
+  };
 
   if (status === 'loading') {
     return (
@@ -101,51 +272,242 @@ export function OfflineReaderPage() {
   }
 
   return (
-    <div className="offline-reader">
+    <div
+      className={`app-shell reader-shell offline-reader${
+        controlsVisible ? '' : ' is-chrome-hidden'
+      }`}
+      style={
+        {
+          '--reader-width': `${readerSettings.widthRem}rem`,
+          '--reader-gap': `${readerSettings.gapPx}px`,
+          '--reader-bg': readerSettings.background,
+          '--reader-background': readerSettings.background,
+        } as CSSProperties
+      }
+    >
       <header className="reader-header">
-        <BackButton to="/downloads/device" label={t('Back to device library')} />
+        <BackButton
+          to={`/manga/${chapter.mangaId}`}
+          label={t('Back to device library')}
+        />
         <div className="reader-title">
           <p>{chapter.mangaTitle}</p>
           <h1>{chapter.chapterName}</h1>
-          <span className="reader-page-total">{urls.length}</span>
         </div>
-        <nav className="reader-chapter-nav">
-          {previous ? (
-            <button
-              className="reader-icon-button"
-              type="button"
-              aria-label={t('Previous')}
-              title={t('Previous')}
-              onClick={() => navigate(`/offline/read/${previous.chapterId}`)}
-            >
-              <IconChevron className="reader-icon-prev" />
-            </button>
-          ) : null}
-          {next ? (
-            <button
-              className="reader-icon-button"
-              type="button"
-              aria-label={t('Next')}
-              title={t('Next')}
-              onClick={() => navigate(`/offline/read/${next.chapterId}`)}
-            >
-              <IconChevron className="reader-icon-next" />
-            </button>
-          ) : null}
+        <nav className="reader-chapter-nav" aria-label="Chapter navigation">
+          <button
+            className="reader-icon-button"
+            type="button"
+            aria-label={t('Chapters')}
+            title={t('Chapters')}
+            onClick={() => {
+              showControls();
+              setChaptersOpen(true);
+            }}
+          >
+            <IconList />
+          </button>
+          <button
+            className="reader-icon-button"
+            type="button"
+            aria-label={t('Pages')}
+            title={t('Pages')}
+            onClick={() => {
+              showControls();
+              setPagesOpen(true);
+            }}
+          >
+            <IconGrid />
+          </button>
+          <button
+            className="reader-icon-button"
+            type="button"
+            aria-label={t('Reader settings')}
+            title={t('Reader settings')}
+            onClick={() => {
+              showControls();
+              setSettingsOpen(true);
+            }}
+          >
+            <SettingsIcon />
+          </button>
         </nav>
       </header>
-      <main className="reader-pages offline-reader-pages">
-        {urls.map((url, pageIndex) => (
-          <div className="reader-page" key={url}>
+
+      <main
+        className={`reader-pages offline-reader-pages mode-${readingMode} scale-${readerSettings.scale}${
+          readerSettings.stretchSmallPages ? ' stretch-small' : ''
+        }${readerSettings.direction === 'rtl' ? ' is-rtl' : ''}`}
+        onClick={handlePageTap}
+        style={{
+          filter: imageFilter === 'none' ? undefined : imageFilter,
+        }}
+      >
+        {visiblePageIndices.map((pageIndex, visibleIndex) => (
+          <div
+            className="reader-page"
+            key={urls[pageIndex]}
+            ref={(element) => {
+              pageElements.current[pageIndex] = element;
+            }}
+            id={`offline-page-${pageIndex + 1}`}
+          >
             <img
-              src={url}
+              src={urls[pageIndex]}
               alt={`${chapter.chapterName} page ${pageIndex + 1}`}
-              loading={pageIndex < 3 ? 'eager' : 'lazy'}
+              loading={visibleIndex < 3 ? 'eager' : 'lazy'}
               decoding="async"
             />
           </div>
         ))}
       </main>
+
+      <div
+        className="reader-seekbar"
+        onPointerDown={() => {
+          seekbarTouching.current = true;
+          showControls();
+        }}
+        onPointerUp={() => {
+          seekbarTouching.current = false;
+          setControlsEpoch((value) => value + 1);
+        }}
+        onPointerCancel={() => {
+          seekbarTouching.current = false;
+          setControlsEpoch((value) => value + 1);
+        }}
+      >
+        {previous ? (
+          <button
+            className="reader-seekbar-chapter"
+            type="button"
+            aria-label={t('Previous chapter')}
+            title={t('Previous chapter')}
+            onClick={() => navigate(`/offline/read/${previous.chapterId}`)}
+          >
+            <IconChevron className="reader-icon-prev" />
+          </button>
+        ) : (
+          <span className="reader-seekbar-chapter is-disabled" aria-disabled="true">
+            <IconChevron className="reader-icon-prev" />
+          </span>
+        )}
+        <input
+          type="range"
+          min={1}
+          max={Math.max(1, urls.length)}
+          value={safeCurrentPage}
+          aria-label={t('Page picker')}
+          onChange={(event) => jumpToPage(Number(event.target.value))}
+        />
+        <span>
+          Page {safeCurrentPage} of {urls.length}
+        </span>
+        {next ? (
+          <button
+            className="reader-seekbar-chapter"
+            type="button"
+            aria-label={t('Next chapter')}
+            title={t('Next chapter')}
+            onClick={() => navigate(`/offline/read/${next.chapterId}`)}
+          >
+            <IconChevron className="reader-icon-next" />
+          </button>
+        ) : (
+          <span className="reader-seekbar-chapter is-disabled" aria-disabled="true">
+            <IconChevron className="reader-icon-next" />
+          </span>
+        )}
+      </div>
+
+      {chaptersOpen ? (
+        <div className="reader-chapter-overlay" role="presentation" onClick={() => setChaptersOpen(false)}>
+          <section
+            className="reader-chapter-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Chapter list"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>{t('Chapters')}</h2>
+              <button className="reader-dialog-close" type="button" aria-label={t('Close')} onClick={() => setChaptersOpen(false)}>
+                <IconClose />
+              </button>
+            </header>
+            <ol>
+              {ordered.map((item) => (
+                <li key={item.chapterId}>
+                  <Link
+                    className={item.chapterId === chapterId ? 'is-current' : undefined}
+                    to={`/offline/read/${item.chapterId}`}
+                    onClick={() => setChaptersOpen(false)}
+                  >
+                    {item.chapterName}
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </div>
+      ) : null}
+
+      {pagesOpen ? (
+        <div className="reader-chapter-overlay" role="presentation" onClick={() => setPagesOpen(false)}>
+          <section
+            className="reader-chapter-dialog reader-pages-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('Page picker')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>{t('Pages')}</h2>
+              <button className="reader-dialog-close" type="button" aria-label={t('Close')} onClick={() => setPagesOpen(false)}>
+                <IconClose />
+              </button>
+            </header>
+            <div className="reader-page-thumbnails">
+              {urls.map((url, pageIndex) => (
+                <button
+                  className={pageIndex + 1 === safeCurrentPage ? 'is-current' : undefined}
+                  key={url}
+                  type="button"
+                  aria-label={`Page ${pageIndex + 1}`}
+                  onClick={() => {
+                    jumpToPage(pageIndex + 1);
+                    setPagesOpen(false);
+                  }}
+                >
+                  <img src={url} alt="" loading="lazy" decoding="async" />
+                  <span>{pageIndex + 1}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {settingsOpen ? (
+        <div className="reader-chapter-overlay" role="presentation" onClick={() => setSettingsOpen(false)}>
+          <section
+            className="reader-chapter-dialog reader-settings-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('Reader settings')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>{t('Reader settings')}</h2>
+              <button className="reader-dialog-close" type="button" aria-label={t('Close')} onClick={() => setSettingsOpen(false)}>
+                <IconClose />
+              </button>
+            </header>
+            <p className="reader-settings-note">Changes apply only to this manga.</p>
+            <MangaReaderModePicker mangaId={chapter.mangaId} />
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }
