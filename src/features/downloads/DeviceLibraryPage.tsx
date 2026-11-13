@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
-import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import { useAppPath } from '../../app/useAppPath';
 import { createSectionOrigin } from '../../app/navigationOrigin';
+import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import {
   createOfflineStorage,
   isOfflineStorageSupported,
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
-import type { ResourceService } from '../../core/resources/resourceService';
 import { BackButton } from '../../shared/BackButton';
-import { useImageResource } from '../../shared/useImageResource';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { PageHeader } from '../../shared/PageHeader';
@@ -25,6 +23,8 @@ registerMessages('id', {
     'Penyimpanan perangkat tidak tersedia di browser ini.',
   '{count} downloaded chapters': '{count} chapter terunduh',
   '1 downloaded chapter': '1 chapter terunduh',
+  'Downloaded chapters': 'Chapter terunduh',
+  'Read offline': 'Baca offline',
   Back: 'Kembali',
 });
 
@@ -37,17 +37,17 @@ interface DeviceManga {
 export function DeviceLibraryPage() {
   const { state } = useConnection();
 
-  if (state.status !== 'connected') {
-    return null;
-  }
-
-  return <DeviceLibraryContent context={state.context} />;
+  return (
+    <DeviceLibraryContent
+      context={state.status === 'connected' ? state.context : null}
+    />
+  );
 }
 
 function DeviceLibraryContent({
   context,
 }: {
-  readonly context: ConnectedContext;
+  readonly context: ConnectedContext | null;
 }) {
   const { t } = useI18n();
   const { pathname, search } = useAppPath();
@@ -68,7 +68,7 @@ function DeviceLibraryContent({
     setLoading(true);
 
     void storage
-      .list(context.config.serverBaseUrl)
+      .list(context?.config.serverBaseUrl)
       .then((items) => {
         if (active) {
           setRecords(items);
@@ -88,7 +88,7 @@ function DeviceLibraryContent({
     return () => {
       active = false;
     };
-  }, [context.config.serverBaseUrl, storage, supported]);
+  }, [context?.config.serverBaseUrl, storage, supported]);
 
   const manga = useMemo(() => {
     const grouped = new Map<number, DeviceManga>();
@@ -120,10 +120,9 @@ function DeviceLibraryContent({
         subtitle={t('Manga with chapters stored on this device')}
         count={manga.length > 0 ? String(manga.length) : undefined}
         leading={
-          <BackButton
-            to="/downloads?tab=device"
-            label={t('Back')}
-          />
+          context ? (
+            <BackButton to="/downloads?tab=device" label={t('Back')} />
+          ) : undefined
         }
       />
 
@@ -148,23 +147,67 @@ function DeviceLibraryContent({
       {supported && !loading && !error && manga.length === 0 ? (
         <div className="library-state">
           <h1>{t('No manga downloaded to this device.')}</h1>
-          <Link className="button button-secondary" to="/downloads?tab=device">
-            {t('Back')}
-          </Link>
+          {context ? (
+            <Link className="button button-secondary" to="/downloads?tab=device">
+              {t('Back')}
+            </Link>
+          ) : null}
         </div>
       ) : null}
 
       {manga.length > 0 ? (
-        <div className="manga-grid">
-          {manga.map((item) => (
-            <DeviceMangaCard
-              key={item.id}
-              manga={item}
-              resources={context.resources}
-              origin={origin}
-            />
-          ))}
-        </div>
+        <>
+          <div className="manga-grid">
+            {manga.map((item) => (
+              <DeviceMangaCard
+                key={item.id}
+                manga={item}
+                origin={origin}
+                offline={!context}
+              />
+            ))}
+          </div>
+
+          <section
+            className="device-library-chapters"
+            aria-labelledby="device-library-chapters-heading"
+          >
+            <div className="section-heading-row">
+              <h2 id="device-library-chapters-heading">
+                {t('Downloaded chapters')}
+              </h2>
+              <span>{records.length}</span>
+            </div>
+            {manga.map((item) => (
+              <div className="device-library-manga" key={item.id}>
+                <h3>{item.title}</h3>
+                <div className="feed-list">
+                  {item.chapters.map((chapter) => (
+                    <Link
+                      className="reading-row device-library-chapter"
+                      key={chapter.chapterId}
+                      to={`/offline/read/${chapter.chapterId}`}
+                      aria-label={`${chapter.mangaTitle}, ${chapter.chapterName}`}
+                    >
+                      <span className="reading-row-main">
+                        <strong className="reading-row-title">
+                          {chapter.chapterName}
+                        </strong>
+                        <span className="reading-row-meta">
+                          {chapter.pageCount === 1
+                            ? '1 page'
+                            : `${chapter.pageCount} pages`}
+                          {' · '}
+                          {t('Read offline')}
+                        </span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        </>
       ) : null}
     </div>
   );
@@ -172,19 +215,48 @@ function DeviceLibraryContent({
 
 function DeviceMangaCard({
   manga,
-  resources,
   origin,
+  offline,
 }: {
   readonly manga: DeviceManga;
-  readonly resources: ResourceService;
   readonly origin: unknown;
+  readonly offline: boolean;
 }) {
   const { t } = useI18n();
-  const thumbnail = useImageResource(
-    resources,
-    `/api/v1/manga/${manga.id}/thumbnail`,
-  );
   const count = manga.chapters.length;
+  const cover =
+    manga.chapters.find((chapter) => chapter.coverDataUrl)?.coverDataUrl ??
+    `/api/v1/manga/${manga.id}/thumbnail`;
+
+  const card = (
+    <article className="manga-card">
+      <div className="manga-card-cover">
+        <img
+          className="manga-card-image"
+          src={cover}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none';
+          }}
+        />
+        <span className="manga-card-initial" aria-hidden="true">
+          {manga.title.trim().charAt(0).toUpperCase() || '·'}
+        </span>
+        <div className="manga-card-badges">
+          <span className="manga-card-badge is-downloaded">{count}</span>
+        </div>
+      </div>
+      <h2 className="manga-card-title" title={manga.title}>
+        {manga.title}
+      </h2>
+    </article>
+  );
+
+  if (offline) {
+    return <div className="manga-card-link">{card}</div>;
+  }
 
   return (
     <Link
@@ -193,31 +265,7 @@ function DeviceMangaCard({
       state={{ origin }}
       aria-label={`${manga.title}, ${count === 1 ? t('1 downloaded chapter') : t('{count} downloaded chapters', { count })}`}
     >
-      <article className="manga-card">
-        <div className="manga-card-cover">
-          {thumbnail.objectUrl ? (
-            <img
-              className="manga-card-image"
-              src={thumbnail.objectUrl}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          ) : (
-            <span className="manga-card-initial" aria-hidden="true">
-              {manga.title.trim().charAt(0).toUpperCase() || '·'}
-            </span>
-          )}
-          <div className="manga-card-badges">
-            <span className="manga-card-badge is-downloaded">
-              {count}
-            </span>
-          </div>
-        </div>
-        <h2 className="manga-card-title" title={manga.title}>
-          {manga.title}
-        </h2>
-      </article>
+      {card}
     </Link>
   );
 }

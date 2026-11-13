@@ -30,6 +30,7 @@ import {
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
 import { useConnection } from '../../app/useConnection';
+import { getAutoConnect, getLastServerUrl } from '../../core/preferences/connectionPreferences';
 import { useAppPath } from '../../app/useAppPath';
 import { useImageResource } from '../../shared/useImageResource';
 import { ActionMenu } from '../../shared/ActionMenu';
@@ -210,6 +211,29 @@ export function LibraryPage() {
   const { from } = useAppPath();
 
   if (state.status !== 'connected') {
+    const autoStarting =
+      (state.status === 'disconnected' || state.status === 'connecting') &&
+      getAutoConnect() &&
+      Boolean(getLastServerUrl());
+
+    if (autoStarting) {
+      return (
+        <div className="app-shell page-shell library-shell" aria-busy="true">
+          <header className="library-header">
+            <div>
+              <h1>Library</h1>
+              <p>Manga and progress</p>
+            </div>
+          </header>
+          <div className="manga-grid" aria-hidden="true">
+            {Array.from({ length: 8 }, (_, index) => (
+              <MangaCardSkeleton key={index} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <Navigate
         to="/"

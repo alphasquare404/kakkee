@@ -22,6 +22,14 @@ Tanggal: 13 November 2026
 - Halaman lama `/offline` (Offline Downloads) dihapus. Offline Reader tetap
   tersedia di `/offline/read/:chapterId`, dengan back ke Device Library.
 
+## Offline device library
+
+- `/downloads/device` dirender tanpa koneksi server.
+- Metadata manga, daftar chapter, dan cover yang tersimpan tetap tersedia.
+- Cover disimpan sebagai data URL pada record OPFS saat chapter diunduh.
+- Chapter membuka `/offline/read/:chapterId`.
+- Saat browser offline, `/` diarahkan ke Device Downloaded Library.
+
 ## Reader priority
 
 Saat chapter dibuka:

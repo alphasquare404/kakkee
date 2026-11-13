@@ -46,6 +46,32 @@ export function createClientDownloadRepository(
       }
 
       const pages: Blob[] = [];
+      let coverDataUrl: string | undefined;
+
+      if (chapter.manga.thumbnailUrl) {
+        try {
+          const cover = await options.resources.loadImageResource(
+            chapter.manga.thumbnailUrl,
+          );
+          try {
+            const bytes = new Uint8Array(await cover.blob.arrayBuffer());
+            let binary = '';
+            const chunkSize = 0x8000;
+
+            for (let index = 0; index < bytes.length; index += chunkSize) {
+              binary += String.fromCharCode(
+                ...bytes.subarray(index, index + chunkSize),
+              );
+            }
+
+            coverDataUrl = `data:${cover.contentType || 'image/jpeg'};base64,${btoa(binary)}`;
+          } finally {
+            cover.dispose();
+          }
+        } catch {
+          coverDataUrl = undefined;
+        }
+      }
 
       for (const path of paths) {
         const resource = await options.resources.loadImageResource(path);
@@ -68,6 +94,7 @@ export function createClientDownloadRepository(
           bytes: 0,
           savedAt: Date.now(),
           serverBaseUrl: options.serverBaseUrl,
+          ...(coverDataUrl ? { coverDataUrl } : {}),
         },
         pages,
         (completedPages, totalPages) =>

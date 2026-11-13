@@ -222,7 +222,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 | Sync | Sync button and sync status | `Implemented` | Yes | Start sync, result state, and live `syncStatusChanged` status |
 | Sync | Sync settings (Yomi, intervals, data selection) | `Implemented` | Yes | Data toggles, Yomi enablement/host, interval, and API key editing |
 | Settings | Real server/connection information | `Implemented` | Yes | Connection details and disconnect live at the top of Server settings |
-| Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark and pure-black themes plus persisted custom accent color |
+| Settings | Appearance/themes/custom themes/pure black | `Implemented` | Client concern | Dark, pure-black, and snow-white themes plus persisted custom accent color |
 | Settings | Reader defaults and device profiles | `Implemented` | Client metadata | `/settings/reader` stores width, gap, background, and per-mode profiles per device |
 | Settings | Library preferences (fuzzy, badges, layout) | `Implemented` | Metadata | Density, grid/list, badges, and fuzzy filter |
 | Settings | Download preferences and cache | `Implemented` | Yes | Download toggles/limits, CBZ, conversion lists, and cache clearing |
@@ -239,7 +239,7 @@ The client labels the /updates page **Reading** (Indonesian: **Bacaan**); upstre
 | Global search | Local search history | `Implemented` | Client metadata | Recent global searches stored per device |
 | Global search | Remote search suggestions | `Blocked by server` | Server metadata | No suggestion/autocomplete endpoint in the stable schema |
 | Hotkeys | Configurable app/reader hotkeys | `Implemented` | Client concern | Reader page/back keys configurable; Shift preserves chapter navigation |
-| Themes | Dynamic manga artwork backdrop, custom themes | `Implemented` | Client concern | Ambient artwork plus dark/pure-black themes and persisted custom accent |
+| Themes | Dynamic manga artwork backdrop, custom themes | `Implemented` | Client concern | Ambient artwork plus dark/pure-black/snow-white themes and persisted custom accent |
 | About | About route with versions/update actions | `Implemented` | Yes | `/about` shows versions, checks server/WebUI updates, starts WebUI update, and displays live status |
 | Server config | Persist server URL/session | `Implemented` | Client storage | Server URL, opt-in auto-connect, and opt-in refresh-token session restore |
 | Localization | Translated UI | `Implemented` | Client concern | English/Indonesian locale with translated navigation, core screens, all Settings pages, Connection, Reader, and PWA prompt |

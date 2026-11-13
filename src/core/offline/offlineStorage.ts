@@ -12,6 +12,7 @@ export interface OfflineChapterRecord {
   readonly bytes: number;
   readonly savedAt: number;
   readonly serverBaseUrl: string;
+  readonly coverDataUrl?: string;
 }
 
 export interface OfflineChapter extends OfflineChapterRecord {

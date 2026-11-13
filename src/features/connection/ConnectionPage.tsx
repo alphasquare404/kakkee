@@ -188,12 +188,28 @@ export function ConnectionPage() {
   }, [state.status]);
 
   useEffect(() => {
-    if (state.status !== 'connected') {
+    if (state.status === 'connected') {
+      navigate(redirectFrom ?? '/library', { replace: true });
       return;
     }
 
-    navigate(redirectFrom ?? '/library', { replace: true });
+    if (
+      (state.status === 'disconnected' || state.status === 'connecting') &&
+      getAutoConnect() &&
+      getLastServerUrl()
+    ) {
+      navigate('/library', { replace: true });
+    }
   }, [navigate, redirectFrom, state.status]);
+
+  useEffect(() => {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.onLine === false
+    ) {
+      navigate('/downloads/device', { replace: true });
+    }
+  }, [navigate, state.status]);
 
   useEffect(() => {
     if (state.status === 'connected') {

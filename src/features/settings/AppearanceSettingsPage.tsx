@@ -10,6 +10,8 @@ registerMessages('id', {
   'Navy surfaces with blue-violet accent':
     'Permukaan navy dengan aksen biru-ungu',
   'Pure black': 'Hitam pekat',
+  'Snow white': 'Putih salju',
+  'Clean white surfaces with dark text': 'Permukaan putih bersih dengan teks gelap',
   'OLED-friendly true black surfaces':
     'Permukaan hitam sejati ramah OLED',
   Accent: 'Aksen',
@@ -41,6 +43,7 @@ export function AppearanceSettingsPage() {
               [
                 ['dark', t('Cinematic dark'), t('Navy surfaces with blue-violet accent')],
                 ['pure-black', t('Pure black'), t('OLED-friendly true black surfaces')],
+                ['snow-white', t('Snow white'), t('Clean white surfaces with dark text')],
               ] as const
             ).map(([value, label, description]) => (
               <button

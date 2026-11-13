@@ -2,6 +2,7 @@
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppPath } from './useAppPath';
 import { useConnection } from './useConnection';
+import { getAutoConnect, getLastServerUrl } from '../core/preferences/connectionPreferences';
 import { getNavigationOrigin } from './navigationOrigin';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
 import { useI18n } from '../shared/useI18n';
@@ -125,7 +126,7 @@ const NAV_ITEMS: ReadonlyArray<{
       path.startsWith('/extensions/'),
   },
   { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
-  { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' },
+  { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' || path.startsWith('/downloads/') },
   { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') || path === '/about' },
 ];
 
@@ -230,7 +231,17 @@ export function AppLayout() {
     appPathname,
   );
 
-  if (state.status !== 'connected') {
+  const autoStarting =
+    (state.status === 'disconnected' || state.status === 'connecting') &&
+    getAutoConnect() &&
+    Boolean(getLastServerUrl());
+  const offlineDeviceLibrary = appPathname === '/downloads/device';
+
+  if (
+    state.status !== 'connected' &&
+    !offlineDeviceLibrary &&
+    !(autoStarting && appPathname === '/library')
+  ) {
     return (
       <Navigate
         to="/"
@@ -300,15 +311,17 @@ export function AppLayout() {
           })}
         </nav>
 
-        <Link className="sidebar-account" to="/" aria-label="Server connection settings">
-          <span className="account-avatar" aria-hidden="true">
-            {state.context.serverInfo.name.charAt(0).toUpperCase()}
-          </span>
-          <div>
-            <p>{state.context.serverInfo.name}</p>
-            <span>{state.context.serverInfo.version}</span>
-          </div>
-        </Link>
+        {state.status === 'connected' ? (
+          <Link className="sidebar-account" to="/" aria-label="Server connection settings">
+            <span className="account-avatar" aria-hidden="true">
+              {state.context.serverInfo.name.charAt(0).toUpperCase()}
+            </span>
+            <div>
+              <p>{state.context.serverInfo.name}</p>
+              <span>{state.context.serverInfo.version}</span>
+            </div>
+          </Link>
+        ) : null}
       </aside>
 
       <div className="app-frame-main" id="main-content" tabIndex={-1} aria-label="Main content">

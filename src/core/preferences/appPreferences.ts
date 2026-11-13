@@ -1,4 +1,4 @@
-export type ThemeMode = 'dark' | 'pure-black';
+export type ThemeMode = 'dark' | 'pure-black' | 'snow-white';
 export type LibraryDensity = 'compact' | 'comfortable';
 export type LibraryView = 'grid' | 'list';
 export type Locale = 'en' | 'id';
@@ -40,7 +40,12 @@ function load(): AppPreferences {
     const parsed = JSON.parse(raw) as Partial<AppPreferences>;
 
     return {
-      theme: parsed.theme === 'pure-black' ? 'pure-black' : 'dark',
+      theme:
+        parsed.theme === 'pure-black'
+          ? 'pure-black'
+          : parsed.theme === 'snow-white'
+            ? 'snow-white'
+            : 'dark',
       libraryDensity:
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
       libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
@@ -87,7 +92,14 @@ export function subscribeAppPreferences(listener: () => void): () => void {
 export function updateAppPreferences(patch: Partial<AppPreferences>): void {
   state = {
     ...state,
-    theme: patch.theme === 'pure-black' ? 'pure-black' : patch.theme === 'dark' ? 'dark' : state.theme,
+    theme:
+      patch.theme === 'pure-black'
+        ? 'pure-black'
+        : patch.theme === 'snow-white'
+          ? 'snow-white'
+          : patch.theme === 'dark'
+            ? 'dark'
+            : state.theme,
     libraryDensity:
       patch.libraryDensity === 'comfortable'
         ? 'comfortable'

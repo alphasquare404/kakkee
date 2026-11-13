@@ -51,10 +51,7 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
       '--accent-soft',
       `color-mix(in srgb, ${preferences.accent} 14%, transparent)`,
     );
-    root.style.setProperty(
-      '--accent-grad',
-      `linear-gradient(135deg, ${preferences.accent} 0%, color-mix(in srgb, ${preferences.accent} 55%, #8b5cf6) 100%)`,
-    );
+    root.style.setProperty('--accent-grad', preferences.accent);
   }, [preferences.accent]);
 
   return (

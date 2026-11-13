@@ -3,6 +3,15 @@ import { useConnection } from '../../app/useConnection';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import {
+  IconDownload,
+  IconFilter,
+  IconGrid,
+  IconInfo,
+  IconList,
+  IconSearch,
+  IconSync,
+} from '../library/icons';
 
 registerMessages('id', {
   Settings: 'Pengaturan',
@@ -45,21 +54,25 @@ const DIRECTORY = [
         to: '/settings/appearance',
         title: 'Appearance',
         description: 'Theme, accent, and layout',
+        icon: IconGrid,
       },
       {
         to: '/settings/library',
         title: 'Library',
         description: 'Density, badges, and continue reading',
+        icon: IconList,
       },
       {
         to: '/settings/categories',
         title: 'Categories',
         description: 'Organize your library',
+        icon: IconFilter,
       },
       {
         to: '/settings/reader',
         title: 'Reading',
         description: 'Reader modes, filters, and profiles',
+        icon: IconSearch,
       },
     ],
   },
@@ -70,26 +83,31 @@ const DIRECTORY = [
         to: '/settings/server',
         title: 'Server settings',
         description: 'Connection, authentication, database, OPDS, and KOReader',
+        icon: IconInfo,
       },
       {
         to: '/settings/backup',
         title: 'Backup & restore',
         description: 'Schedule, retention, and restore',
+        icon: IconDownload,
       },
       {
         to: '/settings/tracking',
         title: 'Tracking',
         description: 'Services, binding, and score sync',
+        icon: IconSync,
       },
       {
         to: '/settings/sync',
         title: 'Sync',
         description: 'Yomi, interval, and data selection',
+        icon: IconSync,
       },
       {
         to: '/settings/history',
         title: 'History',
         description: 'Retention and client hide-read',
+        icon: IconList,
       },
     ],
   },
@@ -100,11 +118,13 @@ const DIRECTORY = [
         to: '/settings/device',
         title: 'Device info',
         description: 'Network, storage, and browser capabilities',
+        icon: IconInfo,
       },
       {
         to: '/about',
         title: 'About & updates',
         description: 'Version, WebUI channel, and updates',
+        icon: IconInfo,
       },
     ],
   },
@@ -142,16 +162,25 @@ function SettingsContent() {
             <div className="settings-directory-group" key={group.group}>
               <h3>{t(group.group)}</h3>
               <div className="settings-directory-grid">
-                {group.items.map((item) => (
-                  <Link
-                    className="settings-directory-link"
-                    key={item.to}
-                    to={item.to}
-                  >
-                    <strong>{t(item.title)}</strong>
-                    <span>{t(item.description)}</span>
-                  </Link>
-                ))}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      className="settings-directory-link"
+                      key={item.to}
+                      to={item.to}
+                    >
+                      <span className="settings-directory-icon" aria-hidden="true">
+                        <Icon />
+                      </span>
+                      <span className="settings-directory-copy">
+                        <strong>{t(item.title)}</strong>
+                        <span>{t(item.description)}</span>
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}
