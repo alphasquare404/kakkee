@@ -375,10 +375,6 @@ function ConnectedReader({
           : [spreadStart - 1, spreadStart]
       : reader.pages.map((_, index) => index)
   ).filter((index) => index >= 0 && index < reader.pages.length);
-  const pageLabel =
-    readingMode === 'double'
-      ? `${pageIndices.map((index) => index + 1).join('-')} / ${reader.pages.length}`
-      : `${safeCurrentPage} / ${displayPageCount}`;
   const noopVisible = useCallback(() => undefined, []);
 
   useEffect(() => {
@@ -973,52 +969,9 @@ function ConnectedReader({
         <div className="reader-title">
           <p title={activeChapter?.manga.title}>{activeChapter?.manga.title ?? t('Reader')}</p>
           <h1 title={displayChapter?.name}>{displayChapter?.name ?? 'Loading chapter…'}</h1>
-          {displayChapter && displayPageCount > 0 ? (
-            <span className="reader-page-total">{pageLabel}</span>
-          ) : null}
         </div>
 
         <nav className="reader-chapter-nav" aria-label="Chapter navigation">
-          {previousChapter ? (
-            <Link
-              className="reader-icon-button"
-              to={`/manga/${mangaId}/chapter/${previousChapter.id}`}
-              state={previousChapterState}
-              aria-label={t('Previous chapter')}
-              title={t('Previous chapter')}
-            >
-              <IconChevron className="reader-icon-prev" />
-            </Link>
-          ) : (
-            <span
-              className="reader-icon-button is-disabled"
-              aria-disabled="true"
-              aria-label={t('Previous chapter')}
-              title={t('Previous chapter')}
-            >
-              <IconChevron className="reader-icon-prev" />
-            </span>
-          )}
-          {nextChapter ? (
-            <Link
-              className="reader-icon-button"
-              to={`/manga/${mangaId}/chapter/${nextChapter.id}`}
-              state={nextChapterState}
-              aria-label={t('Next chapter')}
-              title={t('Next chapter')}
-            >
-              <IconChevron className="reader-icon-next" />
-            </Link>
-          ) : (
-            <span
-              className="reader-icon-button is-disabled"
-              aria-disabled="true"
-              aria-label={t('Next chapter')}
-              title={t('Next chapter')}
-            >
-              <IconChevron className="reader-icon-next" />
-            </span>
-          )}
           <button
             className="reader-icon-button"
             type="button"
@@ -1390,6 +1343,25 @@ function ConnectedReader({
 
       {activeChapter && reader.pages.length > 0 ? (
         <div className="reader-seekbar">
+          {previousChapter ? (
+            <Link
+              className="reader-seekbar-chapter"
+              to={`/manga/${mangaId}/chapter/${previousChapter.id}`}
+              state={previousChapterState}
+              aria-label={t('Previous chapter')}
+              title={t('Previous chapter')}
+            >
+              <IconChevron className="reader-icon-prev" />
+            </Link>
+          ) : (
+            <span
+              className="reader-seekbar-chapter is-disabled"
+              aria-disabled="true"
+              aria-label={t('Previous chapter')}
+            >
+              <IconChevron className="reader-icon-prev" />
+            </span>
+          )}
           <input
             type="range"
             min={1}
@@ -1402,6 +1374,25 @@ function ConnectedReader({
             Page {Math.min(safeCurrentPage, reader.pages.length)} of{' '}
             {reader.pages.length}
           </span>
+          {nextChapter ? (
+            <Link
+              className="reader-seekbar-chapter"
+              to={`/manga/${mangaId}/chapter/${nextChapter.id}`}
+              state={nextChapterState}
+              aria-label={t('Next chapter')}
+              title={t('Next chapter')}
+            >
+              <IconChevron className="reader-icon-next" />
+            </Link>
+          ) : (
+            <span
+              className="reader-seekbar-chapter is-disabled"
+              aria-disabled="true"
+              aria-label={t('Next chapter')}
+            >
+              <IconChevron className="reader-icon-next" />
+            </span>
+          )}
         </div>
       ) : null}
 

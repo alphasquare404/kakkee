@@ -12311,3 +12311,43 @@ input[type="radio"] {
     background: var(--surface-sunken);
   }
 }
+
+/* Reader header title: no page counter, vertically centered title block. */
+.reader-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  gap: 0;
+  overflow: hidden;
+}
+
+.reader-title p,
+.reader-title h1 {
+  width: 100%;
+  grid-column: auto;
+}
+
+.reader-seekbar-chapter {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  text-decoration: none;
+}
+
+.reader-seekbar-chapter:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+.reader-seekbar-chapter.is-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}

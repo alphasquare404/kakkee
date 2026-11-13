@@ -357,7 +357,7 @@ describe('ReaderPage', () => {
   it('resumes at the requested page', async () => {
     renderReader(false, 2);
 
-    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
     expect(await screen.findByRole('img', { name: 'Page 2' })).toBeTruthy();
   });
 
@@ -373,7 +373,7 @@ describe('ReaderPage', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Page 2' }));
 
     expect(screen.queryByRole('dialog', { name: 'Page picker' })).toBeNull();
-    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
   });
 
   it('keeps horizontal keyboard navigation on the current chapter', async () => {
@@ -391,7 +391,7 @@ describe('ReaderPage', () => {
   it('resumes from stored progress when no page query is present', async () => {
     renderReader(false, undefined, 1);
 
-    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
     await waitFor(() =>
       expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
     );
@@ -402,14 +402,14 @@ describe('ReaderPage', () => {
     renderReader();
 
     expect(await screen.findAllByRole('img', { name: /Page/ })).toHaveLength(2);
-    expect(screen.getByText('1-2 / 2')).toBeTruthy();
+    expect(screen.getByText('Page 1 of 2')).toBeTruthy();
   });
 
   it('renders a single-page mode with a page seekbar', async () => {
     updateReaderSettings({ mode: 'single' });
     renderReader();
 
-    expect(await screen.findByText('1 / 2')).toBeTruthy();
+    expect(await screen.findByText('Page 1 of 2')).toBeTruthy();
     expect(await screen.findByRole('img', { name: 'Page 1' })).toBeTruthy();
     expect(screen.getByRole('slider', { name: 'Page picker' })).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Reader actions'));
@@ -418,6 +418,6 @@ describe('ReaderPage', () => {
     ).toBeTruthy();
 
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(await screen.findByText('2 / 2')).toBeTruthy();
+    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
   });
 });
