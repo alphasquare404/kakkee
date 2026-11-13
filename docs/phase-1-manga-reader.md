@@ -75,6 +75,12 @@ The reader debounces `lastPageRead` updates (0-based page index) and sends
 `isRead: true` when the final page becomes visible. Detail refetches chapter state
 on navigation, so read/in-progress state reflects the server.
 
+Reader chrome is an overlay: the header and seekbar float above the page and
+hide/show with transforms, so the page width, height, scroll position, and
+Fit height/Fit screen scale do not reflow when the chrome toggles. Scale limits
+use the dynamic viewport height minus safe-area insets. This applies equally to
+the online and offline readers.
+
 Resume is guarded until the target page has layout and the initial scroll has
 been applied. Page-visibility callbacks cannot reset the page during that
 window, and progress writes are suppressed while resume is pending, so opening

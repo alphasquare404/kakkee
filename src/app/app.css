@@ -12516,3 +12516,40 @@ button.manga-card-link {
   font-size: var(--text-xs);
   line-height: 1.35;
 }
+
+/* Overlay reader chrome: controls float above pages and never resize them. */
+.reader-header {
+  position: fixed;
+  top: 0;
+  right: auto;
+  left: 50%;
+  z-index: 40;
+  width: min(100%, 84rem);
+  max-height: none;
+  margin: 0;
+  transform: translateX(-50%);
+  transition:
+    transform 220ms ease,
+    opacity 180ms ease,
+    border-color 180ms ease;
+}
+
+.reader-shell.is-chrome-hidden .reader-header {
+  max-height: none;
+  min-height: 0;
+  overflow: visible;
+  border-bottom-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -110%);
+}
+
+.reader-pages,
+.reader-shell.is-chrome-hidden .reader-pages {
+  padding-bottom: 0;
+}
+
+.reader-pages.scale-fit-height .reader-page img,
+.reader-pages.scale-screen .reader-page img {
+  max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 1rem);
+}
