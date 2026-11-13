@@ -27,7 +27,7 @@ describe('App', () => {
 
     render(<App createCoordinator={() => coordinator} />);
 
-    expect(screen.getByRole('heading', { name: 'Suwayomi' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Kakkee' })).toBeTruthy();
     expect(screen.getByLabelText('Suwayomi server address')).toBeTruthy();
   });
 

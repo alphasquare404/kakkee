@@ -32,7 +32,7 @@ registerMessages('id', {
   'Connecting…': 'Menghubungkan…',
   Connect: 'Hubungkan',
   'Use last server': 'Gunakan server terakhir',
-  'Suwayomi · Library & Reader': 'Suwayomi · Perpustakaan & Reader',
+  'Kakkee · Library & Reader': 'Kakkee · Perpustakaan & Reader',
   'Connect to your server and continue reading from your Library.':
     'Hubungkan ke server Anda dan lanjutkan membaca dari Perpustakaan.',
   Connection: 'Koneksi',
@@ -79,8 +79,8 @@ registerMessages('id', {
   'Contact the server administrator or use a supported authentication configuration (NONE or UI_LOGIN).':
     'Hubungi administrator server atau gunakan konfigurasi autentikasi yang didukung (NONE atau UI_LOGIN).',
   'Back to connection form': 'Kembali ke form koneksi',
-  'Library · Reader · Suwayomi Server':
-    'Perpustakaan · Reader · Suwayomi Server',
+  'Library · Reader · Kakkee':
+    'Perpustakaan · Reader · Kakkee',
   'A connection error occurred.': 'Terjadi kesalahan koneksi.',
   'Invalid server address. Check the URL format, including http:// or https://.':
     'Alamat server tidak valid. Periksa format URL, termasuk http:// atau https://.',
@@ -378,8 +378,8 @@ export function ConnectionPage() {
   return (
     <div className="app-shell connection-shell">
       <header className="app-header">
-        <p className="eyebrow">{t('Suwayomi · Library & Reader')}</p>
-        <h1>Suwayomi</h1>
+        <p className="eyebrow">{t('Kakkee · Library & Reader')}</p>
+        <h1>Kakkee</h1>
         <p className="lede">
           {t(
             'Connect to your server and continue reading from your Library.',
@@ -557,7 +557,7 @@ export function ConnectionPage() {
       </main>
 
       <footer className="app-footer">
-        <p>{t('Library · Reader · Suwayomi Server')}</p>
+        <p>{t('Library · Reader · Kakkee')}</p>
       </footer>
     </div>
   );

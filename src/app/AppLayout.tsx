@@ -9,22 +9,24 @@ import { useI18n } from '../shared/useI18n';
 import type { MessageKey } from '../shared/i18n';
 
 function BrandMark() {
+  const base = import.meta.env.BASE_URL;
+
   return (
-    <span className="brand-mark" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path
-          d="M9 2.2 15.2 5.6v6.8L9 15.8 2.8 12.4V5.6L9 2.2Z"
-          stroke="currentColor"
-          strokeWidth="1.4"
-        />
-        <path
-          d="m6.2 9.1 1.8 1.8 3.8-4.1"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <span className="brand-logo">
+      <img
+        className="brand-wordmark"
+        src={`${base}icons/kakkee-wordmark.png`}
+        alt=""
+        width={1148}
+        height={360}
+      />
+      <img
+        className="brand-mark"
+        src={`${base}icons/icon-192.png`}
+        alt=""
+        width={30}
+        height={30}
+      />
     </span>
   );
 }
@@ -274,9 +276,8 @@ export function AppLayout() {
         Skip to content
       </a>
       <aside className="app-sidebar">
-        <Link className="brand" to="/library" aria-label="Suwayomi Library">
+        <Link className="brand" to="/library" aria-label="Kakkee Library">
           <BrandMark />
-          <span>Suwayomi</span>
         </Link>
 
         <nav className="primary-nav" aria-label="Primary navigation">
