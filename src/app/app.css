@@ -12594,3 +12594,21 @@ button.manga-card-link {
   min-width: 0;
   place-items: start center;
 }
+
+/* Keep top and bottom chrome on the same centered track. */
+.reader-seekbar {
+  right: auto;
+  left: 50%;
+  width: min(100%, 84rem);
+  transform: translateX(-50%);
+}
+
+.reader-shell.is-chrome-hidden .reader-seekbar {
+  transform: translate(-50%, 110%);
+}
+
+/* Fit height must fill the available viewport height, not only cap it. */
+.reader-pages.scale-fit-height .reader-page img {
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 1rem);
+  max-height: none;
+}
