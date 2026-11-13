@@ -12626,3 +12626,12 @@ button.manga-card-link {
 .reader-pages.scale-screen .reader-page img {
   max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
 }
+
+/* Fit height fills the PWA viewport; safe overlays are handled by chrome. */
+.reader-pages.scale-fit-height .reader-page img {
+  height: 100dvh;
+}
+
+.reader-pages.scale-screen .reader-page img {
+  max-height: 100dvh;
+}
