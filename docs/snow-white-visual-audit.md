@@ -66,3 +66,14 @@ Library, dan seluruh subpage Settings.
 - Collapsed 761–1100px sidebar uses the K mark at 1.9rem instead of clipping the
   full wordmark.
 - Verified detail at 1920×1080, 1366×768, 1180×820, 820×1180, and 390×844.
+
+## Final detail pass
+
+- Downloaded/read card hover no longer leaves a white row inside a gray shell.
+  The row background is transparent so the whole card hovers together.
+- Desktop chapter list is contained in a bordered surface card; rows keep only
+  separators and their play marker.
+- Overview is split into surface cards for Synopsis, Details, Tags, Tracking,
+  Notes, and Reader override. Synopsis text uses normal theme text and tag chips
+  use the theme surface.
+- Verified chapter and overview layouts at all five target viewports.

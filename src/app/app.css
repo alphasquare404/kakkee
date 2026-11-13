@@ -11531,7 +11531,6 @@ button.manga-card-link {
 :root[data-theme="snow-white"] .download-stats > div,
 :root[data-theme="snow-white"] .download-group,
 :root[data-theme="snow-white"] .download-row,
-:root[data-theme="snow-white"] .reading-row,
 :root[data-theme="snow-white"] .manga-card-cover,
 :root[data-theme="snow-white"] .action-menu-panel,
 :root[data-theme="snow-white"] .context-menu,
@@ -11900,5 +11899,98 @@ input[type="radio"] {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+}
+
+@media (min-width: 761px) {
+  .detail-shell .chapter-section {
+    padding: 0.8rem 0.85rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface-strong);
+  }
+
+  .detail-shell .chapter-section-header {
+    padding: 0.1rem 0.15rem 0.65rem;
+  }
+
+  .detail-shell .chapter-list {
+    border-top: 0;
+  }
+
+  .detail-shell .chapter-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-shell .chapter-item:last-child {
+    border-bottom: 0;
+  }
+
+  .detail-shell .chapter-row {
+    border-bottom: 0;
+  }
+
+  .detail-shell .chapter-item:hover {
+    background: var(--surface-sunken);
+  }
+}
+
+.chapter-row:hover {
+  background: var(--surface-sunken);
+}
+
+/* Overview: surface cards and readable content */
+.manga-overview-main,
+.manga-overview-side {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.manga-overview-main > section,
+.manga-overview-side > section {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-strong);
+}
+
+.manga-overview-synopsis,
+.manga-overview-facts,
+.manga-overview-tags,
+.manga-tracking,
+.manga-notes,
+.manga-reader-override {
+  padding: 1rem;
+  border: 0;
+}
+
+.manga-overview-synopsis {
+  border-bottom: 0;
+}
+
+.manga-overview-facts,
+.manga-overview-tags {
+  padding-top: 1rem;
+  border-bottom: 0;
+}
+
+.manga-description {
+  color: var(--text);
+}
+
+.manga-genres li {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--surface-sunken);
+}
+
+.manga-notes-field textarea {
+  background: var(--surface-sunken);
+}
+
+@media (min-width: 761px) {
+  .manga-overview-grid {
+    gap: 1rem;
   }
 }
