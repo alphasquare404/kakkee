@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { IconCheck } from './icons';
+import { claimMenu } from '../../shared/menuCoordinator';
 
 export interface LibraryMenuOption {
   readonly value: string;
@@ -43,6 +44,17 @@ function menuItems(root: HTMLDivElement | null): HTMLButtonElement[] {
  */
 export function LibraryMenu({ id, label, open, groups, onClose }: LibraryMenuProps) {
   const menu = useRef<HTMLDivElement>(null);
+
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    return claimMenu(() => onCloseRef.current());
+  }, [open]);
 
   useEffect(() => {
     if (!open) {

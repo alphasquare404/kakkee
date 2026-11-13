@@ -13,9 +13,14 @@ import {
 } from '../../core/graphql/generated/graphql';
 import type { ResourceService } from '../../core/resources/resourceService';
 import {
+  getReaderSettings,
   resetReaderSettings,
   updateReaderSettings,
 } from '../../core/preferences/readerSettings';
+import {
+  getMangaReaderOverride,
+  setMangaReaderOverride,
+} from '../../core/preferences/mangaReaderOverrides';
 import {
   FakeConnectionCoordinator,
   makeConnectedState,
@@ -37,12 +42,14 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   window.localStorage.clear();
   resetReaderSettings();
+  setMangaReaderOverride(1, null);
 });
 
 afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
   resetReaderSettings();
+  setMangaReaderOverride(1, null);
 });
 
 function chapter(id: number, lastPageRead = 0) {
@@ -191,17 +198,30 @@ function renderReader(
 }
 
 describe('ReaderPage', () => {
-  it('keeps reader settings in the overflow instead of the header', async () => {
+  it('opens per-manga reader settings without leaving the reader', async () => {
     renderReader();
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+    expect(document.querySelector('.reader-rail')).toBeNull();
 
     const menu = screen.getByLabelText('Reader actions').closest('details');
     expect(menu?.open).toBe(false);
     fireEvent.click(screen.getByLabelText('Reader actions'));
+    fireEvent.click(screen.getByRole('button', { name: 'Reader settings' }));
 
     expect(
-      screen.getByRole('link', { name: 'Reader settings' }).getAttribute('href'),
-    ).toBe('/settings/reader');
+      screen.getByRole('dialog', { name: 'Reader settings' }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText('Changes apply only to this manga.'),
+    ).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Mode'), {
+      target: { value: 'single' },
+    });
+
+    expect(getMangaReaderOverride(1)?.mode).toBe('single');
+    expect(getReaderSettings().mode).toBe('vertical');
+    expect(window.location.pathname).toBe('/manga/1/chapter/10');
   });
 
   it('shows the origin context in the back control', async () => {

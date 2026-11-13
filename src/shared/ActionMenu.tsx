@@ -7,6 +7,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { claimMenu } from './menuCoordinator';
 
 export interface ActionMenuProps {
   readonly label: ReactNode;
@@ -80,6 +81,18 @@ export function ActionMenu({
       window.removeEventListener('scroll', position, true);
     };
   }, [align, open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    return claimMenu(() => {
+      if (details.current?.open) {
+        details.current.open = false;
+      }
+    });
+  }, [open]);
 
   useEffect(() => {
     const node = details.current;

@@ -7,6 +7,7 @@ import {
   type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { claimMenu } from './menuCoordinator';
 
 export interface ContextMenuPosition {
   readonly x: number;
@@ -51,6 +52,17 @@ export function ContextMenu({
       y: Math.max(margin, Math.min(position.y, window.innerHeight - rect.height - margin)),
     });
   }, [open, position]);
+
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    return claimMenu(() => onCloseRef.current());
+  }, [open]);
 
   useEffect(() => {
     if (!open) {

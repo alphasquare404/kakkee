@@ -186,9 +186,29 @@ export function MangaCard({
           </div>
         ) : null}
       </div>
-      <h2 className="manga-card-title" title={manga.title}>
-        {manga.title}
-      </h2>
+      <div className="manga-card-copy">
+        <h2 className="manga-card-title" title={manga.title}>
+          {manga.title}
+        </h2>
+        <span className="manga-card-list-meta">
+          {manga.unreadCount > 0
+            ? `${manga.unreadCount} unread`
+            : 'All read'}
+          {manga.downloadCount > 0
+            ? ` · ${manga.downloadCount} downloaded`
+            : ''}
+          {progress
+            ? ` · ${progress.name}${
+                progress.lastPageRead > 0
+                  ? `, page ${Math.min(
+                      progress.pageCount,
+                      progress.lastPageRead + 1,
+                    )}`
+                  : ''
+              }`
+            : ''}
+        </span>
+      </div>
     </article>
   );
 

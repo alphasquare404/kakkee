@@ -27,6 +27,8 @@ import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { IconChevron, IconList } from '../library/icons';
 import { createOfflineStorage, isOfflineStorageSupported } from '../../core/offline/offlineStorage';
+import { setMangaReaderOverride } from '../../core/preferences/mangaReaderOverrides';
+import { MangaReaderModePicker } from '../manga/MangaReaderModePicker';
 
 registerMessages('id', {
   Manga: 'Manga',
@@ -260,6 +262,26 @@ function ConnectedReader({
       state: fromManga ? mangaState : undefined,
     });
   }, [backTarget, fromManga, mangaState, navigate]);
+  const openReaderSettings = () => {
+    if (!mangaOverride) {
+      setMangaReaderOverride(mangaId, {
+        mode: globalReaderSettings.mode,
+        widthRem: globalReaderSettings.widthRem,
+        gapPx: globalReaderSettings.gapPx,
+        background: globalReaderSettings.background,
+        filter: globalReaderSettings.filter,
+        scale: globalReaderSettings.scale,
+        direction: globalReaderSettings.direction,
+        brightnessPct: globalReaderSettings.brightnessPct,
+        contrastPct: globalReaderSettings.contrastPct,
+        saturationPct: globalReaderSettings.saturationPct,
+        stretchSmallPages: globalReaderSettings.stretchSmallPages,
+      });
+    }
+
+    setReaderSettingsOpen(true);
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const [appendedNext, setAppendedNext] = useState<{
     readonly id: number;
@@ -270,6 +292,7 @@ function ConnectedReader({
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [autoWebtoon, setAutoWebtoon] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
+  const [readerSettingsOpen, setReaderSettingsOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
@@ -306,16 +329,6 @@ function ConnectedReader({
     viewChapterId === activeChapter?.id
       ? reader.pages.length
       : appendedNext?.pages.length ?? reader.pages.length;
-  const activeChapterIndex = reader.chapters.findIndex(
-    (item) => item.id === chapterId,
-  );
-  const railChapters =
-    activeChapterIndex >= 0
-      ? reader.chapters.slice(
-          Math.max(0, activeChapterIndex - 3),
-          Math.min(reader.chapters.length, activeChapterIndex + 4),
-        )
-      : [];
   const explicitPage = searchParams.has('page')
     ? Number.parseInt(searchParams.get('page') ?? '1', 10)
     : null;
@@ -730,6 +743,11 @@ function ConnectedReader({
           return;
         }
 
+        if (readerSettingsOpen) {
+          setReaderSettingsOpen(false);
+          return;
+        }
+
         goBack();
         return;
       }
@@ -787,6 +805,7 @@ function ConnectedReader({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
     chaptersOpen,
+    readerSettingsOpen,
     goBack,
     isPaged,
     mangaId,
@@ -1076,14 +1095,13 @@ function ConnectedReader({
               {nextDownloadQueued ? t('Next queued') : t('Download next')}
             </button>
           ) : null}
-          <Link
+          <button
             className="reader-quick-action"
-            to="/settings/reader"
-            target="_blank"
-            rel="noreferrer"
+            type="button"
+            onClick={openReaderSettings}
           >
             {t('Reader settings')}
-          </Link>
+          </button>
           <button
             className="reader-quick-action"
             type="button"
@@ -1150,25 +1168,6 @@ function ConnectedReader({
         ) : null}
       </header>
 
-      {railChapters.length > 1 ? (
-        <aside className="reader-rail" aria-labelledby="reader-rail-heading">
-          <h2 id="reader-rail-heading">Chapters</h2>
-          <ol>
-            {railChapters.map((item) => (
-              <li key={item.id}>
-                <Link
-                  className={item.id === chapterId ? 'is-active' : undefined}
-                  to={`/manga/${mangaId}/chapter/${item.id}`}
-                  state={readerState}
-                  aria-current={item.id === chapterId ? 'page' : undefined}
-                >
-                  {item.name}
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </aside>
-      ) : null}
 
       {!activeChapter && !reader.error ? (
         <p className="reader-status" role="status">
@@ -1384,6 +1383,37 @@ function ConnectedReader({
           </section>
         </div>
       ) : null}
+      {readerSettingsOpen && activeChapter ? (
+        <div
+          className="reader-chapter-overlay"
+          role="presentation"
+          onClick={() => setReaderSettingsOpen(false)}
+        >
+          <section
+            className="reader-chapter-dialog reader-settings-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('Reader settings')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>{t('Reader settings')}</h2>
+              <button
+                className="button button-secondary"
+                type="button"
+                onClick={() => setReaderSettingsOpen(false)}
+              >
+                Close
+              </button>
+            </header>
+            <p className="reader-settings-note">
+              Changes apply only to this manga.
+            </p>
+            <MangaReaderModePicker mangaId={mangaId} />
+          </section>
+        </div>
+      ) : null}
+
     </div>
   );
 }
