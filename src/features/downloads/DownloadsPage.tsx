@@ -401,9 +401,6 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
             {!downloads.isLoading && queue.length === 0 ? (
               <div className="download-empty">
                 <p>{t('The download queue is empty.')}</p>
-                <Link className="button button-secondary" to="/library">
-                  {t('Browse library')}
-                </Link>
               </div>
             ) : null}
 
@@ -481,9 +478,6 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
             {!downloaded.isLoading && (downloaded.data?.items.length ?? 0) === 0 ? (
               <div className="download-empty">
                 <p>{t('No downloaded chapters on this server.')}</p>
-                <Link className="button button-secondary" to="/library">
-                  {t('Browse library')}
-                </Link>
               </div>
             ) : null}
 

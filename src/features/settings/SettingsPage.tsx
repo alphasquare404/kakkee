@@ -153,11 +153,7 @@ function SettingsContent() {
       <div className="settings-content">
         <section
           className="settings-section settings-directory"
-          aria-labelledby="settings-directory"
         >
-          <div className="section-heading-row">
-            <h2 id="settings-directory">{t('Settings directory')}</h2>
-          </div>
           {DIRECTORY.map((group) => (
             <div className="settings-directory-group" key={group.group}>
               <h3>{t(group.group)}</h3>

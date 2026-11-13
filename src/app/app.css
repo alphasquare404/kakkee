@@ -11623,3 +11623,177 @@ a.button,
     z-index: 3;
   }
 }
+
+/* Visual consistency fixes (Snow White audit) ----------------------------- */
+.feed-title,
+.reading-row-title,
+.manga-card-title {
+  color: var(--text);
+}
+
+.button-secondary {
+  color: var(--text);
+  background: var(--surface-strong);
+}
+
+.button-secondary:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent);
+}
+
+/* Keep repeated row actions inside their own card. */
+.reading-row-shell {
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+}
+
+.reading-row-shell:hover {
+  background: var(--surface-sunken);
+}
+
+.reading-row-actions {
+  padding-right: 0.05rem;
+  margin-left: auto;
+}
+
+.feed-row-shell {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  width: 100%;
+  padding: 0.2rem 0.35rem 0.2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+}
+
+.feed-row {
+  min-width: 0;
+  border: 0;
+  border-radius: 9px 0 0 9px;
+}
+
+.feed-row:hover {
+  background: var(--surface-sunken);
+}
+
+.feed-row-trailing {
+  align-self: center;
+  padding-right: 0.35rem;
+}
+
+.download-row {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-strong);
+}
+
+.download-row:hover {
+  background: var(--surface-sunken);
+}
+
+.download-group {
+  background: var(--surface-sunken);
+}
+
+/* Theme-aware surfaces */
+:root[data-theme="snow-white"] .library-search,
+:root[data-theme="snow-white"] .source-search input,
+:root[data-theme="snow-white"] .settings-select-field select,
+:root[data-theme="snow-white"] .settings-number input,
+:root[data-theme="snow-white"] .library-bulk-category select {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--surface-strong);
+}
+
+:root[data-theme="snow-white"] input[type="text"],
+:root[data-theme="snow-white"] input[type="search"],
+:root[data-theme="snow-white"] input[type="url"],
+:root[data-theme="snow-white"] input[type="number"],
+:root[data-theme="snow-white"] select,
+:root[data-theme="snow-white"] textarea {
+  color: var(--text);
+  border-color: var(--border);
+  background-color: var(--surface-strong);
+}
+
+:root[data-theme="snow-white"] .settings-choice,
+:root[data-theme="snow-white"] .settings-rows,
+:root[data-theme="snow-white"] .extension-card,
+:root[data-theme="snow-white"] .library-menu,
+:root[data-theme="snow-white"] .library-popover,
+:root[data-theme="snow-white"] .library-state {
+  border-color: var(--border);
+  background: var(--surface-strong);
+}
+
+:root[data-theme="snow-white"] .settings-section {
+  background: transparent;
+}
+
+:root[data-theme="snow-white"] .settings-choice-preview.is-snow-white {
+  border-color: var(--border-strong);
+  background: #f3f5f9;
+}
+
+:root[data-theme="snow-white"] .settings-library-preview {
+  height: 3.2rem;
+  min-height: 0;
+  grid-auto-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+:root[data-theme="snow-white"] .settings-library-preview i {
+  min-height: 0;
+  aspect-ratio: auto;
+  background: var(--surface-elevated);
+}
+
+.settings-library-preview {
+  height: 3.2rem;
+  min-height: 0;
+  grid-auto-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.settings-library-preview i {
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+/* Device library remains an accent action on hover. */
+.download-device-library .button {
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.download-device-library .button:hover:not(:disabled) {
+  color: var(--accent-contrast);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 82%, #000);
+}
+
+/* Remaining settings surfaces */
+:root[data-theme="snow-white"] .tracker-card,
+:root[data-theme="snow-white"] .category-card {
+  border-color: var(--border);
+  background: var(--surface-strong);
+}
+
+:root[data-theme="snow-white"] .settings-group {
+  background: transparent;
+}
+
+.settings-choice-preview.is-snow-white {
+  border-color: var(--border-strong);
+  background: #f3f5f9;
+}
