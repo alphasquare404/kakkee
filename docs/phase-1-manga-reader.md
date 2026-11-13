@@ -75,6 +75,12 @@ The reader debounces `lastPageRead` updates (0-based page index) and sends
 `isRead: true` when the final page becomes visible. Detail refetches chapter state
 on navigation, so read/in-progress state reflects the server.
 
+Resume is guarded until the target page has layout and the initial scroll has
+been applied. Page-visibility callbacks cannot reset the page during that
+window, and progress writes are suppressed while resume is pending, so opening
+`?page=N` or stored `lastPageRead + 1` does not overwrite the saved position
+with page 1.
+
 They are loaded through `ResourceService`; the reader never constructs resource URLs itself.
 
 ## Repository/controller boundaries

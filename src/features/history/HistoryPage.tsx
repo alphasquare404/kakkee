@@ -59,7 +59,7 @@ export function HistoryPage() {
         const page =
           chapter.lastPageRead > 0
             ? t('Page {page} of {total}', {
-                page: chapter.lastPageRead,
+                page: chapter.lastPageRead + 1,
                 total: chapter.pageCount,
               })
             : chapter.pageCount === 1

@@ -46,6 +46,7 @@ function createStorage() {
     save,
     saveStream,
     delete: vi.fn(async () => undefined),
+    updateProgress: vi.fn(async () => undefined),
     deleteServer: vi.fn(async () => undefined),
     clear: vi.fn(async () => undefined),
   };

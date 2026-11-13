@@ -324,6 +324,9 @@ function ConnectedReader({
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
   const [pageColors, setPageColors] = useState<Record<number, string>>({});
+  const [resumeReady, setResumeReady] = useState(false);
+  const resumeApplied = useRef(false);
+  const restoreGuardUntil = useRef(0);
   const chapterProgressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const syncedChapter = useRef(0);
   const deletedAfterReading = useRef(0);
@@ -337,6 +340,8 @@ function ConnectedReader({
       setViewChapterId(chapterId);
       preloadedNext.current = null;
       setNextDownloadQueued(false);
+      setResumeReady(false);
+      resumeApplied.current = false;
       void controller.load(chapterId);
       window.scrollTo({ top: 0, behavior: 'auto' });
     }
@@ -727,6 +732,25 @@ function ConnectedReader({
   };
 
   const activeChapterId = activeChapter?.id ?? 0;
+  const restorePage = useCallback((page: number) => {
+    const element = document.getElementById(`page-${page}`);
+
+    if (!element) {
+      return false;
+    }
+
+    element.scrollIntoView({ block: 'start' });
+    restoreGuardUntil.current = Date.now() + 1_500;
+
+    if (element.getBoundingClientRect().height <= 0) {
+      return false;
+    }
+
+    resumeApplied.current = true;
+    setResumeReady(true);
+    return true;
+  }, []);
+
 
   useEffect(() => {
     chapterProgressRef.current = {
@@ -745,7 +769,8 @@ function ConnectedReader({
       if (
         chapterAtMount <= 0 ||
         progress.chapterId !== chapterAtMount ||
-        progress.total <= 0
+        progress.total <= 0 ||
+        !resumeApplied.current
       ) {
         return;
       }
@@ -765,21 +790,38 @@ function ConnectedReader({
       resumeMode ||
       !activeChapterId ||
       reader.pages.length === 0 ||
-      requestedPage <= 1 ||
       requestedPage > reader.pages.length
     ) {
       return;
     }
 
-    setCurrentPage(requestedPage);
-    const timer = window.setTimeout(() => {
-      document
-        .getElementById(`page-${requestedPage}`)
-        ?.scrollIntoView({ block: 'start' });
-    }, 600);
+    if (requestedPage <= 1) {
+      resumeApplied.current = true;
+      setResumeReady(true);
+      return;
+    }
 
-    return () => window.clearTimeout(timer);
-  }, [activeChapterId, reader.pages.length, requestedPage, resumeMode]);
+    resumeApplied.current = false;
+    setResumeReady(false);
+    setCurrentPage(requestedPage);
+    const frame = window.requestAnimationFrame(() =>
+      restorePage(requestedPage),
+    );
+    const timers = [600, 1_600, 3_000].map((delay) =>
+      window.setTimeout(() => restorePage(requestedPage), delay),
+    );
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [
+    activeChapterId,
+    reader.pages.length,
+    requestedPage,
+    restorePage,
+    resumeMode,
+  ]);
 
   useEffect(() => {
     if (!resumeMode || !activeChapterId || reader.pages.length === 0) {
@@ -788,6 +830,8 @@ function ConnectedReader({
 
     const targetPage = resumeMode === 'end' ? reader.pages.length : 1;
     setCurrentPage(targetPage);
+    resumeApplied.current = true;
+    setResumeReady(true);
     const timer = window.setTimeout(() => {
       document
         .getElementById(`page-${targetPage}`)
@@ -798,7 +842,7 @@ function ConnectedReader({
   }, [activeChapterId, reader.pages.length, resumeMode]);
 
   useEffect(() => {
-    if (!activeChapterId || reader.pages.length === 0) {
+    if (!activeChapterId || reader.pages.length === 0 || !resumeReady) {
       return;
     }
 
@@ -832,11 +876,27 @@ function ConnectedReader({
     displayPageCount,
     mangaId,
     reader.pages.length,
+    resumeReady,
     trackingSync,
   ]);
 
   const handlePageVisible = useCallback(
     (pageNumber: number) => {
+      if (!resumeApplied.current && requestedPage > 1) {
+        return;
+      }
+
+      if (
+        restoreGuardUntil.current > Date.now() &&
+        pageNumber < requestedPage
+      ) {
+        return;
+      }
+
+      if (pageNumber >= requestedPage) {
+        restoreGuardUntil.current = 0;
+      }
+
       const activePageCount = reader.pages.length;
       const appendedPage = pageNumber - activePageCount;
       const activeChapterId = activeChapter?.id ?? chapterId;
@@ -872,6 +932,7 @@ function ConnectedReader({
       chapterId,
       reader.pages.length,
       readingMode,
+      requestedPage,
     ],
   );
 
@@ -1346,6 +1407,10 @@ function ConnectedReader({
                 filter={imageFilter}
                 onVisible={isPaged ? noopVisible : handlePageVisible}
                 onDimensions={(page, width, height) => {
+                  if (page === requestedPage && !resumeApplied.current) {
+                    window.requestAnimationFrame(() => restorePage(page));
+                  }
+
                   if (
                     readerSettings.autoDetectWebtoon &&
                     page === 1 &&

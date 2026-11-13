@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   createOfflineStorage,
   type OfflineChapter,
@@ -66,7 +66,11 @@ export function OfflineReaderPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [controlsEpoch, setControlsEpoch] = useState(0);
+  const [resumeReady, setResumeReady] = useState(false);
+  const [searchParams] = useSearchParams();
   const seekbarTouching = useRef(false);
+  const resumeApplied = useRef(false);
+  const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const pointerNearEdge = useRef(false);
   const pageElements = useRef<Array<HTMLDivElement | null>>([]);
   const globalReaderSettings = useReaderSettings();
@@ -104,6 +108,8 @@ export function OfflineReaderPage() {
         setUrls(created);
         setSiblings(all.filter((item) => item.mangaId === value.mangaId));
         setCurrentPage(1);
+        setResumeReady(false);
+        resumeApplied.current = false;
         setStatus('ready');
       })
       .catch(() => {
@@ -136,10 +142,32 @@ export function OfflineReaderPage() {
         .sort((left, right) => left - right)
     : urls.map((_, pageIndex) => pageIndex);
   const safeCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, urls.length));
+  const explicitPage = searchParams.has('page')
+    ? Number.parseInt(searchParams.get('page') ?? '1', 10)
+    : null;
+  const requestedPage = Math.max(
+    1,
+    explicitPage && explicitPage > 0
+      ? explicitPage
+      : (chapter?.lastPageRead ?? 0) + 1,
+  );
 
   const showControls = () => {
     setControlsVisible(true);
     setControlsEpoch((value) => value + 1);
+  };
+
+  const restorePage = (page: number) => {
+    const element = pageElements.current[page - 1];
+
+    if (!element || element.getBoundingClientRect().height <= 0) {
+      return false;
+    }
+
+    element.scrollIntoView({ block: 'start' });
+    resumeApplied.current = true;
+    setResumeReady(true);
+    return true;
   };
 
   useEffect(() => {
@@ -180,7 +208,7 @@ export function OfflineReaderPage() {
 
       lastScrollY = current;
 
-      if (!isPaged && status === 'ready') {
+      if (!isPaged && status === 'ready' && resumeApplied.current) {
         const middle = window.innerHeight / 2;
         let visible = 1;
 
@@ -228,6 +256,82 @@ export function OfflineReaderPage() {
       pageElements.current[target - 1]?.scrollIntoView({ block: 'start' });
     }
   };
+
+  useEffect(() => {
+    if (status !== 'ready' || urls.length === 0 || requestedPage > urls.length) {
+      return;
+    }
+
+    if (requestedPage <= 1) {
+      resumeApplied.current = true;
+      setResumeReady(true);
+      return;
+    }
+
+    resumeApplied.current = false;
+    setResumeReady(false);
+    setCurrentPage(requestedPage);
+    const frame = window.requestAnimationFrame(() => restorePage(requestedPage));
+    const timers = [600, 1_600, 3_000].map((delay) =>
+      window.setTimeout(() => restorePage(requestedPage), delay),
+    );
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [requestedPage, status, urls.length]);
+
+  useEffect(() => {
+    if (!chapter || status !== 'ready' || urls.length === 0 || !resumeReady) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void storage
+        .updateProgress(
+          chapter.chapterId,
+          currentPage - 1,
+          currentPage >= urls.length,
+        )
+        .catch(() => undefined);
+    }, 750);
+
+    return () => window.clearTimeout(timer);
+  }, [chapter, currentPage, resumeReady, status, storage, urls.length]);
+
+  useEffect(() => {
+    progressRef.current = {
+      chapterId: chapter?.chapterId ?? 0,
+      page: currentPage,
+      total: urls.length,
+    };
+  }, [chapter?.chapterId, currentPage, urls.length]);
+
+  useEffect(() => {
+    const currentChapterId = chapter?.chapterId ?? 0;
+
+    return () => {
+      const progress = progressRef.current;
+
+      if (
+        currentChapterId <= 0 ||
+        progress.chapterId !== currentChapterId ||
+        progress.total <= 0 ||
+        !resumeApplied.current
+      ) {
+        return;
+      }
+
+      void storage
+        .updateProgress(
+          currentChapterId,
+          progress.page - 1,
+          progress.page >= progress.total,
+        )
+        .catch(() => undefined);
+    };
+  }, [chapter?.chapterId, storage]);
 
   const handlePageTap = (event: MouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -357,6 +461,11 @@ export function OfflineReaderPage() {
               alt={`${chapter.chapterName} page ${pageIndex + 1}`}
               loading={visibleIndex < 3 ? 'eager' : 'lazy'}
               decoding="async"
+              onLoad={() => {
+                if (pageIndex + 1 === requestedPage && !resumeApplied.current) {
+                  window.requestAnimationFrame(() => restorePage(pageIndex + 1));
+                }
+              }}
             />
           </div>
         ))}

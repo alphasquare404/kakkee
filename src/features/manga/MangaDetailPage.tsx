@@ -255,7 +255,7 @@ function chapterMeta(chapter: {
   readonly isRead: boolean;
 }): string {
   if (!chapter.isRead && chapter.lastPageRead > 0) {
-    return `Page ${chapter.lastPageRead} of ${chapter.pageCount}`;
+    return `Page ${chapter.lastPageRead + 1} of ${chapter.pageCount}`;
   }
 
   return chapter.pageCount === 1 ? '1 page' : `${chapter.pageCount} pages`;

@@ -93,7 +93,12 @@ export function OfflineMangaDetailPage({ mangaId }: { readonly mangaId: number }
   ) ?? chapters[0];
   const title = metadata?.mangaTitle ?? t('Device library');
   const cover = chapters.find((chapter) => chapter.coverDataUrl)?.coverDataUrl;
-  const continueChapter = chapters[0];
+  const inProgressChapter =
+    chapters.find(
+      (chapter) => chapter.isRead !== true && (chapter.lastPageRead ?? 0) > 0,
+    ) ?? null;
+  const continueChapter = inProgressChapter ?? chapters[0];
+  const continuePage = (inProgressChapter?.lastPageRead ?? 0) + 1;
   const description = metadata?.mangaDescription?.trim() ?? '';
   const authorLine = [
     metadata?.mangaAuthor ? `${t('Author')}: ${metadata.mangaAuthor}` : null,
@@ -210,7 +215,11 @@ export function OfflineMangaDetailPage({ mangaId }: { readonly mangaId: number }
                   {continueChapter ? (
                     <Link
                       className="button detail-primary"
-                      to={`/offline/read/${continueChapter.chapterId}`}
+                      to={`/offline/read/${continueChapter.chapterId}${
+                        inProgressChapter && continuePage > 1
+                          ? `?page=${continuePage}`
+                          : ''
+                      }`}
                     >
                       {t('Continue reading')}
                     </Link>
@@ -344,6 +353,9 @@ export function OfflineMangaDetailPage({ mangaId }: { readonly mangaId: number }
                             {chapter.pageCount === 1
                               ? t('1 page')
                               : t('{count} pages', { count: chapter.pageCount })}
+                            {chapter.lastPageRead && chapter.lastPageRead > 0
+                              ? ` · Page ${chapter.lastPageRead + 1}`
+                              : ''}
                             {' · '}
                             {t('Read offline')}
                           </span>

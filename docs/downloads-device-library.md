@@ -51,6 +51,10 @@ Saat chapter dibuka:
 
 Pemeriksaan perangkat menggunakan OPFS untuk server yang sedang terhubung.
 
+Offline Reader menyimpan `lastPageRead` dan `isRead` ke manifest/index OPFS.
+Detail offline memakai chapter in-progress yang sama seperti detail online dan
+membuka `?page=lastPageRead + 1`.
+
 ## Bulk chapter actions
 
 - Download pada selection rail sekarang membuka pilihan:

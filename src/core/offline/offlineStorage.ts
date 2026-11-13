@@ -22,6 +22,8 @@ export interface OfflineChapterRecord extends OfflineMangaMetadata {
   readonly savedAt: number;
   readonly serverBaseUrl: string;
   readonly coverDataUrl?: string;
+  readonly lastPageRead?: number;
+  readonly isRead?: boolean;
 }
 
 export interface OfflineChapter extends OfflineChapterRecord {
@@ -49,6 +51,11 @@ export interface OfflineStorage {
   ): Promise<OfflineChapterRecord>;
   delete(chapterId: number): Promise<void>;
   deleteServer(serverBaseUrl: string): Promise<void>;
+  updateProgress(
+    chapterId: number,
+    lastPageRead: number,
+    isRead?: boolean,
+  ): Promise<void>;
   clear(): Promise<void>;
 }
 
@@ -277,6 +284,51 @@ export function createOfflineStorage(): OfflineStorage {
 
     async saveStream(record, pages, onProgress) {
       return persistPages(record, pages, onProgress);
+    },
+
+    async updateProgress(chapterId, lastPageRead, isRead) {
+      if (!isOfflineStorageSupported()) {
+        return;
+      }
+
+      await locked(async () => {
+        const root = await getRoot();
+        const records = await readIndex(root);
+        const current = records.find((record) => record.chapterId === chapterId);
+
+        if (!current) {
+          return;
+        }
+
+        const updated: OfflineChapterRecord = {
+          ...current,
+          lastPageRead,
+          ...(isRead === undefined ? {} : { isRead }),
+        };
+
+        try {
+          const directory = await root.getDirectoryHandle(directoryName(chapterId));
+          const manifestHandle = await directory.getFileHandle(MANIFEST_FILE);
+          const manifest = JSON.parse(
+            await (await manifestHandle.getFile()).text(),
+          ) as StoredManifest;
+          await writeJson(directory, MANIFEST_FILE, {
+            ...manifest,
+            record: updated,
+          } satisfies StoredManifest);
+        } catch (error) {
+          if (!isNotFound(error)) {
+            throw error;
+          }
+        }
+
+        await writeIndex(
+          root,
+          records.map((record) =>
+            record.chapterId === chapterId ? updated : record,
+          ),
+        );
+      });
     },
 
     async delete(chapterId) {
