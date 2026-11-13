@@ -2,7 +2,16 @@ const ROOT_DIRECTORY = 'suwayomi-offline-v1';
 const INDEX_FILE = 'index.json';
 const MANIFEST_FILE = 'manifest.json';
 
-export interface OfflineChapterRecord {
+export interface OfflineMangaMetadata {
+  readonly mangaAuthor?: string | null;
+  readonly mangaArtist?: string | null;
+  readonly mangaDescription?: string | null;
+  readonly mangaStatus?: string | null;
+  readonly mangaGenres?: readonly string[];
+  readonly mangaSourceName?: string | null;
+}
+
+export interface OfflineChapterRecord extends OfflineMangaMetadata {
   readonly chapterId: number;
   readonly mangaId: number;
   readonly mangaTitle: string;

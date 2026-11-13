@@ -2,7 +2,10 @@
   ClientDownloadProgress,
   ClientDownloadRepository,
 } from './clientDownloadRepository';
-import type { OfflineChapterRecord } from './offlineStorage';
+import type {
+  OfflineChapterRecord,
+  OfflineMangaMetadata,
+} from './offlineStorage';
 
 export type DeviceDownloadStatus = 'queued' | 'downloading' | 'done' | 'error';
 
@@ -12,6 +15,7 @@ export interface DeviceDownloadRequest {
   readonly mangaTitle?: string;
   readonly chapterName?: string;
   readonly pageCount?: number;
+  readonly metadata?: OfflineMangaMetadata;
 }
 
 export interface DeviceDownloadJob extends DeviceDownloadRequest {
@@ -79,6 +83,7 @@ async function pump(): Promise<void> {
           total: progress.totalPages,
         });
       },
+      job.metadata,
     );
 
     if (state.jobs.some((item) => item.chapterId === job.chapterId)) {
@@ -89,6 +94,15 @@ async function pump(): Promise<void> {
         record,
         error: null,
       });
+      setTimeout(() => {
+        if (
+          state.jobs.some(
+            (item) => item.chapterId === job.chapterId && item.status === 'done',
+          )
+        ) {
+          removeDeviceDownload(job.chapterId);
+        }
+      }, 900);
     }
   } catch (error) {
     if (state.jobs.some((item) => item.chapterId === job.chapterId)) {

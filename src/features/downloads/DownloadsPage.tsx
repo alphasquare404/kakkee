@@ -354,7 +354,9 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           onClick={() => setTab('device')}
         >
           {t('Device')}
-          {activeDeviceJobs > 0 ? ` (${activeDeviceJobs})` : ''}
+          {activeDeviceJobs > 0 ? (
+            <span className="download-tab-badge">{activeDeviceJobs}</span>
+          ) : null}
         </button>
       </div>
 

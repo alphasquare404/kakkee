@@ -598,15 +598,27 @@ function ConnectedMangaDetail({
     }
 
     const chapters = new Map(detail.chapters.map((chapter) => [chapter.id, chapter]));
+    const manga = detail.manga;
+    const metadata = manga
+      ? {
+          mangaAuthor: manga.author,
+          mangaArtist: manga.artist,
+          mangaDescription: manga.description,
+          mangaStatus: manga.status,
+          mangaGenres: manga.genre,
+          mangaSourceName: manga.source?.name ?? null,
+        }
+      : undefined;
     enqueueDeviceDownloads(
       pending.map((chapterId) => {
         const chapter = chapters.get(chapterId);
         return {
           chapterId,
-          mangaId: detail.manga?.id,
-          mangaTitle: detail.manga?.title,
+          mangaId: manga?.id,
+          mangaTitle: manga?.title,
           chapterName: chapter?.name,
           pageCount: chapter?.pageCount,
+          metadata,
         };
       }),
     );

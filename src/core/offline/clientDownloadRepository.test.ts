@@ -110,14 +110,22 @@ describe('client download repository', () => {
     });
     const progress: number[] = [];
 
-    const record = await repository.downloadChapter(2, (value) =>
-      progress.push(value.completedPages),
+    const record = await repository.downloadChapter(
+      2,
+      (value) => progress.push(value.completedPages),
+      {
+        mangaAuthor: 'Author',
+        mangaDescription: 'Description',
+        mangaGenres: ['Action'],
+      },
     );
 
     expect(record.mangaId).toBe(7);
     expect(record.chapterName).toBe('Chapter 1');
     expect(record.pageCount).toBe(2);
     expect(record.serverBaseUrl).toBe('https://server.example');
+    expect(record.mangaAuthor).toBe('Author');
+    expect(record.mangaGenres).toEqual(['Action']);
     expect(saveStream).toHaveBeenCalled();
     expect(progress).toEqual([2]);
   });

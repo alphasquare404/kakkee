@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type ReactElement } from 'react';
+﻿import { useEffect, useRef, useState, useSyncExternalStore, type ReactElement } from 'react';
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppPath } from './useAppPath';
 import { useConnection } from './useConnection';
@@ -7,6 +7,10 @@ import { getNavigationOrigin } from './navigationOrigin';
 import { useNavigationBadges } from '../shared/useNavigationBadges';
 import { useI18n } from '../shared/useI18n';
 import type { MessageKey } from '../shared/i18n';
+import {
+  getDeviceDownloadState,
+  subscribeDeviceDownloads,
+} from '../core/offline/deviceDownloadQueue';
 
 function BrandMark() {
   const base = import.meta.env.BASE_URL;
@@ -235,10 +239,21 @@ export function AppLayout() {
       ? Boolean(origin) && originSectionPath[origin?.section ?? ''] === item.to
       : item.match(appPathname);
   const moreActive = mobileMoreItems.some((item) => isItemActive(item));
-  const badges = useNavigationBadges(
+  const deviceDownloads = useSyncExternalStore(
+    subscribeDeviceDownloads,
+    getDeviceDownloadState,
+  );
+  const deviceQueueBadge = deviceDownloads.jobs.filter(
+    (job) => job.status === 'queued' || job.status === 'downloading',
+  ).length;
+  const serverBadges = useNavigationBadges(
     state.status === 'connected' ? state.context.graphQL : null,
     appPathname,
   );
+  const badges = {
+    ...serverBadges,
+    downloads: serverBadges.downloads + deviceQueueBadge,
+  };
 
   const autoStarting =
     (state.status === 'disconnected' || state.status === 'connecting') &&

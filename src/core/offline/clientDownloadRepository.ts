@@ -3,6 +3,7 @@ import type { ResourceService } from '../resources/resourceService';
 import type {
   OfflineChapter,
   OfflineChapterRecord,
+  OfflineMangaMetadata,
   OfflineStorage,
 } from './offlineStorage';
 
@@ -18,6 +19,7 @@ export interface ClientDownloadRepository {
   downloadChapter(
     chapterId: number,
     onProgress?: (progress: ClientDownloadProgress) => void,
+    metadata?: OfflineMangaMetadata,
   ): Promise<OfflineChapterRecord>;
   deleteChapter(chapterId: number): Promise<void>;
   deleteAll(): Promise<void>;
@@ -37,7 +39,7 @@ export function createClientDownloadRepository(
     list: () => options.storage.list(options.serverBaseUrl),
     get: (chapterId) => options.storage.get(chapterId),
 
-    async downloadChapter(chapterId, onProgress) {
+    async downloadChapter(chapterId, onProgress, metadata) {
       const chapter = await options.reader.getChapter(chapterId);
       const paths = await options.reader.getPages(chapterId);
 
@@ -95,6 +97,7 @@ export function createClientDownloadRepository(
           bytes: 0,
           savedAt: Date.now(),
           serverBaseUrl: options.serverBaseUrl,
+          ...metadata,
           ...(coverDataUrl ? { coverDataUrl } : {}),
         },
         pageBlobs(),
