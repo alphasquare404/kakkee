@@ -171,9 +171,10 @@ refreshed by the existing download-status subscription.
 
 ## Scroll-linked hero
 
+The detail page uses a plain theme background rather than an ambient cover backdrop.
 On mobile the hero is sticky at the top while the opaque information panel scrolls over
 it. The cover image scales from 1.00 to 1.16 over the first viewport of scroll, then the
-panel fully covers the hero. Desktop/tablet keep the static two-column hero.
+panel fully covers the hero. Desktop/tablet keep the static two-column hero inside a bordered surface card.
 
 ## Search/source chapter bootstrap
 

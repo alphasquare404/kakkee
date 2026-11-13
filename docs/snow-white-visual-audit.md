@@ -52,3 +52,17 @@ Library, dan seluruh subpage Settings.
 - `visual-audit/fixed-library-sort-snow-1280.png`
 - `visual-audit/audit-tracking-snow-fixed-390.png`
 - `visual-audit/audit-categories-snow-fixed-390.png`
+
+
+## Detail and hover pass
+
+- Detail no longer renders the blurred cover ambient or the top gradient overlay;
+  the page uses the theme background with a contained hero surface on desktop.
+- Mobile detail restores the back, bookmark, and More controls as readable
+  contrast pills over the cover.
+- Chapter play markers use theme surfaces instead of a dark fixed circle.
+- Library card hover no longer lifts the card or brightens the image; buttons no
+  longer apply a hover brightness filter.
+- Collapsed 761–1100px sidebar uses the K mark at 1.9rem instead of clipping the
+  full wordmark.
+- Verified detail at 1920×1080, 1366×768, 1180×820, 820×1180, and 390×844.

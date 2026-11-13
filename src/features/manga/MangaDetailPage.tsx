@@ -20,7 +20,6 @@ import {
   originLabel,
 } from '../../app/navigationOrigin';
 import { useImageResource } from '../../shared/useImageResource';
-import { AmbientArt } from '../../shared/AmbientArt';
 import { MangaTrackingSection } from './MangaTrackingSection';
 import { MangaNotesSection } from './MangaNotesSection';
 import { MangaBookmarkChoices } from './MangaBookmarkChoices';
@@ -959,7 +958,6 @@ function ConnectedMangaDetail({
 
   return (
     <div className="app-shell detail-shell">
-      <AmbientArt imageUrl={cover.objectUrl} className="detail-ambient" />
       <nav className="page-nav" aria-label="Breadcrumb">
         <BackButton
           className="detail-nav-back"
