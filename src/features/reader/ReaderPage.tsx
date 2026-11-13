@@ -328,6 +328,10 @@ function ConnectedReader({
   const resumeApplied = useRef(false);
   const restoreGuardUntil = useRef(0);
   const chapterProgressRef = useRef({ chapterId: 0, page: 1, total: 0 });
+  const resumePageRef = useRef<{ chapterId: number; page: number | null }>({
+    chapterId: 0,
+    page: null,
+  });
   const syncedChapter = useRef(0);
   const deletedAfterReading = useRef(0);
 
@@ -364,11 +368,27 @@ function ConnectedReader({
   const explicitPage = searchParams.has('page')
     ? Number.parseInt(searchParams.get('page') ?? '1', 10)
     : null;
+  const explicitResumePage =
+    explicitPage && explicitPage > 0 ? explicitPage : null;
+
+  if (resumePageRef.current.chapterId !== chapterId) {
+    resumePageRef.current = {
+      chapterId,
+      page: explicitResumePage,
+    };
+  } else if (
+    explicitResumePage !== null &&
+    resumePageRef.current.page !== explicitResumePage
+  ) {
+    resumePageRef.current = {
+      chapterId,
+      page: explicitResumePage,
+    };
+  }
+
   const requestedPage = Math.max(
     1,
-    explicitPage && explicitPage > 0
-      ? explicitPage
-      : (activeChapter?.lastPageRead ?? 0) + 1,
+    resumePageRef.current.page ?? (activeChapter?.lastPageRead ?? 0) + 1,
   );
   const readingMode = autoWebtoon ? 'webtoon' : readerSettings.mode;
   const isPaged = readingMode === 'single' || readingMode === 'double';
@@ -740,7 +760,7 @@ function ConnectedReader({
     }
 
     element.scrollIntoView({ block: 'start' });
-    restoreGuardUntil.current = Date.now() + 1_500;
+    restoreGuardUntil.current = Date.now() + 3_000;
 
     if (element.getBoundingClientRect().height <= 0) {
       return false;
@@ -888,13 +908,9 @@ function ConnectedReader({
 
       if (
         restoreGuardUntil.current > Date.now() &&
-        pageNumber < requestedPage
+        pageNumber !== requestedPage
       ) {
         return;
-      }
-
-      if (pageNumber >= requestedPage) {
-        restoreGuardUntil.current = 0;
       }
 
       const activePageCount = reader.pages.length;
