@@ -7336,6 +7336,17 @@ button.manga-card-link {
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.reading-continue-rail.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.reading-continue-rail a {
+  -webkit-user-drag: none;
 }
 
 .reading-continue-rail::-webkit-scrollbar {

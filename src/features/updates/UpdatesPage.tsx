@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
@@ -97,6 +97,14 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const origin = createSectionOrigin('updates', { pathname, search });
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [pendingChapterId, setPendingChapterId] = useState<number | null>(null);
+  const continueRail = useRef<HTMLDivElement>(null);
+  const continueDrag = useRef<{
+    startX: number;
+    startScroll: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressContinueClick = useRef(false);
+  const [continueDragging, setContinueDragging] = useState(false);
   const [actionError, setActionError] = useState(false);
   const readingFeedRepository = useMemo(
     () => createReadingFeedRepository({ getClient: () => context.graphQL }),
@@ -172,6 +180,50 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   );
   const groups = groupFeed(visible);
 
+  const onContinuePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) {
+      return;
+    }
+
+    const rail = continueRail.current;
+
+    if (!rail) {
+      return;
+    }
+
+    continueDrag.current = {
+      startX: event.clientX,
+      startScroll: rail.scrollLeft,
+      moved: false,
+    };
+    suppressContinueClick.current = false;
+    setContinueDragging(true);
+    rail.setPointerCapture(event.pointerId);
+  };
+
+  const onContinuePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const state = continueDrag.current;
+    const rail = continueRail.current;
+
+    if (!state || !rail) {
+      return;
+    }
+
+    const distance = event.clientX - state.startX;
+
+    if (Math.abs(distance) > 4) {
+      state.moved = true;
+      suppressContinueClick.current = true;
+      rail.scrollLeft = state.startScroll - distance;
+      event.preventDefault();
+    }
+  };
+
+  const endContinueDrag = () => {
+    continueDrag.current = null;
+    setContinueDragging(false);
+  };
+
   return (
     <div className="app-shell page-shell feed-shell reading-shell">
       <PageHeader
@@ -194,7 +246,23 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           <div className="section-heading-row">
             <h2 id="reading-continue-heading">{t('Continue Reading')}</h2>
           </div>
-          <div className="reading-continue-rail">
+          <div
+            className={`reading-continue-rail${continueDragging ? ' is-dragging' : ''}`}
+            ref={continueRail}
+            onPointerDown={onContinuePointerDown}
+            onPointerMove={onContinuePointerMove}
+            onPointerUp={endContinueDrag}
+            onPointerCancel={endContinueDrag}
+            onPointerLeave={endContinueDrag}
+            onDragStart={(event) => event.preventDefault()}
+            onClickCapture={(event) => {
+              if (suppressContinueClick.current) {
+                suppressContinueClick.current = false;
+                event.preventDefault();
+                event.stopPropagation();
+              }
+            }}
+          >
             {continueItems.map((entry) => (
               <ContinueCard
                 key={entry.id}
