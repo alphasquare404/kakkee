@@ -1,9 +1,10 @@
 query ChapterFeed(
   $first: Int!
+  $after: Cursor
   $filter: ChapterFilterInput
   $order: [ChapterOrderInput!]!
 ) {
-  chapters(first: $first, filter: $filter, order: $order) {
+  chapters(first: $first, after: $after, filter: $filter, order: $order) {
     nodes {
       id
       name
@@ -27,5 +28,9 @@ query ChapterFeed(
       }
     }
     totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
   }
 }

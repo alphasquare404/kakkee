@@ -48,6 +48,7 @@ registerMessages('id', {
   'Manga details': 'Detail manga',
   'Page {page} of {total}': 'Halaman {page} dari {total}',
   'In progress': 'Sedang dibaca',
+  'Load more': 'Muat lebih banyak',
   Today: 'Hari ini',
   Yesterday: 'Kemarin',
   Earlier: 'Sebelumnya',
@@ -136,21 +137,24 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           const page = await historyRepository.getFeed(HISTORY_FEED);
           const seen = new Set<number>();
 
-          return page.items.filter((chapter) => {
-            if (
-              seen.has(chapter.manga.id) ||
-              hiddenHistoryIds.has(chapter.manga.id) ||
-              (historyPreferences.hideRead && chapter.isRead) ||
-              chapter.manga.categories.nodes.some((category) =>
-                hiddenCategoryIds.has(category.id),
-              )
-            ) {
-              return false;
-            }
+          return {
+            items: page.items.filter((chapter) => {
+              if (
+                seen.has(chapter.manga.id) ||
+                hiddenHistoryIds.has(chapter.manga.id) ||
+                (historyPreferences.hideRead && chapter.isRead) ||
+                chapter.manga.categories.nodes.some((category) =>
+                  hiddenCategoryIds.has(category.id),
+                )
+              ) {
+                return false;
+              }
 
-            seen.add(chapter.manga.id);
-            return true;
-          });
+              seen.add(chapter.manga.id);
+              return true;
+            }),
+            pageInfo: page.pageInfo,
+          };
         },
       }),
     [
@@ -164,13 +168,26 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     continueController.subscribe,
     continueController.getState,
   );
+  const [continueExtra, setContinueExtra] = useState<FeedChapter[]>([]);
+  const [continueCursor, setContinueCursor] = useState<string | null>(null);
+  const [continueHasMore, setContinueHasMore] = useState(false);
+  const [continueLoadingMore, setContinueLoadingMore] = useState(false);
 
   useEffect(() => {
     void controller.load();
     void continueController.load();
   }, [continueController, controller]);
 
-  const continueItems = continueFeed.data ?? [];
+  const continueItems = [
+    ...(continueFeed.data?.items ?? []),
+    ...continueExtra,
+  ];
+
+  useEffect(() => {
+    setContinueExtra([]);
+    setContinueCursor(continueFeed.data?.pageInfo?.endCursor ?? null);
+    setContinueHasMore(continueFeed.data?.pageInfo?.hasNextPage ?? false);
+  }, [continueFeed.data]);
 
   const items = feed.data?.items ?? [];
   const unread = items.filter((item) => !item.isRead).length;
@@ -179,6 +196,50 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     filter === 'all' ? true : filter === 'unread' ? !item.isRead : item.isRead,
   );
   const groups = groupFeed(visible);
+
+  const loadMoreContinue = async () => {
+    if (
+      !continueCursor ||
+      !continueHasMore ||
+      continueLoadingMore ||
+      continueFeed.isLoading
+    ) {
+      return;
+    }
+
+    setContinueLoadingMore(true);
+
+    try {
+      const page = await historyRepository.getFeed({
+        ...HISTORY_FEED,
+        after: continueCursor,
+      });
+      const seen = new Set(continueItems.map((chapter) => chapter.manga.id));
+      const additions = page.items.filter((chapter) => {
+        if (
+          seen.has(chapter.manga.id) ||
+          hiddenHistoryIds.has(chapter.manga.id) ||
+          (historyPreferences.hideRead && chapter.isRead) ||
+          chapter.manga.categories.nodes.some((category) =>
+            hiddenCategoryIds.has(category.id),
+          )
+        ) {
+          return false;
+        }
+
+        seen.add(chapter.manga.id);
+        return true;
+      });
+
+      setContinueExtra((current) => [...current, ...additions]);
+      setContinueCursor(page.pageInfo?.endCursor ?? null);
+      setContinueHasMore(page.pageInfo?.hasNextPage ?? false);
+    } catch {
+      // Keep the existing rail; the next click can retry.
+    } finally {
+      setContinueLoadingMore(false);
+    }
+  };
 
   const onContinuePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'mouse' || event.button !== 0) {
@@ -271,6 +332,16 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 resources={context.resources}
               />
             ))}
+            {continueHasMore ? (
+              <button
+                className="reading-continue-more"
+                type="button"
+                disabled={continueLoadingMore}
+                onClick={() => void loadMoreContinue()}
+              >
+                {continueLoadingMore ? t('Loading…') : t('Load more')}
+              </button>
+            ) : null}
           </div>
         </section>
       ) : null}

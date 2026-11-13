@@ -18,12 +18,17 @@ export type CatalogCategory = CategoryCatalogQuery['categories']['nodes'][number
 export interface FeedPage {
   readonly items: readonly FeedChapter[];
   readonly totalCount: number;
+  readonly pageInfo?: {
+    readonly endCursor: string | null;
+    readonly hasNextPage: boolean;
+  };
 }
 
 export interface FeedInput {
   readonly filter?: ChapterFilterInput;
   readonly order: readonly ChapterOrderInput[];
   readonly first?: number;
+  readonly after?: string;
 }
 
 export interface SourcePage {
@@ -52,6 +57,7 @@ export function createCatalogRepository(
       first: input.first ?? FEED_PAGE_SIZE,
       filter: input.filter,
       order: [...input.order],
+      ...(input.after ? { after: input.after } : {}),
     };
 
     return options
@@ -71,6 +77,14 @@ export function createCatalogRepository(
         return {
           items: chapters.nodes,
           totalCount: chapters.totalCount,
+          ...(chapters.pageInfo
+            ? {
+                pageInfo: {
+                  endCursor: chapters.pageInfo.endCursor,
+                  hasNextPage: chapters.pageInfo.hasNextPage,
+                },
+              }
+            : {}),
         };
       });
   }
