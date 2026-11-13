@@ -26,6 +26,11 @@ registerMessages('id', {
   'Web Share': 'Web Share',
   Memory: 'Memori',
   'User agent': 'User agent',
+  'App shell': 'App shell',
+  'Refresh app shell': 'Muat ulang app shell',
+  'Use this if the installed app still shows an old layout after an update. It requires an internet connection and reloads the app.':
+    'Gunakan ini jika aplikasi terpasang masih menampilkan layout lama setelah update. Perlu koneksi internet dan akan memuat ulang aplikasi.',
+  Refreshing: 'Memuat ulang',
 });
 
 interface DeviceInfo {
@@ -72,6 +77,7 @@ function readDeviceInfo(): DeviceInfo {
 export function DeviceSettingsPage() {
   const { t } = useI18n();
   const [device, setDevice] = useState(readDeviceInfo);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const update = () => setDevice(readDeviceInfo());
@@ -83,6 +89,33 @@ export function DeviceSettingsPage() {
       window.removeEventListener('offline', update);
     };
   }, []);
+
+  const refreshAppShell = async () => {
+    if (!device.online || refreshing) {
+      return;
+    }
+
+    setRefreshing(true);
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+
+        await Promise.all(
+          registrations.map((registration) => registration.unregister()),
+        );
+      }
+
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+    } catch {
+      // Reloading is still the best recovery path after a partial clear.
+    }
+
+    window.location.reload();
+  };
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -143,6 +176,25 @@ export function DeviceSettingsPage() {
               <dd className="settings-endpoint">{device.userAgent}</dd>
             </div>
           </dl>
+        </section>
+
+        <section className="settings-section" aria-labelledby="device-app-shell">
+          <div className="section-heading-row">
+            <h2 id="device-app-shell">{t('App shell')}</h2>
+          </div>
+          <p className="panel-copy">
+            {t(
+              'Use this if the installed app still shows an old layout after an update. It requires an internet connection and reloads the app.',
+            )}
+          </p>
+          <button
+            className="button button-secondary"
+            type="button"
+            disabled={!device.online || refreshing}
+            onClick={() => void refreshAppShell()}
+          >
+            {refreshing ? t('Refreshing') : t('Refresh app shell')}
+          </button>
         </section>
       </div>
     </div>

@@ -50,8 +50,8 @@ describe('PWA service worker policy', () => {
     ]);
     expect(workbox.navigateFallback).toBe('/index.html');
     expect(workbox.navigateFallbackDenylist).toEqual([/^\/api(?:\/|$)/]);
-    expect(workbox.skipWaiting).toBe(false);
-    expect(workbox.clientsClaim).toBe(false);
+    expect(workbox.skipWaiting).toBe(true);
+    expect(workbox.clientsClaim).toBe(true);
   });
 
   it('keeps the navigation fallback and API denylist under /app/', () => {
