@@ -23,6 +23,7 @@ type ReaderOverrideFields = Pick<
   | 'saturationPct'
   | 'stretchSmallPages'
   | 'autoHideControls'
+  | 'incognito'
 >;
 
 export type MangaReaderOverride = {
@@ -123,6 +124,9 @@ function load(): Record<string, MangaReaderOverride> {
       }
       if (typeof item.autoHideControls === 'boolean') {
         override.autoHideControls = item.autoHideControls;
+      }
+      if (typeof item.incognito === 'boolean') {
+        override.incognito = item.incognito;
       }
 
       if (Object.keys(override).length > 0) {

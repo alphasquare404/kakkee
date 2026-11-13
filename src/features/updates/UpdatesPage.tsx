@@ -5,6 +5,7 @@ import { useAppPath } from '../../app/useAppPath';
 import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
 import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
+import { hideHistoryManga } from '../../core/preferences/hiddenHistory';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
@@ -21,6 +22,7 @@ import {
 } from '../../shared/feedTime';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
+import { ContextMenu } from '../../shared/ContextMenu';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
 import { IconCheck, IconInfo } from '../library/icons';
 import { createMangaRepository } from '../../core/manga/mangaRepository';
@@ -53,6 +55,9 @@ registerMessages('id', {
   'Page {page} of {total}': 'Halaman {page} dari {total}',
   'In progress': 'Sedang dibaca',
   'Load more': 'Muat lebih banyak',
+  'Open manga page': 'Buka halaman manga',
+  Hide: 'Sembunyikan',
+  'Continue reading actions': 'Aksi lanjut membaca',
   Today: 'Hari ini',
   Yesterday: 'Kemarin',
   Earlier: 'Sebelumnya',
@@ -176,6 +181,11 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const [continueCursor, setContinueCursor] = useState<string | null>(null);
   const [continueHasMore, setContinueHasMore] = useState(false);
   const [continueLoadingMore, setContinueLoadingMore] = useState(false);
+  const [continueMenu, setContinueMenu] = useState<{
+    entry: FeedChapter;
+    x: number;
+    y: number;
+  } | null>(null);
 
   useEffect(() => {
     void controller.load();
@@ -334,6 +344,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 entry={entry}
                 origin={origin}
                 resources={context.resources}
+                onMenu={(x, y) => setContinueMenu({ entry, x, y })}
               />
             ))}
             {continueHasMore ? (
@@ -343,12 +354,49 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 disabled={continueLoadingMore}
                 onClick={() => void loadMoreContinue()}
               >
-                {continueLoadingMore ? t('Loading…') : t('Load more')}
+                <span className="reading-continue-more-cover" aria-hidden="true">
+                  +
+                </span>
+                <span className="reading-continue-more-label">
+                  {continueLoadingMore ? t('Loading…') : t('Load more')}
+                </span>
               </button>
             ) : null}
           </div>
         </section>
       ) : null}
+
+      <ContextMenu
+        open={continueMenu !== null}
+        position={{ x: continueMenu?.x ?? 0, y: continueMenu?.y ?? 0 }}
+        label={t('Continue reading actions')}
+        onClose={() => setContinueMenu(null)}
+      >
+        {continueMenu ? (
+          <>
+            <Link
+              className="context-menu-item"
+              role="menuitem"
+              to={`/manga/${continueMenu.entry.manga.id}`}
+              state={{ origin }}
+              onClick={() => setContinueMenu(null)}
+            >
+              {t('Open manga page')}
+            </Link>
+            <button
+              className="context-menu-item"
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                hideHistoryManga(continueMenu.entry.manga.id);
+                setContinueMenu(null);
+              }}
+            >
+              {t('Hide')}
+            </button>
+          </>
+        ) : null}
+      </ContextMenu>
 
       <section className="reading-updates" aria-labelledby="reading-updates-heading">
         <div className="reading-updates-heading">
@@ -556,10 +604,12 @@ function ContinueCard({
   entry,
   origin,
   resources,
+  onMenu,
 }: {
   readonly entry: FeedChapter;
   readonly origin: unknown;
   readonly resources: ConnectedContext['resources'];
+  readonly onMenu: (x: number, y: number) => void;
 }) {
   const { t } = useI18n();
   const [portrait, setPortrait] = useState(false);
@@ -576,38 +626,60 @@ function ContinueCard({
   const when = formatRelativeTimeShort(entry.lastReadAt);
 
   return (
-    <Link
+    <div
       className="reading-continue-card"
-      to={`/manga/${entry.manga.id}/chapter/${entry.id}${
-        entry.lastPageRead > 0 ? `?page=${entry.lastPageRead + 1}` : ''
-      }`}
-      state={{ origin }}
-      aria-label={`${entry.manga.title}, ${entry.name}, ${page}${when ? `, ${when}` : ''}`}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onMenu(event.clientX, event.clientY);
+      }}
     >
-      <span className={`reading-continue-cover${portrait ? ' is-portrait-fill' : ''}`} aria-hidden="true">
-        {image.objectUrl ? (
-          <img
-            src={image.objectUrl}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            onLoad={(event) =>
-              setPortrait(
-                event.currentTarget.naturalHeight >
-                  event.currentTarget.naturalWidth,
-              )
-            }
-          />
-        ) : (
-          <span>{entry.manga.title.trim().charAt(0).toUpperCase() || '·'}</span>
-        )}
-        {when ? (
-          <span className="reading-continue-time-badge">{when}</span>
-        ) : null}
-      </span>
-      <strong className="reading-continue-title">{entry.manga.title}</strong>
-      <span className="reading-continue-chapter">{entry.name}</span>
-      <span className="reading-continue-state">{page}</span>
-    </Link>
+      <Link
+        className="reading-continue-card-link"
+        to={`/manga/${entry.manga.id}/chapter/${entry.id}${
+          entry.lastPageRead > 0 ? `?page=${entry.lastPageRead + 1}` : ''
+        }`}
+        state={{ origin }}
+        aria-label={`${entry.manga.title}, ${entry.name}, ${page}${when ? `, ${when}` : ''}`}
+      >
+        <span className={`reading-continue-cover${portrait ? ' is-portrait-fill' : ''}`} aria-hidden="true">
+          {image.objectUrl ? (
+            <img
+              src={image.objectUrl}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onLoad={(event) =>
+                setPortrait(
+                  event.currentTarget.naturalHeight >
+                    event.currentTarget.naturalWidth,
+                )
+              }
+            />
+          ) : (
+            <span>{entry.manga.title.trim().charAt(0).toUpperCase() || '·'}</span>
+          )}
+          {when ? (
+            <span className="reading-continue-time-badge">{when}</span>
+          ) : null}
+        </span>
+        <strong className="reading-continue-title">{entry.manga.title}</strong>
+        <span className="reading-continue-chapter">{entry.name}</span>
+        <span className="reading-continue-state">{page}</span>
+      </Link>
+      <button
+        className="reading-continue-menu"
+        type="button"
+        aria-label={t('Continue reading actions')}
+        title={t('Continue reading actions')}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const rect = event.currentTarget.getBoundingClientRect();
+          onMenu(rect.left, rect.bottom + 4);
+        }}
+      >
+        ···
+      </button>
+    </div>
   );
 }

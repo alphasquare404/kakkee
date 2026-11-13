@@ -47,6 +47,7 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
                 scale: global.scale,
                 direction: global.direction,
                 autoHideControls: global.autoHideControls,
+                incognito: global.incognito,
               });
             }}
           />
@@ -140,6 +141,24 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
                 <option value="ltr">Left to right</option>
                 <option value="rtl">Right to left</option>
               </select>
+            </label>
+
+            <label className="switch-toggle manga-reader-toggle">
+              <span>Incognito mode</span>
+              <span className="switch-control">
+                <input
+                  type="checkbox"
+                  checked={override.incognito ?? global.incognito}
+                  onChange={(event) =>
+                    updateMangaReaderOverride(mangaId, {
+                      incognito: event.target.checked,
+                    })
+                  }
+                />
+                <span className="switch-track" aria-hidden="true">
+                  <span className="switch-thumb" />
+                </span>
+              </span>
             </label>
 
             <label className="switch-toggle manga-reader-toggle">

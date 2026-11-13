@@ -282,6 +282,7 @@ function ConnectedReader({
         saturationPct: globalReaderSettings.saturationPct,
         stretchSmallPages: globalReaderSettings.stretchSmallPages,
         autoHideControls: globalReaderSettings.autoHideControls,
+        incognito: globalReaderSettings.incognito,
       });
     }
 
@@ -795,6 +796,10 @@ function ConnectedReader({
         return;
       }
 
+      if (readerSettings.incognito) {
+        return;
+      }
+
       void controller
         .saveProgressForChapter(
           chapterAtMount,
@@ -803,7 +808,7 @@ function ConnectedReader({
         )
         .catch(() => undefined);
     };
-  }, [controller, displayChapterId]);
+  }, [controller, displayChapterId, readerSettings.incognito]);
 
   useEffect(() => {
     if (
@@ -862,7 +867,12 @@ function ConnectedReader({
   }, [activeChapterId, reader.pages.length, resumeMode]);
 
   useEffect(() => {
-    if (!activeChapterId || reader.pages.length === 0 || !resumeReady) {
+    if (
+      !activeChapterId ||
+      reader.pages.length === 0 ||
+      !resumeReady ||
+      readerSettings.incognito
+    ) {
       return;
     }
 
@@ -896,6 +906,7 @@ function ConnectedReader({
     displayPageCount,
     mangaId,
     reader.pages.length,
+    readerSettings.incognito,
     resumeReady,
     trackingSync,
   ]);

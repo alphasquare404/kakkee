@@ -7354,13 +7354,44 @@ button.manga-card-link {
 }
 
 .reading-continue-card {
-  display: grid;
+  position: relative;
+  display: block;
   flex: 0 0 clamp(6.35rem, 29vw, 9.4rem);
+  min-width: 0;
+  color: var(--text);
+  scroll-snap-align: start;
+}
+
+.reading-continue-card-link {
+  display: grid;
   gap: 0.25rem;
   min-width: 0;
   color: var(--text);
   text-decoration: none;
-  scroll-snap-align: start;
+}
+
+.reading-continue-menu {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  z-index: 2;
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  place-items: center;
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  cursor: pointer;
+}
+
+.reading-continue-menu:hover {
+  color: var(--accent);
 }
 
 .reading-continue-card:hover {
@@ -7431,21 +7462,40 @@ button.manga-card-link {
 .reading-continue-more {
   display: grid;
   flex: 0 0 clamp(6.35rem, 29vw, 9.4rem);
-  min-height: 8.5rem;
-  padding: 0.75rem;
-  place-items: center;
+  gap: 0.25rem;
+  align-self: stretch;
+  min-width: 0;
+  padding: 0;
   color: var(--muted);
   font-size: var(--text-xs);
   font-weight: 650;
   line-height: 1.35;
   text-align: center;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-cover);
-  background: var(--surface-sunken);
+  border: 0;
+  background: transparent;
   cursor: pointer;
 }
 
-.reading-continue-more:hover:not(:disabled) {
+.reading-continue-more-cover {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  place-items: center;
+  color: var(--muted);
+  font-size: 1.4rem;
+  font-weight: 500;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-cover);
+  background: var(--surface-sunken);
+}
+
+.reading-continue-more-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reading-continue-more:hover:not(:disabled) .reading-continue-more-cover {
   color: var(--text);
   border-color: var(--accent);
 }

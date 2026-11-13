@@ -283,7 +283,13 @@ export function OfflineReaderPage() {
   }, [requestedPage, status, urls.length]);
 
   useEffect(() => {
-    if (!chapter || status !== 'ready' || urls.length === 0 || !resumeReady) {
+    if (
+      !chapter ||
+      status !== 'ready' ||
+      urls.length === 0 ||
+      !resumeReady ||
+      readerSettings.incognito
+    ) {
       return;
     }
 
@@ -298,7 +304,15 @@ export function OfflineReaderPage() {
     }, 750);
 
     return () => window.clearTimeout(timer);
-  }, [chapter, currentPage, resumeReady, status, storage, urls.length]);
+  }, [
+    chapter,
+    currentPage,
+    readerSettings.incognito,
+    resumeReady,
+    status,
+    storage,
+    urls.length,
+  ]);
 
   useEffect(() => {
     progressRef.current = {
@@ -318,7 +332,8 @@ export function OfflineReaderPage() {
         currentChapterId <= 0 ||
         progress.chapterId !== currentChapterId ||
         progress.total <= 0 ||
-        !resumeApplied.current
+        !resumeApplied.current ||
+        readerSettings.incognito
       ) {
         return;
       }
@@ -331,7 +346,7 @@ export function OfflineReaderPage() {
         )
         .catch(() => undefined);
     };
-  }, [chapter?.chapterId, storage]);
+  }, [chapter?.chapterId, readerSettings.incognito, storage]);
 
   const handlePageTap = (event: MouseEvent<HTMLElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
