@@ -3177,6 +3177,10 @@ button.manga-card-link {
   content: "";
 }
 
+:root[data-theme="snow-white"] .connection-shell::before {
+  background: none;
+}
+
 .connection-shell > * {
   position: relative;
   z-index: 1;
@@ -3190,7 +3194,7 @@ button.manga-card-link {
 
 .connection-shell .panel {
   border-color: var(--border);
-  background: rgba(13, 20, 33, 0.76);
+  background: var(--surface);
   box-shadow: var(--shadow);
   backdrop-filter: blur(22px);
 }

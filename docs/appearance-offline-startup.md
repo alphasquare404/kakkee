@@ -20,6 +20,11 @@ Tanggal: 13 November 2026
 - Card, cover, chapter row, settings directory, menu panel, download card,
   reader rail, dan tracking card memakai surface tema.
 - Accent tetap mengikuti Appearance settings.
+- Tema default mengikuti `prefers-color-scheme`: perangkat dark memakai
+  Pure black, perangkat light memakai Snow white. Pilihan tema tersimpan tetap
+  diutamakan.
+- ConnectionPage memakai surface, teks, border, dan theme-color dari tema aktif;
+  tidak lagi memakai panel gelap hardcoded.
 
 ## Flat actions
 
@@ -40,13 +45,18 @@ Tanggal: 13 November 2026
 
 - Route `/downloads/device` dapat dirender saat koneksi terputus.
 - `/` mengarah ke Device Downloaded Library saat browser offline.
+- ConnectionPage selalu menyediakan tombol **Open device library** sehingga
+  Device Downloaded Library tetap dapat dibuka ketika server tidak dapat
+  dijangkau meskipun browser melaporkan status online.
 - Device library memakai OPFS untuk:
   - metadata manga;
   - daftar chapter;
   - cover data URL yang disimpan saat chapter diunduh;
   - halaman chapter untuk Offline Reader.
 - Bila cover lama tidak memiliki data URL, card memakai fallback inisial.
-- Chapter list di Device Library membuka `/offline/read/:chapterId`.
+- Device Library hanya menampilkan grid manga; daftar chapter tidak diulang di
+  halaman ini. Daftar downloaded chapter dikelola di tab Device halaman
+  Downloads.
 
 ## App icon
 

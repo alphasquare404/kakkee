@@ -4,7 +4,7 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { ConnectionError } from '../../core/server/connectionError';
 import type { ConnectionState } from '../../core/server/connectionCoordinator';
 import { useConnection } from '../../app/useConnection';
@@ -24,6 +24,7 @@ import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
   'Offline downloads': 'Unduhan offline',
+  'Open device library': 'Buka pustaka perangkat',
   'Suwayomi server address': 'Alamat server Suwayomi',
   'Enter the server address without the GraphQL path. Example: https://manga.example.com':
     'Masukkan alamat server tanpa path GraphQL. Contoh: https://manga.example.com',
@@ -371,6 +372,9 @@ export function ConnectionPage() {
             {t('Use last server')}
           </button>
         ) : null}
+        <Link className="button button-secondary" to="/downloads/device">
+          {t('Open device library')}
+        </Link>
       </div>
     </form>
   );

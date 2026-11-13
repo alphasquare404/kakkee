@@ -58,6 +58,16 @@ describe('ConnectionPage disconnected', () => {
     expect(coordinator.connectCalls).toEqual(['https://manga.example.com/suwayomi']);
   });
 
+  it('offers the device library without a server connection', () => {
+    renderPage();
+
+    expect(
+      screen
+        .getByRole('link', { name: 'Open device library' })
+        .getAttribute('href'),
+    ).toBe('/downloads/device');
+  });
+
   it('prevents duplicate submission while connecting', () => {
     renderPage({
       status: 'connecting',

@@ -30,6 +30,16 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = preferences.theme;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute(
+        'content',
+        preferences.theme === 'snow-white'
+          ? '#f3f5f9'
+          : preferences.theme === 'pure-black'
+            ? '#000000'
+            : '#0b1020',
+      );
   }, [preferences.theme]);
 
   useEffect(() => {
