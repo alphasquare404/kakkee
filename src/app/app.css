@@ -12351,3 +12351,52 @@ input[type="radio"] {
   opacity: 0.35;
   pointer-events: none;
 }
+
+/* Immersive Reader chrome: header and seekbar retract while reading. */
+.reader-header {
+  max-height: 5rem;
+  transition:
+    max-height 220ms ease,
+    opacity 180ms ease,
+    padding 220ms ease,
+    border-color 180ms ease;
+}
+
+.reader-seekbar {
+  transition:
+    transform 220ms ease,
+    opacity 180ms ease;
+}
+
+.reader-shell.is-chrome-hidden .reader-header {
+  max-height: 0;
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  border-bottom-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.reader-shell.is-chrome-hidden .reader-seekbar {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(110%);
+}
+
+.reader-shell.is-chrome-hidden .reader-pages {
+  padding-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-header,
+  .reader-seekbar {
+    transition: none;
+  }
+}
+
+.manga-reader-toggle {
+  grid-column: 1 / -1;
+  justify-content: space-between;
+}

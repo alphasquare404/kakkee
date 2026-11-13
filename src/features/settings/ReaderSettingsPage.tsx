@@ -52,6 +52,9 @@ registerMessages('id', {
   'Right to left': 'Kanan ke kiri',
   'Keep screen on': 'Layar tetap menyala',
   'Use Wake Lock while reading': 'Gunakan Wake Lock saat membaca',
+  'Auto-hide controls': 'Sembunyikan kontrol otomatis',
+  'Hide the header and seekbar while reading':
+    'Sembunyikan header dan seekbar saat membaca',
   'Duplicate chapters': 'Chapter duplikat',
   'Skip duplicate chapter numbers in navigation':
     'Lewati nomor chapter duplikat saat navigasi',
@@ -406,6 +409,23 @@ export function ReaderSettingsPage() {
                     }
                   />
                   {t('Use Wake Lock while reading')}
+                </label>
+              </dd>
+            </div>
+            <div>
+              <dt>{t('Auto-hide controls')}</dt>
+              <dd>
+                <label className="settings-inline-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.autoHideControls}
+                    onChange={(event) =>
+                      updateReaderSettings({
+                        autoHideControls: event.target.checked,
+                      })
+                    }
+                  />
+                  {t('Hide the header and seekbar while reading')}
                 </label>
               </dd>
             </div>

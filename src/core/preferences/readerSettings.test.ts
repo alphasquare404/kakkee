@@ -55,6 +55,7 @@ describe('reader settings', () => {
       skipDuplicates: true,
       autoAdvance: false,
       autoDetectWebtoon: false,
+      autoHideControls: true,
       autoScrollSpeed: 1,
       pagePrevKey: 'ArrowLeft',
       pageNextKey: 'ArrowRight',
@@ -85,6 +86,14 @@ describe('reader settings', () => {
       filter: 'sepia',
       scale: 'fit-height',
     });
+  });
+
+  it('enables auto-hide controls by default and stores an opt-out', () => {
+    expect(getReaderSettings().autoHideControls).toBe(true);
+
+    updateReaderSettings({ autoHideControls: false });
+
+    expect(getReaderSettings().autoHideControls).toBe(false);
   });
 
   it('clamps values and rejects malformed colors', () => {

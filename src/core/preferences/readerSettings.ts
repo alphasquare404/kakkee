@@ -80,6 +80,7 @@ export interface ReaderSettings {
   readonly skipDuplicates: boolean;
   readonly autoAdvance: boolean;
   readonly autoDetectWebtoon: boolean;
+  readonly autoHideControls: boolean;
   readonly autoScrollSpeed: number;
   readonly pagePrevKey: ReaderKey;
   readonly pageNextKey: ReaderKey;
@@ -106,6 +107,7 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   skipDuplicates: false,
   autoAdvance: false,
   autoDetectWebtoon: false,
+  autoHideControls: true,
   autoScrollSpeed: 1,
   pagePrevKey: 'ArrowLeft',
   pageNextKey: 'ArrowRight',
@@ -176,6 +178,7 @@ function load(): ReaderSettings {
       skipDuplicates: parsed.skipDuplicates === true,
       autoAdvance: parsed.autoAdvance === true,
       autoDetectWebtoon: parsed.autoDetectWebtoon === true,
+      autoHideControls: parsed.autoHideControls !== false,
       autoScrollSpeed: clampNumber(
         parsed.autoScrollSpeed,
         1,

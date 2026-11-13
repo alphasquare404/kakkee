@@ -153,14 +153,18 @@ Used by:
   - first 2 pages load immediately;
   - remaining pages observe intersection with `rootMargin: 1200px`;
   - images use `loading="lazy"` and are only fetched when near viewport.
-- Header is a compact 54–56px sticky bar: back icon, manga title and chapter title on two
-  truncated lines, page progress, then icon-only Previous chapter / Next chapter / Chapter list /
-  More controls. Long manga/chapter titles are ellipsized inside the fixed title box.
-- Footer repeats full chapter navigation.
+- Header is a compact 54–56px sticky bar: back icon, vertically centered manga title and chapter
+  title on two truncated lines, then icon-only Chapter list / Page picker / More controls. Long
+  manga/chapter titles are ellipsized inside the fixed title box.
+- A fixed bottom seekbar owns page progress and previous/next chapter navigation. The Page picker
+  opens a thumbnail grid; choosing a thumbnail jumps to that page.
+- With Auto-hide controls enabled (default), header and seekbar retract after 2.5 seconds without
+  interaction. A center-page tap, upward scroll, pointer movement near the top/bottom edge, panel
+  opening, or keyboard focus reveals them again. They stay visible while dialogs/menus are open,
+  while the seekbar is being dragged, and while a chapter is loading or auto-scrolling. Reduced
+  motion disables the retract animation.
 - Device download priority: device OPFS copy > server download > online. Device chapters open the offline reader.
 - Vertical/webtoon modes append the next chapter below and promote it to the active chapter while scrolling. Paged/horizontal modes keep explicit transitions.
-- Desktop chapter rail is compact (7.5rem) and sits outside the page column where space allows;
-  it is hidden on tablet/mobile.
 - Keyboard:
   - `ArrowLeft` → previous chapter
   - `ArrowRight` → next chapter

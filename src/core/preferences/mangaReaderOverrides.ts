@@ -22,6 +22,7 @@ type ReaderOverrideFields = Pick<
   | 'contrastPct'
   | 'saturationPct'
   | 'stretchSmallPages'
+  | 'autoHideControls'
 >;
 
 export type MangaReaderOverride = {
@@ -119,6 +120,9 @@ function load(): Record<string, MangaReaderOverride> {
       }
       if (typeof item.stretchSmallPages === 'boolean') {
         override.stretchSmallPages = item.stretchSmallPages;
+      }
+      if (typeof item.autoHideControls === 'boolean') {
+        override.autoHideControls = item.autoHideControls;
       }
 
       if (Object.keys(override).length > 0) {

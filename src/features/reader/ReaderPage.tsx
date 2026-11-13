@@ -266,6 +266,8 @@ function ConnectedReader({
     });
   }, [backTarget, fromManga, mangaState, navigate]);
   const openReaderSettings = () => {
+    setControlsVisible(true);
+
     if (!mangaOverride) {
       setMangaReaderOverride(mangaId, {
         mode: globalReaderSettings.mode,
@@ -279,6 +281,7 @@ function ConnectedReader({
         contrastPct: globalReaderSettings.contrastPct,
         saturationPct: globalReaderSettings.saturationPct,
         stretchSmallPages: globalReaderSettings.stretchSmallPages,
+        autoHideControls: globalReaderSettings.autoHideControls,
       });
     }
 
@@ -311,6 +314,12 @@ function ConnectedReader({
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [readerSettingsOpen, setReaderSettingsOpen] = useState(false);
   const [pagesOpen, setPagesOpen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [controlsEpoch, setControlsEpoch] = useState(0);
+  const lastScrollY = useRef(0);
+  const seekbarTouching = useRef(false);
+  const pointerNearEdge = useRef(false);
+  const suppressScrollReveal = useRef(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
@@ -376,6 +385,129 @@ function ConnectedReader({
       : reader.pages.map((_, index) => index)
   ).filter((index) => index >= 0 && index < reader.pages.length);
   const noopVisible = useCallback(() => undefined, []);
+  const showControls = useCallback(() => {
+    setControlsVisible(true);
+    setControlsEpoch((value) => value + 1);
+  }, []);
+  const rescheduleControls = useCallback(
+    () => setControlsEpoch((value) => value + 1),
+    [],
+  );
+
+  useEffect(() => {
+    if (!controlsVisible) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (
+        !readerSettings.autoHideControls ||
+        !activeChapter ||
+        reader.isLoadingPages ||
+        reader.pagesError ||
+        reader.pages.length === 0 ||
+        chaptersOpen ||
+        readerSettingsOpen ||
+        pagesOpen ||
+        autoScrolling ||
+        seekbarTouching.current ||
+        document.querySelector('.reader-header details[open]')
+      ) {
+        return;
+      }
+
+      suppressScrollReveal.current = true;
+      setControlsVisible(false);
+      window.setTimeout(() => {
+        suppressScrollReveal.current = false;
+        lastScrollY.current = window.scrollY;
+      }, 420);
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    activeChapter,
+    autoScrolling,
+    chaptersOpen,
+    controlsEpoch,
+    controlsVisible,
+    pagesOpen,
+    reader.isLoadingPages,
+    reader.pages.length,
+    reader.pagesError,
+    readerSettings.autoHideControls,
+    readerSettingsOpen,
+  ]);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    const onScroll = () => {
+      const current = window.scrollY;
+
+      if (!suppressScrollReveal.current && current < lastScrollY.current - 6) {
+        showControls();
+      }
+
+      lastScrollY.current = current;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [showControls]);
+
+  useEffect(() => {
+    const onPointerMove = (event: globalThis.PointerEvent) => {
+      const nearEdge =
+        event.clientY <= 56 || event.clientY >= window.innerHeight - 76;
+
+      if (nearEdge && !pointerNearEdge.current) {
+        showControls();
+      }
+
+      pointerNearEdge.current = nearEdge;
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+
+      if (
+        target instanceof Element &&
+        target.closest('.reader-header, .reader-seekbar')
+      ) {
+        showControls();
+      }
+    };
+    const header = document.querySelector('.reader-header');
+    const onToggle = () => showControls();
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    document.addEventListener('focusin', onFocusIn);
+    header?.addEventListener('toggle', onToggle, true);
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('focusin', onFocusIn);
+      header?.removeEventListener('toggle', onToggle, true);
+    };
+  }, [rescheduleControls, showControls]);
+
+
+  useEffect(() => {
+    const endSeek = () => {
+      if (!seekbarTouching.current) {
+        return;
+      }
+
+      seekbarTouching.current = false;
+      rescheduleControls();
+    };
+
+    window.addEventListener('pointerup', endSeek);
+    window.addEventListener('pointercancel', endSeek);
+
+    return () => {
+      window.removeEventListener('pointerup', endSeek);
+      window.removeEventListener('pointercancel', endSeek);
+    };
+  }, [rescheduleControls]);
 
   useEffect(() => {
     const next = reader.nextChapter;
@@ -883,12 +1015,19 @@ function ConnectedReader({
       return;
     }
 
+    const rect = event.currentTarget.getBoundingClientRect();
+    const offset = event.clientX - rect.left;
+    const isMiddle = offset > rect.width / 3 && offset < (rect.width * 2) / 3;
+
+    if (isMiddle) {
+      setControlsVisible((visible) => !visible);
+      return;
+    }
+
     if (!isPaged) {
       return;
     }
 
-    const rect = event.currentTarget.getBoundingClientRect();
-    const offset = event.clientX - rect.left;
     const step = readingMode === 'double' ? 2 : 1;
     const isLeft = offset < rect.width / 3;
     const isRight = offset > (rect.width * 2) / 3;
@@ -942,7 +1081,7 @@ function ConnectedReader({
 
   return (
     <div
-      className="app-shell reader-shell"
+      className={`app-shell reader-shell${controlsVisible ? '' : ' is-chrome-hidden'}`}
       style={
         {
           '--reader-width': `${readerSettings.widthRem}rem`,
@@ -977,7 +1116,10 @@ function ConnectedReader({
             type="button"
             aria-label={t('Chapters')}
             title={t('Chapters')}
-            onClick={() => setChaptersOpen(true)}
+            onClick={() => {
+              setControlsVisible(true);
+              setChaptersOpen(true);
+            }}
           >
             <IconList />
           </button>
@@ -986,7 +1128,10 @@ function ConnectedReader({
             type="button"
             aria-label={t('Pages')}
             title={t('Pages')}
-            onClick={() => setPagesOpen(true)}
+            onClick={() => {
+              setControlsVisible(true);
+              setPagesOpen(true);
+            }}
           >
             <IconGrid />
           </button>
@@ -1342,7 +1487,21 @@ function ConnectedReader({
       ) : null}
 
       {activeChapter && reader.pages.length > 0 ? (
-        <div className="reader-seekbar">
+        <div
+          className="reader-seekbar"
+          onPointerDown={() => {
+            seekbarTouching.current = true;
+            showControls();
+          }}
+          onPointerUp={() => {
+            seekbarTouching.current = false;
+            rescheduleControls();
+          }}
+          onPointerCancel={() => {
+            seekbarTouching.current = false;
+            rescheduleControls();
+          }}
+        >
           {previousChapter ? (
             <Link
               className="reader-seekbar-chapter"

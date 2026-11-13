@@ -46,6 +46,7 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
                 filter: global.filter,
                 scale: global.scale,
                 direction: global.direction,
+                autoHideControls: global.autoHideControls,
               });
             }}
           />
@@ -139,6 +140,24 @@ export function MangaReaderModePicker({ mangaId }: { readonly mangaId: number })
                 <option value="ltr">Left to right</option>
                 <option value="rtl">Right to left</option>
               </select>
+            </label>
+
+            <label className="switch-toggle manga-reader-toggle">
+              <span>Auto-hide controls</span>
+              <span className="switch-control">
+                <input
+                  type="checkbox"
+                  checked={override.autoHideControls ?? global.autoHideControls}
+                  onChange={(event) =>
+                    updateMangaReaderOverride(mangaId, {
+                      autoHideControls: event.target.checked,
+                    })
+                  }
+                />
+                <span className="switch-track" aria-hidden="true">
+                  <span className="switch-thumb" />
+                </span>
+              </span>
             </label>
 
             <label className="settings-select-field">
