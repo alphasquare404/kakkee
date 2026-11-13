@@ -12419,3 +12419,33 @@ input[type="radio"] {
   color: var(--success, #2f9e6f);
   border-color: color-mix(in srgb, var(--success, #2f9e6f) 30%, var(--border));
 }
+
+button.manga-card-link {
+  color: inherit;
+  cursor: pointer;
+}
+
+.device-offline-dialog {
+  width: min(100%, 28rem);
+}
+
+.device-offline-dialog header > div {
+  min-width: 0;
+}
+
+.device-offline-dialog header .panel-kicker {
+  margin-bottom: 0.15rem;
+}
+
+.device-offline-chapters a strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-offline-chapters a span {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
