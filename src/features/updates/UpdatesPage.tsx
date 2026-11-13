@@ -14,7 +14,11 @@ import {
   createCatalogRepository,
   type FeedInput,
 } from '../../core/catalog/catalogRepository';
-import { feedDay, formatRelativeTime } from '../../shared/feedTime';
+import {
+  feedDay,
+  formatRelativeTime,
+  formatRelativeTimeShort,
+} from '../../shared/feedTime';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { LibrarySyncButton } from '../library/LibrarySyncButton';
@@ -569,7 +573,7 @@ function ContinueCard({
       : entry.isRead
         ? t('Read')
         : t('In progress');
-  const when = formatRelativeTime(entry.lastReadAt);
+  const when = formatRelativeTimeShort(entry.lastReadAt);
 
   return (
     <Link
@@ -578,7 +582,7 @@ function ContinueCard({
         entry.lastPageRead > 0 ? `?page=${entry.lastPageRead + 1}` : ''
       }`}
       state={{ origin }}
-      aria-label={`${entry.manga.title}, ${entry.name}`}
+      aria-label={`${entry.manga.title}, ${entry.name}, ${page}${when ? `, ${when}` : ''}`}
     >
       <span className={`reading-continue-cover${portrait ? ' is-portrait-fill' : ''}`} aria-hidden="true">
         {image.objectUrl ? (
@@ -597,13 +601,13 @@ function ContinueCard({
         ) : (
           <span>{entry.manga.title.trim().charAt(0).toUpperCase() || '·'}</span>
         )}
+        {when ? (
+          <span className="reading-continue-time-badge">{when}</span>
+        ) : null}
       </span>
       <strong className="reading-continue-title">{entry.manga.title}</strong>
       <span className="reading-continue-chapter">{entry.name}</span>
-      <span className="reading-continue-state">
-        {page}
-        {when ? ` · ${when}` : ''}
-      </span>
+      <span className="reading-continue-state">{page}</span>
     </Link>
   );
 }

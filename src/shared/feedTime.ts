@@ -43,6 +43,40 @@ export function formatRelativeTime(value: string): string {
   return formatter.format(Math.round(deltaSeconds / 31_536_000), 'year');
 }
 
+export function formatRelativeTimeShort(value: string): string {
+  const timestamp = toMilliseconds(value);
+
+  if (timestamp === null) {
+    return '';
+  }
+
+  const deltaSeconds = Math.round((timestamp - Date.now()) / 1000);
+  const abs = Math.abs(deltaSeconds);
+  const suffix = deltaSeconds > 0 ? 'from now' : 'ago';
+
+  if (abs < 60) {
+    return `${abs} sec ${suffix}`;
+  }
+
+  if (abs < 3_600) {
+    return `${Math.round(abs / 60)} min ${suffix}`;
+  }
+
+  if (abs < 86_400) {
+    return `${Math.round(abs / 3_600)} hr ${suffix}`;
+  }
+
+  if (abs < 2_592_000) {
+    return `${Math.round(abs / 86_400)} day ${suffix}`;
+  }
+
+  if (abs < 31_536_000) {
+    return `${Math.round(abs / 2_592_000)} mo ${suffix}`;
+  }
+
+  return `${Math.round(abs / 31_536_000)} yr ${suffix}`;
+}
+
 export function feedDay(value: string): string {
   const timestamp = toMilliseconds(value);
 
