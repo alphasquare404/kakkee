@@ -29,6 +29,12 @@ registerMessages('id', {
   'Continuous horizontal': 'Horizontal berkelanjutan',
   'Mode profile': 'Profil mode',
   'Reader width': 'Lebar reader',
+  '1 rem = browser root font size, usually 16 px.':
+    '1 rem = ukuran font root browser, biasanya 16 px.',
+  'Fit screen fits the page inside the available reader area and viewport height. It is not browser fullscreen.':
+    'Fit screen menyesuaikan halaman agar masuk area reader dan tinggi layar. Ini bukan fullscreen browser.',
+  'In double-page mode, Fit width fills the reader width with two pages; Fit height fits each page to the available screen height.':
+    'Pada mode dua halaman, Fit width memenuhi lebar reader dengan dua halaman; Fit height menyesuaikan tinggi tiap halaman dengan layar.',
   'Page gap': 'Jarak halaman',
   'First-page offset': 'Offset halaman pertama',
   Background: 'Latar belakang',
@@ -171,6 +177,9 @@ export function ReaderSettingsPage() {
                   />
                   <output>{settings.widthRem} rem</output>
                 </div>
+                <p className="settings-field-hint">
+                  {t('1 rem = browser root font size, usually 16 px.')}
+                </p>
               </dd>
             </div>
             <div>
@@ -356,6 +365,16 @@ export function ReaderSettingsPage() {
                   <option value="screen">{t('Fit screen')}</option>
                   <option value="original">{t('Original size')}</option>
                 </select>
+                <p className="settings-field-hint">
+                  {t(
+                    'In double-page mode, Fit width fills the reader width with two pages; Fit height fits each page to the available screen height.',
+                  )}
+                </p>
+                <p className="settings-field-hint">
+                  {t(
+                    'Fit screen fits the page inside the available reader area and viewport height. It is not browser fullscreen.',
+                  )}
+                </p>
               </dd>
             </div>
             <div>
