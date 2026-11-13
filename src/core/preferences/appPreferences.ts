@@ -24,6 +24,22 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   downloadTarget: 'server',
 };
 
+function preferredTheme(): ThemeMode {
+  if (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-color-scheme: light)').matches
+  ) {
+    return 'snow-white';
+  }
+
+  return 'pure-black';
+}
+
+function systemDefaultPreferences(): AppPreferences {
+  return { ...DEFAULT_APP_PREFERENCES, theme: preferredTheme() };
+}
+
 const STORAGE_KEY = 'suwayomi.app-preferences.v1';
 
 let state: AppPreferences = load();
@@ -34,7 +50,7 @@ function load(): AppPreferences {
     const raw = window.localStorage.getItem(STORAGE_KEY);
 
     if (!raw) {
-      return DEFAULT_APP_PREFERENCES;
+      return systemDefaultPreferences();
     }
 
     const parsed = JSON.parse(raw) as Partial<AppPreferences>;
@@ -45,7 +61,9 @@ function load(): AppPreferences {
           ? 'pure-black'
           : parsed.theme === 'snow-white'
             ? 'snow-white'
-            : 'dark',
+            : parsed.theme === 'dark'
+              ? 'dark'
+              : preferredTheme(),
       libraryDensity:
         parsed.libraryDensity === 'comfortable' ? 'comfortable' : 'compact',
       libraryView: parsed.libraryView === 'list' ? 'list' : 'grid',
@@ -59,7 +77,7 @@ function load(): AppPreferences {
       downloadTarget: parsed.downloadTarget === 'device' ? 'device' : 'server',
     };
   } catch {
-    return DEFAULT_APP_PREFERENCES;
+    return systemDefaultPreferences();
   }
 }
 

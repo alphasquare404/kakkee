@@ -12270,3 +12270,44 @@ input[type="radio"] {
   color: var(--text);
   background: var(--surface-sunken);
 }
+
+/* Phone settings: one card per section, separated by rules. */
+@media (max-width: 760px) {
+  .settings-directory-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-strong);
+  }
+
+  .settings-directory-link {
+    gap: 0.65rem;
+    align-items: center;
+    padding: 0.7rem 0.75rem;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .settings-directory-link:last-child {
+    border-bottom: 0;
+  }
+
+  .settings-directory-link:hover,
+  .settings-directory-link:focus-visible {
+    background: var(--surface-sunken);
+  }
+
+  :root[data-theme="snow-white"] .settings-directory-link {
+    border-bottom-color: var(--border);
+    background: transparent;
+  }
+
+  :root[data-theme="snow-white"] .settings-directory-link:hover,
+  :root[data-theme="snow-white"] .settings-directory-link:focus-visible {
+    background: var(--surface-sunken);
+  }
+}
