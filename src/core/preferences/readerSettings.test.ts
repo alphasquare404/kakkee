@@ -56,7 +56,6 @@ describe('reader settings', () => {
       autoAdvance: false,
       autoDetectWebtoon: false,
       autoHideControls: true,
-      incognito: false,
       autoScrollSpeed: 1,
       pagePrevKey: 'ArrowLeft',
       pageNextKey: 'ArrowRight',

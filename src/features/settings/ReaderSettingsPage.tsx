@@ -61,9 +61,6 @@ registerMessages('id', {
   'Keep screen on': 'Layar tetap menyala',
   'Use Wake Lock while reading': 'Gunakan Wake Lock saat membaca',
   'Auto-hide controls': 'Sembunyikan kontrol otomatis',
-  'Incognito mode': 'Mode incognito',
-  'Do not write reading progress or history to the server':
-    'Jangan tulis progres bacaan atau history ke server',
   'Hide the header and seekbar while reading':
     'Sembunyikan header dan seekbar saat membaca',
   'Duplicate chapters': 'Chapter duplikat',
@@ -455,23 +452,6 @@ export function ReaderSettingsPage() {
                     }
                   />
                   {t('Hide the header and seekbar while reading')}
-                </label>
-              </dd>
-            </div>
-            <div>
-              <dt>{t('Incognito mode')}</dt>
-              <dd>
-                <label className="settings-inline-toggle">
-                  <input
-                    type="checkbox"
-                    checked={settings.incognito}
-                    onChange={(event) =>
-                      updateReaderSettings({
-                        incognito: event.target.checked,
-                      })
-                    }
-                  />
-                  {t('Do not write reading progress or history to the server')}
                 </label>
               </dd>
             </div>

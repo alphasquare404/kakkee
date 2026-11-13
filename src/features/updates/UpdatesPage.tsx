@@ -611,19 +611,20 @@ function ContinueCard({
   readonly resources: ConnectedContext['resources'];
   readonly onMenu: (x: number, y: number) => void;
 }) {
-  const { t } = useI18n();
   const [portrait, setPortrait] = useState(false);
   const image = useImageResource(resources, entry.manga.thumbnailUrl);
-  const page =
-    !entry.isRead && entry.lastPageRead > 0
-      ? t('Page {page} of {total}', {
-          page: entry.lastPageRead + 1,
-          total: entry.pageCount,
-        })
-      : entry.isRead
-        ? t('Read')
-        : t('In progress');
+  const pressTimer = useRef<number | null>(null);
+  const pressStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressClick = useRef(false);
   const when = formatRelativeTimeShort(entry.lastReadAt);
+
+  const cancelLongPress = () => {
+    if (pressTimer.current !== null) {
+      window.clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+    pressStart.current = null;
+  };
 
   return (
     <div
@@ -632,6 +633,41 @@ function ContinueCard({
         event.preventDefault();
         onMenu(event.clientX, event.clientY);
       }}
+      onPointerDown={(event) => {
+        if (event.pointerType === 'mouse' || event.button !== 0) {
+          return;
+        }
+
+        cancelLongPress();
+        const { clientX, clientY } = event;
+        pressStart.current = { x: clientX, y: clientY };
+        pressTimer.current = window.setTimeout(() => {
+          suppressClick.current = true;
+          onMenu(clientX, clientY);
+          pressTimer.current = null;
+        }, 500);
+      }}
+      onPointerMove={(event) => {
+        const start = pressStart.current;
+
+        if (
+          start &&
+          (Math.abs(event.clientX - start.x) > 8 ||
+            Math.abs(event.clientY - start.y) > 8)
+        ) {
+          cancelLongPress();
+        }
+      }}
+      onPointerUp={cancelLongPress}
+      onPointerCancel={cancelLongPress}
+      onPointerLeave={cancelLongPress}
+      onClickCapture={(event) => {
+        if (suppressClick.current) {
+          suppressClick.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
     >
       <Link
         className="reading-continue-card-link"
@@ -639,7 +675,7 @@ function ContinueCard({
           entry.lastPageRead > 0 ? `?page=${entry.lastPageRead + 1}` : ''
         }`}
         state={{ origin }}
-        aria-label={`${entry.manga.title}, ${entry.name}, ${page}${when ? `, ${when}` : ''}`}
+        aria-label={`${entry.manga.title}, ${entry.name}${when ? `, ${when}` : ''}`}
       >
         <span className={`reading-continue-cover${portrait ? ' is-portrait-fill' : ''}`} aria-hidden="true">
           {image.objectUrl ? (
@@ -664,22 +700,7 @@ function ContinueCard({
         </span>
         <strong className="reading-continue-title">{entry.manga.title}</strong>
         <span className="reading-continue-chapter">{entry.name}</span>
-        <span className="reading-continue-state">{page}</span>
       </Link>
-      <button
-        className="reading-continue-menu"
-        type="button"
-        aria-label={t('Continue reading actions')}
-        title={t('Continue reading actions')}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          const rect = event.currentTarget.getBoundingClientRect();
-          onMenu(rect.left, rect.bottom + 4);
-        }}
-      >
-        ···
-      </button>
     </div>
   );
 }

@@ -7370,30 +7370,6 @@ button.manga-card-link {
   text-decoration: none;
 }
 
-.reading-continue-menu {
-  position: absolute;
-  top: 0.4rem;
-  left: 0.4rem;
-  z-index: 2;
-  display: grid;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  place-items: center;
-  color: var(--text);
-  font-size: 0.8rem;
-  line-height: 1;
-  letter-spacing: 0.05em;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  background: var(--surface-strong);
-  cursor: pointer;
-}
-
-.reading-continue-menu:hover {
-  color: var(--accent);
-}
-
 .reading-continue-card:hover {
   text-decoration: none;
 }
@@ -7503,15 +7479,6 @@ button.manga-card-link {
 .reading-continue-more:disabled {
   cursor: wait;
   opacity: 0.65;
-}
-
-.reading-continue-state {
-  overflow: hidden;
-  color: var(--accent);
-  font-size: 0.68rem;
-  line-height: 1.3;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .reading-updates {
@@ -12747,4 +12714,27 @@ button.manga-card-link {
 
 .reader-pages.scale-screen .reader-page img {
   max-height: 100dvh;
+}
+
+.reader-ghost-toggle.is-active {
+  color: var(--accent);
+}
+
+.reader-ghost-notice {
+  position: fixed;
+  top: calc(var(--safe-top) + 4rem);
+  left: 50%;
+  z-index: 60;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.45rem 0.7rem;
+  color: var(--text);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+  text-align: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
 }

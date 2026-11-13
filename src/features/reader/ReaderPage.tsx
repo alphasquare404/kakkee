@@ -282,7 +282,6 @@ function ConnectedReader({
         saturationPct: globalReaderSettings.saturationPct,
         stretchSmallPages: globalReaderSettings.stretchSmallPages,
         autoHideControls: globalReaderSettings.autoHideControls,
-        incognito: globalReaderSettings.incognito,
       });
     }
 
@@ -316,6 +315,8 @@ function ConnectedReader({
   const [readerSettingsOpen, setReaderSettingsOpen] = useState(false);
   const [pagesOpen, setPagesOpen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [ghostMode, setGhostMode] = useState(false);
+  const [ghostNotice, setGhostNotice] = useState<string | null>(null);
   const [controlsEpoch, setControlsEpoch] = useState(0);
   const lastScrollY = useRef(0);
   const seekbarTouching = useRef(false);
@@ -796,7 +797,7 @@ function ConnectedReader({
         return;
       }
 
-      if (readerSettings.incognito) {
+      if (ghostMode) {
         return;
       }
 
@@ -808,7 +809,27 @@ function ConnectedReader({
         )
         .catch(() => undefined);
     };
-  }, [controller, displayChapterId, readerSettings.incognito]);
+  }, [controller, displayChapterId, ghostMode]);
+
+  useEffect(() => {
+    if (!ghostNotice) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setGhostNotice(null), 3_200);
+    return () => window.clearTimeout(timer);
+  }, [ghostNotice]);
+
+  const toggleGhostMode = () => {
+    const next = !ghostMode;
+    setGhostMode(next);
+    setGhostNotice(
+      next
+        ? 'Ghost Mode Activated'
+        : 'Ghost Mode Deactivated',
+    );
+    showControls();
+  };
 
   useEffect(() => {
     if (
@@ -871,7 +892,7 @@ function ConnectedReader({
       !activeChapterId ||
       reader.pages.length === 0 ||
       !resumeReady ||
-      readerSettings.incognito
+      ghostMode
     ) {
       return;
     }
@@ -906,7 +927,7 @@ function ConnectedReader({
     displayPageCount,
     mangaId,
     reader.pages.length,
-    readerSettings.incognito,
+    ghostMode,
     resumeReady,
     trackingSync,
   ]);
@@ -1222,6 +1243,16 @@ function ConnectedReader({
             }}
           >
             <IconGrid />
+          </button>
+          <button
+            className={`reader-icon-button reader-ghost-toggle${ghostMode ? ' is-active' : ''}`}
+            type="button"
+            aria-label="Ghost mode"
+            title="Ghost mode"
+            aria-pressed={ghostMode}
+            onClick={toggleGhostMode}
+          >
+            <GhostIcon />
           </button>
           <ActionMenu
             label={<ReaderMoreIcon />}
@@ -1697,7 +1728,28 @@ function ConnectedReader({
         </div>
       ) : null}
 
+      {ghostNotice ? (
+        <div className="reader-ghost-notice" role="status" aria-live="polite">
+          {ghostNotice}
+        </div>
+      ) : null}
     </div>
+  );
+}
+
+function GhostIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path
+        d="M5 16.8V8.7a5 5 0 0 1 10 0v8.1l-2.5-1.5L10 16.8l-2.5-1.5L5 16.8Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.3"
+      />
+      <circle cx="8.2" cy="9.2" r="0.8" fill="currentColor" />
+      <circle cx="11.8" cy="9.2" r="0.8" fill="currentColor" />
+    </svg>
   );
 }
 
