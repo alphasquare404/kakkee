@@ -79,15 +79,6 @@ function BrowseIcon() {
   );
 }
 
-function HistoryIcon() {
-  return (
-    <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M10 6.2V10l2.6 1.7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function DownloadsIcon() {
   return (
     <svg aria-hidden="true" fill="none" height="19" viewBox="0 0 20 20" width="19">
@@ -138,7 +129,6 @@ const NAV_ITEMS: ReadonlyArray<{
       path === '/extensions' ||
       path.startsWith('/extensions/'),
   },
-  { to: '/history', labelKey: 'nav.history', icon: HistoryIcon, mobile: true, match: (path: string) => path === '/history' },
   { to: '/downloads', labelKey: 'nav.downloads', icon: DownloadsIcon, mobile: true, match: (path: string) => path === '/downloads' || path.startsWith('/downloads/') },
   { to: '/settings', labelKey: 'nav.settings', icon: SettingsIcon, mobile: true, match: (path: string) => path.startsWith('/settings') || path === '/about' },
 ];
@@ -228,7 +218,6 @@ export function AppLayout() {
     browse: '/browse',
     search: '/browse',
     updates: '/updates',
-    history: '/history',
     downloads: '/downloads',
     categories: '/settings/categories',
     settings: '/settings',

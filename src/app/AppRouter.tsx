@@ -47,11 +47,6 @@ const CategoriesPage = lazy(() =>
     default: module.CategoriesPage,
   })),
 );
-const HistoryPage = lazy(() =>
-  import('../features/history/HistoryPage').then((module) => ({
-    default: module.HistoryPage,
-  })),
-);
 const DownloadsPage = lazy(() =>
   import('../features/downloads/DownloadsPage').then((module) => ({
     default: module.DownloadsPage,
@@ -234,7 +229,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/search" element={<GlobalSearchPage />} />
             <Route path="/categories" element={<Navigate to="/settings/categories" replace />} />
             <Route path="/settings/categories" element={<CategoriesPage />} />
-            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/history" element={<Navigate to="/updates" replace />} />
             <Route path="/downloads" element={<DownloadsPage />} />
             <Route path="/downloads/device" element={<DeviceLibraryPage />} />
             <Route path="/settings" element={<SettingsPage />} />

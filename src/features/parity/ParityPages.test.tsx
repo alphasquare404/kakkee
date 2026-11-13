@@ -22,7 +22,6 @@ import {
   SyncSettingsDocument,
   TrackingServicesDocument,
   type CategoryCatalogQuery,
-  type ChapterFeedQuery,
   type ReadingFeedQuery,
   type ServerSettingsQuery,
   type SourceCatalogQuery,
@@ -35,11 +34,7 @@ import {
   updateSearchPreferences,
 } from '../../core/preferences/searchPreferences';
 import { updateSourcePreferences } from '../../core/preferences/sourcePreferences';
-import {
-  getLibraryPreferences,
-  resetLibraryPreferences,
-  updateLibraryPreferences,
-} from '../../core/preferences/libraryPreferences';
+import { resetLibraryPreferences } from '../../core/preferences/libraryPreferences';
 import { resetHistoryPreferences } from '../../core/preferences/historyPreferences';
 
 vi.mock('../../app/pwaUpdate', () => ({
@@ -107,51 +102,6 @@ function readingFeed(): ReadingFeedQuery {
           },
         },
       ],
-    },
-  };
-}
-
-function historyFeed(): ChapterFeedQuery {
-  const now = String(Date.now());
-  const chapter = (id: number, mangaId: number, title: string, page: number) => ({
-    __typename: 'ChapterType' as const,
-    id,
-    name: `Chapter ${id}`,
-    chapterNumber: id,
-    pageCount: 18,
-    isRead: false,
-    isDownloaded: false,
-    lastPageRead: page,
-    lastReadAt: now,
-    uploadDate: now,
-    scanlator: null,
-    manga: {
-      __typename: 'MangaType' as const,
-      id: mangaId,
-      title,
-      thumbnailUrl: `/api/v1/manga/${mangaId}/thumbnail`,
-      categories: {
-        __typename: 'CategoryNodeList' as const,
-        nodes: [] as Array<{ __typename: 'CategoryType'; id: number }>,
-      },
-    },
-  });
-
-  const nodes: ChapterFeedQuery['chapters']['nodes'] = [
-    chapter(10, 1, 'History Manga', 2),
-    chapter(9, 1, 'History Manga', 1),
-    chapter(8, 2, 'Other Manga', 0),
-  ];
-  nodes[2].manga.categories.nodes = [
-    { __typename: 'CategoryType', id: 2 },
-  ];
-
-  return {
-    __typename: 'Query',
-    chapters: {
-      __typename: 'ChapterNodeList',
-      totalCount: 3,
-      nodes,
     },
   };
 }
@@ -845,45 +795,6 @@ describe('parity pages', () => {
         }),
       ),
     );
-  });
-
-  it('groups history by day and resumes the latest chapter per manga', async () => {
-    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
-      if (document === ChapterFeedDocument) {
-        return { data: historyFeed() };
-      }
-
-      return { data: {} };
-    });
-    renderPage('/history', query);
-
-    const link = await screen.findByRole('link', {
-      name: 'History Manga, Chapter 10',
-    });
-
-    expect(link.getAttribute('href')).toBe('/manga/1/chapter/10?page=3');
-    expect(screen.getByRole('heading', { name: 'Today' })).toBeTruthy();
-    expect(screen.queryByRole('link', { name: 'History Manga, Chapter 9' })).toBeNull();
-    expect(
-      screen.getByRole('link', { name: 'Other Manga, Chapter 8' }).getAttribute('href'),
-    ).toBe('/manga/2/chapter/8');
-  });
-
-  it('filters history manga assigned to hidden categories', async () => {
-    updateLibraryPreferences({
-      ...getLibraryPreferences(),
-      hiddenCategoryIds: [2],
-    });
-    const query = vi.fn(async ({ query: document }: { query: unknown }) => {
-      if (document === ChapterFeedDocument) {
-        return { data: historyFeed() };
-      }
-      throw new Error('unexpected query');
-    });
-    renderPage('/history', query);
-
-    expect(await screen.findByRole('link', { name: 'History Manga, Chapter 10' })).toBeTruthy();
-    expect(screen.queryByText('Other Manga')).toBeNull();
   });
 
   it('renders the real chapter feed on Updates', async () => {
