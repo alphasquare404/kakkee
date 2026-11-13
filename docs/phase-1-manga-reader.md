@@ -157,6 +157,8 @@ Used by:
   icon-only Previous chapter / Next chapter / Chapter list / More controls. The manga title is
   hidden on mobile to keep the bar one row.
 - Footer repeats full chapter navigation.
+- Device download priority: device OPFS copy > server download > online. Device chapters open the offline reader.
+- Silent auto-append of the next chapter was removed; chapter changes are explicit (Next/Previous, chapter list, keyboard Shift, or auto-advance).
 - Desktop chapter rail is compact (7.5rem) and sits outside the page column where space allows;
   it is hidden on tablet/mobile.
 - Keyboard:

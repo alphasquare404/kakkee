@@ -35,7 +35,7 @@ Advanced configuration tidak lagi di header. `Reader settings` dibuka dari More 
 | Fullscreen | Fullscreen API, fallback no-op | Baik |
 | Reader settings | link di More, tidak menutupi konten | Baik |
 | State persistence | reader settings/prefs localStorage; chapter position server | Baik, perlu verifikasi Goal 20 |
-| Appended next chapter | next chapter disisipkan setelah halaman | Baik |
+| Appended next chapter | dihapus; transisi chapter eksplisit | Diganti |
 
 ## Perubahan
 

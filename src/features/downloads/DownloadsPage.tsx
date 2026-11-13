@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { createSectionOrigin } from '../../app/navigationOrigin';
@@ -92,7 +92,7 @@ registerMessages('id', {
     'Penyimpanan perangkat tidak tersedia di browser ini.',
   'Device download failed.': 'Unduhan perangkat gagal.',
   'Loading…': 'Memuat…',
-  'Open offline library': 'Buka pustaka offline',
+  'Device Downloaded Library': 'Pustaka Terunduh di Perangkat',
 });
 
 function formatBytes(bytes: number): string {
@@ -177,6 +177,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           reloadTimer.current = window.setTimeout(() => {
             reloadTimer.current = null;
             void controller.load();
+            void feedController.load();
           }, 350);
         },
         error: () => undefined,
@@ -190,7 +191,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
         reloadTimer.current = null;
       }
     };
-  }, [context.graphQL, controller]);
+  }, [context.graphQL, controller, feedController]);
 
   const queue = downloads.queue?.queue ?? [];
   const pages = (downloaded.data?.items ?? []).reduce(
@@ -237,7 +238,10 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   );
   const [deviceBusyId, setDeviceBusyId] = useState<number | null>(null);
   const [deviceError, setDeviceError] = useState(false);
-  const [tab, setTab] = useState<'server' | 'device'>('server');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<'server' | 'device'>(
+    searchParams.get('tab') === 'device' ? 'device' : 'server',
+  );
 
   const loadDeviceRecords = () => {
     if (!isOfflineStorageSupported()) {
@@ -495,7 +499,11 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                     canDownloadToDevice={supportedDeviceStorage}
                     disabled={downloads.isActing}
                     onDownloadToDevice={() => void saveChapterToDevice(chapter.id)}
-                    onDelete={() => void controller.deleteDownloaded(chapter.id)}
+                    onDelete={() =>
+                      void controller.deleteDownloaded(chapter.id).then(() => {
+                        void feedController.load();
+                      })
+                    }
                   />
                 ))}
               </div>
@@ -531,6 +539,12 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
               </div>
             </div>
           </section>
+
+          <div className="download-device-library">
+            <Link className="button button-secondary" to="/downloads/device">
+              {t('Device Downloaded Library')}
+            </Link>
+          </div>
 
           <section className="download-section" aria-labelledby="device-queue-heading">
             <div className="section-heading-row">

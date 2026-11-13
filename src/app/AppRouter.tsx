@@ -57,6 +57,11 @@ const DownloadsPage = lazy(() =>
     default: module.DownloadsPage,
   })),
 );
+const DeviceLibraryPage = lazy(() =>
+  import('../features/downloads/DeviceLibraryPage').then((module) => ({
+    default: module.DeviceLibraryPage,
+  })),
+);
 const SettingsPage = lazy(() =>
   import('../features/settings/SettingsPage').then((module) => ({
     default: module.SettingsPage,
@@ -121,11 +126,6 @@ const MangaDetailPage = lazy(() =>
 const ReaderPage = lazy(() =>
   import('../features/reader/ReaderPage').then((module) => ({
     default: module.ReaderPage,
-  })),
-);
-const OfflineDownloadsPage = lazy(() =>
-  import('../features/offline/OfflineDownloadsPage').then((module) => ({
-    default: module.OfflineDownloadsPage,
   })),
 );
 const OfflineReaderPage = lazy(() =>
@@ -220,7 +220,6 @@ export function AppRouter({ basename }: AppRouterProps) {
       >
         <Routes>
           <Route path="/" element={<ConnectionPage />} />
-          <Route path="/offline" element={<OfflineDownloadsPage />} />
           <Route
             path="/offline/read/:chapterId"
             element={<OfflineReaderPage />}
@@ -237,6 +236,7 @@ export function AppRouter({ basename }: AppRouterProps) {
             <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/downloads" element={<DownloadsPage />} />
+            <Route path="/downloads/device" element={<DeviceLibraryPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/settings/reader" element={<ReaderSettingsPage />} />
             <Route path="/settings/appearance" element={<AppearanceSettingsPage />} />

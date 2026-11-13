@@ -11330,3 +11330,59 @@ button.manga-card-link {
   width: 7.5rem;
   right: 0.4rem;
 }
+
+/* Downloads uses the same segmented control language as Manga Detail. */
+.download-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem;
+  width: 100%;
+  max-width: 27rem;
+  margin: 0 auto 1rem;
+  padding: 0.22rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-sunken) 72%, transparent);
+}
+
+.download-tabs button {
+  min-height: 2.4rem;
+  padding: 0 0.8rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.download-tabs button::after {
+  display: none;
+}
+
+.download-tabs button:hover {
+  color: var(--text);
+}
+
+.download-tabs button.is-active {
+  color: var(--accent-contrast);
+  background: var(--accent);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.download-device-library {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 1rem;
+}
+
+@media (max-width: 760px) {
+  .download-tabs {
+    max-width: none;
+    margin: 0 0 0.9rem;
+  }
+}
+
+.chapter-bulk-icon .action-menu-chevron {
+  display: none;
+}

@@ -95,6 +95,10 @@ registerMessages('id', {
   'Download unread': 'Unduh yang belum dibaca',
   'Next chapter': 'Chapter berikutnya',
   'Delete downloads': 'Hapus unduhan',
+  'Delete server download': 'Hapus unduhan server',
+  'Delete device download': 'Hapus unduhan perangkat',
+  'Download selected': 'Unduh chapter terpilih',
+  'Delete selected downloads': 'Hapus unduhan terpilih',
   'Download server': 'Unduh ke server',
   'Download device': 'Unduh ke perangkat',
   'Select chapters': 'Pilih chapter',
@@ -815,6 +819,30 @@ function ConnectedMangaDetail({
     selectedChapters.length > 0 &&
     selectedChapters.every((chapter) => !chapter.isBookmarked);
 
+  const deleteDeviceDownloads = async (ids: readonly number[]) => {
+    const targets = ids.filter((id) => deviceRecords.has(id));
+
+    if (targets.length === 0) {
+      return;
+    }
+
+    setDeviceError(false);
+
+    try {
+      await Promise.all(
+        targets.map((id) => clientDownloads.deleteChapter(id)),
+      );
+      setDeviceRecords((current) => {
+        const next = new Set(current);
+        targets.forEach((id) => next.delete(id));
+        return next;
+      });
+    } catch {
+      setDeviceError(true);
+      throw new Error('Device download deletion failed.');
+    }
+  };
+
   const downloadChapters = (
     ids: readonly number[],
     targets: { readonly server: boolean; readonly device: boolean } = downloadTargets,
@@ -1392,30 +1420,60 @@ function ConnectedMangaDetail({
                     <MangaBookmarkIcon filled />
                   </button>
                 ) : null}
-                <button
-                  className="chapter-bulk-icon"
-                  type="button"
-                  disabled={chapterBulkBusy}
-                  aria-label={t('Download')}
-                  title={t('Download')}
-                  onClick={() => downloadChapters([...selectedChapterIds])}
+                <ActionMenu
+                  label={<IconDownload />}
+                  ariaLabel={t('Download selected')}
+                  summaryClassName="chapter-bulk-icon"
                 >
-                  <IconDownload />
-                </button>
-                <button
-                  className="chapter-bulk-icon is-danger"
-                  type="button"
-                  disabled={chapterBulkBusy}
-                  aria-label={t('Delete downloads')}
-                  title={t('Delete downloads')}
-                  onClick={() =>
-                    void runChapterBulkAction((ids) =>
-                      controller.deleteChapterDownloads(ids),
-                    )
-                  }
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void runChapterBulkAction(async (ids) => {
+                        downloadChapters(ids, {
+                          server: true,
+                          device: false,
+                        });
+                      })
+                    }
+                  >
+                    {t('Download server')}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!isOfflineStorageSupported()}
+                    onClick={() =>
+                      void runChapterBulkAction((ids) => downloadToDevice(ids))
+                    }
+                  >
+                    {t('Download device')}
+                  </button>
+                </ActionMenu>
+                <ActionMenu
+                  label={<ChapterTrashIcon />}
+                  ariaLabel={t('Delete selected downloads')}
+                  summaryClassName="chapter-bulk-icon is-danger"
                 >
-                  <ChapterTrashIcon />
-                </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        controller.deleteChapterDownloads(ids),
+                      )
+                    }
+                  >
+                    {t('Delete server download')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void runChapterBulkAction((ids) =>
+                        deleteDeviceDownloads(ids),
+                      )
+                    }
+                  >
+                    {t('Delete device download')}
+                  </button>
+                </ActionMenu>
               </div>
               <button
                 className="chapter-bulk-cancel"

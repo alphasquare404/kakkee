@@ -8,12 +8,13 @@ import {
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { IconChevron } from '../library/icons';
 
 registerMessages('id', {
   'Offline reader': 'Reader offline',
   'Offline downloads': 'Unduhan offline',
   'Chapter not stored on this device.': 'Chapter tidak tersimpan di perangkat ini.',
-  'Back to offline downloads': 'Kembali ke unduhan offline',
+  'Back to device library': 'Kembali ke pustaka perangkat',
   'Loading…': 'Memuat…',
   Previous: 'Sebelumnya',
   Next: 'Berikutnya',
@@ -92,7 +93,7 @@ export function OfflineReaderPage() {
     return (
       <div className="app-shell page-shell">
         <div className="library-state" role="alert">
-          <BackButton to="/offline" label={t('Back to offline downloads')} />
+          <BackButton to="/downloads/device" label={t('Back to device library')} />
           <h1>{t('Chapter not stored on this device.')}</h1>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function OfflineReaderPage() {
   return (
     <div className="offline-reader">
       <header className="reader-header">
-        <BackButton to="/offline" label={t('Offline downloads')} />
+        <BackButton to="/downloads/device" label={t('Back to device library')} />
         <div className="reader-title">
           <p>{chapter.mangaTitle}</p>
           <h1>{chapter.chapterName}</h1>
@@ -111,20 +112,24 @@ export function OfflineReaderPage() {
         <nav className="reader-chapter-nav">
           {previous ? (
             <button
-              className="reader-quick-action"
+              className="reader-icon-button"
               type="button"
+              aria-label={t('Previous')}
+              title={t('Previous')}
               onClick={() => navigate(`/offline/read/${previous.chapterId}`)}
             >
-              {t('Previous')}
+              <IconChevron className="reader-icon-prev" />
             </button>
           ) : null}
           {next ? (
             <button
-              className="reader-quick-action"
+              className="reader-icon-button"
               type="button"
+              aria-label={t('Next')}
+              title={t('Next')}
               onClick={() => navigate(`/offline/read/${next.chapterId}`)}
             >
-              {t('Next')}
+              <IconChevron className="reader-icon-next" />
             </button>
           ) : null}
         </nav>

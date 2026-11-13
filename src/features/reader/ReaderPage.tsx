@@ -26,6 +26,7 @@ import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { IconChevron, IconList } from '../library/icons';
+import { createOfflineStorage, isOfflineStorageSupported } from '../../core/offline/offlineStorage';
 
 registerMessages('id', {
   Manga: 'Manga',
@@ -113,10 +114,73 @@ export function ReaderPage() {
   }
 
   return (
-    <ConnectedReader
+    <DeviceAwareReader
       context={state.context}
       mangaId={manga}
       chapterId={chapter}
+    />
+  );
+}
+
+function DeviceAwareReader({
+  context,
+  mangaId,
+  chapterId,
+}: {
+  readonly context: ConnectedContext;
+  readonly mangaId: number;
+  readonly chapterId: number;
+}) {
+  const storage = useMemo(() => createOfflineStorage(), []);
+  const [hasDeviceCopy, setHasDeviceCopy] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!isOfflineStorageSupported()) {
+      setHasDeviceCopy(false);
+      return;
+    }
+
+    let active = true;
+
+    void storage
+      .list(context.config.serverBaseUrl)
+      .then((records) => {
+        if (active) {
+          setHasDeviceCopy(
+            records.some((record) => record.chapterId === chapterId),
+          );
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setHasDeviceCopy(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [chapterId, context.config.serverBaseUrl, storage]);
+
+  if (hasDeviceCopy === null) {
+    return (
+      <div className="app-shell reader-shell">
+        <p className="reader-status" role="status">
+          Loading chapter…
+        </p>
+      </div>
+    );
+  }
+
+  if (hasDeviceCopy) {
+    return <Navigate to={`/offline/read/${chapterId}`} replace />;
+  }
+
+  return (
+    <ConnectedReader
+      context={context}
+      mangaId={mangaId}
+      chapterId={chapterId}
     />
   );
 }
