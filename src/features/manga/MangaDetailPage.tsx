@@ -445,7 +445,7 @@ function ConnectedMangaDetail({
     // them before showing the empty chapter list.
     autoFetchedChapters.current.add(manga.id);
     setRefreshError(false);
-    void controller.refresh().catch(() => setRefreshError(true));
+    void controller.refresh().catch(() => undefined);
   }, [
     controller,
     detail.chapters.length,
