@@ -270,10 +270,10 @@ describe('ReaderPage', () => {
     expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
     expect(await screen.findByRole('img', { name: 'Page 1' })).toBeTruthy();
     expect(screen.getByRole('img', { name: 'Page 2' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: /Next: Chapter 11/ }).getAttribute('href')).toBe(
+    expect(screen.getByRole('link', { name: 'Next chapter' }).getAttribute('href')).toBe(
       '/manga/1/chapter/11',
     );
-    expect(screen.getByRole('link', { name: /Previous: Chapter 9/ }).getAttribute('href')).toBe(
+    expect(screen.getByRole('link', { name: 'Previous chapter' }).getAttribute('href')).toBe(
       '/manga/1/chapter/9',
     );
     expect(loadImageResource).toHaveBeenCalledWith(
@@ -358,9 +358,22 @@ describe('ReaderPage', () => {
     renderReader(false, 2);
 
     expect(await screen.findByText('2 / 2')).toBeTruthy();
-    await waitFor(() =>
-      expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
-    );
+    expect(await screen.findByRole('img', { name: 'Page 2' })).toBeTruthy();
+  });
+
+  it('opens the page picker and jumps to a thumbnail', async () => {
+    renderReader();
+
+    await screen.findByRole('heading', { name: 'Chapter 10' });
+    await screen.findByRole('img', { name: 'Page 1' });
+    fireEvent.click(screen.getByRole('button', { name: 'Pages' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Page picker' });
+    expect(within(dialog).getByRole('button', { name: 'Page 1' })).toBeTruthy();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Page 2' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Page picker' })).toBeNull();
+    expect(await screen.findByText('2 / 2')).toBeTruthy();
   });
 
   it('keeps horizontal keyboard navigation on the current chapter', async () => {
@@ -388,26 +401,23 @@ describe('ReaderPage', () => {
     updateReaderSettings({ mode: 'double' });
     renderReader();
 
-    expect(await screen.findByText('Page 1-2 of 2')).toBeTruthy();
-    expect(screen.getAllByRole('img', { name: /Page/ })).toHaveLength(2);
+    expect(await screen.findAllByRole('img', { name: /Page/ })).toHaveLength(2);
     expect(screen.getByText('1-2 / 2')).toBeTruthy();
   });
 
-  it('renders a single-page mode with page controls', async () => {
+  it('renders a single-page mode with a page seekbar', async () => {
     updateReaderSettings({ mode: 'single' });
     renderReader();
 
-    expect(await screen.findByText('Page 1 of 2')).toBeTruthy();
-    expect(screen.getAllByRole('img', { name: /Page/ })).toHaveLength(1);
-    expect(
-      screen.getByRole('button', { name: 'Next page' }),
-    ).toBeTruthy();
+    expect(await screen.findByText('1 / 2')).toBeTruthy();
+    expect(await screen.findByRole('img', { name: 'Page 1' })).toBeTruthy();
+    expect(screen.getByRole('slider', { name: 'Page picker' })).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Reader actions'));
     expect(
       screen.getByRole('button', { name: 'Auto-scroll' }),
     ).toBeTruthy();
 
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(await screen.findByText('Page 2 of 2')).toBeTruthy();
+    expect(await screen.findByText('2 / 2')).toBeTruthy();
   });
 });

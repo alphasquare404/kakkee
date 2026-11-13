@@ -25,7 +25,7 @@ import { useImageResource } from '../../shared/useImageResource';
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
-import { IconChevron, IconList } from '../library/icons';
+import { IconChevron, IconClose, IconGrid, IconList } from '../library/icons';
 import { createOfflineStorage, isOfflineStorageSupported } from '../../core/offline/offlineStorage';
 import { setMangaReaderOverride } from '../../core/preferences/mangaReaderOverrides';
 import { MangaReaderModePicker } from '../manga/MangaReaderModePicker';
@@ -36,6 +36,9 @@ registerMessages('id', {
   Previous: 'Sebelumnya',
   Next: 'Berikutnya',
   Chapters: 'Chapter',
+  Pages: 'Halaman',
+  'Page picker': 'Pilih halaman',
+  Close: 'Tutup',
   'Download action failed': 'Aksi unduhan gagal',
   'Delete downloaded chapter': 'Hapus chapter terunduh',
   'Download chapter': 'Unduh chapter',
@@ -282,6 +285,20 @@ function ConnectedReader({
     setReaderSettingsOpen(true);
   };
 
+  const jumpToPage = (page: number) => {
+    const total = Math.max(1, displayPageCount);
+    const target = Math.min(total, Math.max(1, page));
+    setCurrentPage(target);
+
+    if (!isPaged) {
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById(`page-${target}`)
+          ?.scrollIntoView({ block: 'start' });
+      });
+    }
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const [appendedNext, setAppendedNext] = useState<{
     readonly id: number;
@@ -293,6 +310,7 @@ function ConnectedReader({
   const [autoWebtoon, setAutoWebtoon] = useState(false);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [readerSettingsOpen, setReaderSettingsOpen] = useState(false);
+  const [pagesOpen, setPagesOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
@@ -748,6 +766,11 @@ function ConnectedReader({
           return;
         }
 
+        if (pagesOpen) {
+          setPagesOpen(false);
+          return;
+        }
+
         goBack();
         return;
       }
@@ -806,6 +829,7 @@ function ConnectedReader({
   }, [
     chaptersOpen,
     readerSettingsOpen,
+    pagesOpen,
     goBack,
     isPaged,
     mangaId,
@@ -1004,6 +1028,15 @@ function ConnectedReader({
           >
             <IconList />
           </button>
+          <button
+            className="reader-icon-button"
+            type="button"
+            aria-label={t('Pages')}
+            title={t('Pages')}
+            onClick={() => setPagesOpen(true)}
+          >
+            <IconGrid />
+          </button>
           <ActionMenu
             label={<ReaderMoreIcon />}
             ariaLabel={t('Reader actions')}
@@ -1129,43 +1162,6 @@ function ConnectedReader({
           </ActionMenu>
         </nav>
 
-        {isPaged && activeChapter && reader.pages.length > 0 ? (
-          <nav className="reader-page-nav" aria-label="Page navigation">
-            <button
-              type="button"
-              disabled={spreadStart <= 1}
-              onClick={() =>
-                setCurrentPage(
-                  Math.max(1, spreadStart - (readingMode === 'double' ? 2 : 1)),
-                )
-              }
-            >
-              Previous page
-            </button>
-            <span>
-              Page {pageIndices.map((index) => index + 1).join('-')} of{' '}
-              {reader.pages.length}
-            </span>
-            <button
-              type="button"
-              disabled={
-                readingMode === 'double'
-                  ? spreadStart + 1 >= reader.pages.length
-                  : safeCurrentPage >= reader.pages.length
-              }
-              onClick={() =>
-                setCurrentPage(
-                  Math.min(
-                    reader.pages.length,
-                    spreadStart + (readingMode === 'double' ? 2 : 1),
-                  ),
-                )
-              }
-            >
-              Next page
-            </button>
-          </nav>
-        ) : null}
       </header>
 
 
@@ -1316,32 +1312,6 @@ function ConnectedReader({
         </div>
       ) : null}
 
-      {activeChapter ? (
-        <footer className="reader-footer">
-          <nav className="reader-chapter-nav" aria-label="Chapter navigation">
-            {previousChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={previousChapterState}>
-                Previous: {previousChapter.name}
-              </Link>
-            ) : (
-              <span aria-disabled="true">Previous</span>
-            )}
-            <span>
-              {displayPageCount === 1
-                ? '1 page'
-                : `${displayPageCount} pages`}
-            </span>
-            {nextChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={nextChapterState}>
-                Next: {nextChapter.name}
-              </Link>
-            ) : (
-              <span aria-disabled="true">Next</span>
-            )}
-          </nav>
-        </footer>
-      ) : null}
-
       {chaptersOpen && activeChapter ? (
         <div
           className="reader-chapter-overlay"
@@ -1358,11 +1328,13 @@ function ConnectedReader({
             <header>
               <h2>{t('Chapters')}</h2>
               <button
-                className="button button-secondary"
+                className="reader-dialog-close"
                 type="button"
+                aria-label={t('Close')}
+                title={t('Close')}
                 onClick={() => setChaptersOpen(false)}
               >
-                Close
+                <IconClose />
               </button>
             </header>
             <ol>
@@ -1399,11 +1371,13 @@ function ConnectedReader({
             <header>
               <h2>{t('Reader settings')}</h2>
               <button
-                className="button button-secondary"
+                className="reader-dialog-close"
                 type="button"
+                aria-label={t('Close')}
+                title={t('Close')}
                 onClick={() => setReaderSettingsOpen(false)}
               >
-                Close
+                <IconClose />
               </button>
             </header>
             <p className="reader-settings-note">
@@ -1414,7 +1388,92 @@ function ConnectedReader({
         </div>
       ) : null}
 
+      {activeChapter && reader.pages.length > 0 ? (
+        <div className="reader-seekbar">
+          <input
+            type="range"
+            min={1}
+            max={Math.max(1, reader.pages.length)}
+            value={Math.min(safeCurrentPage, Math.max(1, reader.pages.length))}
+            aria-label={t('Page picker')}
+            onChange={(event) => jumpToPage(Number(event.target.value))}
+          />
+          <span>
+            Page {Math.min(safeCurrentPage, reader.pages.length)} of{' '}
+            {reader.pages.length}
+          </span>
+        </div>
+      ) : null}
+
+      {pagesOpen && activeChapter ? (
+        <div
+          className="reader-chapter-overlay"
+          role="presentation"
+          onClick={() => setPagesOpen(false)}
+        >
+          <section
+            className="reader-chapter-dialog reader-pages-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('Page picker')}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <h2>{t('Pages')}</h2>
+              <button
+                className="reader-dialog-close"
+                type="button"
+                aria-label={t('Close')}
+                title={t('Close')}
+                onClick={() => setPagesOpen(false)}
+              >
+                <IconClose />
+              </button>
+            </header>
+            <div className="reader-page-thumbnails">
+              {reader.pages.map((path, index) => (
+                <button
+                  className={index + 1 === safeCurrentPage ? 'is-current' : undefined}
+                  key={path}
+                  type="button"
+                  aria-label={`Page ${index + 1}`}
+                  onClick={() => {
+                    jumpToPage(index + 1);
+                    setPagesOpen(false);
+                  }}
+                >
+                  <ReaderPageThumbnail
+                    resources={context.resources}
+                    path={path}
+                    pageNumber={index + 1}
+                  />
+                  <span>{index + 1}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
+
     </div>
+  );
+}
+
+function ReaderPageThumbnail({
+  resources,
+  path,
+  pageNumber,
+}: {
+  readonly resources: ResourceService;
+  readonly path: string;
+  readonly pageNumber: number;
+}) {
+  const image = useImageResource(resources, path);
+
+  return image.objectUrl ? (
+    <img src={image.objectUrl} alt="" loading="lazy" decoding="async" />
+  ) : (
+    <span className="reader-page-thumbnail-fallback">{pageNumber}</span>
   );
 }
 

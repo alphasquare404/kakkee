@@ -12158,3 +12158,115 @@ input[type="radio"] {
     mix-blend-mode: difference;
   }
 }
+
+.reader-title {
+  align-items: center;
+}
+
+.reader-seekbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0.75rem max(0.45rem, var(--safe-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.reader-seekbar input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: var(--accent);
+}
+
+.reader-seekbar span {
+  flex: 0 0 auto;
+  min-width: 3.5rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.reader-pages {
+  padding-bottom: 3.25rem;
+}
+
+.reader-pages-dialog {
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(100%, 42rem);
+}
+
+.reader-page-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: 0.5rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+.reader-page-thumbnails button {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.25rem;
+  color: var(--muted);
+  font-size: 0.62rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reader-page-thumbnails button:hover,
+.reader-page-thumbnails button.is-current {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.reader-page-thumbnails img,
+.reader-page-thumbnail-fallback {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  place-items: center;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--surface-sunken);
+}
+
+.reader-page-total {
+  position: static;
+  top: auto;
+  right: auto;
+  transform: none;
+  grid-row: 1 / 4;
+  align-self: center;
+  justify-self: end;
+}
+
+.reader-dialog-close {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.reader-dialog-close:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
