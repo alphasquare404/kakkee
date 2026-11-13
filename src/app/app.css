@@ -12612,3 +12612,17 @@ button.manga-card-link {
   height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 1rem);
   max-height: none;
 }
+
+/* Fill the hidden-chrome viewport exactly; no 1rem letterbox strip. */
+.reader-pages.scale-fit-height,
+.reader-pages.scale-screen {
+  padding-top: 0;
+}
+
+.reader-pages.scale-fit-height .reader-page img {
+  height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
+}
+
+.reader-pages.scale-screen .reader-page img {
+  max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
+}
