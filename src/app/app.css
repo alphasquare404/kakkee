@@ -12553,3 +12553,44 @@ button.manga-card-link {
 .reader-pages.scale-screen .reader-page img {
   max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 1rem);
 }
+
+/* Reader background must cover the whole viewport, not just the page column. */
+.reader-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.reader-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--reader-bg, #05070c);
+  content: "";
+}
+
+/* Fit height is a true height fit; wide pages overflow horizontally. */
+.reader-pages.scale-fit-height .reader-page {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.reader-pages.scale-fit-height .reader-page img {
+  max-width: none;
+}
+
+.reader-shell::before {
+  z-index: 0;
+}
+
+.reader-pages {
+  position: relative;
+  z-index: 1;
+}
+
+.reader-pages.scale-fit-height .reader-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  place-items: start center;
+}

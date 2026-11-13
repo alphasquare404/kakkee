@@ -35,6 +35,8 @@ registerMessages('id', {
     'Fit screen menyesuaikan halaman agar masuk area reader dan tinggi layar. Ini bukan fullscreen browser.',
   'In double-page mode, Fit width fills the reader width with two pages; Fit height fits each page to the available screen height.':
     'Pada mode dua halaman, Fit width memenuhi lebar reader dengan dua halaman; Fit height menyesuaikan tinggi tiap halaman dengan layar.',
+  'Fit height can make a page wider than the screen; scroll horizontally to see the full page.':
+    'Fit height dapat membuat halaman lebih lebar dari layar; geser horizontal untuk melihat seluruh halaman.',
   'Page gap': 'Jarak halaman',
   'First-page offset': 'Offset halaman pertama',
   Background: 'Latar belakang',
@@ -368,6 +370,11 @@ export function ReaderSettingsPage() {
                 <p className="settings-field-hint">
                   {t(
                     'In double-page mode, Fit width fills the reader width with two pages; Fit height fits each page to the available screen height.',
+                  )}
+                </p>
+                <p className="settings-field-hint">
+                  {t(
+                    'Fit height can make a page wider than the screen; scroll horizontally to see the full page.',
                   )}
                 </p>
                 <p className="settings-field-hint">
