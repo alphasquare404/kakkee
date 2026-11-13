@@ -935,8 +935,8 @@ function ConnectedReader({
         />
 
         <div className="reader-title">
-          <p>{activeChapter?.manga.title ?? t('Reader')}</p>
-          <h1>{displayChapter?.name ?? 'Loading chapter…'}</h1>
+          <p title={activeChapter?.manga.title}>{activeChapter?.manga.title ?? t('Reader')}</p>
+          <h1 title={displayChapter?.name}>{displayChapter?.name ?? 'Loading chapter…'}</h1>
           {displayChapter && displayPageCount > 0 ? (
             <span className="reader-page-total">{pageLabel}</span>
           ) : null}

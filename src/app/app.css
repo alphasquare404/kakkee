@@ -11162,18 +11162,31 @@ button.manga-card-link {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0 0.45rem;
   align-items: end;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .reader-title p {
   grid-column: 1 / -1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   font-size: 0.6rem;
   line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reader-title h1 {
   grid-column: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   font-size: 0.82rem;
   line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .reader-page-total {
@@ -11280,10 +11293,6 @@ button.manga-card-link {
 
   .reader-title h1 {
     font-size: 0.78rem;
-  }
-
-  .reader-title p {
-    display: none;
   }
 
   .reader-page-total {

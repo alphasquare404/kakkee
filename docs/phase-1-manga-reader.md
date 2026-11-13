@@ -153,9 +153,9 @@ Used by:
   - first 2 pages load immediately;
   - remaining pages observe intersection with `rootMargin: 1200px`;
   - images use `loading="lazy"` and are only fetched when near viewport.
-- Header is a compact 54–56px sticky bar: back icon, chapter title, page progress, then
-  icon-only Previous chapter / Next chapter / Chapter list / More controls. The manga title is
-  hidden on mobile to keep the bar one row.
+- Header is a compact 54–56px sticky bar: back icon, manga title and chapter title on two
+  truncated lines, page progress, then icon-only Previous chapter / Next chapter / Chapter list /
+  More controls. Long manga/chapter titles are ellipsized inside the fixed title box.
 - Footer repeats full chapter navigation.
 - Device download priority: device OPFS copy > server download > online. Device chapters open the offline reader.
 - Vertical/webtoon modes append the next chapter below and promote it to the active chapter while scrolling. Paged/horizontal modes keep explicit transitions.
