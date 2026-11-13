@@ -8,6 +8,7 @@ import {
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { MangaReaderModePicker } from '../manga/MangaReaderModePicker';
 
 registerMessages('id', {
   'Device library': 'Pustaka perangkat',
@@ -307,6 +308,9 @@ export function OfflineMangaDetailPage({ mangaId }: { readonly mangaId: number }
                         </ul>
                       </section>
                     ) : null}
+                  </div>
+                  <div className="manga-overview-side">
+                    <MangaReaderModePicker mangaId={mangaId} />
                   </div>
                 </div>
               ) : (
