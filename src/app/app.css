@@ -220,9 +220,18 @@ h2[tabindex="-1"]:focus {
   max-height: 3.4rem;
   object-fit: contain;
   object-position: left center;
-  padding: 0.12rem;
-  border-radius: 5px;
-  background: #fff;
+}
+
+.brand-wordmark-light {
+  display: none;
+}
+
+:root[data-theme="snow-white"] .brand-wordmark-dark {
+  display: none;
+}
+
+:root[data-theme="snow-white"] .brand-wordmark-light {
+  display: block;
 }
 
 .brand-mark {

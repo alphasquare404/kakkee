@@ -14,10 +14,17 @@ function BrandMark() {
   return (
     <span className="brand-logo">
       <img
-        className="brand-wordmark"
-        src={`${base}icons/kakkee-wordmark.png`}
+        className="brand-wordmark brand-wordmark-dark"
+        src={`${base}icons/kakkee-wordmark-white.png`}
         alt=""
-        width={1148}
+        width={1185}
+        height={360}
+      />
+      <img
+        className="brand-wordmark brand-wordmark-light"
+        src={`${base}icons/kakkee-wordmark-black.png`}
+        alt=""
+        width={1184}
         height={360}
       />
       <img
