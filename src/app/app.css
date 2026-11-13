@@ -12009,7 +12009,7 @@ input[type="radio"] {
 }
 
 .reader-page-total {
-  grid-row: 1 / span 2;
+  grid-row: 1 / -1;
   grid-column: 2;
   align-self: center;
   justify-self: end;
