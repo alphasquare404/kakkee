@@ -35,6 +35,12 @@ import {
   createOfflineStorage,
   isOfflineStorageSupported,
 } from '../../core/offline/offlineStorage';
+import {
+  configureDeviceDownloads,
+  enqueueDeviceDownloads,
+  getDeviceDownloadState,
+  subscribeDeviceDownloads,
+} from '../../core/offline/deviceDownloadQueue';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import {
@@ -371,10 +377,6 @@ function ConnectedMangaDetail({
   const [deviceRecords, setDeviceRecords] = useState<ReadonlySet<number>>(
     new Set(),
   );
-  const [deviceProgress, setDeviceProgress] = useState<{
-    readonly completed: number;
-    readonly total: number;
-  } | null>(null);
   const [deviceError, setDeviceError] = useState(false);
   const loaded = useRef<MangaDetailController | null>(null);
   const autoFetchedChapters = useRef<Set<number>>(new Set());
@@ -535,6 +537,31 @@ function ConnectedMangaDetail({
       .catch(() => setDeviceError(true));
   }, [clientDownloads, mangaId]);
 
+  const deviceQueue = useSyncExternalStore(
+    subscribeDeviceDownloads,
+    getDeviceDownloadState,
+  );
+  const completedDeviceJobs = deviceQueue.jobs.filter(
+    (job) => job.status === 'done',
+  ).length;
+
+  useEffect(() => {
+    configureDeviceDownloads(clientDownloads, context.config.serverBaseUrl);
+  }, [clientDownloads, context.config.serverBaseUrl]);
+
+  useEffect(() => {
+    if (completedDeviceJobs === 0) {
+      return;
+    }
+
+    void clientDownloads
+      .list()
+      .then((records) =>
+        setDeviceRecords(new Set(records.map((record) => record.chapterId))),
+      )
+      .catch(() => setDeviceError(true));
+  }, [clientDownloads, completedDeviceJobs]);
+
   const downloadRefreshTimer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -569,37 +596,25 @@ function ConnectedMangaDetail({
   }, [context.graphQL, controller]);
 
   const downloadToDevice = async (chapterIds: readonly number[]) => {
-    if (deviceProgress) {
+    const pending = chapterIds.filter((id) => !deviceRecords.has(id));
+
+    if (pending.length === 0) {
       return;
     }
 
-    setDeviceError(false);
-    const pending = chapterIds.filter((id) => !deviceRecords.has(id));
-
-    for (let index = 0; index < pending.length; index += 1) {
-      const chapterId = pending[index];
-      setPendingChapterId(chapterId);
-
-      try {
-        await clientDownloads.downloadChapter(chapterId, (progress) =>
-          setDeviceProgress({
-            completed: progress.completedPages,
-            total: progress.totalPages,
-          }),
-        );
-        setDeviceRecords((current) => {
-          const next = new Set(current);
-          next.add(chapterId);
-          return next;
-        });
-      } catch {
-        setDeviceError(true);
-        break;
-      } finally {
-        setDeviceProgress(null);
-        setPendingChapterId(null);
-      }
-    }
+    const chapters = new Map(detail.chapters.map((chapter) => [chapter.id, chapter]));
+    enqueueDeviceDownloads(
+      pending.map((chapterId) => {
+        const chapter = chapters.get(chapterId);
+        return {
+          chapterId,
+          mangaId: detail.manga?.id,
+          mangaTitle: detail.manga?.title,
+          chapterName: chapter?.name,
+          pageCount: chapter?.pageCount,
+        };
+      }),
+    );
   };
 
   useEffect(() => {
@@ -1411,12 +1426,6 @@ function ConnectedMangaDetail({
             </label>
           ) : null}
 
-          {deviceProgress ? (
-            <p className="settings-save-state" role="status">
-              {t('Saving to device…')} {deviceProgress.completed}/
-              {deviceProgress.total}
-            </p>
-          ) : null}
           {deviceError ? (
             <p className="settings-inline-error" role="alert">
               {t('Device download failed.')}

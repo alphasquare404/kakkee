@@ -156,58 +156,16 @@ function DeviceLibraryContent({
       ) : null}
 
       {manga.length > 0 ? (
-        <>
-          <div className="manga-grid">
-            {manga.map((item) => (
-              <DeviceMangaCard
-                key={item.id}
-                manga={item}
-                origin={origin}
-                offline={!context}
-              />
-            ))}
-          </div>
-
-          <section
-            className="device-library-chapters"
-            aria-labelledby="device-library-chapters-heading"
-          >
-            <div className="section-heading-row">
-              <h2 id="device-library-chapters-heading">
-                {t('Downloaded chapters')}
-              </h2>
-              <span>{records.length}</span>
-            </div>
-            {manga.map((item) => (
-              <div className="device-library-manga" key={item.id}>
-                <h3>{item.title}</h3>
-                <div className="feed-list">
-                  {item.chapters.map((chapter) => (
-                    <Link
-                      className="reading-row device-library-chapter"
-                      key={chapter.chapterId}
-                      to={`/offline/read/${chapter.chapterId}`}
-                      aria-label={`${chapter.mangaTitle}, ${chapter.chapterName}`}
-                    >
-                      <span className="reading-row-main">
-                        <strong className="reading-row-title">
-                          {chapter.chapterName}
-                        </strong>
-                        <span className="reading-row-meta">
-                          {chapter.pageCount === 1
-                            ? '1 page'
-                            : `${chapter.pageCount} pages`}
-                          {' · '}
-                          {t('Read offline')}
-                        </span>
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
-        </>
+        <div className="manga-grid">
+          {manga.map((item) => (
+            <DeviceMangaCard
+              key={item.id}
+              manga={item}
+              origin={origin}
+              offline={!context}
+            />
+          ))}
+        </div>
       ) : null}
     </div>
   );

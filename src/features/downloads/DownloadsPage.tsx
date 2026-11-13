@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
@@ -26,6 +26,16 @@ import {
   isOfflineStorageSupported,
   type OfflineChapterRecord,
 } from '../../core/offline/offlineStorage';
+import {
+  clearFinishedDeviceDownloads,
+  configureDeviceDownloads,
+  enqueueDeviceDownloads,
+  getDeviceDownloadState,
+  removeDeviceDownload,
+  retryDeviceDownload,
+  subscribeDeviceDownloads,
+  type DeviceDownloadJob,
+} from '../../core/offline/deviceDownloadQueue';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
@@ -63,6 +73,8 @@ registerMessages('id', {
   'The download queue could not be loaded from your server.':
     'Antrean unduhan tidak dapat dimuat dari server Anda.',
   Retry: 'Coba lagi',
+  Failed: 'Gagal',
+  Saved: 'Tersimpan',
   Queue: 'Antrean',
   'The download queue is empty.': 'Antrean unduhan kosong.',
   'Browse library': 'Jelajahi perpustakaan',
@@ -76,9 +88,7 @@ registerMessages('id', {
     'Tidak ada chapter terunduh di server ini.',
   '{count} pages': '{count} halaman',
   Queued: 'Dalam antrean',
-  Downloading: 'Mengunduh',
   Finished: 'Selesai',
-  Failed: 'Gagal',
   Cancel: 'Batalkan',
   Delete: 'Hapus',
   'try {count}': 'percobaan {count}',
@@ -238,12 +248,22 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   );
   const [deviceBusyId, setDeviceBusyId] = useState<number | null>(null);
   const [deviceError, setDeviceError] = useState(false);
+  const deviceQueue = useSyncExternalStore(
+    subscribeDeviceDownloads,
+    getDeviceDownloadState,
+  );
+  const completedDeviceJobs = deviceQueue.jobs.filter(
+    (job) => job.status === 'done',
+  ).length;
+  const activeDeviceJobs = deviceQueue.jobs.filter(
+    (job) => job.status === 'queued' || job.status === 'downloading',
+  ).length;
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<'server' | 'device'>(
     searchParams.get('tab') === 'device' ? 'device' : 'server',
   );
 
-  const loadDeviceRecords = () => {
+  const loadDeviceRecords = useCallback(() => {
     if (!isOfflineStorageSupported()) {
       setDeviceLoading(false);
       return;
@@ -256,26 +276,21 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
       .then(setDeviceRecords)
       .catch(() => setDeviceError(true))
       .finally(() => setDeviceLoading(false));
-  };
+  }, [clientDownloads]);
 
-  useEffect(loadDeviceRecords, [clientDownloads]);
+  useEffect(loadDeviceRecords, [loadDeviceRecords]);
 
-  const saveChapterToDevice = async (chapterId: number) => {
-    setDeviceBusyId(chapterId);
-    setDeviceError(false);
+  useEffect(() => {
+    configureDeviceDownloads(clientDownloads, context.config.serverBaseUrl);
+  }, [clientDownloads, context.config.serverBaseUrl]);
 
-    try {
-      const record = await clientDownloads.downloadChapter(chapterId);
-      setDeviceRecords((current) => [
-        record,
-        ...current.filter((item) => item.chapterId !== chapterId),
-      ]);
-    } catch {
-      setDeviceError(true);
-    } finally {
-      setDeviceBusyId(null);
+  useEffect(() => {
+    if (completedDeviceJobs === 0) {
+      return;
     }
-  };
+
+    loadDeviceRecords();
+  }, [completedDeviceJobs, loadDeviceRecords]);
 
   const removeDeviceRecord = async (chapterId: number) => {
     setDeviceBusyId(chapterId);
@@ -339,6 +354,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           onClick={() => setTab('device')}
         >
           {t('Device')}
+          {activeDeviceJobs > 0 ? ` (${activeDeviceJobs})` : ''}
         </button>
       </div>
 
@@ -489,10 +505,24 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                     chapter={chapter}
                     resources={context.resources}
                     origin={origin}
-                    deviceBusy={deviceBusyId === chapter.id}
+                    deviceBusy={deviceQueue.jobs.some(
+                      (job) =>
+                        job.chapterId === chapter.id &&
+                        (job.status === 'queued' || job.status === 'downloading'),
+                    )}
                     canDownloadToDevice={supportedDeviceStorage}
                     disabled={downloads.isActing}
-                    onDownloadToDevice={() => void saveChapterToDevice(chapter.id)}
+                    onDownloadToDevice={() =>
+                      enqueueDeviceDownloads([
+                        {
+                          chapterId: chapter.id,
+                          mangaId: chapter.manga.id,
+                          mangaTitle: chapter.manga.title,
+                          chapterName: chapter.name,
+                          pageCount: chapter.pageCount,
+                        },
+                      ])
+                    }
                     onDelete={() =>
                       void controller.deleteDownloaded(chapter.id).then(() => {
                         void feedController.load();
@@ -543,12 +573,38 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           <section className="download-section" aria-labelledby="device-queue-heading">
             <div className="section-heading-row">
               <h2 id="device-queue-heading">{t('Queue')}</h2>
-              <span>0</span>
+              <div className="download-queue-heading">
+                <span>{deviceQueue.jobs.length}</span>
+                {deviceQueue.jobs.some(
+                  (job) => job.status === 'done' || job.status === 'error',
+                ) ? (
+                  <button
+                    className="library-action"
+                    type="button"
+                    onClick={clearFinishedDeviceDownloads}
+                  >
+                    {t('Clear finished')}
+                  </button>
+                ) : null}
+              </div>
             </div>
-            <div className="download-empty">
-              <p>{t('No device queue')}</p>
-              <p>{t('Device downloads start from a downloaded server chapter.')}</p>
-            </div>
+            {deviceQueue.jobs.length === 0 ? (
+              <div className="download-empty">
+                <p>{t('No device queue')}</p>
+                <p>{t('Device downloads start from a downloaded server chapter.')}</p>
+              </div>
+            ) : (
+              <div className="download-list">
+                {deviceQueue.jobs.map((job) => (
+                  <DeviceQueueRow
+                    job={job}
+                    key={job.chapterId}
+                    onRemove={() => removeDeviceDownload(job.chapterId)}
+                    onRetry={() => retryDeviceDownload(job.chapterId)}
+                  />
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="download-section" aria-labelledby="device-downloads-heading">
@@ -695,6 +751,86 @@ function ServerDownloadedRow({
   );
 }
 
+function DeviceQueueRow({
+  job,
+  onRemove,
+  onRetry,
+}: {
+  readonly job: DeviceDownloadJob;
+  readonly onRemove: () => void;
+  readonly onRetry: () => void;
+}) {
+  const { t } = useI18n();
+  const progress =
+    job.total > 0
+      ? Math.max(0, Math.min(100, Math.round((job.completed / job.total) * 100)))
+      : 0;
+  const stateLabel =
+    job.status === 'queued'
+      ? t('Queued')
+      : job.status === 'downloading'
+        ? t('Downloading')
+        : job.status === 'done'
+          ? t('Downloaded')
+          : t('Failed');
+  const title = job.mangaTitle ?? 'Manga';
+  const chapter = job.chapterName ?? `Chapter ${job.chapterId}`;
+
+  return (
+    <div className="download-row">
+      <span className="feed-art" aria-hidden="true">
+        {job.record?.coverDataUrl ? (
+          <img src={job.record.coverDataUrl} alt="" decoding="async" />
+        ) : (
+          <span>{title.trim().charAt(0).toUpperCase() || '·'}</span>
+        )}
+      </span>
+      <div className="download-copy">
+        <div className="download-title-row">
+          <span className="download-title">{title}</span>
+          <span className={`download-state is-${job.status}`}>{stateLabel}</span>
+        </div>
+        <span className="download-chapter">{chapter}</span>
+        <div
+          className="download-progress"
+          role="progressbar"
+          aria-label={`${chapter} download progress`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+        >
+          <span style={{ width: `${progress}%` }} />
+        </div>
+        <span className="download-meta">
+          {job.completed}/{job.total || job.pageCount || 0} · {stateLabel}
+          {job.error ? ` · ${job.error}` : ''}
+        </span>
+      </div>
+      {job.status === 'error' ? (
+        <button
+          className="download-icon-action"
+          type="button"
+          aria-label={t('Retry')}
+          title={t('Retry')}
+          onClick={onRetry}
+        >
+          <IconSync />
+        </button>
+      ) : (
+        <button
+          className="download-icon-action is-danger"
+          type="button"
+          aria-label={t('Remove from queue')}
+          title={t('Remove from queue')}
+          onClick={onRemove}
+        >
+          <IconClose />
+        </button>
+      )}
+    </div>
+  );
+}
+
 function DeviceDownloadedRow({
   record,
   busy,
@@ -718,7 +854,11 @@ function DeviceDownloadedRow({
         aria-label={`${record.mangaTitle}, ${record.chapterName}`}
       >
         <span className="reading-row-art" aria-hidden="true">
-          <span>{record.mangaTitle.trim().charAt(0).toUpperCase() || '·'}</span>
+          {record.coverDataUrl ? (
+            <img src={record.coverDataUrl} alt="" loading="lazy" decoding="async" />
+          ) : (
+            <span>{record.mangaTitle.trim().charAt(0).toUpperCase() || '·'}</span>
+          )}
         </span>
         <span className="reading-row-main">
           <strong className="reading-row-title">{record.mangaTitle}</strong>

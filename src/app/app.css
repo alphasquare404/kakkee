@@ -12400,3 +12400,18 @@ input[type="radio"] {
   grid-column: 1 / -1;
   justify-content: space-between;
 }
+
+.download-queue-heading {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.download-state.is-queued {
+  color: var(--muted);
+}
+
+.download-state.is-done {
+  color: var(--success, #2f9e6f);
+  border-color: color-mix(in srgb, var(--success, #2f9e6f) 30%, var(--border));
+}
