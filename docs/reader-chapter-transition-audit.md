@@ -1,7 +1,7 @@
 # Reader chapter transition audit
 
 Tanggal: 13 November 2026  
-Status: **audit only; belum ada perubahan perilaku Reader**  
+Status: **audit selesai; core transition fixes implemented**  
 Baseline pembanding: Suwayomi-WebUI `v20260929.01` (commit `41443eab`)
 
 ## Scope dan metode
@@ -255,6 +255,32 @@ antar scanlator tanpa sadar.
    chapter jump; pertahankan resume hanya untuk kembali ke chapter yang sama.
 6. **P1 — tambahkan gap/scanlator warning** dan transition page.
 7. **P2 — deteksi wide spread** untuk double mode.
+
+## Status perbaikan yang diterapkan
+
+- Auto-append halaman chapter berikutnya dihapus. Transisi chapter sekarang
+  eksplisit lewat Previous/Next, chapter list, keyboard Shift, atau auto-advance,
+  sehingga URL, judul, chapter list, page indicator, dan progress tidak berbeda
+  dari chapter yang sedang dibaca.
+- Horizontal ArrowLeft/ArrowRight menggerakkan halaman, bukan chapter.
+- Tap zone dan swipe sekarang mengikuti `direction` LTR/RTL.
+- Page indicator double page memakai rentang spread (`3-4`) dan dinormalkan
+  ke awal spread; boundary spread terakhir diperbaiki.
+- Previous chapter memakai resume END; next chapter memakai START untuk direct
+  chapter jump. Resume `lastPageRead` tetap dipakai untuk membuka chapter biasa.
+- Progress chapter lama di-flush saat chapter aktif berubah, bukan hanya saat
+  Reader unmount.
+- Previous/Next sekarang diturunkan dari visible chapter list; duplikat
+  chapterNumber mempertahankan chapter yang sedang dibaca.
+- Page indicator vertical dipaksa ke halaman terakhir saat scroll mencapai
+  dasar dokumen.
+
+Residual yang belum dikerjakan pada patch ini:
+
+- warning gap/scanlator sebelum transisi;
+- transition page antar chapter;
+- deteksi wide-spread image pada double mode;
+- perubahan skema route dari chapter ID ke `chapterSourceOrder`.
 
 ## Kesimpulan
 

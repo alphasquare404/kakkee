@@ -153,12 +153,13 @@ function ConnectedReader({
   const [searchParams] = useSearchParams();
   const loadedChapter = useRef<number | null>(null);
   const preloadedNext = useRef<number | null>(null);
-  const loadingExtraChapter = useRef(false);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const swipeHandled = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const origin = getNavigationOrigin(location.state);
+  const resumeMode =
+    (location.state as { resume?: 'start' | 'end' } | null)?.resume ?? null;
   const fromManga = Boolean(
     (location.state as { fromManga?: unknown } | null)?.fromManga,
   );
@@ -174,6 +175,14 @@ function ConnectedReader({
       ...(fromManga ? { fromManga: true } : {}),
     }),
     [fromManga, origin],
+  );
+  const previousChapterState = useMemo(
+    () => ({ ...readerState, resume: 'end' as const }),
+    [readerState],
+  );
+  const nextChapterState = useMemo(
+    () => ({ ...readerState, resume: 'start' as const }),
+    [readerState],
   );
   const originCrumb = origin?.trail.at(-1);
   const backTarget =
@@ -195,15 +204,12 @@ function ConnectedReader({
   const [currentPage, setCurrentPage] = useState(1);
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [autoWebtoon, setAutoWebtoon] = useState(false);
-  const [appended, setAppended] = useState<
-    readonly { id: number; name: string; pages: readonly string[] }[]
-  >([]);
   const [chaptersOpen, setChaptersOpen] = useState(false);
   const [downloadBusy, setDownloadBusy] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [nextDownloadQueued, setNextDownloadQueued] = useState(false);
   const [pageColors, setPageColors] = useState<Record<number, string>>({});
-  const progressRef = useRef({ chapterId: 0, page: 1, total: 0 });
+  const chapterProgressRef = useRef({ chapterId: 0, page: 1, total: 0 });
   const syncedChapter = useRef(0);
   const deletedAfterReading = useRef(0);
 
@@ -212,7 +218,6 @@ function ConnectedReader({
       loadedChapter.current = chapterId;
       setCurrentPage(1);
       setAutoWebtoon(false);
-      setAppended([]);
       preloadedNext.current = null;
       setNextDownloadQueued(false);
       void controller.load(chapterId);
@@ -248,13 +253,23 @@ function ConnectedReader({
     Math.max(1, currentPage),
     Math.max(1, reader.pages.length),
   );
-  const pageIndices = isPaged
-    ? readingMode === 'single'
-      ? [safeCurrentPage - 1]
-      : readerSettings.direction === 'rtl'
-        ? [safeCurrentPage, safeCurrentPage - 1]
-        : [safeCurrentPage - 1, safeCurrentPage]
-    : reader.pages.map((_, index) => index);
+  const spreadStart =
+    readingMode === 'double'
+      ? Math.max(1, safeCurrentPage - ((safeCurrentPage - 1) % 2))
+      : safeCurrentPage;
+  const pageIndices = (
+    isPaged
+      ? readingMode === 'single'
+        ? [spreadStart - 1]
+        : readerSettings.direction === 'rtl'
+          ? [spreadStart, spreadStart - 1]
+          : [spreadStart - 1, spreadStart]
+      : reader.pages.map((_, index) => index)
+  ).filter((index) => index >= 0 && index < reader.pages.length);
+  const pageLabel =
+    readingMode === 'double'
+      ? `${pageIndices.map((index) => index + 1).join('-')} / ${reader.pages.length}`
+      : `${safeCurrentPage} / ${reader.pages.length}`;
   const noopVisible = useCallback(() => undefined, []);
 
   useEffect(() => {
@@ -286,106 +301,41 @@ function ConnectedReader({
     safeCurrentPage,
   ]);
 
-  useEffect(() => {
-    const next = reader.nextChapter;
+  const visibleChapters = readerSettings.skipDuplicates
+    ? (() => {
+        const currentNumber = activeChapter?.chapterNumber;
+        const seen = new Set<number>();
 
-    if (
-      readerSettings.autoAdvance ||
-      !next ||
-      appended.length > 0 ||
-      reader.pages.length === 0 ||
-      safeCurrentPage < reader.pages.length
-    ) {
-      return;
-    }
-
-    let active = true;
-    void controller.preload(next.id).then((pages) => {
-      if (active && pages.length > 0) {
-        setAppended([{ id: next.id, name: next.name, pages }]);
-      }
-    });
-
-    return () => {
-      active = false;
-    };
-  }, [
-    appended.length,
-    controller,
-    reader.nextChapter,
-    reader.pages.length,
-    readerSettings.autoAdvance,
-    safeCurrentPage,
-  ]);
-
-  useEffect(() => {
-    if (appended.length === 0) {
-      return;
-    }
-
-    const appendNext = () => {
-      if (loadingExtraChapter.current) {
-        return;
-      }
-
-      const nearBottom =
-        window.innerHeight + window.scrollY >=
-        document.documentElement.scrollHeight - 700;
-
-      if (!nearBottom) {
-        return;
-      }
-
-      const last = appended[appended.length - 1];
-
-      if (!last) {
-        return;
-      }
-
-      const index = reader.chapters.findIndex((item) => item.id === last.id);
-      const next = index >= 0 ? reader.chapters[index + 1] : undefined;
-
-      if (!next || appended.some((item) => item.id === next.id)) {
-        return;
-      }
-
-      loadingExtraChapter.current = true;
-      void controller
-        .preload(next.id)
-        .then((pages) => {
-          if (pages.length > 0) {
-            setAppended((current) =>
-              current.some((item) => item.id === next.id)
-                ? current
-                : [...current, { id: next.id, name: next.name, pages }],
-            );
+        return reader.chapters.filter((item) => {
+          if (seen.has(item.chapterNumber)) {
+            return false;
           }
-        })
-        .finally(() => {
-          loadingExtraChapter.current = false;
+
+          // Keep the chapter the user is actually reading when duplicate
+          // chapter numbers exist, even if another scanlator appears first.
+          if (
+            currentNumber !== undefined &&
+            item.chapterNumber === currentNumber &&
+            item.id !== chapterId
+          ) {
+            return false;
+          }
+
+          seen.add(item.chapterNumber);
+          return true;
         });
-    };
-
-    window.addEventListener('scroll', appendNext, { passive: true });
-
-    return () => window.removeEventListener('scroll', appendNext);
-  }, [appended, controller, reader.chapters]);
-  const uniqueChapters = readerSettings.skipDuplicates
-    ? [
-        ...new Map(
-          reader.chapters.map((chapter) => [chapter.chapterNumber, chapter]),
-        ).values(),
-      ]
-    : null;
-  const currentChapterIndex =
-    uniqueChapters?.findIndex((chapter) => chapter.id === chapterId) ?? -1;
+      })()
+    : reader.chapters;
+  const currentChapterIndex = visibleChapters.findIndex(
+    (item) => item.id === chapterId,
+  );
   const previousChapter =
-    uniqueChapters && currentChapterIndex >= 0
-      ? uniqueChapters[currentChapterIndex + 1] ?? null
+    currentChapterIndex >= 0
+      ? visibleChapters[currentChapterIndex + 1] ?? null
       : reader.previousChapter;
   const nextChapter =
-    uniqueChapters && currentChapterIndex >= 0
-      ? uniqueChapters[currentChapterIndex - 1] ?? null
+    currentChapterIndex >= 0
+      ? visibleChapters[currentChapterIndex - 1] ?? null
       : reader.nextChapter;
 
   useEffect(() => {
@@ -420,7 +370,7 @@ function ConnectedReader({
     }
 
     const timer = window.setTimeout(() => {
-      navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: readerState });
+      navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: nextChapterState });
     }, 1_200);
 
     return () => window.clearTimeout(timer);
@@ -431,7 +381,7 @@ function ConnectedReader({
     navigate,
     nextChapter,
     reader.pages.length,
-    readerState,
+    nextChapterState,
     readerSettings.autoAdvance,
   ]);
 
@@ -497,15 +447,43 @@ function ConnectedReader({
       .catch(() => undefined);
   };
 
-  progressRef.current = {
-    chapterId: activeChapter?.id ?? 0,
-    page: currentPage,
-    total: reader.pages.length,
-  };
   const activeChapterId = activeChapter?.id ?? 0;
 
   useEffect(() => {
+    chapterProgressRef.current = {
+      chapterId: activeChapterId,
+      page: currentPage,
+      total: reader.pages.length,
+    };
+  }, [activeChapterId, currentPage, reader.pages.length]);
+
+  useEffect(() => {
+    const chapterAtMount = activeChapterId;
+
+    return () => {
+      const progress = chapterProgressRef.current;
+
+      if (
+        chapterAtMount <= 0 ||
+        progress.chapterId !== chapterAtMount ||
+        progress.total <= 0
+      ) {
+        return;
+      }
+
+      void controller
+        .saveProgress(
+          chapterAtMount,
+          progress.page - 1,
+          progress.page >= progress.total,
+        )
+        .catch(() => undefined);
+    };
+  }, [activeChapterId, controller]);
+
+  useEffect(() => {
     if (
+      resumeMode ||
       !activeChapterId ||
       reader.pages.length === 0 ||
       requestedPage <= 1 ||
@@ -522,7 +500,23 @@ function ConnectedReader({
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [activeChapterId, reader.pages.length, requestedPage]);
+  }, [activeChapterId, reader.pages.length, requestedPage, resumeMode]);
+
+  useEffect(() => {
+    if (!resumeMode || !activeChapterId || reader.pages.length === 0) {
+      return;
+    }
+
+    const targetPage = resumeMode === 'end' ? reader.pages.length : 1;
+    setCurrentPage(targetPage);
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(`page-${targetPage}`)
+        ?.scrollIntoView({ block: resumeMode === 'end' ? 'end' : 'start' });
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [activeChapterId, reader.pages.length, resumeMode]);
 
   useEffect(() => {
     if (!activeChapterId || reader.pages.length === 0) {
@@ -559,26 +553,19 @@ function ConnectedReader({
     trackingSync,
   ]);
 
-  useEffect(
-    () => () => {
-      const progress = progressRef.current;
+  const handlePageVisible = useCallback(
+    (pageNumber: number) => {
+      const atBottom =
+        readingMode !== 'horizontal' &&
+        window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 2;
 
-      if (progress.chapterId > 0 && progress.total > 0) {
-        void controller
-          .saveProgress(
-            progress.chapterId,
-            progress.page - 1,
-            progress.page >= progress.total,
-          )
-          .catch(() => undefined);
-      }
+      setCurrentPage(
+        atBottom ? Math.max(1, reader.pages.length) : pageNumber,
+      );
     },
-    [controller],
+    [reader.pages.length, readingMode],
   );
-
-  const handlePageVisible = useCallback((pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -622,12 +609,27 @@ function ConnectedReader({
         return;
       }
 
+      if (readingMode === 'horizontal' && !event.shiftKey) {
+        const nextPage = Math.min(
+          Math.max(1, safeCurrentPage + (isNext ? 1 : -1)),
+          Math.max(1, reader.pages.length),
+        );
+
+        setCurrentPage(nextPage);
+        window.requestAnimationFrame(() => {
+          document
+            .getElementById(`page-${nextPage}`)
+            ?.scrollIntoView({ inline: 'center', block: 'nearest' });
+        });
+        return;
+      }
+
       if (isPrevious && previousChapter) {
-        navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`, { state: readerState });
+        navigate(`/manga/${mangaId}/chapter/${previousChapter.id}`, { state: previousChapterState });
       }
 
       if (isNext && nextChapter) {
-        navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: readerState });
+        navigate(`/manga/${mangaId}/chapter/${nextChapter.id}`, { state: nextChapterState });
       }
     };
 
@@ -642,13 +644,15 @@ function ConnectedReader({
     mangaState,
     navigate,
     nextChapter,
-    readerState,
+    nextChapterState,
+    previousChapterState,
     reader.pages.length,
     readerSettings.backKey,
     readerSettings.pageNextKey,
     readerSettings.pagePrevKey,
     previousChapter,
     readingMode,
+    safeCurrentPage,
   ]);
 
   useEffect(() => {
@@ -683,17 +687,17 @@ function ConnectedReader({
 
     const rect = event.currentTarget.getBoundingClientRect();
     const offset = event.clientX - rect.left;
+    const step = readingMode === 'double' ? 2 : 1;
+    const isLeft = offset < rect.width / 3;
+    const isRight = offset > (rect.width * 2) / 3;
+    const goBack = readerSettings.direction === 'rtl' ? isRight : isLeft;
+    const goForward = readerSettings.direction === 'rtl' ? isLeft : isRight;
 
-    if (offset < rect.width / 3) {
+    if (goBack) {
+      setCurrentPage((page) => Math.max(1, page - step));
+    } else if (goForward) {
       setCurrentPage((page) =>
-        Math.max(1, page - (readingMode === 'double' ? 2 : 1)),
-      );
-    } else if (offset > (rect.width * 2) / 3) {
-      setCurrentPage((page) =>
-        Math.min(
-          Math.max(1, reader.pages.length),
-          page + (readingMode === 'double' ? 2 : 1),
-        ),
+        Math.min(Math.max(1, reader.pages.length), page + step),
       );
     }
   };
@@ -724,10 +728,12 @@ function ConnectedReader({
 
     swipeHandled.current = true;
     const step = readingMode === 'double' ? 2 : 1;
+    const goForward =
+      readerSettings.direction === 'rtl' ? deltaX > 0 : deltaX < 0;
     setCurrentPage((page) =>
       Math.min(
         Math.max(1, reader.pages.length),
-        Math.max(1, page + (deltaX < 0 ? step : -step)),
+        Math.max(1, page + (goForward ? step : -step)),
       ),
     );
   };
@@ -765,7 +771,7 @@ function ConnectedReader({
           <h1>{activeChapter?.name ?? 'Loading chapter…'}</h1>
           {activeChapter && reader.pages.length > 0 ? (
             <span className="reader-page-total">
-              {safeCurrentPage} / {reader.pages.length}
+              {pageLabel}
             </span>
           ) : null}
         </div>
@@ -775,7 +781,7 @@ function ConnectedReader({
             <Link
               className="reader-icon-button"
               to={`/manga/${mangaId}/chapter/${previousChapter.id}`}
-              state={readerState}
+              state={previousChapterState}
               aria-label={t('Previous chapter')}
               title={t('Previous chapter')}
             >
@@ -795,7 +801,7 @@ function ConnectedReader({
             <Link
               className="reader-icon-button"
               to={`/manga/${mangaId}/chapter/${nextChapter.id}`}
-              state={readerState}
+              state={nextChapterState}
               aria-label={t('Next chapter')}
               title={t('Next chapter')}
             >
@@ -950,29 +956,31 @@ function ConnectedReader({
           <nav className="reader-page-nav" aria-label="Page navigation">
             <button
               type="button"
-              disabled={safeCurrentPage <= 1}
+              disabled={spreadStart <= 1}
               onClick={() =>
                 setCurrentPage(
-                  Math.max(1, safeCurrentPage - (readingMode === 'double' ? 2 : 1)),
+                  Math.max(1, spreadStart - (readingMode === 'double' ? 2 : 1)),
                 )
               }
             >
               Previous page
             </button>
             <span>
-              Page {safeCurrentPage} of {reader.pages.length}
+              Page {pageIndices.map((index) => index + 1).join('-')} of{' '}
+              {reader.pages.length}
             </span>
             <button
               type="button"
               disabled={
-                safeCurrentPage >=
-                reader.pages.length - (readingMode === 'double' ? 1 : 0)
+                readingMode === 'double'
+                  ? spreadStart + 1 >= reader.pages.length
+                  : safeCurrentPage >= reader.pages.length
               }
               onClick={() =>
                 setCurrentPage(
                   Math.min(
                     reader.pages.length,
-                    safeCurrentPage + (readingMode === 'double' ? 2 : 1),
+                    spreadStart + (readingMode === 'double' ? 2 : 1),
                   ),
                 )
               }
@@ -1107,28 +1115,6 @@ function ConnectedReader({
               />
             ) : null;
           })}
-          {appended.map((extra) => (
-            <section className="reader-appended" key={extra.id}>
-              <div className="reader-appended-heading">
-                <p>{t('Next chapter')}</p>
-                <h2>{extra.name}</h2>
-                <Link to={`/manga/${mangaId}/chapter/${extra.id}`} state={readerState}>
-                  Open chapter
-                </Link>
-              </div>
-              {extra.pages.map((path, index) => (
-                <ReaderPageImage
-                  key={path}
-                  resources={context.resources}
-                  path={path}
-                  pageNumber={extra.id * 1000 + index + 1}
-                  eager={false}
-                  filter={imageFilter}
-                  onVisible={noopVisible}
-                />
-              ))}
-            </section>
-          ))}
         </main>
       ) : null}
 
@@ -1146,7 +1132,7 @@ function ConnectedReader({
         <footer className="reader-footer">
           <nav className="reader-chapter-nav" aria-label="Chapter navigation">
             {previousChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={readerState}>
+              <Link to={`/manga/${mangaId}/chapter/${previousChapter.id}`} state={previousChapterState}>
                 Previous: {previousChapter.name}
               </Link>
             ) : (
@@ -1154,7 +1140,7 @@ function ConnectedReader({
             )}
             <span>{activeChapter.pageCount === 1 ? '1 page' : `${activeChapter.pageCount} pages`}</span>
             {nextChapter ? (
-              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={readerState}>
+              <Link to={`/manga/${mangaId}/chapter/${nextChapter.id}`} state={nextChapterState}>
                 Next: {nextChapter.name}
               </Link>
             ) : (
@@ -1188,7 +1174,7 @@ function ConnectedReader({
               </button>
             </header>
             <ol>
-              {(uniqueChapters ?? reader.chapters).map((chapter) => (
+              {visibleChapters.map((chapter) => (
                 <li key={chapter.id}>
                   <Link
                     className={chapter.id === activeChapter.id ? 'is-current' : undefined}

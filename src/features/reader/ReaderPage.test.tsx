@@ -330,6 +330,18 @@ describe('ReaderPage', () => {
     );
   });
 
+  it('keeps horizontal keyboard navigation on the current chapter', async () => {
+    updateReaderSettings({ mode: 'horizontal' });
+    renderReader();
+
+    expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+
+    await waitFor(() =>
+      expect(window.location.pathname).toBe('/manga/1/chapter/10'),
+    );
+  });
+
   it('resumes from stored progress when no page query is present', async () => {
     renderReader(false, undefined, 1);
 
@@ -337,6 +349,15 @@ describe('ReaderPage', () => {
     await waitFor(() =>
       expect(Element.prototype.scrollIntoView).toHaveBeenCalled(),
     );
+  });
+
+  it('renders double-page mode with spread page numbers', async () => {
+    updateReaderSettings({ mode: 'double' });
+    renderReader();
+
+    expect(await screen.findByText('Page 1-2 of 2')).toBeTruthy();
+    expect(screen.getAllByRole('img', { name: /Page/ })).toHaveLength(2);
+    expect(screen.getByText('1-2 / 2')).toBeTruthy();
   });
 
   it('renders a single-page mode with page controls', async () => {
