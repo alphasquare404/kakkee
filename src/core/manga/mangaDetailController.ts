@@ -25,6 +25,7 @@ export interface MangaDetailController {
   getState(): MangaDetailState;
   subscribe(listener: (state: MangaDetailState) => void): () => void;
   load(): Promise<void>;
+  refreshDownloadStates(): Promise<void>;
   loadMore(): Promise<void>;
   refresh(): Promise<void>;
   setOrder(order: MangaChapterOrder): Promise<void>;
@@ -145,6 +146,47 @@ export function createMangaDetailController(
 
   function load(): Promise<void> {
     return loadFirstPage(state.order);
+  }
+
+  async function refreshDownloadStates(): Promise<void> {
+    if (!state.manga) {
+      await load();
+      return;
+    }
+
+    const requestGeneration = generation;
+
+    try {
+      const page = await options.repository.getDetail({
+        mangaId: options.mangaId,
+        first: MANGA_CHAPTER_PAGE_SIZE,
+        order: state.order,
+      });
+
+      if (requestGeneration !== generation) {
+        return;
+      }
+
+      const downloaded = new Map(
+        page.chapters.map((chapter) => [chapter.id, chapter.isDownloaded]),
+      );
+
+      setState({
+        ...state,
+        manga: page.manga,
+        chapters: state.chapters.map((chapter) => {
+          const isDownloaded = downloaded.get(chapter.id);
+          return isDownloaded === undefined
+            ? chapter
+            : { ...chapter, isDownloaded };
+        }),
+        totalCount: page.totalCount,
+        isLoading: false,
+        error: null,
+      });
+    } catch {
+      // Keep the current chapter page; download changes are best-effort.
+    }
   }
 
   async function refresh(): Promise<void> {
@@ -354,6 +396,7 @@ export function createMangaDetailController(
       };
     },
     load,
+    refreshDownloadStates,
     loadMore,
     refresh,
     setOrder,

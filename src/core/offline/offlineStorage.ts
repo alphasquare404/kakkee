@@ -33,6 +33,11 @@ export interface OfflineStorage {
     pages: readonly Blob[],
     onProgress?: (saved: number, total: number) => void,
   ): Promise<OfflineChapterRecord>;
+  saveStream(
+    record: OfflineChapterRecord,
+    pages: AsyncIterable<Blob>,
+    onProgress?: (saved: number, total: number) => void,
+  ): Promise<OfflineChapterRecord>;
   delete(chapterId: number): Promise<void>;
   deleteServer(serverBaseUrl: string): Promise<void>;
   clear(): Promise<void>;
@@ -136,6 +141,73 @@ export function createOfflineStorage(): OfflineStorage {
     return run;
   }
 
+  async function persistPages(
+    record: OfflineChapterRecord,
+    pages: Iterable<Blob> | AsyncIterable<Blob>,
+    onProgress?: (saved: number, total: number) => void,
+  ): Promise<OfflineChapterRecord> {
+    return locked(async () => {
+      const root = await getRoot();
+      const current = await readIndex(root);
+      const name = directoryName(record.chapterId);
+
+      try {
+        await root.removeEntry(name, { recursive: true });
+      } catch (error) {
+        if (!isNotFound(error)) {
+          throw error;
+        }
+      }
+
+      const directory = await root.getDirectoryHandle(name, { create: true });
+      const pageTypes: string[] = [];
+      const expectedTotal = record.pageCount;
+      let bytes = 0;
+      let index = 0;
+
+      try {
+        for await (const page of pages) {
+          const handle = await directory.getFileHandle(`page-${index}`, {
+            create: true,
+          });
+          const writable = await handle.createWritable();
+          await writable.write(await page.arrayBuffer());
+          await writable.close();
+          pageTypes.push(page.type);
+          bytes += page.size;
+          index += 1;
+          onProgress?.(index, expectedTotal > 0 ? expectedTotal : index);
+        }
+
+        const total = pageTypes.length;
+        const stored: OfflineChapterRecord = {
+          ...record,
+          pageCount: total,
+          bytes,
+          savedAt: Date.now(),
+        };
+
+        await writeJson(directory, MANIFEST_FILE, {
+          record: stored,
+          pageTypes,
+        } satisfies StoredManifest);
+
+        await writeIndex(
+          root,
+          uniqueRecords([
+            ...current.filter((entry) => entry.chapterId !== stored.chapterId),
+            stored,
+          ]),
+        );
+
+        return stored;
+      } catch (error) {
+        await root.removeEntry(name, { recursive: true }).catch(() => undefined);
+        throw error;
+      }
+    });
+  }
+
   return {
     isSupported: isOfflineStorageSupported,
 
@@ -191,63 +263,11 @@ export function createOfflineStorage(): OfflineStorage {
     },
 
     async save(record, pages, onProgress) {
-      return locked(async () => {
-        const root = await getRoot();
-        const current = await readIndex(root);
-        const name = directoryName(record.chapterId);
+      return persistPages(record, pages, onProgress);
+    },
 
-        try {
-          await root.removeEntry(name, { recursive: true });
-        } catch (error) {
-          if (!isNotFound(error)) {
-            throw error;
-          }
-        }
-
-        const directory = await root.getDirectoryHandle(name, { create: true });
-        const pageTypes: string[] = [];
-        let bytes = 0;
-
-        try {
-          for (let index = 0; index < pages.length; index += 1) {
-            const page = pages[index];
-            const handle = await directory.getFileHandle(`page-${index}`, {
-              create: true,
-            });
-            const writable = await handle.createWritable();
-            await writable.write(await page.arrayBuffer());
-            await writable.close();
-            pageTypes.push(page.type);
-            bytes += page.size;
-            onProgress?.(index + 1, pages.length);
-          }
-
-          const stored: OfflineChapterRecord = {
-            ...record,
-            pageCount: pages.length,
-            bytes,
-            savedAt: Date.now(),
-          };
-
-          await writeJson(directory, MANIFEST_FILE, {
-            record: stored,
-            pageTypes,
-          } satisfies StoredManifest);
-
-          await writeIndex(
-            root,
-            uniqueRecords([
-              ...current.filter((entry) => entry.chapterId !== stored.chapterId),
-              stored,
-            ]),
-          );
-
-          return stored;
-        } catch (error) {
-          await root.removeEntry(name, { recursive: true }).catch(() => undefined);
-          throw error;
-        }
-      });
+    async saveStream(record, pages, onProgress) {
+      return persistPages(record, pages, onProgress);
     },
 
     async delete(chapterId) {

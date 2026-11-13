@@ -96,6 +96,26 @@ describe('createMangaDetailController', () => {
     expect(getDetail).toHaveBeenCalledTimes(2);
   });
 
+  it('refreshes download flags without clearing the loaded chapter page', async () => {
+    const { controller, getDetail } = setup();
+    getDetail
+      .mockResolvedValueOnce(page([chapter(2), chapter(1)]))
+      .mockResolvedValueOnce(
+        page([{ ...chapter(2), isDownloaded: true }]),
+      );
+
+    await controller.load();
+    await controller.refreshDownloadStates();
+
+    expect(controller.getState().chapters.map((item) => item.id)).toEqual([2, 1]);
+    expect(
+      controller.getState().chapters.find((item) => item.id === 2)?.isDownloaded,
+    ).toBe(true);
+    expect(
+      controller.getState().chapters.find((item) => item.id === 1)?.isDownloaded,
+    ).toBe(false);
+  });
+
   it('loads and appends chapter pages without duplicates', async () => {
     const { controller, getDetail } = setup();
     getDetail.mockResolvedValueOnce(page([chapter(2)])).mockResolvedValueOnce(

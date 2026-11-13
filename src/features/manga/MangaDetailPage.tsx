@@ -552,7 +552,7 @@ function ConnectedMangaDetail({
 
           downloadRefreshTimer.current = window.setTimeout(() => {
             downloadRefreshTimer.current = null;
-            void controller.load();
+            void controller.refreshDownloadStates();
           }, 700);
         },
         error: () => undefined,

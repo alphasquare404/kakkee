@@ -45,7 +45,6 @@ export function createClientDownloadRepository(
         throw new Error('Chapter tidak memiliki halaman untuk diunduh.');
       }
 
-      const pages: Blob[] = [];
       let coverDataUrl: string | undefined;
 
       if (chapter.manga.thumbnailUrl) {
@@ -73,17 +72,19 @@ export function createClientDownloadRepository(
         }
       }
 
-      for (const path of paths) {
-        const resource = await options.resources.loadImageResource(path);
+      async function* pageBlobs() {
+        for (const path of paths) {
+          const resource = await options.resources.loadImageResource(path);
 
-        try {
-          pages.push(resource.blob);
-        } finally {
-          resource.dispose();
+          try {
+            yield resource.blob;
+          } finally {
+            resource.dispose();
+          }
         }
       }
 
-      return options.storage.save(
+      return options.storage.saveStream(
         {
           chapterId: chapter.id,
           mangaId: chapter.manga.id,
@@ -96,7 +97,7 @@ export function createClientDownloadRepository(
           serverBaseUrl: options.serverBaseUrl,
           ...(coverDataUrl ? { coverDataUrl } : {}),
         },
-        pages,
+        pageBlobs(),
         (completedPages, totalPages) =>
           onProgress?.({ chapterId, completedPages, totalPages }),
       );

@@ -20,17 +20,37 @@ function createStorage() {
       return stored;
     },
   );
+  const saveStream = vi.fn(
+    async (
+      record: OfflineChapterRecord,
+      pages: AsyncIterable<Blob>,
+      onProgress?: (saved: number, total: number) => void,
+    ) => {
+      let count = 0;
+
+      for await (const page of pages) {
+        void page;
+        count += 1;
+      }
+
+      onProgress?.(count, count);
+      const stored = { ...record, pageCount: count, savedAt: 1 };
+      records.push(stored);
+      return stored;
+    },
+  );
   const storage: OfflineStorage = {
     isSupported: () => true,
     list: async () => records,
     get: async () => null as OfflineChapter | null,
     save,
+    saveStream,
     delete: vi.fn(async () => undefined),
     deleteServer: vi.fn(async () => undefined),
     clear: vi.fn(async () => undefined),
   };
 
-  return { storage, save, records };
+  return { storage, save, saveStream, records };
 }
 
 function reader(): ReaderRepository {
@@ -81,7 +101,7 @@ function resources(): ResourceService {
 
 describe('client download repository', () => {
   it('fetches every page and stores a chapter record', async () => {
-    const { storage, save } = createStorage();
+    const { storage, saveStream } = createStorage();
     const repository = createClientDownloadRepository({
       reader: reader(),
       resources: resources(),
@@ -98,7 +118,7 @@ describe('client download repository', () => {
     expect(record.chapterName).toBe('Chapter 1');
     expect(record.pageCount).toBe(2);
     expect(record.serverBaseUrl).toBe('https://server.example');
-    expect(save.mock.calls[0][1]).toHaveLength(2);
+    expect(saveStream).toHaveBeenCalled();
     expect(progress).toEqual([2]);
   });
 });
