@@ -11472,9 +11472,9 @@ button.manga-card-link {
   width: 1.8rem;
   height: 1.8rem;
   place-items: center;
-  color: var(--accent);
+  color: var(--accent-contrast);
   border-radius: 6px;
-  background: var(--accent-soft);
+  background: var(--accent);
 }
 
 .settings-directory-copy {
@@ -11993,4 +11993,8 @@ input[type="radio"] {
   .manga-overview-grid {
     gap: 1rem;
   }
+}
+
+.settings-directory-link .settings-directory-icon {
+  color: var(--accent-contrast);
 }
