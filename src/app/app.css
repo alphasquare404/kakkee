@@ -11998,3 +11998,12 @@ input[type="radio"] {
 .settings-directory-link .settings-directory-icon {
   color: var(--accent-contrast);
 }
+
+/* History/feed card hover covers the whole card, including trailing menu. */
+.feed-row-shell:hover {
+  background: var(--surface-sunken);
+}
+
+.feed-row-shell:hover .feed-row {
+  background: transparent;
+}
