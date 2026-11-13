@@ -227,8 +227,6 @@ function ConnectedReader({
   const fromManga = Boolean(
     (location.state as { fromManga?: unknown } | null)?.fromManga,
   );
-  const canGoBack =
-    ((window.history.state as { idx?: number } | null)?.idx ?? 0) > 0;
   const mangaState = useMemo(
     () => (origin ? { origin } : undefined),
     [origin],
@@ -256,15 +254,12 @@ function ConnectedReader({
     : originCrumb
       ? originLabel(originCrumb, t)
       : t('Manga');
-  const historyBack = canGoBack && (fromManga || Boolean(origin));
   const goBack = useCallback(() => {
-    if (historyBack) {
-      navigate(-1);
-      return;
-    }
-
-    navigate(backTarget, { state: fromManga ? mangaState : undefined });
-  }, [backTarget, fromManga, historyBack, mangaState, navigate]);
+    navigate(backTarget, {
+      replace: true,
+      state: fromManga ? mangaState : undefined,
+    });
+  }, [backTarget, fromManga, mangaState, navigate]);
   const [currentPage, setCurrentPage] = useState(1);
   const [appendedNext, setAppendedNext] = useState<{
     readonly id: number;
@@ -927,10 +922,8 @@ function ConnectedReader({
           label={backLabel}
           state={fromManga ? mangaState : undefined}
           onClick={(event) => {
-            if (historyBack) {
-              event.preventDefault();
-              goBack();
-            }
+            event.preventDefault();
+            goBack();
           }}
         />
 
@@ -1200,10 +1193,8 @@ function ConnectedReader({
               label={t('Back')}
               state={fromManga ? mangaState : undefined}
               onClick={(event) => {
-                if (historyBack) {
-                  event.preventDefault();
-                  goBack();
-                }
+                event.preventDefault();
+                goBack();
               }}
             />
           </div>

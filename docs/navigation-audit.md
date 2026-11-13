@@ -47,9 +47,9 @@ Rules:
   back to Library. No false origin is created.
 - **New tab/direct URL**: no state, no invented origin.
 - **Reader**: Manga-origin chapters pass `fromManga: true` plus the Manga origin;
-  Reader Back uses history Back to return to the existing Manga entry. Reader
-  opened directly from History/Updates/Downloads shows the actual origin label
-  and returns there. Direct Reader falls back to Manga.
+  Reader Back navigates directly to the Manga detail entry, never to a previous
+  reader chapter entry. Reader opened directly from History/Updates/Downloads
+  returns to that origin. Direct Reader falls back to Manga.
 
 ## Provenance matrix (runtime, final code)
 

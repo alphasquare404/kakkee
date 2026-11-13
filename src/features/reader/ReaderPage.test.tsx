@@ -231,6 +231,19 @@ describe('ReaderPage', () => {
       '/manga/1',
     );
   });
+  it('returns to the entry page instead of the previous chapter history', async () => {
+    window.history.pushState({}, '', '/manga/1/chapter/9');
+    window.history.pushState({}, '', '/manga/1/chapter/10');
+    renderReader(false, undefined, 0, {
+      fromManga: true,
+    });
+
+    expect(await screen.findByRole('heading', { name: 'Chapter 10' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('link', { name: 'Manga' }));
+
+    await waitFor(() => expect(window.location.pathname).toBe('/manga/1'));
+  });
+
   it('renders chapter pages and chapter navigation', async () => {
     const { loadImageResource } = renderReader();
 
