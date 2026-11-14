@@ -28,11 +28,11 @@
 
 ## About
 
-Kakkee is a React frontend for a self-hosted Suwayomi library. It is not a fork of Suwayomi-WebUI and does not modify Suwayomi Server: it reads the library, chapters, sources, downloads, and reading progress through the server API.
+Kakkee reads the library, chapters, sources, downloads, and reading progress through the Suwayomi API.
 
 - **Desktop, tablet, and mobile** layouts with a floating mobile navigation.
 - **Cinematic dark, pure black, and snow white** themes with a configurable accent.
-- **SFW/NSFW visibility** with a dedicated mode switch and source-based labels.
+- **SFW/NSFW Mode** with a dedicated mode switch and source-based labels.
 - **Ghost mode** for reading without writing new history.
 - **Server and device downloads**, including an offline reader backed by OPFS.
 - **Installable PWA** with an update prompt.
@@ -40,6 +40,10 @@ Kakkee is a React frontend for a self-hosted Suwayomi library. It is not a fork 
 ## Screenshots
 
 All screenshots use fictional demo content served by the local fixture server; no personal library data is included.
+
+### iPhone mockup
+
+<img src="docs/screenshots/iphone-mockup.png" alt="Kakkee on iPhone with safe-area aware layouts">
 
 ### Three themes
 
