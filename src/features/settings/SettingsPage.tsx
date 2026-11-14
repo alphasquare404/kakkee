@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { PageHeader } from '../../shared/PageHeader';
@@ -44,6 +45,7 @@ registerMessages('id', {
   'About & updates': 'Tentang & update',
   'Version, WebUI channel, and updates': 'Versi, channel WebUI, dan update',
   'Settings directory': 'Daftar pengaturan',
+  'Settings sections': 'Bagian pengaturan',
 });
 
 const DIRECTORY = [
@@ -142,6 +144,7 @@ export function SettingsPage() {
 
 function SettingsContent() {
   const { t } = useI18n();
+  const [activeGroup, setActiveGroup] = useState<string>(DIRECTORY[0].group);
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -151,35 +154,58 @@ function SettingsContent() {
       />
 
       <div className="settings-content">
-        <section
-          className="settings-section settings-directory"
-        >
-          {DIRECTORY.map((group) => (
-            <div className="settings-directory-group" key={group.group}>
-              <h3>{t(group.group)}</h3>
-              <div className="settings-directory-grid">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
+        <section className="settings-section settings-directory">
+          <nav
+            className="category-tabs settings-tabs"
+            aria-label={t('Settings sections')}
+          >
+            {DIRECTORY.map((group) => (
+              <button
+                className="category-tab"
+                type="button"
+                aria-pressed={activeGroup === group.group}
+                key={group.group}
+                onClick={() => setActiveGroup(group.group)}
+              >
+                {t(group.group)}
+              </button>
+            ))}
+          </nav>
 
-                  return (
-                    <Link
-                      className="settings-directory-link"
-                      key={item.to}
-                      to={item.to}
-                    >
-                      <span className="settings-directory-icon" aria-hidden="true">
-                        <Icon />
-                      </span>
-                      <span className="settings-directory-copy">
-                        <strong>{t(item.title)}</strong>
-                        <span>{t(item.description)}</span>
-                      </span>
-                    </Link>
-                  );
-                })}
+          {DIRECTORY.map((group) => {
+            const selected = activeGroup === group.group;
+
+            return (
+              <div
+                className="settings-directory-group"
+                hidden={!selected}
+                key={group.group}
+              >
+                <h3>{t(group.group)}</h3>
+                <div className="settings-directory-grid">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        className="settings-directory-link"
+                        key={item.to}
+                        to={item.to}
+                      >
+                        <span className="settings-directory-icon" aria-hidden="true">
+                          <Icon />
+                        </span>
+                        <span className="settings-directory-copy">
+                          <strong>{t(item.title)}</strong>
+                          <span>{t(item.description)}</span>
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
       </div>
     </div>

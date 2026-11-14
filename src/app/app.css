@@ -5995,6 +5995,14 @@ button.manga-card-link {
   gap: var(--sp-4);
 }
 
+.settings-tabs {
+  display: flex;
+}
+
+.settings-directory-grid {
+  grid-template-columns: 1fr;
+}
+
 .settings-directory-group {
   display: grid;
   gap: var(--sp-2);
@@ -12777,4 +12785,37 @@ button.manga-card-link {
 .settings-shell input[type='checkbox']:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+@media (min-width: 761px) {
+  .settings-directory-group h3 {
+    display: none;
+  }
+}
+
+/* List view wins over density and responsive grid column rules. */
+.library-shell .manga-grid.is-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+}
+
+
+.settings-directory-group[hidden] {
+  display: none;
+}
+
+/* Small screens keep the vertical card directory; tabs are desktop-only. */
+@media (max-width: 760px) {
+  .settings-tabs {
+    display: none;
+  }
+
+  .settings-directory-group[hidden] {
+    display: grid;
+  }
+}
+
+/* Desktop settings directory is a tabbed vertical list, not a grid. */
+.settings-shell .settings-directory-grid {
+  grid-template-columns: minmax(0, 1fr);
 }
