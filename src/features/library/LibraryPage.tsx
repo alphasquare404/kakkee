@@ -83,8 +83,10 @@ import { LibrarySyncButton } from './LibrarySyncButton';
 import {
   hiddenNsfwCountForCategory,
   toggleMangaNsfw,
+  updateNsfwPreferences,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
+import { LabeledMangaCategoriesDocument } from '../../core/graphql/generated/graphql';
 import {
   IconClose,
   IconFilter,
@@ -570,6 +572,57 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       ),
     },
   }));
+  const missingNsfwCategories = nsfw.mangaIds.filter(
+    (mangaId) => !(mangaId in nsfw.categoryIdsByManga),
+  );
+
+  useEffect(() => {
+    if (!nsfw.hideNsfw || missingNsfwCategories.length === 0) {
+      return;
+    }
+
+    let active = true;
+
+    void context.graphQL
+      .query({
+        query: LabeledMangaCategoriesDocument,
+        variables: { ids: missingNsfwCategories },
+        fetchPolicy: 'network-only',
+      })
+      .then((result) => {
+        if (!active) {
+          return;
+        }
+
+        const categoryIdsByManga = { ...nsfw.categoryIdsByManga };
+        const nodes = result.data?.mangas?.nodes ?? [];
+
+        for (const node of nodes) {
+          categoryIdsByManga[node.id] = node.categories.nodes.map(
+            (category) => category.id,
+          );
+        }
+
+        for (const mangaId of missingNsfwCategories) {
+          if (!(mangaId in categoryIdsByManga)) {
+            categoryIdsByManga[mangaId] = [];
+          }
+        }
+
+        updateNsfwPreferences({ categoryIdsByManga });
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [
+    context.graphQL,
+    missingNsfwCategories,
+    nsfw.categoryIdsByManga,
+    nsfw.hideNsfw,
+  ]);
+
   const visibleCategories = displayCategories.filter(
     (category) =>
       !hiddenCategoryIds.has(category.id) && category.mangas.totalCount !== 0,

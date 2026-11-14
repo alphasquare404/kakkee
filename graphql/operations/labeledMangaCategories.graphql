@@ -1,0 +1,12 @@
+query LabeledMangaCategories($ids: [Int!]!) {
+  mangas(filter: { id: { in: $ids } }, first: 200) {
+    nodes {
+      id
+      categories {
+        nodes {
+          id
+        }
+      }
+    }
+  }
+}
