@@ -158,7 +158,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
             items: page.items.filter((chapter) => {
               if (
                 seen.has(chapter.manga.id) ||
-                hiddenHistoryIds.has(chapter.manga.id) ||
+                (!historyPreferences.showHiddenHistory &&
+                  hiddenHistoryIds.has(chapter.manga.id)) ||
                 (historyPreferences.hideRead && chapter.isRead) ||
                 chapter.manga.categories.nodes.some((category) =>
                   hiddenCategoryIds.has(category.id),
@@ -178,6 +179,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       hiddenCategoryIds,
       hiddenHistoryIds,
       historyPreferences.hideRead,
+      historyPreferences.showHiddenHistory,
       historyRepository,
     ],
   );
@@ -257,7 +259,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       const additions = page.items.filter((chapter) => {
         if (
           seen.has(chapter.manga.id) ||
-          hiddenHistoryIds.has(chapter.manga.id) ||
+          (!historyPreferences.showHiddenHistory &&
+            hiddenHistoryIds.has(chapter.manga.id)) ||
           (historyPreferences.hideRead && chapter.isRead) ||
           chapter.manga.categories.nodes.some((category) =>
             hiddenCategoryIds.has(category.id),

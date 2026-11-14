@@ -21,7 +21,7 @@ describe('history preferences', () => {
   it('persists the hide-read preference', () => {
     updateHistoryPreferences({ hideRead: true });
 
-    expect(getHistoryPreferences()).toEqual({ hideRead: true });
+    expect(getHistoryPreferences()).toEqual({ hideRead: true, showHiddenHistory: false });
     expect(
       window.localStorage.getItem('suwayomi.history-preferences.v1'),
     ).toContain('"hideRead":true');
@@ -31,6 +31,6 @@ describe('history preferences', () => {
     updateHistoryPreferences({ hideRead: true });
     resetHistoryPreferences();
 
-    expect(getHistoryPreferences()).toEqual({ hideRead: false });
+    expect(getHistoryPreferences()).toEqual({ hideRead: false, showHiddenHistory: false });
   });
 });

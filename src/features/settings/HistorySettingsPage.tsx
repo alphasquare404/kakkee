@@ -1,5 +1,6 @@
 import { updateHistoryPreferences } from '../../core/preferences/historyPreferences';
 import { clearHiddenHistory } from '../../core/preferences/hiddenHistory';
+import { setGhostMode, useGhostMode } from '../../core/preferences/ghostMode';
 import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { PageHeader } from '../../shared/PageHeader';
@@ -10,6 +11,12 @@ import { BackButton } from '../../shared/BackButton';
 registerMessages('id', {
   'History settings': 'Pengaturan riwayat',
   'Reading history display': 'Tampilan riwayat bacaan',
+  'Show hidden history': 'Tampilkan history tersembunyi',
+  'Include entries hidden from Continue Reading':
+    'Sertakan entri yang disembunyikan dari Lanjut Membaca',
+  'Ghost mode': 'Mode ghost',
+  'Do not write new reading history while active':
+    'Jangan tulis history bacaan baru saat aktif',
   'All settings': 'Semua pengaturan',
   Display: 'Tampilan',
   'Hide read entries': 'Sembunyikan entri yang sudah dibaca',
@@ -23,6 +30,7 @@ registerMessages('id', {
 export function HistorySettingsPage() {
   const preferences = useHistoryPreferences();
   const hidden = useHiddenHistory();
+  const ghostMode = useGhostMode();
   const { t } = useI18n();
 
   return (
@@ -49,11 +57,37 @@ export function HistorySettingsPage() {
                 }
               />
             </label>
+            <label className="settings-toggle">
+              <span>{t('Show hidden history')}</span>
+              <input
+                type="checkbox"
+                checked={preferences.showHiddenHistory}
+                onChange={(event) =>
+                  updateHistoryPreferences({
+                    showHiddenHistory: event.target.checked,
+                  })
+                }
+              />
+            </label>
+            <label className="settings-toggle">
+              <span>{t('Ghost mode')}</span>
+              <input
+                type="checkbox"
+                checked={ghostMode}
+                onChange={(event) => setGhostMode(event.target.checked)}
+              />
+            </label>
           </div>
           <p className="settings-save-state">
             {t(
               'This only hides read entries in this client. The server continues to record history.',
             )}
+          </p>
+          <p className="settings-save-state">
+            {t('Include entries hidden from Continue Reading')}
+          </p>
+          <p className="settings-save-state">
+            {t('Do not write new reading history while active')}
           </p>
         </section>
 

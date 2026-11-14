@@ -1,9 +1,11 @@
 export interface HistoryPreferences {
   readonly hideRead: boolean;
+  readonly showHiddenHistory: boolean;
 }
 
 export const DEFAULT_HISTORY_PREFERENCES: HistoryPreferences = {
   hideRead: false,
+  showHiddenHistory: false,
 };
 
 const STORAGE_KEY = 'suwayomi.history-preferences.v1';
@@ -21,7 +23,10 @@ function load(): HistoryPreferences {
 
     const parsed = JSON.parse(raw) as Partial<HistoryPreferences>;
 
-    return { hideRead: parsed.hideRead === true };
+    return {
+      hideRead: parsed.hideRead === true,
+      showHiddenHistory: parsed.showHiddenHistory === true,
+    };
   } catch {
     return DEFAULT_HISTORY_PREFERENCES;
   }
@@ -57,6 +62,10 @@ export function updateHistoryPreferences(next: Partial<HistoryPreferences>): voi
   state = {
     hideRead:
       typeof next.hideRead === 'boolean' ? next.hideRead : state.hideRead,
+    showHiddenHistory:
+      typeof next.showHiddenHistory === 'boolean'
+        ? next.showHiddenHistory
+        : state.showHiddenHistory,
   };
   persist(state);
   notify();
