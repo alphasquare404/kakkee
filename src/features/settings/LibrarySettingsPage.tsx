@@ -1,8 +1,4 @@
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
-import {
-  updateNsfwPreferences,
-  useNsfwPreferences,
-} from '../../core/preferences/nsfwPreferences';
 import { useAppPreferences } from '../../shared/useAppPreferences';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
@@ -29,16 +25,12 @@ registerMessages('id', {
   'Server-side search, status filter, categories, sort':
     'Pencarian server, filter status, kategori, urutan',
   Selection: 'Seleksi',
-  'Hide NSFW content': 'Sembunyikan konten NSFW',
-  'Hide manga labeled NSFW everywhere in the frontend':
-    'Sembunyikan manga berlabel NSFW di seluruh frontend',
   'Selection mode with shift-click range selection':
     'Mode seleksi dengan rentang shift-klik',
 });
 
 export function LibrarySettingsPage() {
   const preferences = useAppPreferences();
-  const nsfw = useNsfwPreferences();
   const { t } = useI18n();
 
   return (
@@ -81,27 +73,6 @@ export function LibrarySettingsPage() {
               </button>
             ))}
           </div>
-        </section>
-
-        <section className="settings-section" aria-labelledby="library-content-heading">
-          <div className="section-heading-row">
-            <h2 id="library-content-heading">{t('Hide NSFW content')}</h2>
-          </div>
-          <div className="settings-toggle-list">
-            <label className="settings-toggle">
-              <span>{t('Hide NSFW content')}</span>
-              <input
-                type="checkbox"
-                checked={nsfw.hideNsfw}
-                onChange={(event) =>
-                  updateNsfwPreferences({ hideNsfw: event.target.checked })
-                }
-              />
-            </label>
-          </div>
-          <p className="settings-save-state">
-            {t('Hide manga labeled NSFW everywhere in the frontend')}
-          </p>
         </section>
 
         <section className="settings-section" aria-labelledby="library-cards-heading">

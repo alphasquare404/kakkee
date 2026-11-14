@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import {
+  updateNsfwPreferences,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import { Link } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { PageHeader } from '../../shared/PageHeader';
@@ -46,6 +50,8 @@ registerMessages('id', {
   'Version, WebUI channel, and updates': 'Versi, channel WebUI, dan update',
   'Settings directory': 'Daftar pengaturan',
   'Settings sections': 'Bagian pengaturan',
+  'Hide NSFW': 'Sembunyikan NSFW',
+  'Show NSFW': 'Tampilkan NSFW',
 });
 
 const DIRECTORY = [
@@ -142,16 +148,67 @@ export function SettingsPage() {
   return <SettingsContent />;
 }
 
+function NsfwVisibilityIcon({
+  hidden,
+}: {
+  readonly hidden: boolean;
+}) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path
+        d="M2.7 10s2.6-4.4 7.3-4.4 7.3 4.4 7.3 4.4-2.6 4.4-7.3 4.4S2.7 10 2.7 10Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.35"
+      />
+      <circle cx="10" cy="10" r="2.05" stroke="currentColor" strokeWidth="1.35" />
+      {hidden ? (
+        <path
+          d="m15.5 2.4.5 1.35 1.35.5-1.35.5-.5 1.35-.5-1.35-1.35-.5 1.35-.5.5-1.35Z"
+          fill="currentColor"
+        />
+      ) : (
+        <>
+          <path
+            d="M5.1 8.4h2.5v2.5H5.1zM8.75 7.6h2.5v2.5h-2.5zM12.4 9h2.5v2.5h-2.5z"
+            fill="currentColor"
+            opacity="0.9"
+          />
+          <path
+            d="m3.2 16.8 13.6-13.6"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeWidth="1.5"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function SettingsContent() {
   const { t } = useI18n();
   const [activeGroup, setActiveGroup] = useState<string>(DIRECTORY[0].group);
+  const nsfw = useNsfwPreferences();
 
   return (
     <div className="app-shell page-shell settings-shell">
       <PageHeader
         title={t('Settings')}
         subtitle={t('Preferences and server management')}
-      />
+      >
+        <button
+          className={`settings-nsfw-action${nsfw.hideNsfw ? ' is-active' : ''}`}
+          type="button"
+          aria-label={nsfw.hideNsfw ? t('Show NSFW') : t('Hide NSFW')}
+          title={nsfw.hideNsfw ? t('Show NSFW') : t('Hide NSFW')}
+          onClick={() =>
+            updateNsfwPreferences({ hideNsfw: !nsfw.hideNsfw })
+          }
+        >
+          <NsfwVisibilityIcon hidden={nsfw.hideNsfw} />
+        </button>
+      </PageHeader>
 
       <div className="settings-content settings-directory-content">
         <section className="settings-section settings-directory">
