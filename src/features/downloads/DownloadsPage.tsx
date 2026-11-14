@@ -539,6 +539,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                           chapterId: chapter.id,
                           mangaId: chapter.manga.id,
                           mangaTitle: chapter.manga.title,
+                          mangaThumbnailUrl: chapter.manga.thumbnailUrl,
                           chapterName: chapter.name,
                           pageCount: chapter.pageCount,
                         },
@@ -620,6 +621,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
                   <DeviceQueueRow
                     job={job}
                     key={job.chapterId}
+                    resources={context.resources}
                     onRemove={() => removeDeviceDownload(job.chapterId)}
                     onRetry={() => retryDeviceDownload(job.chapterId)}
                   />
@@ -774,14 +776,17 @@ function ServerDownloadedRow({
 
 function DeviceQueueRow({
   job,
+  resources,
   onRemove,
   onRetry,
 }: {
   readonly job: DeviceDownloadJob;
+  readonly resources: ConnectedContext['resources'];
   readonly onRemove: () => void;
   readonly onRetry: () => void;
 }) {
   const { t } = useI18n();
+  const image = useImageResource(resources, job.mangaThumbnailUrl);
   const progress =
     job.total > 0
       ? Math.max(0, Math.min(100, Math.round((job.completed / job.total) * 100)))
@@ -800,8 +805,12 @@ function DeviceQueueRow({
   return (
     <div className="download-row">
       <span className="feed-art" aria-hidden="true">
-        {job.record?.coverDataUrl ? (
-          <img src={job.record.coverDataUrl} alt="" decoding="async" />
+        {job.record?.coverDataUrl || image.objectUrl ? (
+          <img
+            src={job.record?.coverDataUrl ?? image.objectUrl ?? ''}
+            alt=""
+            decoding="async"
+          />
         ) : (
           <span>{title.trim().charAt(0).toUpperCase() || '·'}</span>
         )}

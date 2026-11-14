@@ -627,6 +627,7 @@ function ConnectedMangaDetail({
           chapterId,
           mangaId: manga?.id,
           mangaTitle: manga?.title,
+          mangaThumbnailUrl: manga?.thumbnailUrl,
           chapterName: chapter?.name,
           pageCount: chapter?.pageCount,
           metadata,

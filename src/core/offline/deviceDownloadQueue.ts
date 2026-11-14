@@ -13,6 +13,7 @@ export interface DeviceDownloadRequest {
   readonly chapterId: number;
   readonly mangaId?: number;
   readonly mangaTitle?: string;
+  readonly mangaThumbnailUrl?: string | null;
   readonly chapterName?: string;
   readonly pageCount?: number;
   readonly metadata?: OfflineMangaMetadata;
