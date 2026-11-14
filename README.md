@@ -41,6 +41,10 @@ Kakkee reads the library, chapters, sources, downloads, and reading progress thr
 
 All screenshots use fictional demo content served by the local fixture server; no personal library data is included.
 
+### iPhone captures
+
+Raw iPhone captures for every page and mode are in [`docs/screenshots/iphone/`](docs/screenshots/iphone/). They use a **440 × 956 CSS viewport at 3× (1320 × 2868)** with a 62 px top safe area and 34 px bottom safe area.
+
 ### iPhone mockup
 
 <img src="docs/screenshots/iphone-mockup.png" alt="Kakkee on iPhone with safe-area aware layouts">
