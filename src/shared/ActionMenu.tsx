@@ -17,6 +17,7 @@ export interface ActionMenuProps {
   readonly align?: 'start' | 'end';
   readonly ariaLabel?: string;
   readonly triggerRef?: RefObject<HTMLElement | null>;
+  readonly showChevron?: boolean;
 }
 
 export function ActionMenu({
@@ -27,6 +28,7 @@ export function ActionMenu({
   align = 'end',
   ariaLabel,
   triggerRef,
+  showChevron = true,
 }: ActionMenuProps) {
   const details = useRef<HTMLDetailsElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -159,9 +161,11 @@ export function ActionMenu({
         aria-label={ariaLabel ?? (typeof label === 'string' ? label : undefined)}
       >
         {label}
-        <span className="action-menu-chevron" aria-hidden="true">
-          ▾
-        </span>
+        {showChevron ? (
+          <span className="action-menu-chevron" aria-hidden="true">
+            ▾
+          </span>
+        ) : null}
       </summary>
       <div ref={panel} className="action-menu-panel" style={panelStyle}>{children}</div>
     </details>

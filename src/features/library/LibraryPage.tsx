@@ -1583,6 +1583,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             <ActionMenu
               label={<MoreVerticalIcon />}
               ariaLabel="More library actions"
+              showChevron={false}
               summaryClassName={`library-action library-more-action${
                 fuzzy || duplicatesOpen || hasAnyRefinement
                   ? ' is-active'
