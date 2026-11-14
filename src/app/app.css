@@ -12845,8 +12845,8 @@ body:has(.connection-shell) {
 
 .settings-mode-icon {
   display: block;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1rem;
+  height: 1rem;
   background-color: currentColor;
   mask-position: center;
   mask-repeat: no-repeat;
