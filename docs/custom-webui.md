@@ -58,3 +58,36 @@ The Custom interface is not updated by Suwayomi automatically. For each release:
 - `BASIC_AUTH` and `SIMPLE_LOGIN`: handled by the server/browser before the UI loads.
 
 Use HTTPS for PWA installation and service-worker behavior.
+
+## Troubleshooting: white screen
+
+A white screen after installing usually means `index.html` was copied but the asset directories were not. Missing files are often answered by the SPA fallback with `index.html` and status `200`, so the Network tab may look “successful” even though the JavaScript was never loaded.
+
+Check from a shell on the server:
+
+```bash
+cd /DATA/AppData/suwayomi-server/files/webUI
+ls -l index.html manifest.webmanifest sw.js
+ls -l assets/ icons/
+find . -maxdepth 1 -type d
+```
+
+`assets/`, `icons/`, and all files referenced by `index.html` must exist directly under `webUI`.
+
+Check the deployed asset over HTTP:
+
+```bash
+curl -I https://your-server/assets/index-*.js
+```
+
+It must return JavaScript, not `text/html`. If it returns the `index.html` body, the file is missing or the server is looking at a different `webUI` directory.
+
+Fix by extracting the archive over the directory, then restarting the server:
+
+```bash
+unzip -o kakkee-webui.zip -d /DATA/AppData/suwayomi-server/files/webUI
+chown -R 1000:1000 /DATA/AppData/suwayomi-server/files/webUI
+```
+
+Do not extract into a nested `kakkee-webui/` or `dist/` directory.
+
