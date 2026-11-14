@@ -36,6 +36,10 @@ import {
 import { updateSourcePreferences } from '../../core/preferences/sourcePreferences';
 import { resetLibraryPreferences } from '../../core/preferences/libraryPreferences';
 import { resetHistoryPreferences } from '../../core/preferences/historyPreferences';
+import {
+  resetNsfwPreferences,
+  updateNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 
 vi.mock('../../app/pwaUpdate', () => ({
   usePwaUpdate: () => ({
@@ -52,6 +56,7 @@ afterEach(() => {
   resetReaderSettings();
   resetAppPreferences();
   resetHistoryPreferences();
+  resetNsfwPreferences();
 });
 
 function resources(): ResourceService {
@@ -933,13 +938,13 @@ describe('parity pages', () => {
     });
     resetSearchPreferences();
     updateSourcePreferences({ pinned: [], showNsfw: false, language: 'all' });
+    updateNsfwPreferences({ hideNsfw: true });
     const user = userEvent.setup();
     renderPage('/browse', query);
 
     const provider = await screen.findByRole('button', {
       name: 'MangaDex, 2 language variants',
     });
-    expect(screen.getByText(/3 of 4 sources/)).toBeTruthy();
     expect(provider.getAttribute('aria-expanded')).toBe('false');
     await user.click(provider);
 
@@ -973,14 +978,8 @@ describe('parity pages', () => {
     await user.click(screen.getByRole('button', { name: /Filter search/ }));
     dialog = screen.getByRole('dialog', { name: 'Filter search' });
     await user.click(within(dialog).getByRole('button', { name: 'All languages' }));
-    await user.click(within(dialog).getByRole('checkbox', { name: 'Show NSFW sources' }));
     await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
-    expect(await screen.findByText('Nsfw Source')).toBeTruthy();
-
-    await user.click(screen.getByRole('button', { name: /Filter search/ }));
-    dialog = screen.getByRole('dialog', { name: 'Filter search' });
-    await user.click(within(dialog).getByRole('checkbox', { name: 'Show NSFW sources' }));
-    await user.click(within(dialog).getByRole('button', { name: 'Apply' }));
+    expect(screen.queryByText('Nsfw Source')).toBeNull();
 
     await user.click(screen.getByRole('button', { name: /Filter search/ }));
     dialog = screen.getByRole('dialog', { name: 'Filter search' });

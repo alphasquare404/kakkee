@@ -7,12 +7,11 @@ import {
 import type { CatalogSource } from '../../core/catalog/catalogRepository';
 import type { SearchPreferences } from '../../core/preferences/searchPreferences';
 import { updateSearchPreferences } from '../../core/preferences/searchPreferences';
-import { updateSourcePreferences } from '../../core/preferences/sourcePreferences';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
-import { useSourcePreferences } from '../../shared/useSourcePreferences';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import { groupSources, languageLabel } from '../browse/sourceDirectory';
 import { IconChevron, IconSearch } from '../library/icons';
 import {
@@ -33,11 +32,9 @@ registerMessages('id', {
   'No sources match this search.': 'Tidak ada sumber yang cocok.',
   '{selected} of {total} selected': '{selected} dari {total} dipilih',
   'No sources selected': 'Belum ada sumber dipilih',
-  'Show NSFW sources': 'Tampilkan sumber NSFW',
   'Hidden by NSFW setting': 'Disembunyikan oleh pengaturan NSFW',
   '{count} hidden by NSFW setting': '{count} disembunyikan oleh pengaturan NSFW',
   'Select at least one source to apply.': 'Pilih minimal satu sumber untuk menerapkan.',
-  'NSFW sources are excluded when hidden.': 'Sumber NSFW dikecualikan saat disembunyikan.',
   Reset: 'Reset',
   Cancel: 'Batal',
   Apply: 'Terapkan',
@@ -48,7 +45,6 @@ registerMessages('id', {
 interface Draft {
   readonly languages: readonly string[];
   readonly selected: ReadonlySet<string>;
-  readonly nsfw: boolean;
 }
 
 function initialDraft(
@@ -68,7 +64,6 @@ function initialDraft(
   return {
     languages: [...preferences.languages],
     selected,
-    nsfw: showNsfw,
   };
 }
 
@@ -85,9 +80,10 @@ export function SearchFilterDrawer({
 }) {
   const { t } = useI18n();
   const preferences = useSearchPreferences();
-  const sourcePreferences = useSourcePreferences();
+  const nsfw = useNsfwPreferences();
+  const showNsfw = !nsfw.hideNsfw;
   const [draft, setDraft] = useState<Draft>(() =>
-    initialDraft(sources, preferences, sourcePreferences.showNsfw),
+    initialDraft(sources, preferences, showNsfw),
   );
   const [sourceQuery, setSourceQuery] = useState('');
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
@@ -97,13 +93,13 @@ export function SearchFilterDrawer({
       return;
     }
 
-    const next = initialDraft(sources, preferences, sourcePreferences.showNsfw);
+    const next = initialDraft(sources, preferences, showNsfw);
     setDraft(next);
     setSourceQuery('');
     setExpanded(
       new Set(
         groupSources(
-          eligibleSearchSources(sources, next.languages, next.nsfw),
+          eligibleSearchSources(sources, next.languages, showNsfw),
         )
           .filter((group) => group.sources.length <= 8)
           .map((group) => group.key),
@@ -121,11 +117,11 @@ export function SearchFilterDrawer({
     [sources],
   );
   const activeSources = useMemo(
-    () => eligibleSearchSources(sources, draft.languages, draft.nsfw),
-    [sources, draft.languages, draft.nsfw],
+    () => eligibleSearchSources(sources, draft.languages, showNsfw),
+    [sources, draft.languages, showNsfw],
   );
   const hiddenByNsfw = sources.filter(
-    (source) => !draft.nsfw && source.contentWarning === 'NSFW',
+    (source) => !showNsfw && source.contentWarning === 'NSFW',
   ).length;
   const groups = useMemo(() => groupSources(activeSources), [activeSources]);
   const normalizedQuery = sourceQuery.trim().toLowerCase();
@@ -148,32 +144,17 @@ export function SearchFilterDrawer({
   const selectedCount = activeSources.filter((source) =>
     draft.selected.has(source.id),
   ).length;
-  const filterCount = activeSearchFilterCount(preferences, sourcePreferences.showNsfw);
+  const filterCount = activeSearchFilterCount(preferences, false);
 
   const selectLanguages = (nextLanguages: readonly string[]) => {
     const eligible = new Set(
-      eligibleSearchSources(sources, nextLanguages, draft.nsfw).map(
+      eligibleSearchSources(sources, nextLanguages, showNsfw).map(
         (source) => source.id,
       ),
     );
     setDraft((current) => ({
       ...current,
       languages: nextLanguages,
-      selected: new Set(
-        [...current.selected].filter((sourceId) => eligible.has(sourceId)),
-      ),
-    }));
-  };
-
-  const setNsfw = (nsfw: boolean) => {
-    const eligible = new Set(
-      eligibleSearchSources(sources, draft.languages, nsfw).map(
-        (source) => source.id,
-      ),
-    );
-    setDraft((current) => ({
-      ...current,
-      nsfw,
       selected: new Set(
         [...current.selected].filter((sourceId) => eligible.has(sourceId)),
       ),
@@ -219,7 +200,6 @@ export function SearchFilterDrawer({
       selected: new Set(
         eligibleSearchSources(sources, [], false).map((source) => source.id),
       ),
-      nsfw: false,
     });
     setSourceQuery('');
   };
@@ -238,7 +218,6 @@ export function SearchFilterDrawer({
       allSources: all,
       sourceIds: all ? [] : selected,
     });
-    updateSourcePreferences({ showNsfw: draft.nsfw });
     close();
   };
 
@@ -445,18 +424,6 @@ export function SearchFilterDrawer({
             </p>
           ) : null}
         </div>
-      </section>
-
-      <section className="search-filter-section search-filter-nsfw">
-        <label>
-          <input
-            type="checkbox"
-            checked={draft.nsfw}
-            onChange={(event) => setNsfw(event.target.checked)}
-          />
-          <span>{t('Show NSFW sources')}</span>
-        </label>
-        <p>{t('NSFW sources are excluded when hidden.')}</p>
       </section>
 
       <footer className="search-filter-footer">

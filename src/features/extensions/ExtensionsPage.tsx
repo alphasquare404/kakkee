@@ -10,6 +10,7 @@ import {
   type Extension,
 } from '../../core/extensions/extensionRepository';
 import { useImageResource } from '../../shared/useImageResource';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import { BackButton } from '../../shared/BackButton';
 import { FilterDrawer } from '../../shared/FilterDrawer';
 import { PageHeader } from '../../shared/PageHeader';
@@ -78,6 +79,7 @@ export function ExtensionsPage() {
 
 function ExtensionsContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const controller = useMemo(() => {
     const repository = createExtensionRepository({
       getClient: () => context.graphQL,
@@ -105,16 +107,19 @@ function ExtensionsContent({ context }: { readonly context: ConnectedContext }) 
     void controller.load();
   }, [controller]);
 
+  const visibleExtensions = nsfw.hideNsfw
+    ? extensions.items.filter((item) => item.contentWarning !== 'NSFW')
+    : extensions.items;
   const languages = [
     'all',
-    ...[...new Set(extensions.items.map((item) => item.lang))]
+    ...[...new Set(visibleExtensions.map((item) => item.lang))]
       .filter((lang) => lang !== 'all')
       .sort(),
   ];
   const items = (
     language === 'all'
-      ? extensions.items
-      : extensions.items.filter((item) => item.lang === language)
+      ? visibleExtensions
+      : visibleExtensions.filter((item) => item.lang === language)
   ).filter((item) => {
     const value = query.trim().toLowerCase();
 

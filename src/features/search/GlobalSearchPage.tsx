@@ -31,7 +31,6 @@ import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
-import { useSourcePreferences } from '../../shared/useSourcePreferences';
 import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import { languageName } from '../browse/sourceDirectory';
 import { IconClose, IconFilter, IconSearch } from '../library/icons';
@@ -81,7 +80,6 @@ registerMessages('id', {
   Sources: 'Sumber',
   'Filters': 'Filter',
   'Filter search': 'Filter pencarian',
-  'Show NSFW sources': 'Tampilkan sumber NSFW',
   'NSFW sources hidden': 'Sumber NSFW disembunyikan',
   'Loading sources…': 'Memuat sumber…',
   'Couldn’t load sources': 'Tidak dapat memuat sumber',
@@ -131,6 +129,7 @@ export function GlobalSearchPage() {
 function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const nsfw = useNsfwPreferences();
+  const showNsfw = !nsfw.hideNsfw;
   const navigate = useNavigate();
   const { pathname, search: searchString } = useAppPath();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -140,7 +139,6 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filterButton = useRef<HTMLButtonElement>(null);
   const searchPreferences = useSearchPreferences();
-  const sourcePreferences = useSourcePreferences();
   const history = useSearchHistory();
   const origin = createSectionOrigin('search', {
     pathname,
@@ -195,14 +193,14 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       selectedSearchSources(
         items,
         searchPreferences,
-        sourcePreferences.showNsfw,
+        showNsfw,
       ),
-    [items, searchPreferences, sourcePreferences.showNsfw],
+    [items, searchPreferences, showNsfw],
   );
   const selectedKey = selectedSources.map((source) => source.id).join('|');
   const activeFilterCount = activeSearchFilterCount(
     searchPreferences,
-    sourcePreferences.showNsfw,
+    showNsfw,
   );
   const sourcesReady = Boolean(sources.data) && !sources.error;
 

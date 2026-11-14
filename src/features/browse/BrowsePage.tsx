@@ -20,7 +20,6 @@ import { updateSearchPreferences } from '../../core/preferences/searchPreference
 import {
   markSourceUsed,
   togglePinnedSource,
-  updateSourcePreferences,
 } from '../../core/preferences/sourcePreferences';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -33,6 +32,7 @@ import {
   type SourceGroup,
 } from './sourceDirectory';
 import { SearchFilterDrawer } from '../search/SearchFilterDrawer';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import {
   activeSearchFilterCount,
   eligibleSearchSources,
@@ -52,8 +52,6 @@ registerMessages('id', {
   'Search manga...': 'Cari manga...',
   'Search manga': 'Cari manga',
   'All languages': 'Semua bahasa',
-  'NSFW: All': 'NSFW: Semua',
-  'NSFW: Hidden': 'NSFW: Disembunyikan',
   'Pinned sources': 'Sumber disematkan',
   'All sources': 'Semua sumber',
   '{count} sources': '{count} sumber',
@@ -340,6 +338,8 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const preferences = useSourcePreferences();
+  const nsfw = useNsfwPreferences();
+  const showNsfw = !nsfw.hideNsfw;
   const searchPreferences = useSearchPreferences();
   const [mangaQuery, setMangaQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -366,13 +366,13 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
 
   const items = sources.data?.items ?? [];
   const pinnedSet = new Set(preferences.pinned);
-  const nsfwItems = preferences.showNsfw
+  const nsfwItems = showNsfw
     ? items
     : items.filter((source) => source.contentWarning !== 'NSFW');
   const directoryItems = eligibleSearchSources(
     items,
     searchPreferences.languages,
-    preferences.showNsfw,
+    showNsfw,
   );
   const groups = groupSources(directoryItems);
   const entries = groups
@@ -394,7 +394,7 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
     .filter((source): source is CatalogSource => Boolean(source));
   const activeFilterCount = activeSearchFilterCount(
     searchPreferences,
-    preferences.showNsfw,
+    false,
   );
 
   const closeFilters = () => {
@@ -436,7 +436,6 @@ function BrowseContent({ context }: { readonly context: ConnectedContext }) {
       allSources: true,
       sourceIds: [],
     });
-    updateSourcePreferences({ showNsfw: false });
   };
 
   const submitSearch = () => {
