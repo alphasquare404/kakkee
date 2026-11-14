@@ -63,7 +63,6 @@ registerMessages('id', {
   'Manga details': 'Detail manga',
   'Page {page} of {total}': 'Halaman {page} dari {total}',
   'In progress': 'Sedang dibaca',
-  'Load more': 'Muat lebih banyak',
   'Open manga page': 'Buka halaman manga',
   Hide: 'Sembunyikan',
   'Continue reading actions': 'Aksi lanjut membaca',
@@ -356,6 +355,21 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     setContinueDragging(false);
   };
 
+  const onContinueScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (continueLoadingMore || !continueHasMore) {
+      return;
+    }
+
+    const rail = event.currentTarget;
+
+    if (
+      rail.scrollLeft + rail.clientWidth >=
+      rail.scrollWidth - 72
+    ) {
+      void loadMoreContinue();
+    }
+  };
+
   return (
     <div className="app-shell page-shell feed-shell reading-shell">
       <PageHeader
@@ -397,6 +411,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           <div
             className={`reading-continue-rail${continueDragging ? ' is-dragging' : ''}`}
             ref={continueRail}
+            onScroll={onContinueScroll}
             onPointerDown={onContinuePointerDown}
             onPointerMove={onContinuePointerMove}
             onPointerUp={endContinueDrag}
@@ -420,21 +435,6 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 onMenu={(x, y) => setContinueMenu({ entry, x, y })}
               />
             ))}
-            {continueHasMore ? (
-              <button
-                className="reading-continue-more"
-                type="button"
-                disabled={continueLoadingMore}
-                onClick={() => void loadMoreContinue()}
-              >
-                <span className="reading-continue-more-cover" aria-hidden="true">
-                  +
-                </span>
-                <span className="reading-continue-more-label">
-                  {continueLoadingMore ? t('Loading…') : t('Load more')}
-                </span>
-              </button>
-            ) : null}
           </div>
         </section>
       ) : null}
