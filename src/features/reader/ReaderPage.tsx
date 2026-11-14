@@ -25,6 +25,10 @@ import {
 import { useImageResource } from '../../shared/useImageResource';
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
+import {
+  toggleMangaNsfw,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import { registerMessages } from '../../shared/i18n';
 import { IconChevron, IconClose, IconGrid, IconList } from '../library/icons';
 import { createOfflineStorage, isOfflineStorageSupported } from '../../core/offline/offlineStorage';
@@ -93,6 +97,8 @@ export function ReaderPage() {
   const { state } = useConnection();
   const { from } = useAppPath();
   const { mangaId, chapterId } = useParams();
+  const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const manga = Number(mangaId);
   const chapter = Number(chapterId);
 
@@ -117,6 +123,29 @@ export function ReaderPage() {
     chapter <= 0
   ) {
     return <Navigate to="/library" replace />;
+  }
+
+  if (nsfw.hideNsfw && nsfw.mangaIds.includes(manga)) {
+    return (
+      <div className="app-shell page-shell">
+        <div className="library-state" role="status">
+          <h1>{t('NSFW content hidden')}</h1>
+          <p>{t('This manga is labeled NSFW. Turn off Hide NSFW content or remove its label to view it.')}</p>
+          <div className="actions">
+            <button
+              className="button"
+              type="button"
+              onClick={() => toggleMangaNsfw(manga)}
+            >
+              {t('Remove NSFW label')}
+            </button>
+            <Link className="button button-secondary" to={`/manga/${manga}`}>
+              {t('Manga details')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
