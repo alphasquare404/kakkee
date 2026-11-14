@@ -36,3 +36,5 @@ Refrence/
 # Local verification captures and fixture scripts
 visual-audit/
 fixtures/
+
+release/

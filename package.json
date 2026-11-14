@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:webui": "tsc -b && vite build --mode custom-webui",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:check": "graphql-codegen --config codegen.ts --check",
     "preview": "vite preview",

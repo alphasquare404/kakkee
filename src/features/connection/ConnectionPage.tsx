@@ -170,7 +170,13 @@ export function ConnectionPage() {
     restoreSession,
     disconnect,
   } = useConnection();
-  const [serverUrl, setServerUrl] = useState(() => getLastServerUrl());
+  const [serverUrl, setServerUrl] = useState(() => {
+    if (import.meta.env.VITE_CUSTOM_WEBUI === 'true') {
+      return window.location.origin;
+    }
+
+    return getLastServerUrl();
+  });
   const [autoConnect, setAutoConnectState] = useState(() => getAutoConnect());
   const [rememberLogin, setRememberLogin] = useState(
     () => getRememberedSession() !== null,

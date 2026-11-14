@@ -58,11 +58,14 @@ export function ConnectionProvider({
 
     attemptedAutoConnect.current = true;
 
-    if (!getAutoConnect()) {
+    const customWebUI = import.meta.env.VITE_CUSTOM_WEBUI === 'true';
+    const serverUrl = customWebUI
+      ? window.location.origin
+      : getLastServerUrl();
+
+    if (!customWebUI && !getAutoConnect()) {
       return;
     }
-
-    const serverUrl = getLastServerUrl();
 
     if (serverUrl && coordinator.getState().status === 'disconnected') {
       void coordinator.connect(serverUrl).catch(() => undefined);

@@ -19,6 +19,7 @@ function readFrontendBasePath(configured: string | undefined): string {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   const frontendBasePath = readFrontendBasePath(env.VITE_FRONTEND_BASE_PATH);
+  const customWebUI = mode === 'custom-webui';
   const suwayomiServerUrl =
     env.SUWAYOMI_SERVER_URL?.trim() || 'http://127.0.0.1:4567';
   const proxy = {
@@ -31,6 +32,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: frontendBasePath,
+    define: {
+      'import.meta.env.VITE_CUSTOM_WEBUI': JSON.stringify(
+        customWebUI ? 'true' : 'false',
+      ),
+    },
     plugins: [
       react(),
       VitePWA({
