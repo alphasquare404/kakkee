@@ -579,7 +579,24 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const effectiveNsfw = { ...nsfw, categoryIdsByManga };
 
+  const allLibraryLoaded =
+    nsfw.hideNsfw &&
+    library.categoryId === null &&
+    !library.isInitialLoading &&
+    library.items.length > 0 &&
+    library.items.length >= library.totalCount;
+  const visibleLoadedItems = allLibraryLoaded
+    ? library.items.filter(
+        (manga) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)),
+      )
+    : [];
+
   const displayCategories = categories.categories.map((category) => {
+    const loadedCount = allLibraryLoaded
+      ? visibleLoadedItems.filter((manga) =>
+          manga.categories.nodes.some((entry) => entry.id === category.id),
+        ).length
+      : null;
     const knownCount = knownCategoryCounts[category.id];
     const activeCount =
       !library.isInitialLoading && library.totalCount > 0
@@ -594,10 +611,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       ...category,
       mangas: {
         ...category.mangas,
-        totalCount: Math.max(
-          0,
-          baseCount - hiddenNsfwCountForCategory(category.id, effectiveNsfw),
-        ),
+        totalCount:
+          loadedCount ??
+          Math.max(
+            0,
+            baseCount - hiddenNsfwCountForCategory(category.id, effectiveNsfw),
+          ),
       },
     };
   });
@@ -1699,10 +1718,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               All
               <span className="category-tab-count">
-                {Math.max(
-                  0,
-                  library.totalCount -
-                    (nsfw.hideNsfw ? nsfw.mangaIds.length : 0),
+                {(allLibraryLoaded
+                  ? visibleLoadedItems.length
+                  : Math.max(
+                      0,
+                      library.totalCount -
+                        (nsfw.hideNsfw ? nsfw.mangaIds.length : 0),
+                    )
                 ).toLocaleString('en-US')}
               </span>
             </button>
