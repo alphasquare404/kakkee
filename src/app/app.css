@@ -283,9 +283,9 @@ h2[tabindex="-1"]:focus {
 .mobile-nav-item .nav-badge {
   position: absolute;
   top: 0.15rem;
-  right: 50%;
+  right: 0.35rem;
   margin-left: 0;
-  transform: translateX(0.9rem);
+  transform: none;
 }
 
 .nav-item:hover {
@@ -434,6 +434,7 @@ h2[tabindex="-1"]:focus {
   }
 
   .mobile-nav-item {
+    position: relative;
     display: grid;
     flex: 1 1 0;
     gap: 0.12rem;
