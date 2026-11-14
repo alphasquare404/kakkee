@@ -15,7 +15,7 @@
   --border-strong: rgba(255, 255, 255, 0.18);
 
   /* One restrained blue-violet accent family. */
-  --accent: #5b7cff;
+  --accent: #f3332a;
   --accent-strong: #8b5cf6;
   --accent-contrast: #ffffff;
   --accent-soft: rgba(91, 124, 255, 0.14);
@@ -3171,17 +3171,7 @@ button.manga-card-link {
 }
 
 .connection-shell::before {
-  position: fixed;
-  top: -18rem;
-  left: 50%;
-  width: min(70rem, 130vw);
-  height: 45rem;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 38% 42%, rgba(95, 116, 255, 0.2), transparent 45%),
-    radial-gradient(circle at 68% 28%, rgba(145, 82, 255, 0.14), transparent 42%);
-  filter: blur(24px);
-  transform: translateX(-50%);
+  display: none;
   content: "";
 }
 
@@ -12858,4 +12848,13 @@ button.manga-card-link {
 
 .connection-brand .brand-logo {
   width: 100%;
+}
+
+.connection-shell .app-header .connection-brand {
+  max-width: none;
+  margin: 0 0 0.75rem;
+}
+
+body:has(.connection-shell) {
+  background: var(--bg);
 }

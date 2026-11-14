@@ -7,8 +7,8 @@ import { BackButton } from '../../shared/BackButton';
 
 registerMessages('id', {
   'Cinematic dark': 'Gelap sinematik',
-  'Navy surfaces with blue-violet accent':
-    'Permukaan navy dengan aksen biru-ungu',
+  'Navy surfaces with red accent':
+    'Permukaan navy dengan aksen merah',
   'Pure black': 'Hitam pekat',
   'Snow white': 'Putih salju',
   'Clean white surfaces with dark text': 'Permukaan putih bersih dengan teks gelap',
@@ -103,7 +103,7 @@ export function AppearanceSettingsPage() {
                   className="library-action"
                   type="button"
                   onClick={() =>
-                    updateAppPreferences({ accent: '#5b7cff' })
+                    updateAppPreferences({ accent: '#f3332a' })
                   }
                 >
                   {t('Reset')}

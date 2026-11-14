@@ -30,7 +30,7 @@ describe('app preferences', () => {
       libraryDensity: 'comfortable',
       libraryView: 'grid',
       libraryBadges: true,
-      accent: '#5b7cff',
+      accent: '#f3332a',
       locale: 'en',
       downloadTarget: 'server',
     });

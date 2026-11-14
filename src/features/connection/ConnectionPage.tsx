@@ -383,11 +383,9 @@ export function ConnectionPage() {
   return (
     <div className="app-shell connection-shell">
       <header className="app-header">
-        <div className="connection-brand">
+        <h1 className="connection-brand" aria-label="Kakkee">
           <BrandMark />
-        </div>
-        <p className="eyebrow">{t('Kakkee · Library & Reader')}</p>
-        <h1>Kakkee</h1>
+        </h1>
         <p className="lede">
           {t(
             'Connect to your server and continue reading from your Library.',

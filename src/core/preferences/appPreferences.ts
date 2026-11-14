@@ -19,7 +19,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   libraryDensity: 'compact',
   libraryView: 'grid',
   libraryBadges: true,
-  accent: '#5b7cff',
+  accent: '#f3332a',
   locale: 'en',
   downloadTarget: 'server',
 };
@@ -71,7 +71,9 @@ function load(): AppPreferences {
       accent:
         typeof parsed.accent === 'string' &&
         /^#[0-9a-f]{6}$/i.test(parsed.accent)
-          ? parsed.accent
+          ? parsed.accent === '#5b7cff'
+            ? DEFAULT_APP_PREFERENCES.accent
+            : parsed.accent
           : DEFAULT_APP_PREFERENCES.accent,
       locale: parsed.locale === 'id' ? 'id' : 'en',
       downloadTarget: parsed.downloadTarget === 'device' ? 'device' : 'server',
