@@ -20,6 +20,7 @@ import {
   saveRememberedSession,
 } from '../../core/preferences/sessionPreferences';
 import { useI18n } from '../../shared/useI18n';
+import { BrandMark } from '../../shared/BrandMark';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
@@ -382,6 +383,9 @@ export function ConnectionPage() {
   return (
     <div className="app-shell connection-shell">
       <header className="app-header">
+        <div className="connection-brand">
+          <BrandMark />
+        </div>
         <p className="eyebrow">{t('Kakkee · Library & Reader')}</p>
         <h1>Kakkee</h1>
         <p className="lede">

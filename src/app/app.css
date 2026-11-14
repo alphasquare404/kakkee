@@ -12849,3 +12849,13 @@ button.manga-card-link {
   font-variant-numeric: tabular-nums;
   opacity: 0.8;
 }
+
+.connection-brand {
+  display: flex;
+  width: min(12rem, 60%);
+  margin-bottom: 0.75rem;
+}
+
+.connection-brand .brand-logo {
+  width: 100%;
+}
