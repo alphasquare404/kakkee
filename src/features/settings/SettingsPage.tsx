@@ -161,22 +161,32 @@ function SettingsContent() {
   const [activeGroup, setActiveGroup] = useState<string>(DIRECTORY[0].group);
   const nsfw = useNsfwPreferences();
   const ghostMode = useGhostMode();
-  const [ghostNotice, setGhostNotice] = useState<string | null>(null);
+  const [settingsNotice, setSettingsNotice] = useState<string | null>(null);
 
   const toggleGhostMode = () => {
     const next = !ghostMode;
     setGhostMode(next);
-    setGhostNotice(next ? 'Ghost Mode Activated' : 'Ghost Mode Deactivated');
+    setSettingsNotice(
+      next ? 'Ghost Mode Activated' : 'Ghost Mode Deactivated',
+    );
+  };
+
+  const toggleNsfwMode = () => {
+    const next = !nsfw.hideNsfw;
+    updateNsfwPreferences({ hideNsfw: next });
+    setSettingsNotice(
+      next ? 'NSFW Mode Deactivated' : 'NSFW Mode Activated',
+    );
   };
 
   useEffect(() => {
-    if (!ghostNotice) {
+    if (!settingsNotice) {
       return;
     }
 
-    const timer = window.setTimeout(() => setGhostNotice(null), 3_200);
+    const timer = window.setTimeout(() => setSettingsNotice(null), 3_200);
     return () => window.clearTimeout(timer);
-  }, [ghostNotice]);
+  }, [settingsNotice]);
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -185,14 +195,12 @@ function SettingsContent() {
         subtitle={t('Preferences and server management')}
       >
         <button
-          className={`settings-nsfw-action${nsfw.hideNsfw ? ' is-active' : ''}`}
+          className={`settings-nsfw-action${!nsfw.hideNsfw ? ' is-active' : ''}`}
           type="button"
           aria-label={nsfw.hideNsfw ? t('SFW mode') : t('NSFW mode')}
           title={nsfw.hideNsfw ? t('SFW mode') : t('NSFW mode')}
-          aria-pressed={nsfw.hideNsfw}
-          onClick={() =>
-            updateNsfwPreferences({ hideNsfw: !nsfw.hideNsfw })
-          }
+          aria-pressed={!nsfw.hideNsfw}
+          onClick={toggleNsfwMode}
         >
           <span
             className="settings-mode-icon"
@@ -219,9 +227,9 @@ function SettingsContent() {
         </button>
       </PageHeader>
 
-      {ghostNotice ? (
+      {settingsNotice ? (
         <div className="ghost-mode-notice" role="status" aria-live="polite">
-          {ghostNotice}
+          {settingsNotice}
         </div>
       ) : null}
 
