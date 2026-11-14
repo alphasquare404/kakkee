@@ -13,7 +13,10 @@ import {
 } from '../../core/preferences/nsfwPreferences';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
-import { createLoadableController } from '../../core/catalog/loadableController';
+import {
+  createLoadableController,
+  type LoadableController,
+} from '../../core/catalog/loadableController';
 import { createReadingFeedRepository } from '../../core/catalog/readingFeedRepository';
 import {
   createCatalogRepository,
@@ -73,6 +76,37 @@ const HISTORY_FEED: FeedInput = {
   order: [{ by: 'LAST_READ_AT', byType: 'DESC' }],
   first: 40,
 };
+
+type ContinueFeedData = {
+  readonly items: FeedChapter[];
+  readonly pageInfo?: {
+    readonly hasNextPage: boolean;
+    readonly endCursor: string | null;
+  };
+};
+
+interface CachedContinueController {
+  readonly key: string;
+  readonly controller: LoadableController<ContinueFeedData>;
+}
+
+const continueControllerCache = new WeakMap<object, CachedContinueController>();
+
+function getContinueController(
+  graphQL: object,
+  key: string,
+  load: () => Promise<ContinueFeedData>,
+): LoadableController<ContinueFeedData> {
+  const cached = continueControllerCache.get(graphQL);
+
+  if (cached?.key === key) {
+    return cached.controller;
+  }
+
+  const controller = createLoadableController({ load });
+  continueControllerCache.set(graphQL, { key, controller });
+  return controller;
+}
 
 function groupFeed(items: readonly FeedChapter[]) {
   const groups = new Map<string, FeedChapter[]>();
@@ -143,36 +177,58 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       }),
     [context.graphQL],
   );
+  const continueFilterKey = useMemo(() => {
+    const historyIds = [...hiddenHistoryIds].sort((a, b) => a - b).join(',');
+    const nsfwIds = [...nsfw.mangaIds].sort((a, b) => a - b).join(',');
+    const categoryIds = [...hiddenCategoryIds].sort((a, b) => a - b).join(',');
+
+    return [
+      historyPreferences.hideRead,
+      historyPreferences.showHiddenHistory,
+      nsfw.hideNsfw,
+      historyIds,
+      nsfwIds,
+      categoryIds,
+    ].join('|');
+  }, [
+    hiddenCategoryIds,
+    hiddenHistoryIds,
+    historyPreferences.hideRead,
+    historyPreferences.showHiddenHistory,
+    nsfw.hideNsfw,
+    nsfw.mangaIds,
+  ]);
+
   const continueController = useMemo(
     () =>
-      createLoadableController({
-        load: async () => {
-          const page = await historyRepository.getFeed(HISTORY_FEED);
-          const seen = new Set<number>();
+      getContinueController(context.graphQL, continueFilterKey, async () => {
+        const page = await historyRepository.getFeed(HISTORY_FEED);
+        const seen = new Set<number>();
 
-          return {
-            items: page.items.filter((chapter) => {
-              if (
-                seen.has(chapter.manga.id) ||
-                (!historyPreferences.showHiddenHistory &&
-                  hiddenHistoryIds.has(chapter.manga.id)) ||
-                (nsfw.hideNsfw && nsfw.mangaIds.includes(chapter.manga.id)) ||
-                (historyPreferences.hideRead && chapter.isRead) ||
-                chapter.manga.categories.nodes.some((category) =>
-                  hiddenCategoryIds.has(category.id),
-                )
-              ) {
-                return false;
-              }
+        return {
+          items: page.items.filter((chapter) => {
+            if (
+              seen.has(chapter.manga.id) ||
+              (!historyPreferences.showHiddenHistory &&
+                hiddenHistoryIds.has(chapter.manga.id)) ||
+              (nsfw.hideNsfw && nsfw.mangaIds.includes(chapter.manga.id)) ||
+              (historyPreferences.hideRead && chapter.isRead) ||
+              chapter.manga.categories.nodes.some((category) =>
+                hiddenCategoryIds.has(category.id),
+              )
+            ) {
+              return false;
+            }
 
-              seen.add(chapter.manga.id);
-              return true;
-            }),
-            pageInfo: page.pageInfo,
-          };
-        },
+            seen.add(chapter.manga.id);
+            return true;
+          }),
+          pageInfo: page.pageInfo,
+        };
       }),
     [
+      context.graphQL,
+      continueFilterKey,
       hiddenCategoryIds,
       hiddenHistoryIds,
       historyPreferences.hideRead,
