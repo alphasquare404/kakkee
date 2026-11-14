@@ -35,6 +35,7 @@ registerMessages('id', {
   Connect: 'Hubungkan',
   'Use last server': 'Gunakan server terakhir',
   'Kakkee · Library & Reader': 'Kakkee · Perpustakaan & Reader',
+  'Home for your manga library': 'Rumah untuk pustaka manga Anda',
   'Connect to your server and continue reading from your Library.':
     'Hubungkan ke server Anda dan lanjutkan membaca dari Perpustakaan.',
   Connection: 'Koneksi',
@@ -387,10 +388,9 @@ export function ConnectionPage() {
           <BrandMark />
         </h1>
         <p className="lede">
-          {t(
-            'Connect to your server and continue reading from your Library.',
-          )}
+          {t('Home for your manga library')}
         </p>
+        <span className="connection-rule" aria-hidden="true" />
       </header>
 
       <main className="app-main">
