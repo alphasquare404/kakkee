@@ -26,7 +26,7 @@ function detailData(): MangaDetailQuery {
       thumbnailUrlLastFetched: '1',
       genre: ['Action'],
       inLibrary: true,
-      source: { __typename: 'SourceType', id: '1', name: 'Source' },
+      source: { __typename: 'SourceType', id: '1', name: 'Source', contentWarning: 'SAFE' },
     },
     chapters: {
       __typename: 'ChapterNodeList',

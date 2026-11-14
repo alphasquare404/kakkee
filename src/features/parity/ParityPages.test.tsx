@@ -90,6 +90,7 @@ function readingFeed(): ReadingFeedQuery {
           id: 1,
           title: 'Actual Manga',
           thumbnailUrl: '/api/v1/manga/1/thumbnail',
+          source: null,
           categories: { __typename: 'CategoryNodeList', nodes: [] },
           latestUploadedChapter: {
             __typename: 'ChapterType',

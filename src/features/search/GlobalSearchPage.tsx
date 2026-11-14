@@ -31,7 +31,10 @@ import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
-import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
+import {
+  autoLabelNsfwSourceMangas,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import { languageName } from '../browse/sourceDirectory';
 import { IconClose, IconFilter, IconSearch } from '../library/icons';
 import { SearchFilterDrawer } from './SearchFilterDrawer';
@@ -299,6 +302,15 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       )
       .map((manga) => ({ manga, source }));
   });
+  useEffect(() => {
+    autoLabelNsfwSourceMangas(
+      allResults.map(({ manga, source }) => ({
+        id: manga.id,
+        source,
+      })),
+    );
+  }, [allResults]);
+
   const activeResults =
     activeTab === 'all'
       ? allResults

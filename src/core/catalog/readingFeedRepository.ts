@@ -26,7 +26,10 @@ const PAGE_SIZE = 200;
 const MAX_PAGES = 20;
 
 function toFeedChapter(
-  manga: Pick<MangaNode, 'id' | 'title' | 'thumbnailUrl' | 'categories'>,
+  manga: Pick<
+    MangaNode,
+    'id' | 'title' | 'thumbnailUrl' | 'source' | 'categories'
+  >,
   chapter: LatestChapter,
 ): FeedChapter {
   return {
@@ -46,6 +49,7 @@ function toFeedChapter(
       id: manga.id,
       title: manga.title,
       thumbnailUrl: manga.thumbnailUrl,
+      source: manga.source,
       categories: manga.categories,
     },
   };

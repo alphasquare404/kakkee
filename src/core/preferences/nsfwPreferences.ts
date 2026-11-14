@@ -134,6 +134,21 @@ export function toggleMangaNsfw(
   });
 }
 
+export function autoLabelNsfwSourceMangas(
+  items: readonly {
+    readonly id: number;
+    readonly source?: { readonly contentWarning?: string } | null;
+  }[],
+): void {
+  const ids = items
+    .filter((item) => item.source?.contentWarning === 'NSFW')
+    .map((item) => item.id);
+
+  if (ids.length > 0) {
+    autoLabelMangas(ids);
+  }
+}
+
 export function autoLabelMangas(mangaIds: readonly number[]): void {
   const candidates = mangaIds.filter(
     (mangaId) =>

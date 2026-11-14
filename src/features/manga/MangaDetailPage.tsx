@@ -31,6 +31,7 @@ import {
 } from '../../core/preferences/chapterViewPreferences';
 import { createReaderRepository } from '../../core/reader/readerRepository';
 import {
+  autoLabelNsfwSourceMangas,
   toggleMangaNsfw,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
@@ -681,6 +682,12 @@ function ConnectedMangaDetail({
         ?.style.removeProperty('--hero-scale');
     };
   }, [detail.manga?.id]);
+
+  useEffect(() => {
+    if (detail.manga) {
+      autoLabelNsfwSourceMangas([detail.manga]);
+    }
+  }, [detail.manga]);
 
   if (!detail.manga && !detail.error) {
     return (

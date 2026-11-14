@@ -17,6 +17,10 @@
         id
         title
         thumbnailUrl
+        source {
+          id
+          contentWarning
+        }
         categories {
           nodes {
             id

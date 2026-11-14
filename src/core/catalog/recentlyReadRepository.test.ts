@@ -34,6 +34,7 @@ function chapter(
       id: mangaId,
       title: `Manga ${mangaId}`,
       thumbnailUrl: `/manga/${mangaId}/thumbnail`,
+      source: null,
       categories: { __typename: 'CategoryNodeList', nodes: [] },
       firstUnreadChapter: options.nextChapter
         ? {

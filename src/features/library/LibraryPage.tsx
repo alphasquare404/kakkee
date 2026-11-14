@@ -81,7 +81,7 @@ registerMessages('id', {
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import {
-  autoLabelMangas,
+  autoLabelNsfwSourceMangas,
   hiddenNsfwCountForCategory,
   toggleMangaNsfw,
   updateNsfwPreferences,
@@ -565,13 +565,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   }, [controller, hiddenCategoryIds, library.categoryId]);
 
   useEffect(() => {
-    const sourceNsfwIds = library.items
-      .filter((manga) => manga.source?.contentWarning === 'NSFW')
-      .map((manga) => manga.id);
-
-    if (sourceNsfwIds.length > 0) {
-      autoLabelMangas(sourceNsfwIds);
-    }
+    autoLabelNsfwSourceMangas(library.items);
   }, [library.items]);
 
   useEffect(() => {

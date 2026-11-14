@@ -18,6 +18,7 @@ query MangaDetail(
     source {
       id
       name
+      contentWarning
     }
   }
   chapters(

@@ -26,6 +26,7 @@ import { useImageResource } from '../../shared/useImageResource';
 import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import {
+  autoLabelNsfwSourceMangas,
   toggleMangaNsfw,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
@@ -383,6 +384,12 @@ function ConnectedReader({
   }, [chapterId, controller]);
 
   const chapter = reader.chapter;
+  useEffect(() => {
+    if (reader.chapter) {
+      autoLabelNsfwSourceMangas([reader.chapter.manga]);
+    }
+  }, [reader.chapter]);
+
   const activeChapter =
     chapter && chapter.id === chapterId ? chapter : null;
   const displayChapter =

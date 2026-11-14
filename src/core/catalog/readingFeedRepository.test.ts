@@ -16,6 +16,7 @@ function manga(
     id,
     title: `Manga ${id}`,
     thumbnailUrl: `/manga/${id}/thumbnail`,
+    source: null,
     categories: { __typename: 'CategoryNodeList', nodes: [] },
     latestUploadedChapter: {
       __typename: 'ChapterType',

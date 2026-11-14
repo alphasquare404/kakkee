@@ -7,7 +7,10 @@ import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { hideHistoryManga } from '../../core/preferences/hiddenHistory';
 import { createSectionOrigin } from '../../app/navigationOrigin';
-import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
+import {
+  autoLabelNsfwSourceMangas,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
@@ -224,16 +227,23 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     void continueController.load();
   }, [continueController, controller]);
 
-  const continueItems = [
-    ...(continueFeed.data?.items ?? []),
-    ...continueExtra,
-  ];
+  const continueItems = useMemo(
+    () => [...(continueFeed.data?.items ?? []), ...continueExtra],
+    [continueExtra, continueFeed.data],
+  );
 
   useEffect(() => {
     setContinueExtra([]);
     setContinueCursor(continueFeed.data?.pageInfo?.endCursor ?? null);
     setContinueHasMore(continueFeed.data?.pageInfo?.hasNextPage ?? false);
   }, [continueFeed.data]);
+
+  useEffect(() => {
+    autoLabelNsfwSourceMangas([
+      ...continueItems.map((entry) => entry.manga),
+      ...(feed.data?.items ?? []).map((entry) => entry.manga),
+    ]);
+  }, [continueItems, feed.data]);
 
   const items = (feed.data?.items ?? []).filter(
     (chapter) =>

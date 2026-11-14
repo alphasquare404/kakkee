@@ -21,7 +21,10 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createReaderRepository } from '../../core/reader/readerRepository';
 import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
-import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
+import {
+  autoLabelNsfwSourceMangas,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import {
   createOfflineStorage,
   isOfflineStorageSupported,
@@ -205,7 +208,14 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     };
   }, [context.graphQL, controller, feedController]);
 
-  const queue = downloads.queue?.queue ?? [];
+  const queue = useMemo(() => downloads.queue?.queue ?? [], [downloads.queue]);
+  useEffect(() => {
+    autoLabelNsfwSourceMangas([
+      ...(downloaded.data?.items ?? []).map((item) => item.manga),
+      ...queue.map((item) => item.manga),
+    ]);
+  }, [downloaded.data, queue]);
+
   const serverDownloadedItems = (downloaded.data?.items ?? []).filter(
     (item) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(item.manga.id)),
   );

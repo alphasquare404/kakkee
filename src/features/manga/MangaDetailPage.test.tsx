@@ -64,7 +64,7 @@ function detailData(overrides: Partial<MangaDetailQuery['chapters']> = {}): Mang
       thumbnailUrlLastFetched: '1',
       genre: ['Action', 'Adventure'],
       inLibrary: true,
-      source: { __typename: 'SourceType', id: '1', name: 'Weeb Central' },
+      source: { __typename: 'SourceType', id: '1', name: 'Weeb Central', contentWarning: 'SAFE' },
     },
     chapters: {
       __typename: 'ChapterNodeList',

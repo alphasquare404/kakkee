@@ -15,6 +15,10 @@ query DownloadQueue {
         id
         title
         thumbnailUrl
+        source {
+          id
+          contentWarning
+        }
       }
     }
   }

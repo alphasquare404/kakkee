@@ -19,6 +19,7 @@ const chapter: ReaderChapter = {
     title: 'Manga',
     thumbnailUrl: null,
     inLibrary: true,
+    source: null,
   },
 };
 
