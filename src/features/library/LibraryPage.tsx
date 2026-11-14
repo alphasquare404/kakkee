@@ -86,7 +86,11 @@ import {
   updateNsfwPreferences,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
-import { LabeledMangaCategoriesDocument } from '../../core/graphql/generated/graphql';
+import {
+  LabeledMangaCategoriesDocument,
+  LibraryCategoryMembershipDocument,
+  type LibraryCategoryMembershipQuery,
+} from '../../core/graphql/generated/graphql';
 import {
   IconClose,
   IconFilter,
@@ -346,6 +350,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const [knownCategoryCounts, setKnownCategoryCounts] = useState<
     Readonly<Record<number, number>>
   >({});
+  const loadedLibraryCounts = useRef<{
+    readonly total: number;
+    readonly categories: Readonly<Record<number, number>>;
+  } | null>(null);
+  const [libraryCategoryCounts, setLibraryCategoryCounts] = useState<
+    Readonly<Record<number, number>> | null
+  >(null);
+  const [libraryCategoryTotal, setLibraryCategoryTotal] = useState<
+    number | null
+  >(null);
   const [contextMenu, setContextMenu] = useState<{
     readonly manga: LibraryManga;
     readonly index: number;
@@ -564,6 +578,61 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     );
   }, [library.categoryId, library.isInitialLoading, library.totalCount]);
 
+  useEffect(() => {
+    if (!nsfw.hideNsfw) {
+      setLibraryCategoryCounts(null);
+      setLibraryCategoryTotal(null);
+      return;
+    }
+
+    let active = true;
+
+    void (async () => {
+      const counts: Record<number, number> = {};
+      let total = 0;
+      let after: string | null = null;
+      let hasNextPage = true;
+      let pages = 0;
+
+      while (active && hasNextPage && pages < 100) {
+        const result = (await context.graphQL.query({
+          query: LibraryCategoryMembershipDocument,
+          variables: {
+            first: 500,
+            ...(after ? { after } : {}),
+          },
+          fetchPolicy: 'network-only',
+        })) as { data?: LibraryCategoryMembershipQuery | null };
+        const page = result.data?.mangas;
+
+        if (!page) {
+          break;
+        }
+
+        total += page.nodes.length;
+
+        for (const manga of page.nodes) {
+          for (const category of manga.categories.nodes) {
+            counts[category.id] = (counts[category.id] ?? 0) + 1;
+          }
+        }
+
+        after = page.pageInfo.endCursor;
+        hasNextPage = page.pageInfo.hasNextPage && Boolean(after);
+        pages += 1;
+      }
+
+      if (active) {
+        setLibraryCategoryCounts(counts);
+        setLibraryCategoryTotal(total);
+      }
+    })().catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [context.graphQL, nsfw.hideNsfw]);
+
   const categoryIdsByManga = { ...nsfw.categoryIdsByManga };
 
   for (const manga of library.items) {
@@ -579,44 +648,51 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
 
   const effectiveNsfw = { ...nsfw, categoryIdsByManga };
 
-  const allLibraryLoaded =
+  if (
     nsfw.hideNsfw &&
-    library.categoryId === null &&
     !library.isInitialLoading &&
+    library.categoryId === null &&
     library.items.length > 0 &&
-    library.items.length >= library.totalCount;
-  const visibleLoadedItems = allLibraryLoaded
-    ? library.items.filter(
-        (manga) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)),
-      )
-    : [];
+    library.items.length >= library.totalCount
+  ) {
+    const categoryCounts: Record<number, number> = {};
+
+    for (const manga of library.items) {
+      for (const category of manga.categories.nodes) {
+        categoryCounts[category.id] = (categoryCounts[category.id] ?? 0) + 1;
+      }
+    }
+
+    loadedLibraryCounts.current = {
+      total: library.items.length,
+      categories: categoryCounts,
+    };
+  }
 
   const displayCategories = categories.categories.map((category) => {
-    const loadedCount = allLibraryLoaded
-      ? visibleLoadedItems.filter((manga) =>
-          manga.categories.nodes.some((entry) => entry.id === category.id),
-        ).length
-      : null;
+    const rootCount = libraryCategoryCounts?.[category.id];
+    const loadedCount =
+      loadedLibraryCounts.current?.categories[category.id] ?? null;
     const knownCount = knownCategoryCounts[category.id];
     const activeCount =
       !library.isInitialLoading && library.totalCount > 0
         ? library.totalCount
         : category.mangas.totalCount;
     const baseCount =
-      library.categoryId === category.id
+      rootCount ??
+      loadedCount ??
+      (library.categoryId === category.id
         ? activeCount
-        : knownCount ?? category.mangas.totalCount;
+        : knownCount ?? category.mangas.totalCount);
 
     return {
       ...category,
       mangas: {
         ...category.mangas,
-        totalCount:
-          loadedCount ??
-          Math.max(
-            0,
-            baseCount - hiddenNsfwCountForCategory(category.id, effectiveNsfw),
-          ),
+        totalCount: Math.max(
+          0,
+          baseCount - hiddenNsfwCountForCategory(category.id, effectiveNsfw),
+        ),
       },
     };
   });
@@ -1718,13 +1794,12 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               All
               <span className="category-tab-count">
-                {(allLibraryLoaded
-                  ? visibleLoadedItems.length
-                  : Math.max(
-                      0,
-                      library.totalCount -
-                        (nsfw.hideNsfw ? nsfw.mangaIds.length : 0),
-                    )
+                {Math.max(
+                  0,
+                  (libraryCategoryTotal ??
+                    loadedLibraryCounts.current?.total ??
+                    library.totalCount) -
+                    (nsfw.hideNsfw ? nsfw.mangaIds.length : 0),
                 ).toLocaleString('en-US')}
               </span>
             </button>

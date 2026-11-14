@@ -1,0 +1,19 @@
+query LibraryCategoryMembership($first: Int!, $after: Cursor) {
+  mangas(
+    filter: { inLibrary: { equalTo: true } }
+    first: $first
+    after: $after
+  ) {
+    nodes {
+      categories {
+        nodes {
+          id
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
