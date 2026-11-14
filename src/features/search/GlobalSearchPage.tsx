@@ -35,6 +35,7 @@ import {
   autoLabelNsfwSourceMangas,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
+import { useSourcePreferences } from '../../shared/useSourcePreferences';
 import { languageName } from '../browse/sourceDirectory';
 import { IconClose, IconFilter, IconSearch } from '../library/icons';
 import { SearchFilterDrawer } from './SearchFilterDrawer';
@@ -133,6 +134,8 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
   const nsfw = useNsfwPreferences();
   const showNsfw = !nsfw.hideNsfw;
+  const sourcePreferences = useSourcePreferences();
+  const pinnedSourceIds = new Set(sourcePreferences.pinned);
   const navigate = useNavigate();
   const { pathname, search: searchString } = useAppPath();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -201,6 +204,13 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     [items, searchPreferences, showNsfw],
   );
   const selectedKey = selectedSources.map((source) => source.id).join('|');
+
+  const orderedSelectedSources = [...selectedSources].sort(
+    (left, right) =>
+      Number(pinnedSourceIds.has(right.id)) -
+      Number(pinnedSourceIds.has(left.id)),
+  );
+
   const activeFilterCount = activeSearchFilterCount(
     searchPreferences,
     showNsfw,
@@ -260,9 +270,9 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
   };
 
   const tabSources =
-    selectedSources.length <= 8
-      ? selectedSources
-      : selectedSources.filter((source) => {
+    orderedSelectedSources.length <= 8
+      ? orderedSelectedSources
+      : orderedSelectedSources.filter((source) => {
           const result = search.sources[source.id];
           return (
             source.id === tabParam ||
@@ -274,8 +284,13 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     tabParam === 'all' || selectedSources.some((source) => source.id === tabParam)
       ? tabParam
       : 'all';
+  const orderedTabSources = [...tabSources].sort(
+    (left, right) =>
+      Number(pinnedSourceIds.has(right.id)) -
+      Number(pinnedSourceIds.has(left.id)),
+  );
   const limitedTabSources =
-    selectedSources.length > 8 ? tabSources.slice(0, 6) : tabSources;
+    selectedSources.length > 8 ? orderedTabSources.slice(0, 6) : orderedTabSources;
   const activeTabSource =
     activeTab === 'all'
       ? null
@@ -288,7 +303,7 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
     activeTab === 'all'
       ? null
       : selectedSources.find((source) => source.id === activeTab) ?? null;
-  const allResults = selectedSources.flatMap((source) => {
+  const allResults = orderedSelectedSources.flatMap((source) => {
     const result = search.sources[source.id];
 
     if (!result || result.status !== 'ready') {
