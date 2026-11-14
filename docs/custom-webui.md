@@ -91,3 +91,13 @@ chown -R 1000:1000 /DATA/AppData/suwayomi-server/files/webUI
 
 Do not extract into a nested `kakkee-webui/` or `dist/` directory.
 
+### Assets still return `index.html` after fixing the folder
+
+An OpenResty/Nginx cache can keep the old fallback response per asset URL. Test with a cache-busting query:
+
+```bash
+curl -sI 'https://your-server/assets/index-*.js?cachebust=1' | grep -i content-type
+```
+
+If that returns JavaScript but the URL without the query returns HTML, the files are correct and only the proxy cache is stale. Restart the Suwayomi service and the OpenResty/Nginx gateway, or purge the cached fallback response. Then clear the browser service worker/site data and hard reload.
+
