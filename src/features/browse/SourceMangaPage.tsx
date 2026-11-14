@@ -64,7 +64,10 @@ registerMessages('id', {
   'Removing…': 'Menghapus…',
 });
 import { useSourceSearchHistory } from '../../shared/useSourceSearchHistory';
-import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
+import {
+  autoLabelMangas,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import {
   addSourceSearch,
   clearSourceSearchHistory,
@@ -99,6 +102,14 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   );
   const source = useSyncExternalStore(controller.subscribe, controller.getState);
   const nsfw = useNsfwPreferences();
+
+  useEffect(() => {
+    if (source.source?.contentWarning !== 'NSFW') {
+      return;
+    }
+
+    autoLabelMangas(source.mangas.map((manga) => manga.id));
+  }, [source.mangas, source.source?.contentWarning]);
   const { pathname, search: searchString } = useAppPath();
   const origin = createSectionOrigin('browse', {
     pathname,

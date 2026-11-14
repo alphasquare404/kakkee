@@ -4,12 +4,14 @@ export interface NsfwPreferences {
   readonly hideNsfw: boolean;
   readonly mangaIds: readonly number[];
   readonly categoryIdsByManga: Readonly<Record<number, readonly number[]>>;
+  readonly removedAutoMangaIds: readonly number[];
 }
 
 export const DEFAULT_NSFW_PREFERENCES: NsfwPreferences = {
   hideNsfw: false,
   mangaIds: [],
   categoryIdsByManga: {},
+  removedAutoMangaIds: [],
 };
 
 const STORAGE_KEY = 'suwayomi.nsfw-preferences.v1';
@@ -53,6 +55,11 @@ function load(): NsfwPreferences {
           )
         : [],
       categoryIdsByManga,
+      removedAutoMangaIds: Array.isArray(parsed.removedAutoMangaIds)
+        ? parsed.removedAutoMangaIds.filter(
+            (value): value is number => Number.isInteger(value) && value > 0,
+          )
+        : [],
     };
   } catch {
     return DEFAULT_NSFW_PREFERENCES;
@@ -92,6 +99,8 @@ export function updateNsfwPreferences(
       : state.mangaIds,
     categoryIdsByManga:
       next.categoryIdsByManga ?? state.categoryIdsByManga,
+    removedAutoMangaIds:
+      next.removedAutoMangaIds ?? state.removedAutoMangaIds,
   };
   persist();
   notify();
@@ -119,6 +128,27 @@ export function toggleMangaNsfw(
       ? state.mangaIds.filter((id) => id !== mangaId)
       : [...state.mangaIds, mangaId],
     categoryIdsByManga,
+    removedAutoMangaIds: hasLabel
+      ? [...new Set([...state.removedAutoMangaIds, mangaId])]
+      : state.removedAutoMangaIds.filter((id) => id !== mangaId),
+  });
+}
+
+export function autoLabelMangas(mangaIds: readonly number[]): void {
+  const candidates = mangaIds.filter(
+    (mangaId) =>
+      Number.isInteger(mangaId) &&
+      mangaId > 0 &&
+      !state.mangaIds.includes(mangaId) &&
+      !state.removedAutoMangaIds.includes(mangaId),
+  );
+
+  if (candidates.length === 0) {
+    return;
+  }
+
+  updateNsfwPreferences({
+    mangaIds: [...state.mangaIds, ...candidates],
   });
 }
 

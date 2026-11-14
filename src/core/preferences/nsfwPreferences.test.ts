@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getNsfwPreferences,
+  autoLabelMangas,
   hiddenNsfwCountForCategory,
   isHiddenByNsfw,
   resetNsfwPreferences,
@@ -45,6 +46,17 @@ describe('nsfw preferences', () => {
 
     toggleMangaNsfw(42);
     expect(hiddenNsfwCountForCategory(3, getNsfwPreferences())).toBe(0);
+  });
+
+  it('auto-labels NSFW source manga without overriding a manual removal', () => {
+    autoLabelMangas([42, 43]);
+    expect(getNsfwPreferences().mangaIds).toEqual([42, 43]);
+
+    toggleMangaNsfw(42);
+    expect(getNsfwPreferences().mangaIds).toEqual([43]);
+
+    autoLabelMangas([42]);
+    expect(getNsfwPreferences().mangaIds).toEqual([43]);
   });
 
   it('removes the label when toggled twice', () => {
