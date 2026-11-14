@@ -13,6 +13,7 @@ import { BackButton } from '../../shared/BackButton';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { PageHeader } from '../../shared/PageHeader';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 
 registerMessages('id', {
   'Device Downloaded Library': 'Pustaka Terunduh di Perangkat',
@@ -52,6 +53,7 @@ function DeviceLibraryContent({
   readonly context: ConnectedContext | null;
 }) {
   const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('downloads', { pathname, search });
   const storage = useMemo(() => createOfflineStorage(), []);
@@ -112,8 +114,10 @@ function DeviceLibraryContent({
       }
     }
 
-    return [...grouped.values()];
-  }, [records]);
+    return [...grouped.values()].filter(
+      (entry) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(entry.id)),
+    );
+  }, [nsfw.hideNsfw, nsfw.mangaIds, records]);
 
   return (
     <div className="app-shell page-shell">

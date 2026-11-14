@@ -12841,3 +12841,11 @@ button.manga-card-link {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.filter-category-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}

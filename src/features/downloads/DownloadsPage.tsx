@@ -21,6 +21,7 @@ import type { ResourceService } from '../../core/resources/resourceService';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createReaderRepository } from '../../core/reader/readerRepository';
 import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import {
   createOfflineStorage,
   isOfflineStorageSupported,
@@ -142,6 +143,7 @@ export function DownloadsPage() {
 
 function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('downloads', { pathname, search });
   const repository = useMemo(
@@ -204,13 +206,17 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   }, [context.graphQL, controller, feedController]);
 
   const queue = downloads.queue?.queue ?? [];
-  const pages = (downloaded.data?.items ?? []).reduce(
+  const serverDownloadedItems = (downloaded.data?.items ?? []).filter(
+    (item) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(item.manga.id)),
+  );
+  const pages = serverDownloadedItems.reduce(
     (total, item) => total + item.pageCount,
     0,
   );
   const isPaused = downloads.queue?.state === 'STOPPED';
   const groups = Array.from(
     queue
+      .filter((item) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(item.manga.id)))
       .reduce((result, item) => {
         const group = result.get(item.manga.id);
 
@@ -243,6 +249,9 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
   const [deviceRecords, setDeviceRecords] = useState<
     readonly OfflineChapterRecord[]
   >([]);
+  const deviceDownloadedRecords = deviceRecords.filter(
+    (record) => !(nsfw.hideNsfw && nsfw.mangaIds.includes(record.mangaId)),
+  );
   const [deviceLoading, setDeviceLoading] = useState(
     isOfflineStorageSupported(),
   );
@@ -308,11 +317,11 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
     }
   };
 
-  const devicePages = deviceRecords.reduce(
+  const devicePages = deviceDownloadedRecords.reduce(
     (total, record) => total + record.pageCount,
     0,
   );
-  const deviceBytes = deviceRecords.reduce(
+  const deviceBytes = deviceDownloadedRecords.reduce(
     (total, record) => total + record.bytes,
     0,
   );
@@ -478,7 +487,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
               <span>
                 {downloaded.data
                   ? t('{shown} of {total}', {
-                      shown: downloaded.data.items.length,
+                      shown: serverDownloadedItems.length,
                       total: downloaded.data.totalCount,
                     })
                   : 0}
@@ -499,9 +508,9 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
               </div>
             ) : null}
 
-            {downloaded.data && downloaded.data.items.length > 0 ? (
+            {serverDownloadedItems.length > 0 ? (
               <div className="feed-list">
-                {downloaded.data.items.map((chapter) => (
+                {serverDownloadedItems.map((chapter) => (
                   <ServerDownloadedRow
                     key={chapter.id}
                     chapter={chapter}
@@ -544,7 +553,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
             </div>
             <div className="download-stats">
               <div>
-                <strong>{deviceRecords.length}</strong>
+                <strong>{deviceDownloadedRecords.length}</strong>
                 <span>{t('Downloaded chapters')}</span>
               </div>
               <div>
@@ -612,7 +621,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
           <section className="download-section" aria-labelledby="device-downloads-heading">
             <div className="section-heading-row">
               <h2 id="device-downloads-heading">{t('Downloaded chapters')}</h2>
-              <span>{deviceRecords.length}</span>
+              <span>{deviceDownloadedRecords.length}</span>
             </div>
 
             {!supportedDeviceStorage ? (
@@ -641,7 +650,7 @@ function DownloadsContent({ context }: { readonly context: ConnectedContext }) {
 
             {deviceRecords.length > 0 ? (
               <div className="feed-list">
-                {deviceRecords.map((record) => (
+                {deviceDownloadedRecords.map((record) => (
                   <DeviceDownloadedRow
                     key={record.chapterId}
                     record={record}

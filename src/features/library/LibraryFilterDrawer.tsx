@@ -110,10 +110,14 @@ export function LibraryFilterDrawer({
               <label className="filter-checkbox" key={category.id}>
                 <input
                   type="checkbox"
+                  aria-label={category.name}
                   checked={!hiddenCategoryIds.has(category.id)}
                   onChange={() => onToggleCategoryVisibility(category.id)}
                 />
                 <span>{category.name}</span>
+                <span className="filter-category-count">
+                  {category.mangas.totalCount.toLocaleString('en-US')}
+                </span>
               </label>
             ))}
           </div>

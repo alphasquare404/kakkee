@@ -80,7 +80,7 @@ function categoryData(): LibraryCategoriesQuery['categories'] {
   return {
     __typename: 'CategoryNodeList',
     nodes: [
-      { __typename: 'CategoryType', id: 0, name: 'Default', order: 0, mangas: { __typename: 'MangaNodeList', totalCount: 0 } },
+      { __typename: 'CategoryType', id: 0, name: 'Default', order: 0, mangas: { __typename: 'MangaNodeList', totalCount: 3 } },
       { __typename: 'CategoryType', id: 3, name: 'Action', order: 3, mangas: { __typename: 'MangaNodeList', totalCount: 5 } },
     ],
   };

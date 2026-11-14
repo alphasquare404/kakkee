@@ -32,6 +32,7 @@ import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
 import { useSearchPreferences } from '../../shared/useSearchPreferences';
 import { useSourcePreferences } from '../../shared/useSourcePreferences';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import { languageName } from '../browse/sourceDirectory';
 import { IconClose, IconFilter, IconSearch } from '../library/icons';
 import { SearchFilterDrawer } from './SearchFilterDrawer';
@@ -129,6 +130,7 @@ export function GlobalSearchPage() {
 
 function SearchContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const navigate = useNavigate();
   const { pathname, search: searchString } = useAppPath();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -292,7 +294,12 @@ function SearchContent({ context }: { readonly context: ConnectedContext }) {
       return [];
     }
 
-    return result.mangas.map((manga) => ({ manga, source }));
+    return result.mangas
+      .filter(
+        (manga) =>
+          !(nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)),
+      )
+      .map((manga) => ({ manga, source }));
   });
   const activeResults =
     activeTab === 'all'

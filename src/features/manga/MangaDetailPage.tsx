@@ -30,6 +30,10 @@ import {
   type ChapterFilter,
 } from '../../core/preferences/chapterViewPreferences';
 import { createReaderRepository } from '../../core/reader/readerRepository';
+import {
+  toggleMangaNsfw,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import { createClientDownloadRepository } from '../../core/offline/clientDownloadRepository';
 import {
   createOfflineStorage,
@@ -92,6 +96,11 @@ registerMessages('id', {
   Tags: 'Tag',
   More: 'Lainnya',
   'More manga actions': 'Aksi manga lainnya',
+  'Label as NSFW': 'Beri label NSFW',
+  'Remove NSFW label': 'Hapus label NSFW',
+  'NSFW content hidden': 'Konten NSFW disembunyikan',
+  'This manga is labeled NSFW. Turn off Hide NSFW content or remove its label to view it.':
+    'Manga ini berlabel NSFW. Matikan Sembunyikan konten NSFW atau hapus labelnya untuk melihatnya.',
   'More actions': 'Aksi lainnya',
   'Sort by': 'Urutkan',
   'Download chapters': 'Unduh chapter',
@@ -325,6 +334,7 @@ function ConnectedMangaDetail({
   readonly mangaId: number;
 }) {
   const { t } = useI18n();
+  const nsfw = useNsfwPreferences();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -753,6 +763,14 @@ function ConnectedMangaDetail({
       </button>
       <button
         type="button"
+        onClick={() => toggleMangaNsfw(manga.id)}
+      >
+        {nsfw.mangaIds.includes(manga.id)
+          ? t('Remove NSFW label')
+          : t('Label as NSFW')}
+      </button>
+      <button
+        type="button"
         onClick={() => {
           const url = window.location.href;
 
@@ -977,6 +995,31 @@ function ConnectedMangaDetail({
 
     downloadChapters(chapters.map((chapter) => chapter.id));
   };
+
+  if (nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)) {
+    return (
+      <div className="app-shell detail-shell">
+        <div className="library-state" role="status">
+          <h1>{t('NSFW content hidden')}</h1>
+          <p>
+            {t(
+              'This manga is labeled NSFW. Turn off Hide NSFW content or remove its label to view it.',
+            )}
+          </p>
+          <div className="actions">
+            <button
+              className="button"
+              type="button"
+              onClick={() => toggleMangaNsfw(manga.id)}
+            >
+              {t('Remove NSFW label')}
+            </button>
+            <BackButton to={returnTo} label={returnLabel} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell detail-shell">

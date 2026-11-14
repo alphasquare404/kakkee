@@ -81,6 +81,10 @@ registerMessages('id', {
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import {
+  toggleMangaNsfw,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
+import {
   IconClose,
   IconFilter,
   IconGrid,
@@ -280,6 +284,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     categoryController.getState,
   );
   const appPreferences = useAppPreferences();
+  const nsfw = useNsfwPreferences();
   const searchHistory = useSearchHistory();
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParamKey = searchParams.toString();
@@ -539,7 +544,8 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   }, [controller, hiddenCategoryIds, library.categoryId]);
 
   const visibleCategories = categories.categories.filter(
-    (category) => !hiddenCategoryIds.has(category.id),
+    (category) =>
+      !hiddenCategoryIds.has(category.id) && category.mangas.totalCount !== 0,
   );
   const firstVisibleCategoryId = visibleCategories[0]?.id ?? null;
   const categorySteps: readonly { readonly category: LibraryCategory | null }[] = [
@@ -949,10 +955,13 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     isNarrowed || sortActive || searchActive || quickFilters.size > 0;
   const categoryVisibleItems = library.items.filter(
     (manga) =>
-      hiddenCategoryIds.size === 0 ||
-      !manga.categories.nodes.some((category) =>
-        hiddenCategoryIds.has(category.id),
-      ),
+      !(
+        nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)
+      ) &&
+      (hiddenCategoryIds.size === 0 ||
+        !manga.categories.nodes.some((category) =>
+          hiddenCategoryIds.has(category.id),
+        )),
   );
   const locallyFiltered =
     fuzzy && search.trim()
@@ -1461,6 +1470,19 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               onClick={selectContextManga}
             >
               Select
+            </button>
+            <button
+              className="context-menu-item"
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                toggleMangaNsfw(contextMenu.manga.id);
+                closeContextMenu();
+              }}
+            >
+              {nsfw.mangaIds.includes(contextMenu.manga.id)
+                ? 'Remove NSFW label'
+                : 'Label as NSFW'}
             </button>
             <button
               className="context-menu-item is-danger"

@@ -7,6 +7,7 @@ import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
 import { hideHistoryManga } from '../../core/preferences/hiddenHistory';
 import { createSectionOrigin } from '../../app/navigationOrigin';
+import { useNsfwPreferences } from '../../core/preferences/nsfwPreferences';
 import type { ConnectedContext } from '../../core/server/connectionCoordinator';
 import type { FeedChapter } from '../../core/catalog/catalogRepository';
 import { createLoadableController } from '../../core/catalog/loadableController';
@@ -111,6 +112,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const hiddenCategoryIds = useHiddenCategoryIds();
   const hiddenHistoryIds = useHiddenHistory();
   const historyPreferences = useHistoryPreferences();
+  const nsfw = useNsfwPreferences();
   const { pathname, search } = useAppPath();
   const origin = createSectionOrigin('updates', { pathname, search });
   const [filter, setFilter] = useState<FeedFilter>('all');
@@ -160,6 +162,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
                 seen.has(chapter.manga.id) ||
                 (!historyPreferences.showHiddenHistory &&
                   hiddenHistoryIds.has(chapter.manga.id)) ||
+                (nsfw.hideNsfw && nsfw.mangaIds.includes(chapter.manga.id)) ||
                 (historyPreferences.hideRead && chapter.isRead) ||
                 chapter.manga.categories.nodes.some((category) =>
                   hiddenCategoryIds.has(category.id),
@@ -181,6 +184,8 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       historyPreferences.hideRead,
       historyPreferences.showHiddenHistory,
       historyRepository,
+      nsfw.hideNsfw,
+      nsfw.mangaIds,
     ],
   );
   const continueFeed = useSyncExternalStore(
@@ -230,7 +235,10 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     setContinueHasMore(continueFeed.data?.pageInfo?.hasNextPage ?? false);
   }, [continueFeed.data]);
 
-  const items = feed.data?.items ?? [];
+  const items = (feed.data?.items ?? []).filter(
+    (chapter) =>
+      !(nsfw.hideNsfw && nsfw.mangaIds.includes(chapter.manga.id)),
+  );
   const unread = items.filter((item) => !item.isRead).length;
   const read = items.length - unread;
   const visible = items.filter((item) =>
@@ -261,6 +269,7 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
           seen.has(chapter.manga.id) ||
           (!historyPreferences.showHiddenHistory &&
             hiddenHistoryIds.has(chapter.manga.id)) ||
+          (nsfw.hideNsfw && nsfw.mangaIds.includes(chapter.manga.id)) ||
           (historyPreferences.hideRead && chapter.isRead) ||
           chapter.manga.categories.nodes.some((category) =>
             hiddenCategoryIds.has(category.id),
