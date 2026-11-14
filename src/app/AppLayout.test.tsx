@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AppLayout } from './AppLayout';
@@ -92,31 +91,14 @@ describe('AppLayout navigation', () => {
     expect(activeLabels()).toEqual([]);
   });
 
-  it('does not expose Search or Extensions as separate navigation tabs', async () => {
-    const user = userEvent.setup();
+  it('does not expose Search or Extensions as separate navigation tabs', () => {
     renderShell('/library');
 
     expect(screen.queryByRole('link', { name: 'Search' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Extensions' })).toBeNull();
-
-    await user.click(screen.getByRole('button', { name: 'More' }));
-
-    const menu = screen.getByRole('dialog', { name: 'More navigation' });
-    expect(within(menu).queryByRole('link', { name: 'Search' })).toBeNull();
-    expect(within(menu).queryByRole('link', { name: 'Extensions' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'More' })).toBeNull();
+    expect(screen.getAllByRole('link', { name: 'Downloads' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Settings' }).length).toBeGreaterThan(0);
   });
 
-  it('returns focus to More when the menu is closed with Escape', async () => {
-    const user = userEvent.setup();
-    renderShell('/library');
-    const trigger = screen.getByRole('button', { name: 'More' });
-
-    await user.click(trigger);
-    expect(screen.getByRole('dialog', { name: 'More navigation' })).toBeTruthy();
-
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog', { name: 'More navigation' })).toBeNull();
-    expect(document.activeElement).toBe(trigger);
-  });
 });

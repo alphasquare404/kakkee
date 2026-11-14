@@ -63,8 +63,13 @@ function DownloadsIcon() {
 function SettingsIcon() {
   return (
     <svg width="19" height="19" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <circle cx="10" cy="10" r="2.3" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M10 3.2v1.4M10 15.4v1.4M3.2 10h1.4M15.4 10h1.4M5.2 5.2l1 1M13.8 13.8l1 1M14.8 5.2l-1 1M6.2 13.8l-1 1" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M8.6 2.7h2.8l.4 1.8 1.2.5 1.5-1.1 2 2-1.1 1.5.5 1.2 1.8.4v2.8l-1.8.4-.5 1.2 1.1 1.5-2 2-1.5-1.1-1.2.5-.4 1.8H8.6l-.4-1.8-1.2-.5-1.5 1.1-2-2 1.1-1.5-.5-1.2-1.8-.4V8.8l1.8-.4.5-1.2-1.1-1.5 2-2 1.5 1.1 1.2-.5.4-1.8Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.25"
+      />
+      <circle cx="10" cy="10" r="2.2" stroke="currentColor" strokeWidth="1.35" />
     </svg>
   );
 }
@@ -108,6 +113,8 @@ const MOBILE_PRIMARY_ROUTES = new Set([
   '/library',
   '/updates',
   '/browse',
+  '/downloads',
+  '/settings',
 ]);
 
 export function AppLayout() {
@@ -314,6 +321,12 @@ export function AppLayout() {
         {mobilePrimaryItems.map((item) => {
           const Icon = item.icon;
           const active = isItemActive(item);
+          const badge =
+            item.to === '/downloads'
+              ? badges.downloads
+              : item.to === '/extensions'
+                ? badges.extensionUpdates
+                : 0;
 
           return (
             <Link
@@ -325,27 +338,34 @@ export function AppLayout() {
             >
               <Icon />
               <span>{t(item.labelKey)}</span>
+              {badge > 0 ? (
+                <span className="nav-badge" aria-label={`${badge} pending`}>
+                  {badge > 99 ? '99+' : badge}
+                </span>
+              ) : null}
             </Link>
           );
         })}
-        <button
-          ref={moreTrigger}
-          className={`mobile-nav-item mobile-more-trigger${
-            moreActive || moreOpen ? ' is-active' : ''
-          }`}
-          type="button"
-          aria-expanded={moreOpen}
-          aria-controls="mobile-more-menu"
-          onClick={() => setMoreOpen((value) => !value)}
-        >
-          <MoreIcon />
-          <span>{t('nav.more')}</span>
-          {badges.downloads > 0 ? (
-            <span className="nav-badge" aria-label={`${badges.downloads} pending`}>
-              {badges.downloads > 99 ? '99+' : badges.downloads}
-            </span>
-          ) : null}
-        </button>
+        {mobileMoreItems.length > 0 ? (
+          <button
+            ref={moreTrigger}
+            className={`mobile-nav-item mobile-more-trigger${
+              moreActive || moreOpen ? ' is-active' : ''
+            }`}
+            type="button"
+            aria-expanded={moreOpen}
+            aria-controls="mobile-more-menu"
+            onClick={() => setMoreOpen((value) => !value)}
+          >
+            <MoreIcon />
+            <span>{t('nav.more')}</span>
+            {badges.downloads > 0 ? (
+              <span className="nav-badge" aria-label={`${badges.downloads} pending`}>
+                {badges.downloads > 99 ? '99+' : badges.downloads}
+              </span>
+            ) : null}
+          </button>
+        ) : null}
       </nav>
 
       {moreOpen ? (

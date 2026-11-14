@@ -12895,3 +12895,57 @@ body:has(.connection-shell) {
 .library-more-action .action-menu-chevron {
   display: none;
 }
+
+
+/* Settings header actions stay on the title row on phones. */
+@media (max-width: 720px) {
+  .settings-shell .page-header {
+    flex-direction: row;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  .settings-shell .page-heading {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .settings-shell .page-header-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    margin-left: auto;
+    padding-top: 0;
+    align-self: flex-start;
+  }
+
+  .settings-shell .settings-nsfw-action,
+  .settings-shell .settings-ghost-action {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+/* Phone navigation floats above the app and exposes all five destinations. */
+@media (max-width: 760px) {
+  .mobile-nav {
+    right: max(0.55rem, var(--safe-right));
+    bottom: max(0.55rem, var(--safe-bottom));
+    left: max(0.55rem, var(--safe-left));
+    min-height: 4.1rem;
+    padding: 0.3rem 0.35rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 18px;
+    background: var(--surface-glass);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(22px);
+  }
+
+  .mobile-nav-item {
+    min-height: 3.4rem;
+    border-radius: 12px;
+  }
+
+  .mobile-nav-item.is-active {
+    background: var(--accent-soft);
+  }
+}
