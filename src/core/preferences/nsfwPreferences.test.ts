@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getNsfwPreferences,
+  hiddenNsfwCountForCategory,
   isHiddenByNsfw,
   resetNsfwPreferences,
   toggleMangaNsfw,
@@ -32,6 +33,18 @@ describe('nsfw preferences', () => {
     expect(
       window.localStorage.getItem('suwayomi.nsfw-preferences.v1'),
     ).toContain('"mangaIds":[42]');
+  });
+
+  it('tracks category membership for hidden category counts', () => {
+    toggleMangaNsfw(42, [3, 7]);
+    updateNsfwPreferences({ hideNsfw: true });
+
+    expect(hiddenNsfwCountForCategory(3, getNsfwPreferences())).toBe(1);
+    expect(hiddenNsfwCountForCategory(7, getNsfwPreferences())).toBe(1);
+    expect(hiddenNsfwCountForCategory(4, getNsfwPreferences())).toBe(0);
+
+    toggleMangaNsfw(42);
+    expect(hiddenNsfwCountForCategory(3, getNsfwPreferences())).toBe(0);
   });
 
   it('removes the label when toggled twice', () => {

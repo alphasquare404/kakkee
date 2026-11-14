@@ -81,6 +81,7 @@ registerMessages('id', {
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import {
+  hiddenNsfwCountForCategory,
   toggleMangaNsfw,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
@@ -543,7 +544,33 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
     }
   }, [controller, hiddenCategoryIds, library.categoryId]);
 
-  const visibleCategories = categories.categories.filter(
+  const categoryIdsByManga = { ...nsfw.categoryIdsByManga };
+
+  for (const manga of library.items) {
+    if (
+      nsfw.mangaIds.includes(manga.id) &&
+      !categoryIdsByManga[manga.id]
+    ) {
+      categoryIdsByManga[manga.id] = manga.categories.nodes.map(
+        (category) => category.id,
+      );
+    }
+  }
+
+  const effectiveNsfw = { ...nsfw, categoryIdsByManga };
+
+  const displayCategories = categories.categories.map((category) => ({
+    ...category,
+    mangas: {
+      ...category.mangas,
+      totalCount: Math.max(
+        0,
+        category.mangas.totalCount -
+          hiddenNsfwCountForCategory(category.id, effectiveNsfw),
+      ),
+    },
+  }));
+  const visibleCategories = displayCategories.filter(
     (category) =>
       !hiddenCategoryIds.has(category.id) && category.mangas.totalCount !== 0,
   );
@@ -1402,7 +1429,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
         }))}
         sourceId={library.filter.sourceId}
         onSelectSource={selectSource}
-        categories={categories.categories}
+        categories={displayCategories}
         hiddenCategoryIds={hiddenCategoryIds}
         showAllCategory={showAllCategory}
         onToggleAllCategory={toggleAllCategory}
@@ -1476,7 +1503,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
               type="button"
               role="menuitem"
               onClick={() => {
-                toggleMangaNsfw(contextMenu.manga.id);
+                toggleMangaNsfw(
+                  contextMenu.manga.id,
+                  contextMenu.manga.categories.nodes.map((category) => category.id),
+                );
                 closeContextMenu();
               }}
             >
@@ -1566,7 +1596,11 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             >
               All
               <span className="category-tab-count">
-                {library.totalCount.toLocaleString('en-US')}
+                {Math.max(
+                  0,
+                  library.totalCount -
+                    (nsfw.hideNsfw ? nsfw.mangaIds.length : 0),
+                ).toLocaleString('en-US')}
               </span>
             </button>
           ) : null}

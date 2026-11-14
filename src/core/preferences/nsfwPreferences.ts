@@ -3,11 +3,13 @@ import { useSyncExternalStore } from 'react';
 export interface NsfwPreferences {
   readonly hideNsfw: boolean;
   readonly mangaIds: readonly number[];
+  readonly categoryIdsByManga: Readonly<Record<number, readonly number[]>>;
 }
 
 export const DEFAULT_NSFW_PREFERENCES: NsfwPreferences = {
   hideNsfw: false,
   mangaIds: [],
+  categoryIdsByManga: {},
 };
 
 const STORAGE_KEY = 'suwayomi.nsfw-preferences.v1';
@@ -23,6 +25,26 @@ function load(): NsfwPreferences {
 
     const parsed = JSON.parse(raw) as Partial<NsfwPreferences>;
 
+    const categoryIdsByManga: Record<number, readonly number[]> = {};
+
+    if (
+      parsed.categoryIdsByManga &&
+      typeof parsed.categoryIdsByManga === 'object'
+    ) {
+      for (const [key, value] of Object.entries(parsed.categoryIdsByManga)) {
+        const mangaId = Number(key);
+
+        if (!Number.isInteger(mangaId) || mangaId <= 0 || !Array.isArray(value)) {
+          continue;
+        }
+
+        categoryIdsByManga[mangaId] = value.filter(
+          (categoryId): categoryId is number =>
+            Number.isInteger(categoryId) && categoryId >= 0,
+        );
+      }
+    }
+
     return {
       hideNsfw: parsed.hideNsfw === true,
       mangaIds: Array.isArray(parsed.mangaIds)
@@ -30,6 +52,7 @@ function load(): NsfwPreferences {
             (value): value is number => Number.isInteger(value) && value > 0,
           )
         : [],
+      categoryIdsByManga,
     };
   } catch {
     return DEFAULT_NSFW_PREFERENCES;
@@ -67,6 +90,8 @@ export function updateNsfwPreferences(
           (value): value is number => Number.isInteger(value) && value > 0,
         )
       : state.mangaIds,
+    categoryIdsByManga:
+      next.categoryIdsByManga ?? state.categoryIdsByManga,
   };
   persist();
   notify();
@@ -76,12 +101,38 @@ export function isMangaNsfw(mangaId: number): boolean {
   return state.mangaIds.includes(mangaId);
 }
 
-export function toggleMangaNsfw(mangaId: number): void {
+export function toggleMangaNsfw(
+  mangaId: number,
+  categoryIds: readonly number[] = [],
+): void {
+  const hasLabel = state.mangaIds.includes(mangaId);
+  const categoryIdsByManga = { ...state.categoryIdsByManga };
+
+  if (hasLabel) {
+    delete categoryIdsByManga[mangaId];
+  } else if (categoryIds.length > 0) {
+    categoryIdsByManga[mangaId] = [...new Set(categoryIds)];
+  }
+
   updateNsfwPreferences({
-    mangaIds: state.mangaIds.includes(mangaId)
+    mangaIds: hasLabel
       ? state.mangaIds.filter((id) => id !== mangaId)
       : [...state.mangaIds, mangaId],
+    categoryIdsByManga,
   });
+}
+
+export function hiddenNsfwCountForCategory(
+  categoryId: number,
+  preferences: NsfwPreferences,
+): number {
+  if (!preferences.hideNsfw) {
+    return 0;
+  }
+
+  return preferences.mangaIds.filter((mangaId) =>
+    preferences.categoryIdsByManga[mangaId]?.includes(categoryId),
+  ).length;
 }
 
 export function resetNsfwPreferences(): void {
