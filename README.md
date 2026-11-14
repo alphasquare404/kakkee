@@ -24,7 +24,7 @@
   An independent, responsive frontend for <a href="https://github.com/Suwayomi/Suwayomi-Server">Suwayomi Server</a>.
 </p>
 
-![Kakkee Library](docs/screenshots/library.png)
+![Kakkee Library](docs/screenshots/library-cinematic.png)
 
 ## About
 
@@ -39,14 +39,50 @@ Kakkee is a React frontend for a self-hosted Suwayomi library. It is not a fork 
 
 ## Screenshots
 
+All screenshots use fictional demo content served by the local fixture server; no personal library data is included.
+
+### Three themes
+
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/reading.png" alt="Continue Reading and updates"></td>
-    <td width="50%"><img src="docs/screenshots/browse.png" alt="Browse sources"></td>
+    <td width="33%"><img src="docs/screenshots/library-cinematic.png" alt="Cinematic Dark theme"><br><sub>Cinematic Dark</sub></td>
+    <td width="33%"><img src="docs/screenshots/library-pure-black.png" alt="Pure Black theme"><br><sub>Pure Black</sub></td>
+    <td width="33%"><img src="docs/screenshots/library-snow-white.png" alt="Snow White theme"><br><sub>Snow White</sub></td>
+  </tr>
+</table>
+
+### Reading modes
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/mode-ghost.png" alt="Ghost Mode"><br><sub>Ghost Mode</sub></td>
+    <td width="50%"><img src="docs/screenshots/mode-nsfw.png" alt="NSFW Mode"><br><sub>NSFW Mode</sub></td>
+  </tr>
+</table>
+
+### Library, search, and browsing
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/reading.png" alt="Continue Reading and updates"><br><sub>Continue Reading</sub></td>
+    <td width="50%"><img src="docs/screenshots/search.png" alt="Global search"><br><sub>Multi-source search</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/screenshots/downloads.png" alt="Downloads"></td>
-    <td width="50%"><img src="docs/screenshots/settings.png" alt="Settings"></td>
+    <td width="50%"><img src="docs/screenshots/browse-pinned.png" alt="Browse with pinned sources"><br><sub>Pinned sources</sub></td>
+    <td width="50%"><img src="docs/screenshots/downloads-server.png" alt="Active server download queue"><br><sub>Server download queue</sub></td>
+  </tr>
+</table>
+
+### Detail, reader, and device library
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/manga-detail.png" alt="Manga detail"><br><sub>Manga Detail</sub></td>
+    <td width="50%"><img src="docs/screenshots/reader.png" alt="Reader"><br><sub>Reader</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/device-downloading.png" alt="Device download in progress"><br><sub>Device downloading</sub></td>
+    <td width="50%"><img src="docs/screenshots/device-library-page.png" alt="Device Downloaded Library"><br><sub>Device Downloaded Library</sub></td>
   </tr>
 </table>
 
@@ -113,6 +149,17 @@ Open the Vite URL, enter the Suwayomi server address, and connect. For local dev
 ```bash
 SUWAYOMI_SERVER_URL=http://127.0.0.1:4567 npm run dev
 ```
+
+### Demo fixture data
+
+The screenshots in this README are reproducible without a personal library. The local fixture server returns fictional titles, synthetic covers, reader pages, a server download queue, and device-download data:
+
+```bash
+npm run demo
+npm run dev
+```
+
+The demo server listens on `http://127.0.0.1:4567`, which is the default Vite proxy target. It is a screenshot/demo fixture, not a production server.
 
 ### Production build
 
@@ -190,7 +237,7 @@ Kakkee is under active development. The server integration and core reading flow
 
 This project is an independent client. It hosts no manga content and is not affiliated with the content sources or with Suwayomi.
 
-Screenshots use a personal library; manga covers and artwork belong to their respective owners.
+Screenshots use fictional demo content; any third-party artwork shown elsewhere belongs to its respective owners.
 
 ## License
 
