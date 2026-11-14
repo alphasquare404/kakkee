@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   updateNsfwPreferences,
   useNsfwPreferences,
 } from '../../core/preferences/nsfwPreferences';
 import { Link } from 'react-router-dom';
+import { GhostIcon } from '../../shared/GhostIcon';
+import { setGhostMode, useGhostMode } from '../../core/preferences/ghostMode';
 import { useConnection } from '../../app/useConnection';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
@@ -52,6 +54,11 @@ registerMessages('id', {
   'Settings sections': 'Bagian pengaturan',
   'Hide NSFW': 'Sembunyikan NSFW',
   'Show NSFW': 'Tampilkan NSFW',
+  'SFW mode': 'Mode SFW',
+  'NSFW mode': 'Mode NSFW',
+  'Ghost mode': 'Mode ghost',
+  'Ghost Mode Activated': 'Mode Ghost Aktif',
+  'Ghost Mode Deactivated': 'Mode Ghost Nonaktif',
 });
 
 const DIRECTORY = [
@@ -148,48 +155,28 @@ export function SettingsPage() {
   return <SettingsContent />;
 }
 
-function NsfwVisibilityIcon({
-  hidden,
-}: {
-  readonly hidden: boolean;
-}) {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path
-        d="M2.7 10s2.6-4.4 7.3-4.4 7.3 4.4 7.3 4.4-2.6 4.4-7.3 4.4S2.7 10 2.7 10Z"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.35"
-      />
-      <circle cx="10" cy="10" r="2.05" stroke="currentColor" strokeWidth="1.35" />
-      {hidden ? (
-        <path
-          d="m15.5 2.4.5 1.35 1.35.5-1.35.5-.5 1.35-.5-1.35-1.35-.5 1.35-.5.5-1.35Z"
-          fill="currentColor"
-        />
-      ) : (
-        <>
-          <path
-            d="M5.1 8.4h2.5v2.5H5.1zM8.75 7.6h2.5v2.5h-2.5zM12.4 9h2.5v2.5h-2.5z"
-            fill="currentColor"
-            opacity="0.9"
-          />
-          <path
-            d="m3.2 16.8 13.6-13.6"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeWidth="1.5"
-          />
-        </>
-      )}
-    </svg>
-  );
-}
-
 function SettingsContent() {
   const { t } = useI18n();
+  const base = import.meta.env.BASE_URL;
   const [activeGroup, setActiveGroup] = useState<string>(DIRECTORY[0].group);
   const nsfw = useNsfwPreferences();
+  const ghostMode = useGhostMode();
+  const [ghostNotice, setGhostNotice] = useState<string | null>(null);
+
+  const toggleGhostMode = () => {
+    const next = !ghostMode;
+    setGhostMode(next);
+    setGhostNotice(next ? 'Ghost Mode Activated' : 'Ghost Mode Deactivated');
+  };
+
+  useEffect(() => {
+    if (!ghostNotice) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setGhostNotice(null), 3_200);
+    return () => window.clearTimeout(timer);
+  }, [ghostNotice]);
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -200,15 +187,43 @@ function SettingsContent() {
         <button
           className={`settings-nsfw-action${nsfw.hideNsfw ? ' is-active' : ''}`}
           type="button"
-          aria-label={nsfw.hideNsfw ? t('Show NSFW') : t('Hide NSFW')}
-          title={nsfw.hideNsfw ? t('Show NSFW') : t('Hide NSFW')}
+          aria-label={nsfw.hideNsfw ? t('SFW mode') : t('NSFW mode')}
+          title={nsfw.hideNsfw ? t('SFW mode') : t('NSFW mode')}
+          aria-pressed={nsfw.hideNsfw}
           onClick={() =>
             updateNsfwPreferences({ hideNsfw: !nsfw.hideNsfw })
           }
         >
-          <NsfwVisibilityIcon hidden={nsfw.hideNsfw} />
+          <span
+            className="settings-mode-icon"
+            aria-hidden="true"
+            style={{
+              maskImage: `url("${base}icons/${
+                nsfw.hideNsfw ? 'sfw-mode-mask.png' : 'nsfw-mode-mask.png'
+              }")`,
+              WebkitMaskImage: `url("${base}icons/${
+                nsfw.hideNsfw ? 'sfw-mode-mask.png' : 'nsfw-mode-mask.png'
+              }")`,
+            }}
+          />
+        </button>
+        <button
+          className={`settings-ghost-action${ghostMode ? ' is-active' : ''}`}
+          type="button"
+          aria-label={t('Ghost mode')}
+          title={t('Ghost mode')}
+          aria-pressed={ghostMode}
+          onClick={toggleGhostMode}
+        >
+          <GhostIcon />
         </button>
       </PageHeader>
+
+      {ghostNotice ? (
+        <div className="ghost-mode-notice" role="status" aria-live="polite">
+          {ghostNotice}
+        </div>
+      ) : null}
 
       <div className="settings-content settings-directory-content">
         <section className="settings-section settings-directory">
