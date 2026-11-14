@@ -51,7 +51,7 @@ All screenshots use fictional demo content served by the local fixture server; n
   </tr>
 </table>
 
-### Reading modes
+### Ghost and NSFW modes
 
 <table>
   <tr>
