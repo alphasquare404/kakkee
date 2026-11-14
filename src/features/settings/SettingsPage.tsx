@@ -153,7 +153,7 @@ function SettingsContent() {
         subtitle={t('Preferences and server management')}
       />
 
-      <div className="settings-content">
+      <div className="settings-content settings-directory-content">
         <section className="settings-section settings-directory">
           <nav
             className="category-tabs settings-tabs"
