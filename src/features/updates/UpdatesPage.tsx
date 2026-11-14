@@ -284,7 +284,11 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   };
 
   const onContinuePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== 'mouse' || event.button !== 0) {
+    if (
+      event.pointerType !== 'mouse' ||
+      event.button !== 0 ||
+      (event.target as Element).closest('button')
+    ) {
       return;
     }
 
@@ -300,8 +304,6 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
       moved: false,
     };
     suppressContinueClick.current = false;
-    setContinueDragging(true);
-    rail.setPointerCapture(event.pointerId);
   };
 
   const onContinuePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -315,7 +317,15 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
     const distance = event.clientX - state.startX;
 
     if (Math.abs(distance) > 4) {
-      state.moved = true;
+      if (!state.moved) {
+        state.moved = true;
+        setContinueDragging(true);
+
+        if (!rail.hasPointerCapture(event.pointerId)) {
+          rail.setPointerCapture(event.pointerId);
+        }
+      }
+
       suppressContinueClick.current = true;
       rail.scrollLeft = state.startScroll - distance;
       event.preventDefault();
