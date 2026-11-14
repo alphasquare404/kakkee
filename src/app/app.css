@@ -12949,3 +12949,14 @@ body:has(.connection-shell) {
     background: var(--accent-soft);
   }
 }
+
+/* Floating phone navigation: capsule ends instead of rounded corners. */
+@media (max-width: 760px) {
+  .mobile-nav {
+    border-radius: 999px;
+  }
+
+  .mobile-nav-item {
+    border-radius: 999px;
+  }
+}
