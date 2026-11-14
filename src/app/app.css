@@ -3316,7 +3316,7 @@ button.manga-card-link {
 .page-header {
   display: flex;
   gap: var(--sp-4);
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   padding-bottom: var(--sp-3);
   border-bottom: 1px solid var(--border);
@@ -3361,6 +3361,7 @@ button.manga-card-link {
   display: flex;
   gap: var(--sp-2);
   align-items: center;
+  align-self: flex-start;
 }
 
 .feed-toolbar {
@@ -12970,4 +12971,74 @@ body:has(.connection-shell) {
     backdrop-filter: blur(3px) saturate(1.05);
     -webkit-backdrop-filter: blur(3px) saturate(1.05);
   }
+}
+
+/* Shared phone header rhythm: one title row with actions kept at the top right. */
+@media (max-width: 720px) {
+  .page-header {
+    flex-direction: row;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding-bottom: 0.75rem;
+  }
+
+  .page-header .page-heading {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .page-header .page-header-actions {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-self: flex-start;
+    margin-left: auto;
+    padding-top: 0;
+  }
+
+  .page-header-leading {
+    align-self: flex-start;
+    margin-top: 0;
+  }
+}
+
+/* Wide directory shells share the standard page gutters on phones. */
+@media (max-width: 760px) {
+  .library-shell,
+  .sources-shell {
+    padding-right: max(1.1rem, var(--safe-right));
+    padding-left: max(1.1rem, var(--safe-left));
+  }
+
+  .library-shell {
+    padding-top: max(0.85rem, var(--safe-top));
+  }
+
+  .library-header {
+    align-items: start;
+    padding-bottom: 0.75rem;
+  }
+
+  .library-title h1 {
+    font-size: 1.75rem;
+  }
+
+  .sources-shell .page-header {
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* Wide directory headers share the standard page gutter on desktop too. */
+.library-shell,
+.sources-shell {
+  padding-right: max(1.1rem, var(--safe-right));
+  padding-left: max(1.1rem, var(--safe-left));
+}
+
+.library-header {
+  align-items: start;
+  padding-bottom: var(--sp-3);
+}
+
+.sources-shell .page-header {
+  padding-bottom: var(--sp-3);
 }
