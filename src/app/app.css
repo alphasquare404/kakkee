@@ -13109,3 +13109,48 @@ body:has(.connection-shell) {
       radial-gradient(ellipse at 100% 100%, rgba(243, 51, 42, 0.16), transparent 18rem) !important;
   }
 }
+
+/* The connection brand always uses the full wordmark, at every width. */
+.connection-shell .brand-logo {
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.connection-shell .brand-wordmark {
+  display: block !important;
+  width: 100%;
+  margin-inline: auto;
+  object-position: center;
+}
+
+.connection-shell .brand-wordmark-dark {
+  display: block !important;
+}
+
+.connection-shell .brand-wordmark-light {
+  display: none !important;
+}
+
+:root[data-theme="snow-white"] .connection-shell .brand-wordmark-dark {
+  display: none !important;
+}
+
+:root[data-theme="snow-white"] .connection-shell .brand-wordmark-light {
+  display: block !important;
+}
+
+.connection-shell .brand-mark {
+  display: none !important;
+}
+
+.connection-shell .connection-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connection-shell .brand-wordmark {
+  max-height: none;
+  height: auto;
+}
