@@ -81,6 +81,7 @@ registerMessages('id', {
 });
 import { LibrarySyncButton } from './LibrarySyncButton';
 import {
+  autoLabelMangas,
   hiddenNsfwCountForCategory,
   toggleMangaNsfw,
   updateNsfwPreferences,
@@ -562,6 +563,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       void controller.setCategory(null);
     }
   }, [controller, hiddenCategoryIds, library.categoryId]);
+
+  useEffect(() => {
+    const sourceNsfwIds = library.items
+      .filter((manga) => manga.source?.contentWarning === 'NSFW')
+      .map((manga) => manga.id);
+
+    if (sourceNsfwIds.length > 0) {
+      autoLabelMangas(sourceNsfwIds);
+    }
+  }, [library.items]);
 
   useEffect(() => {
     if (library.categoryId === null || library.isInitialLoading) {
@@ -1181,7 +1192,10 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const categoryVisibleItems = library.items.filter(
     (manga) =>
       !(
-        nsfw.hideNsfw && nsfw.mangaIds.includes(manga.id)
+        nsfw.hideNsfw &&
+        (nsfw.mangaIds.includes(manga.id) ||
+          (manga.source?.contentWarning === 'NSFW' &&
+            !nsfw.removedAutoMangaIds.includes(manga.id)))
       ) &&
       (hiddenCategoryIds.size === 0 ||
         !manga.categories.nodes.some((category) =>

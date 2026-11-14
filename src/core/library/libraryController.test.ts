@@ -20,6 +20,7 @@ function manga(id: number, title = `Manga ${id}`): LibraryManga {
     title,
     thumbnailUrl: null,
     thumbnailUrlLastFetched: null,
+    source: null,
     categories: { __typename: 'CategoryNodeList', nodes: [] },
     unreadCount: 0,
     downloadCount: 0,

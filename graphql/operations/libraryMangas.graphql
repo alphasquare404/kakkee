@@ -16,6 +16,11 @@ query LibraryMangas(
       title
       thumbnailUrl
       thumbnailUrlLastFetched
+      source {
+        id
+        name
+        contentWarning
+      }
       categories {
         nodes {
           id

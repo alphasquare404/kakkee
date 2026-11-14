@@ -48,6 +48,7 @@ function manga(
     title,
     thumbnailUrl: `/api/v1/manga/${id}/thumbnail`,
     thumbnailUrlLastFetched: null,
+    source: null,
     categories: { __typename: 'CategoryNodeList', nodes: [] },
     unreadCount,
     downloadCount,
