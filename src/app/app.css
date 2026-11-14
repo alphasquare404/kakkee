@@ -12884,3 +12884,14 @@ body:has(.connection-shell) {
   border-color: var(--accent);
   background: var(--accent-soft);
 }
+
+
+.library-more-action {
+  width: 2.5rem;
+  padding: 0;
+  justify-content: center;
+}
+
+.library-more-action .action-menu-chevron {
+  display: none;
+}

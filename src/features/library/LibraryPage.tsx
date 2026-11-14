@@ -101,6 +101,16 @@ import {
   IconSort,
 } from './icons';
 
+function MoreVerticalIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <circle cx="10" cy="4.5" r="1.45" />
+      <circle cx="10" cy="10" r="1.45" />
+      <circle cx="10" cy="15.5" r="1.45" />
+    </svg>
+  );
+}
+
 type LibraryStatus = NonNullable<LibraryFilter['status']>;
 type OpenPanel = 'sort';
 type QuickFilter = 'unread' | 'started' | 'downloaded' | 'bookmarked' | 'tracked';
@@ -1571,9 +1581,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
             />
 
             <ActionMenu
-              label="More"
+              label={<MoreVerticalIcon />}
               ariaLabel="More library actions"
-              summaryClassName={`library-action${
+              summaryClassName={`library-action library-more-action${
                 fuzzy || duplicatesOpen || hasAnyRefinement
                   ? ' is-active'
                   : ''
