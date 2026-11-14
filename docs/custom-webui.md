@@ -17,6 +17,14 @@ The output is written to `dist/`.
 - connects automatically when served by the Suwayomi server
 - still falls back to the Connection form if the server cannot be reached
 
+### Install without flattening directories
+
+The release archive contains `assets/` and `icons/`. Never extract it with `unzip -j` or any tool that strips directory names. The included installer handles extraction, validation, backup, and ownership:
+
+```bash
+sudo bash scripts/install-custom-webui.sh kakkee-webui.tar.gz
+```
+
 For a root deployment, `VITE_FRONTEND_BASE_PATH` stays `/`. For a server subpath, build with the matching base:
 
 ```bash
