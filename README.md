@@ -40,15 +40,13 @@ Kakkee reads the library, chapters, sources, downloads, and reading progress thr
 
 ## Screenshots
 
-All screenshots use fictional demo content served by the local fixture server; no personal library data is included.
+Desktop screenshots use fictional demo content served by the local fixture server. The mobile collage and raw mobile captures are in [`docs/screenshots/pwa/`](docs/screenshots/pwa/).
 
-### iPhone captures
+### Mobile experience
 
-Raw iPhone captures for every page and mode are in [`docs/screenshots/iphone/`](docs/screenshots/iphone/). They use a **440 × 956 CSS viewport at 3× (1320 × 2868)** with a 62 px top safe area and 34 px bottom safe area.
+<a href="docs/screenshots/pwa/pwa.jpg"><img src="docs/screenshots/pwa/pwa.jpg" alt="Kakkee mobile screens with iPhone frames"></a>
 
-### iPhone mockup
-
-<img src="docs/screenshots/iphone-mockup.png" alt="Kakkee on iPhone with safe-area aware layouts">
+The mobile set covers Library in all three themes, Manga Detail, Reader, Reading, Search, Browse with pinned sources, server downloads, Device Downloaded Library, device downloading, Ghost Mode, and NSFW Mode.
 
 ### Three themes
 
@@ -246,7 +244,7 @@ Kakkee is under active development. The server integration and core reading flow
 
 This project is an independent client. It hosts no manga content and is not affiliated with the content sources or with Suwayomi.
 
-Screenshots use fictional demo content; any third-party artwork shown elsewhere belongs to its respective owners.
+Demo screenshots use fictional content; any third-party artwork shown in the mobile captures belongs to its respective owners.
 
 ## License
 
