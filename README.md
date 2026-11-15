@@ -1,4 +1,4 @@
-﻿<p align="center">
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/icons/kakkee-wordmark-white.png">
     <source media="(prefers-color-scheme: light)" srcset="public/icons/kakkee-wordmark-black.png">
@@ -144,9 +144,13 @@ The mobile set covers Library in all three themes, Manga Detail, Reader, Reading
 - Node.js `22.12+` (or `24+`)
 - A reachable Suwayomi Server, tested against `v2.4.2366`
 
+### Ready-to-use build
+
+The [latest release](https://github.com/alphasquare404/kakkee/releases/latest) includes a prebuilt Custom WebUI archive (`.zip` and `.tar.gz`). Download it and follow [Custom WebUI deployment](docs/custom-webui.md); no Node.js build is required.
+
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/alphasquare404/kakkee.git
+cd kakkee
 npm install
 npm run dev
 ```
