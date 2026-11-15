@@ -1,4 +1,4 @@
-<p align="center">
+﻿<p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/icons/kakkee-wordmark-white.png">
     <source media="(prefers-color-scheme: light)" srcset="public/icons/kakkee-wordmark-black.png">
@@ -85,7 +85,7 @@ The mobile set covers Library in all three themes, Manga Detail, Reader, Reading
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/manga-detail.png" alt="Manga detail"><br><sub>Manga Detail</sub></td>
-    <td width="50%"><img src="docs/screenshots/reader.png" alt="Reader"><br><sub>Reader</sub></td>
+    <td width="50%"><img src="docs/screenshots/reader-desktop.png" alt="Reader"><br><sub>Reader</sub></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/device-downloading.png" alt="Device download in progress"><br><sub>Device downloading</sub></td>
@@ -104,7 +104,7 @@ The mobile set covers Library in all three themes, Manga Detail, Reader, Reading
 - Width, gap, background, filter, brightness, contrast, saturation, and direction controls.
 - Optional auto background color, duplicate-chapter skipping, keep-screen-on, and auto-scroll.
 - Per-manga reading overrides, chapter navigation, bookmarks, and next-chapter downloads.
-- “Read next” / “Read last chapter” actions from Manga Detail.
+- â€œRead nextâ€ / â€œRead last chapterâ€ actions from Manga Detail.
 
 ### Library
 
@@ -185,15 +185,15 @@ The recommended same-origin setup serves the frontend from Suwayomi itself:
 npm run build:webui
 ```
 
-Copy the contents of `dist/` into the server's `webUI` directory, set **Settings → Server → Web interface → Interface** to **Custom**, and restart the server. `index.html` must be directly inside `webUI`.
+Copy the contents of `dist/` into the server's `webUI` directory, set **Settings â†’ Server â†’ Web interface â†’ Interface** to **Custom**, and restart the server. `index.html` must be directly inside `webUI`.
 
 See [Custom WebUI deployment](docs/custom-webui.md) for paths, updates, and cache troubleshooting.
 
 ## Themes
 
-- **Cinematic Dark** — deep blue-black surfaces with a cinematic accent.
-- **Pure Black** — true black for OLED screens.
-- **Snow White** — light surfaces with dark text.
+- **Cinematic Dark** â€” deep blue-black surfaces with a cinematic accent.
+- **Pure Black** â€” true black for OLED screens.
+- **Snow White** â€” light surfaces with dark text.
 
 Accent color, library density, and layout preferences are persisted locally. Server data stays on the server.
 
@@ -210,10 +210,10 @@ Accent color, library density, and layout preferences are persisted locally. Ser
 
 ```text
 src/
-├── app/          router, connection provider, shell, PWA
-├── core/         server, GraphQL, repositories, preferences, offline
-├── features/     library, manga, reader, browse, downloads, settings
-└── shared/       reusable UI and hooks
+â”œâ”€â”€ app/          router, connection provider, shell, PWA
+â”œâ”€â”€ core/         server, GraphQL, repositories, preferences, offline
+â”œâ”€â”€ features/     library, manga, reader, browse, downloads, settings
+â””â”€â”€ shared/       reusable UI and hooks
 graphql/          schema snapshot and operations
 docs/             architecture, deployment, audits, and feature notes
 ```
@@ -251,3 +251,4 @@ Demo screenshots use fictional content; any third-party artwork shown in the mob
 Kakkee is licensed under the **GNU General Public License v3.0 only** (`GPL-3.0-only`). See [LICENSE](LICENSE).
 
 If you distribute a modified version, you must make the corresponding source code available under the same license. Private/internal modifications do not have to be published unless they are distributed. For network-service copyleft, use AGPL-3.0 instead of GPL-3.0.
+
