@@ -18,6 +18,7 @@
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white">
   <img alt="PWA" src="https://img.shields.io/badge/PWA-ready-5A0FC8">
   <img alt="Suwayomi Server" src="https://img.shields.io/badge/Suwayomi-v2.4.2366-f3332a">
+  <img alt="License: GPL-3.0-only" src="https://img.shields.io/badge/License-GPL--3.0--only-2f6f44">
 </p>
 
 <p align="center">
@@ -249,4 +250,6 @@ Screenshots use fictional demo content; any third-party artwork shown elsewhere 
 
 ## License
 
-No license has been added to this repository yet. Choose and add a license before publishing or distributing builds.
+Kakkee is licensed under the **GNU General Public License v3.0 only** (`GPL-3.0-only`). See [LICENSE](LICENSE).
+
+If you distribute a modified version, you must make the corresponding source code available under the same license. Private/internal modifications do not have to be published unless they are distributed. For network-service copyleft, use AGPL-3.0 instead of GPL-3.0.
