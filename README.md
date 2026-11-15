@@ -6,8 +6,6 @@
   </picture>
 </p>
 
-<h1 align="center">Kakkee</h1>
-
 <p align="center">
   A modern home for your manga library.
 </p>
@@ -40,7 +38,7 @@ Kakkee reads the library, chapters, sources, downloads, and reading progress thr
 
 ## Screenshots
 
-Desktop screenshots use fictional demo content served by the local fixture server. The mobile collage and raw mobile captures are in [`docs/screenshots/pwa/`](docs/screenshots/pwa/).
+Desktop screenshots use fictional demo content served by the local fixture server.
 
 ### Mobile experience
 
@@ -104,7 +102,7 @@ The mobile set covers Library in all three themes, Manga Detail, Reader, Reading
 - Width, gap, background, filter, brightness, contrast, saturation, and direction controls.
 - Optional auto background color, duplicate-chapter skipping, keep-screen-on, and auto-scroll.
 - Per-manga reading overrides, chapter navigation, bookmarks, and next-chapter downloads.
-- â€œRead nextâ€ / â€œRead last chapterâ€ actions from Manga Detail.
+- "Read next" / "Read last chapter" actions from Manga Detail.
 
 ### Library
 
@@ -189,15 +187,15 @@ The recommended same-origin setup serves the frontend from Suwayomi itself:
 npm run build:webui
 ```
 
-Copy the contents of `dist/` into the server's `webUI` directory, set **Settings â†’ Server â†’ Web interface â†’ Interface** to **Custom**, and restart the server. `index.html` must be directly inside `webUI`.
+Copy the contents of `dist/` into the server's `webUI` directory, set **Settings -> Server -> Web interface -> Interface** to **Custom**, and restart the server. `index.html` must be directly inside `webUI`.
 
 See [Custom WebUI deployment](docs/custom-webui.md) for paths, updates, and cache troubleshooting.
 
 ## Themes
 
-- **Cinematic Dark** â€” deep blue-black surfaces with a cinematic accent.
-- **Pure Black** â€” true black for OLED screens.
-- **Snow White** â€” light surfaces with dark text.
+- **Cinematic Dark** - deep blue-black surfaces with a cinematic accent.
+- **Pure Black** - true black for OLED screens.
+- **Snow White** - light surfaces with dark text.
 
 Accent color, library density, and layout preferences are persisted locally. Server data stays on the server.
 
@@ -214,10 +212,10 @@ Accent color, library density, and layout preferences are persisted locally. Ser
 
 ```text
 src/
-â”œâ”€â”€ app/          router, connection provider, shell, PWA
-â”œâ”€â”€ core/         server, GraphQL, repositories, preferences, offline
-â”œâ”€â”€ features/     library, manga, reader, browse, downloads, settings
-â””â”€â”€ shared/       reusable UI and hooks
+|-- app/          router, connection provider, shell, PWA
+|-- core/         server, GraphQL, repositories, preferences, offline
+|-- features/     library, manga, reader, browse, downloads, settings
+`-- shared/       reusable UI and hooks
 graphql/          schema snapshot and operations
 docs/             architecture, deployment, audits, and feature notes
 ```
