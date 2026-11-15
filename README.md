@@ -40,11 +40,13 @@ Kakkee reads the library, chapters, sources, downloads, and reading progress thr
 
 Desktop screenshots use fictional demo content served by the local fixture server.
 
-### Mobile experience
+### PWA experience
 
-<a href="docs/screenshots/pwa/pwa.jpg"><img src="docs/screenshots/pwa/pwa.jpg" alt="Kakkee mobile screens with iPhone frames"></a>
+Kakkee installs as a standalone PWA with safe-area aware layouts on iPhone.
 
-The mobile set covers Library in all three themes, Manga Detail, Reader, Reading, Search, Browse with pinned sources, server downloads, Device Downloaded Library, device downloading, Ghost Mode, and NSFW Mode.
+<a href="docs/screenshots/pwa/pwa.jpg"><img src="docs/screenshots/pwa/pwa.jpg" alt="Kakkee PWA screens with iPhone frames"></a>
+
+The PWA set covers Library in all three themes, Manga Detail, Reader, Reading, Search, Browse with pinned sources, server downloads, Device Downloaded Library, device downloading, Ghost Mode, and NSFW Mode.
 
 ### Three themes
 
