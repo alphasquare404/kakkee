@@ -200,7 +200,7 @@ function fixture(name, variables) {
     case 'LibraryCategories':
       return { categories: { nodes: CATEGORIES } };
     case 'CategoryCatalog':
-      return { categories: { nodes: CATEGORIES.map((item) => ({ ...item, default: false, isDefaultCategory: false, includeInUpdate: true, includeInDownload: true })) } };
+      return { categories: { nodes: CATEGORIES.map((item) => ({ ...item, default: false, isDefaultCategory: false, includeInUpdate: 'INCLUDE', includeInDownload: 'INCLUDE' })) } };
     case 'LibraryMangas':
       return { mangas: { nodes: all, totalCount: all.length, pageInfo: { endCursor: null, hasNextPage: false } } };
     case 'LibraryCategoryMembership':

@@ -13268,3 +13268,69 @@ body:has(.connection-shell) {
   background: transparent !important;
   box-shadow: none !important;
 }
+
+
+/* Compact category card controls. */
+.category-card {
+  position: relative;
+  padding-right: 2.7rem;
+}
+
+.category-card-menu {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 2;
+}
+
+.category-card-menu-trigger {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  list-style: none;
+}
+
+.category-card-menu-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.category-card-menu-trigger:hover,
+.category-card-menu-trigger[aria-expanded='true'] {
+  color: var(--text);
+  border-color: transparent;
+  background: transparent;
+}
+
+.category-flags {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.35rem;
+}
+
+.category-flags .switch-toggle {
+  min-height: 2rem;
+  gap: 0.5rem;
+  font-size: var(--text-xs);
+}
+
+.category-flags .switch-control {
+  width: 2.1rem;
+  height: 1.2rem;
+}
+
+.category-flags .switch-thumb {
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.category-flags .switch-control input:checked + .switch-track .switch-thumb {
+  transform: translateX(0.82rem);
+}

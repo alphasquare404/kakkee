@@ -314,6 +314,34 @@ function CategoryCard({
 
   return (
     <article className="category-card">
+      <ActionMenu
+        label={<MoreVerticalIcon />}
+        ariaLabel={`${t('More actions for')} ${category.name}`}
+        showChevron={false}
+        className="category-card-menu"
+        summaryClassName="category-card-menu-trigger"
+      >
+        <button disabled={busy} type="button" onClick={onStartRename}>
+          {t('Rename')}
+        </button>
+        <button disabled={busy || !canMoveUp} type="button" onClick={onMoveUp}>
+          {t('Move up')}
+        </button>
+        <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
+          {t('Move down')}
+        </button>
+        <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
+          {t('Set default')}
+        </button>
+        <button
+          className="is-danger"
+          disabled={busy || isDefault}
+          type="button"
+          onClick={onStartDelete}
+        >
+          {t('Delete')}
+        </button>
+      </ActionMenu>
       <span className="category-mark" aria-hidden="true">
         {category.name.trim().charAt(0).toUpperCase() || 'C'}
       </span>
@@ -350,23 +378,33 @@ function CategoryCard({
           {isDefault ? ` · ${t('Default')}` : ''}
         </p>
         <div className="category-flags">
-          <label>
-            <input
-              type="checkbox"
-              checked={category.includeInUpdate === 'INCLUDE'}
-              disabled={busy}
-              onChange={onToggleUpdate}
-            />
-            {t('Include in updates')}
+          <label className="switch-toggle">
+            <span>{t('Include in updates')}</span>
+            <span className="switch-control">
+              <input
+                type="checkbox"
+                checked={category.includeInUpdate === 'INCLUDE'}
+                disabled={busy}
+                onChange={onToggleUpdate}
+              />
+              <span className="switch-track">
+                <span className="switch-thumb" />
+              </span>
+            </span>
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={category.includeInDownload === 'INCLUDE'}
-              disabled={busy}
-              onChange={onToggleDownload}
-            />
-            {t('Include in downloads')}
+          <label className="switch-toggle">
+            <span>{t('Include in downloads')}</span>
+            <span className="switch-control">
+              <input
+                type="checkbox"
+                checked={category.includeInDownload === 'INCLUDE'}
+                disabled={busy}
+                onChange={onToggleDownload}
+              />
+              <span className="switch-track">
+                <span className="switch-thumb" />
+              </span>
+            </span>
           </label>
         </div>
         {deleting ? (
@@ -379,38 +417,20 @@ function CategoryCard({
               {t('Cancel')}
             </button>
           </div>
-        ) : (
-          <div className="category-actions">
-            <button disabled={busy} type="button" onClick={onStartRename}>
-              {t('Rename')}
-            </button>
-            <ActionMenu
-              label={t('More')}
-              ariaLabel={`${t('More actions for')} ${category.name}`}
-              summaryClassName="category-more-trigger"
-            >
-              <button disabled={busy || !canMoveUp} type="button" onClick={onMoveUp}>
-                {t('Move up')}
-              </button>
-              <button disabled={busy || !canMoveDown} type="button" onClick={onMoveDown}>
-                {t('Move down')}
-              </button>
-              <button disabled={busy || isDefault} type="button" onClick={onSetDefault}>
-                {t('Set default')}
-              </button>
-              <button
-                className="is-danger"
-                disabled={busy || isDefault}
-                type="button"
-                onClick={onStartDelete}
-              >
-                {t('Delete')}
-              </button>
-            </ActionMenu>
-          </div>
-        )}
+        ) : null}
       </div>
     </article>
   );
 }
 
+
+
+function MoreVerticalIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <circle cx="10" cy="4.5" r="1.45" />
+      <circle cx="10" cy="10" r="1.45" />
+      <circle cx="10" cy="15.5" r="1.45" />
+    </svg>
+  );
+}
