@@ -43,6 +43,7 @@ registerMessages('id', {
   'Source filters': 'Filter source',
   'Result filters': 'Filter hasil',
   'Search source': 'Cari di source',
+  'Open source search': 'Buka pencarian source',
   'Search this source…': 'Cari di source ini…',
   'Clear history': 'Hapus riwayat',
   'Library change was rejected by the server.':
@@ -333,7 +334,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         <button
           className={`library-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
           type="button"
-          aria-label={searchOpen ? t('Close search') : t('Search source')}
+          aria-label={searchOpen ? t('Close search') : t('Open source search')}
           aria-expanded={searchOpen}
           aria-controls="source-search-form"
           onClick={() => {
