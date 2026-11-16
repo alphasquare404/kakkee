@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef, type ComponentType } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -12,118 +12,143 @@ import { useConnection } from './useConnection';
 import { ConnectionPage } from '../features/connection/ConnectionPage';
 import { LibraryPage } from '../features/library/LibraryPage';
 
-const UpdatesPage = lazy(() =>
+const CHUNK_RELOAD_KEY = 'kakkee.chunk-reload.v1';
+
+/**
+ * A deployment replaces hashed route chunks. A PWA tab that still runs the
+ * previous shell can then fail to import a lazy page. Reload once so the
+ * fresh index and its matching chunks take over instead of rendering blank.
+ */
+function lazyRoute(importer: () => Promise<{ default: ComponentType }>) {
+  return lazy(async () => {
+    try {
+      const module = await importer();
+      window.sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+      return module;
+    } catch (error) {
+      if (!window.sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
+        window.sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+        window.location.reload();
+        return new Promise<{ default: ComponentType }>(() => {});
+      }
+
+      throw error;
+    }
+  });
+}
+
+const UpdatesPage = lazyRoute(() =>
   import('../features/updates/UpdatesPage').then((module) => ({
     default: module.UpdatesPage,
   })),
 );
-const BrowsePage = lazy(() =>
+const BrowsePage = lazyRoute(() =>
   import('../features/browse/BrowsePage').then((module) => ({
     default: module.BrowsePage,
   })),
 );
-const SourceMangaPage = lazy(() =>
+const SourceMangaPage = lazyRoute(() =>
   import('../features/browse/SourceMangaPage').then((module) => ({
     default: module.SourceMangaPage,
   })),
 );
-const ExtensionsPage = lazy(() =>
+const ExtensionsPage = lazyRoute(() =>
   import('../features/extensions/ExtensionsPage').then((module) => ({
     default: module.ExtensionsPage,
   })),
 );
-const GlobalSearchPage = lazy(() =>
+const GlobalSearchPage = lazyRoute(() =>
   import('../features/search/GlobalSearchPage').then((module) => ({
     default: module.GlobalSearchPage,
   })),
 );
-const ExtensionDetailPage = lazy(() =>
+const ExtensionDetailPage = lazyRoute(() =>
   import('../features/extensions/ExtensionDetailPage').then((module) => ({
     default: module.ExtensionDetailPage,
   })),
 );
-const CategoriesPage = lazy(() =>
+const CategoriesPage = lazyRoute(() =>
   import('../features/categories/CategoriesPage').then((module) => ({
     default: module.CategoriesPage,
   })),
 );
-const DownloadsPage = lazy(() =>
+const DownloadsPage = lazyRoute(() =>
   import('../features/downloads/DownloadsPage').then((module) => ({
     default: module.DownloadsPage,
   })),
 );
-const DeviceLibraryPage = lazy(() =>
+const DeviceLibraryPage = lazyRoute(() =>
   import('../features/downloads/DeviceLibraryPage').then((module) => ({
     default: module.DeviceLibraryPage,
   })),
 );
-const SettingsPage = lazy(() =>
+const SettingsPage = lazyRoute(() =>
   import('../features/settings/SettingsPage').then((module) => ({
     default: module.SettingsPage,
   })),
 );
-const ReaderSettingsPage = lazy(() =>
+const ReaderSettingsPage = lazyRoute(() =>
   import('../features/settings/ReaderSettingsPage').then((module) => ({
     default: module.ReaderSettingsPage,
   })),
 );
-const AppearanceSettingsPage = lazy(() =>
+const AppearanceSettingsPage = lazyRoute(() =>
   import('../features/settings/AppearanceSettingsPage').then((module) => ({
     default: module.AppearanceSettingsPage,
   })),
 );
-const LibrarySettingsPage = lazy(() =>
+const LibrarySettingsPage = lazyRoute(() =>
   import('../features/settings/LibrarySettingsPage').then((module) => ({
     default: module.LibrarySettingsPage,
   })),
 );
-const ServerSettingsPage = lazy(() =>
+const ServerSettingsPage = lazyRoute(() =>
   import('../features/settings/ServerSettingsPage').then((module) => ({
     default: module.ServerSettingsPage,
   })),
 );
-const BackupSettingsPage = lazy(() =>
+const BackupSettingsPage = lazyRoute(() =>
   import('../features/settings/BackupSettingsPage').then((module) => ({
     default: module.BackupSettingsPage,
   })),
 );
-const TrackingSettingsPage = lazy(() =>
+const TrackingSettingsPage = lazyRoute(() =>
   import('../features/settings/TrackingSettingsPage').then((module) => ({
     default: module.TrackingSettingsPage,
   })),
 );
-const SyncSettingsPage = lazy(() =>
+const SyncSettingsPage = lazyRoute(() =>
   import('../features/settings/SyncSettingsPage').then((module) => ({
     default: module.SyncSettingsPage,
   })),
 );
-const HistorySettingsPage = lazy(() =>
+const HistorySettingsPage = lazyRoute(() =>
   import('../features/settings/HistorySettingsPage').then((module) => ({
     default: module.HistorySettingsPage,
   })),
 );
-const DeviceSettingsPage = lazy(() =>
+const DeviceSettingsPage = lazyRoute(() =>
   import('../features/settings/DeviceSettingsPage').then((module) => ({
     default: module.DeviceSettingsPage,
   })),
 );
-const AboutPage = lazy(() =>
+const AboutPage = lazyRoute(() =>
   import('../features/settings/AboutPage').then((module) => ({
     default: module.AboutPage,
   })),
 );
 
-const MangaDetailPage = lazy(() =>
+const MangaDetailPage = lazyRoute(() =>
   import('../features/manga/MangaDetailPage').then((module) => ({
     default: module.MangaDetailPage,
   })),
 );
-const ReaderPage = lazy(() =>
+const ReaderPage = lazyRoute(() =>
   import('../features/reader/ReaderPage').then((module) => ({
     default: module.ReaderPage,
   })),
 );
-const OfflineReaderPage = lazy(() =>
+const OfflineReaderPage = lazyRoute(() =>
   import('../features/offline/OfflineReaderPage').then((module) => ({
     default: module.OfflineReaderPage,
   })),
