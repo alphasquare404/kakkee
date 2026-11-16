@@ -13263,10 +13263,20 @@ body:has(.connection-shell) {
 .page-header-actions summary,
 .page-header-actions a,
 .manga-hero-controls button,
-.manga-hero-controls summary {
+.manga-hero-controls summary,
+.library-icon-button,
+.library-search-submit,
+.library-search-toggle {
   border-color: transparent !important;
   background: transparent !important;
   box-shadow: none !important;
+}
+
+.library-icon-button:hover,
+.library-search-submit:hover:not(:disabled),
+.library-search-toggle:hover {
+  border-color: transparent !important;
+  background: transparent !important;
 }
 
 

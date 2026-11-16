@@ -48,7 +48,7 @@ Phase 1 kini memiliki functional baseline resmi Suwayomi-WebUI `v20260929.01` (r
 
 ## Responsive UI dan safe area
 
-- Verifikasi visual setiap perubahan UI pada **1920×1080, 1366×768, 1180×820, 820×1180, dan 390×844**.
+- Setiap perubahan UI dan UX wajib diverifikasi pada **semua ukuran layar**: 1920×1080, 1366×768, 1180×820, 820×1180, dan 390×844. Jangan hanya memeriksa desktop atau satu halaman.
 - Gunakan layout adaptif untuk desktop, tablet, dan mobile; jangan sekadar mengecilkan layout desktop.
 - Hormati safe area iOS/PWA memakai `env(safe-area-inset-*)`, termasuk notch, Dynamic Island, home indicator, dan inset landscape.
 - Periksa screenshot hasil render yang sebenarnya untuk clipping, spacing, alignment, kepadatan kontrol, dan overflow. Perbaiki masalah lalu verifikasi ulang.
