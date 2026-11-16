@@ -1,12 +1,11 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PwaUpdatePrompt } from './PwaUpdatePrompt';
 
 const pwaState = vi.hoisted(() => ({
-  needRefresh: true,
+  needRefresh: false,
   offlineReady: false,
   updateServiceWorker: vi.fn(),
 }));
@@ -21,34 +20,36 @@ vi.mock('./pwaUpdate', () => ({
 
 afterEach(() => {
   cleanup();
-  pwaState.needRefresh = true;
+  pwaState.needRefresh = false;
   pwaState.offlineReady = false;
   pwaState.updateServiceWorker.mockClear();
+  window.sessionStorage.clear();
 });
 
 describe('PwaUpdatePrompt', () => {
-  it('offers reload when a new shell version is waiting', async () => {
-    const user = userEvent.setup();
-    render(<PwaUpdatePrompt />);
-
-    expect(screen.getByText(/A new version is available/)).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Update and reload' }));
-
-    expect(pwaState.updateServiceWorker).toHaveBeenCalledWith(true);
-  });
-
-  it('does not show a technical shell-ready notice', () => {
-    pwaState.needRefresh = false;
-    pwaState.offlineReady = true;
+  it('updates automatically without showing a dialog or buttons', async () => {
+    pwaState.needRefresh = true;
     const { container } = render(<PwaUpdatePrompt />);
 
+    await waitFor(() => {
+      expect(pwaState.updateServiceWorker).toHaveBeenCalledWith(true);
+    });
     expect(container.children).toHaveLength(0);
-    expect(screen.queryByText(/app shell is ready/i)).toBeNull();
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(window.sessionStorage.getItem('kakkee.pwa.updated.v1')).toBe('1');
   });
 
-  it('renders nothing when there is no update or offline-ready state', () => {
-    pwaState.needRefresh = false;
-    pwaState.offlineReady = false;
+  it('shows a completion notice after the automatic update', () => {
+    window.sessionStorage.setItem('kakkee.pwa.updated.v1', '1');
+    render(<PwaUpdatePrompt />);
+
+    expect(
+      screen.getByText('Kakkee updated to the latest version.'),
+    ).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+  });
+
+  it('renders nothing when there is no update or completion notice', () => {
     const { container } = render(<PwaUpdatePrompt />);
 
     expect(container.children).toHaveLength(0);

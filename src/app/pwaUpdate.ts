@@ -28,6 +28,11 @@ export function usePwaUpdate() {
       });
       window.addEventListener('focus', checkForUpdate);
       window.addEventListener('online', checkForUpdate);
+
+      // A PWA may stay open across a deployment. Check immediately on boot
+      // and periodically instead of waiting for a focus event.
+      checkForUpdate();
+      window.setInterval(checkForUpdate, 5 * 60_000);
     },
   });
 }

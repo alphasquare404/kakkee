@@ -62,8 +62,8 @@ export function createPwaWorkbox(basePath: string) {
     // covers a same-origin server mounted below the frontend base.
     navigateFallbackDenylist: denylist,
     cleanupOutdatedCaches: true,
-    skipWaiting: true,
-    clientsClaim: true,
+    skipWaiting: false,
+    clientsClaim: false,
     runtimeCaching: [],
   };
 }
