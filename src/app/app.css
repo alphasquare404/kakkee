@@ -13178,41 +13178,6 @@ body:has(.connection-shell) {
   line-height: 1.25;
 }
 
-.source-library-button {
-  position: absolute;
-  top: 0.35rem;
-  right: 0.35rem;
-  display: grid;
-  width: 1.65rem;
-  height: 1.65rem;
-  min-height: 0;
-  padding: 0;
-  place-items: center;
-  color: var(--text);
-  font-size: 1rem;
-  line-height: 1;
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface-strong) 82%, transparent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(8px);
-}
-
-.source-library-button.is-in-library {
-  color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
-  background: color-mix(in srgb, var(--accent-soft) 88%, var(--surface-strong));
-}
-
-.source-library-button svg {
-  width: 13px;
-  height: 13px;
-}
-
-.source-library-busy {
-  font-size: var(--text-xs);
-  letter-spacing: 0.1em;
-}
 
 @media (max-width: 720px) {
   .source-manga-grid {

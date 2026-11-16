@@ -20,12 +20,7 @@ import {
 } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
-import {
-  IconCheck,
-  IconClose,
-  IconFilter,
-  IconSearch,
-} from '../library/icons';
+import { IconClose, IconFilter, IconSearch } from '../library/icons';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
 import { MangaBookmarkChoices } from '../manga/MangaBookmarkChoices';
@@ -568,18 +563,6 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 manga={manga}
                 resources={context.resources}
                 origin={origin}
-                busy={source.pendingLibraryId === manga.id}
-                onToggleLibrary={() => {
-                  if (
-                    !manga.inLibrary &&
-                    !appPreferences.quickAddToDefaultLibrary
-                  ) {
-                    setCategoryManga(manga);
-                    return;
-                  }
-
-                  void controller.toggleLibrary(manga);
-                }}
                 onContextMenu={(_position, trigger) => {
                   sourceContextTrigger.current = trigger;
                   setSourceContext({
@@ -683,7 +666,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                   setSourceContext(null);
                 }}
               >
-                {t('Add to library and choose categories')}
+                {t('Add to library')}
               </button>
             )}
           </>
@@ -716,21 +699,16 @@ function SourceMangaCard({
   manga,
   resources,
   origin,
-  busy,
-  onToggleLibrary,
   onContextMenu,
 }: {
   readonly manga: SourceManga;
   readonly resources: ConnectedContext['resources'];
   readonly origin: NavigationOrigin;
-  readonly busy: boolean;
-  readonly onToggleLibrary: () => void;
   readonly onContextMenu: (
     position: { readonly x: number; readonly y: number },
     trigger: HTMLElement,
   ) => void;
 }) {
-  const { t } = useI18n();
   const image = useImageResource(resources, manga.thumbnailUrl);
   const longPressTimer = useRef<number | null>(null);
   const longPressPoint = useRef<{ x: number; y: number } | null>(null);
@@ -820,25 +798,6 @@ function SourceMangaCard({
             <span>{manga.title.trim().charAt(0).toUpperCase() || 'M'}</span>
           )}
         </Link>
-        <button
-          className={`source-library-button${manga.inLibrary ? ' is-in-library' : ''}`}
-          type="button"
-          disabled={busy}
-          aria-pressed={manga.inLibrary}
-          aria-label={
-            manga.inLibrary ? t('Remove from library') : t('Add to library')
-          }
-          title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
-          onClick={onToggleLibrary}
-        >
-          {busy ? (
-            <span className="source-library-busy" aria-hidden="true">...</span>
-          ) : manga.inLibrary ? (
-            <IconCheck aria-hidden="true" />
-          ) : (
-            <span aria-hidden="true">+</span>
-          )}
-        </button>
       </div>
       <h2 title={manga.title}>{manga.title}</h2>
     </article>
