@@ -13255,3 +13255,16 @@ body:has(.connection-shell) {
 .source-header-action.is-active {
   color: var(--accent);
 }
+
+
+/* Header actions across every page stay borderless. The search field is an
+   input, not an action button, so it keeps its own field treatment. */
+.page-header-actions button,
+.page-header-actions summary,
+.page-header-actions a,
+.manga-hero-controls button,
+.manga-hero-controls summary {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
