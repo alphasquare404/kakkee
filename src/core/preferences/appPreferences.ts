@@ -12,6 +12,7 @@ export interface AppPreferences {
   readonly accent: string;
   readonly locale: Locale;
   readonly downloadTarget: DownloadTarget;
+  readonly quickAddToDefaultLibrary: boolean;
 }
 
 export const DEFAULT_APP_PREFERENCES: AppPreferences = {
@@ -22,6 +23,7 @@ export const DEFAULT_APP_PREFERENCES: AppPreferences = {
   accent: '#f3332a',
   locale: 'en',
   downloadTarget: 'server',
+  quickAddToDefaultLibrary: false,
 };
 
 function preferredTheme(): ThemeMode {
@@ -77,6 +79,7 @@ function load(): AppPreferences {
           : DEFAULT_APP_PREFERENCES.accent,
       locale: parsed.locale === 'id' ? 'id' : 'en',
       downloadTarget: parsed.downloadTarget === 'device' ? 'device' : 'server',
+      quickAddToDefaultLibrary: parsed.quickAddToDefaultLibrary === true,
     };
   } catch {
     return systemDefaultPreferences();
@@ -147,6 +150,10 @@ export function updateAppPreferences(patch: Partial<AppPreferences>): void {
         : patch.downloadTarget === 'server'
           ? 'server'
           : state.downloadTarget,
+    quickAddToDefaultLibrary:
+      typeof patch.quickAddToDefaultLibrary === 'boolean'
+        ? patch.quickAddToDefaultLibrary
+        : state.quickAddToDefaultLibrary,
   };
   persist(state);
   notify();

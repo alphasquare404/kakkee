@@ -13344,3 +13344,37 @@ body:has(.connection-shell) {
 .category-flags .switch-control input:checked + .switch-track .switch-thumb {
   transform: translateX(0.82rem);
 }
+
+
+.category-behavior {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.category-behavior-copy {
+  min-width: 0;
+}
+
+.category-behavior-copy h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.category-behavior-copy p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.category-behavior-switch {
+  flex: 0 0 auto;
+}

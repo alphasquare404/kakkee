@@ -33,8 +33,18 @@ describe('app preferences', () => {
       accent: '#f3332a',
       locale: 'en',
       downloadTarget: 'server',
+      quickAddToDefaultLibrary: false,
     });
     expect(getReaderSettings()).toBeDefined();
+  });
+
+  it('stores the direct-default library preference', () => {
+    updateAppPreferences({ quickAddToDefaultLibrary: true });
+
+    expect(getAppPreferences().quickAddToDefaultLibrary).toBe(true);
+    expect(
+      JSON.parse(window.localStorage.getItem('suwayomi.app-preferences.v1') ?? '{}'),
+    ).toMatchObject({ quickAddToDefaultLibrary: true });
   });
 
   it('stores the download target', () => {

@@ -12,6 +12,8 @@ import { PageHeader } from '../../shared/PageHeader';
 import { BackButton } from '../../shared/BackButton';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { useI18n } from '../../shared/useI18n';
+import { useAppPreferences } from '../../shared/useAppPreferences';
+import { updateAppPreferences } from '../../core/preferences/appPreferences';
 import { registerMessages } from '../../shared/i18n';
 
 registerMessages('id', {
@@ -44,6 +46,9 @@ registerMessages('id', {
   'Move up': 'Naikkan',
   'Move down': 'Turunkan',
   'Set default': 'Jadikan default',
+  'Add to Default Library directly': 'Tambahkan langsung ke Default Library',
+  'Skip category selection when adding a manga. Turn this off to choose categories first.':
+    'Lewati pemilihan kategori saat menambahkan manga. Matikan untuk memilih kategori terlebih dahulu.',
   Delete: 'Hapus',
   Back: 'Kembali',
 });
@@ -60,6 +65,7 @@ export function CategoriesPage() {
 
 function CategoriesContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const appPreferences = useAppPreferences();
   const controller = useMemo(() => {
     const repository = createCategoryRepository({
       getClient: () => context.graphQL,
@@ -137,6 +143,38 @@ function CategoriesContent({ context }: { readonly context: ConnectedContext }) 
           {t('New category')}
         </button>
       </PageHeader>
+
+      <section className="category-behavior" aria-labelledby="category-behavior-heading">
+        <div className="category-behavior-copy">
+          <h2 id="category-behavior-heading">
+            {t('Add to Default Library directly')}
+          </h2>
+          <p>
+            {t(
+              'Skip category selection when adding a manga. Turn this off to choose categories first.',
+            )}
+          </p>
+        </div>
+        <label className="switch-toggle category-behavior-switch">
+          <span className="sr-only">
+            {t('Add to Default Library directly')}
+          </span>
+          <span className="switch-control">
+            <input
+              type="checkbox"
+              checked={appPreferences.quickAddToDefaultLibrary}
+              onChange={(event) =>
+                updateAppPreferences({
+                  quickAddToDefaultLibrary: event.target.checked,
+                })
+              }
+            />
+            <span className="switch-track">
+              <span className="switch-thumb" />
+            </span>
+          </span>
+        </label>
+      </section>
 
       {creating ? (
         <form

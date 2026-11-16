@@ -47,6 +47,7 @@ import {
   subscribeDeviceDownloads,
 } from '../../core/offline/deviceDownloadQueue';
 import { useI18n } from '../../shared/useI18n';
+import { useAppPreferences } from '../../shared/useAppPreferences';
 import { registerMessages } from '../../shared/i18n';
 import {
   IconCheck,
@@ -335,6 +336,7 @@ function ConnectedMangaDetail({
   readonly mangaId: number;
 }) {
   const { t } = useI18n();
+  const appPreferences = useAppPreferences();
   const nsfw = useNsfwPreferences();
   const location = useLocation();
   const navigate = useNavigate();
@@ -1053,21 +1055,34 @@ function ConnectedMangaDetail({
           <span className="page-nav-current">{manga.title}</span>
         </div>
         <div className="manga-hero-controls">
-          <ActionMenu
-            label={<MangaBookmarkIcon filled={manga.inLibrary} />}
-            ariaLabel={
-              manga.inLibrary ? t('Library categories') : t('Add to library')
-            }
-            className={libraryPending ? 'is-busy' : ''}
-            summaryClassName={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
-          >
-            <MangaBookmarkChoices
-              context={context}
-              mangaId={manga.id}
-              inLibrary={manga.inLibrary}
-              onSetLibrary={setLibraryState}
-            />
-          </ActionMenu>
+          {appPreferences.quickAddToDefaultLibrary && !manga.inLibrary ? (
+            <button
+              className={`hero-control${libraryPending ? ' is-busy' : ''}`}
+              type="button"
+              disabled={libraryPending}
+              aria-label={t('Add to library')}
+              title={t('Add to library')}
+              onClick={() => void setLibraryState(true)}
+            >
+              <MangaBookmarkIcon filled={false} />
+            </button>
+          ) : (
+            <ActionMenu
+              label={<MangaBookmarkIcon filled={manga.inLibrary} />}
+              ariaLabel={
+                manga.inLibrary ? t('Library categories') : t('Add to library')
+              }
+              className={libraryPending ? 'is-busy' : ''}
+              summaryClassName={`hero-control${manga.inLibrary ? ' is-active' : ''}`}
+            >
+              <MangaBookmarkChoices
+                context={context}
+                mangaId={manga.id}
+                inLibrary={manga.inLibrary}
+                onSetLibrary={setLibraryState}
+              />
+            </ActionMenu>
+          )}
           <ActionMenu
             label={<MangaDotsIcon />}
             ariaLabel={t('More manga actions')}

@@ -47,7 +47,7 @@ function manga(id) {
     thumbnailUrl: `/api/v1/manga/${id}/thumbnail`,
     thumbnailUrlLastFetched: '2026-11-14T00:00:00Z',
     genre: ['Adventure', 'Slice of Life', 'Mystery'],
-    inLibrary: true,
+    inLibrary: id % 2 === 0,
     unreadCount: 24 + index,
     downloadCount: 8 + (index % 4),
     bookmarkCount: 0,
@@ -199,6 +199,16 @@ function fixture(name, variables) {
       return { downloadStatus: { queue: [{ position: 1 }, { position: 2 }] }, extensions: { totalCount: 1 } };
     case 'LibraryCategories':
       return { categories: { nodes: CATEGORIES } };
+    case 'MangaCategoryPicker': {
+      const mangaId = Number(variables?.mangaId) || 1;
+      return {
+        manga: {
+          id: mangaId,
+          categories: { nodes: CATEGORIES.slice(0, 1) },
+        },
+        categories: { nodes: CATEGORIES },
+      };
+    }
     case 'CategoryCatalog':
       return { categories: { nodes: CATEGORIES.map((item) => ({ ...item, default: false, isDefaultCategory: false, includeInUpdate: 'INCLUDE', includeInDownload: 'INCLUDE' })) } };
     case 'LibraryMangas':
@@ -267,7 +277,7 @@ function fixture(name, variables) {
             id: item.id,
             title: item.title,
             thumbnailUrl: item.thumbnailUrl,
-            inLibrary: true,
+            inLibrary: item.id % 2 === 0,
             sourceId,
           })),
         },

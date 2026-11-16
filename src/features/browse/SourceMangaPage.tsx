@@ -1,10 +1,11 @@
-﻿import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useConnection } from '../../app/useConnection';
 import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
 import { BackButton } from '../../shared/BackButton';
 import { FilterDrawer } from '../../shared/FilterDrawer';
+import { ContextMenu } from '../../shared/ContextMenu';
 import {
   createSectionOrigin,
   type NavigationOrigin,
@@ -27,8 +28,10 @@ import {
 } from '../library/icons';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
+import { MangaBookmarkChoices } from '../manga/MangaBookmarkChoices';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
+import { useAppPreferences } from '../../shared/useAppPreferences';
 
 registerMessages('id', {
   Source: 'Source',
@@ -93,6 +96,7 @@ export function SourceMangaPage() {  const { state } = useConnection();
 
 function SourceMangaContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const appPreferences = useAppPreferences();
   const { sourceId = '' } = useParams();
   const repository = useMemo(
     () => createSourceRepository({ getClient: () => context.graphQL }),
@@ -139,7 +143,14 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const preferencesButton = useRef<HTMLElement>(null);
   const sourceSearchInput = useRef<HTMLInputElement>(null);
   const loadMoreSentinel = useRef<HTMLDivElement>(null);
+  const sourceContextTrigger = useRef<HTMLElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [sourceContext, setSourceContext] = useState<{
+    readonly manga: SourceManga;
+    readonly x: number;
+    readonly y: number;
+  } | null>(null);
+  const [categoryManga, setCategoryManga] = useState<SourceManga | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
@@ -240,6 +251,22 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     observer.observe(node);
     return () => observer.disconnect();
   }, [controller, source.hasNextPage, source.loadingMore, source.status]);
+
+  const categoryMangaCurrent = categoryManga
+    ? source.mangas.find((item) => item.id === categoryManga.id) ?? categoryManga
+    : null;
+
+  const setMangaLibrary = async (
+    manga: SourceManga,
+    inLibrary: boolean,
+  ): Promise<void> => {
+    const current =
+      source.mangas.find((item) => item.id === manga.id) ?? manga;
+
+    if (current.inLibrary !== inLibrary) {
+      await controller.toggleLibrary(current);
+    }
+  };
 
   return (
     <div className="app-shell page-shell browse-shell">
@@ -542,7 +569,25 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
                 resources={context.resources}
                 origin={origin}
                 busy={source.pendingLibraryId === manga.id}
-                onToggleLibrary={() => void controller.toggleLibrary(manga)}
+                onToggleLibrary={() => {
+                  if (
+                    !manga.inLibrary &&
+                    !appPreferences.quickAddToDefaultLibrary
+                  ) {
+                    setCategoryManga(manga);
+                    return;
+                  }
+
+                  void controller.toggleLibrary(manga);
+                }}
+                onContextMenu={(_position, trigger) => {
+                  sourceContextTrigger.current = trigger;
+                  setSourceContext({
+                    manga,
+                    x: _position.x,
+                    y: _position.y,
+                  });
+                }}
               />
             ))}
           </div>
@@ -560,6 +605,109 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           ) : null}
         </>
       ) : null}
+
+      <ContextMenu
+        open={sourceContext !== null}
+        position={
+          sourceContext
+            ? { x: sourceContext.x, y: sourceContext.y }
+            : { x: 0, y: 0 }
+        }
+        label={
+          sourceContext
+            ? `Manga actions for ${sourceContext.manga.title}`
+            : 'Manga actions'
+        }
+        onClose={() => setSourceContext(null)}
+        returnFocusRef={sourceContextTrigger}
+      >
+        {sourceContext ? (
+          <>
+            <Link
+              className="context-menu-item"
+              role="menuitem"
+              to={`/manga/${sourceContext.manga.id}`}
+              state={{ origin }}
+              onClick={() => setSourceContext(null)}
+            >
+              {t('View details')}
+            </Link>
+            {sourceContext.manga.inLibrary ? (
+              <>
+                <button
+                  className="context-menu-item"
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setCategoryManga(sourceContext.manga);
+                    setSourceContext(null);
+                  }}
+                >
+                  {t('Manage categories')}
+                </button>
+                <button
+                  className="context-menu-item is-danger"
+                  type="button"
+                  role="menuitem"
+                  disabled={source.pendingLibraryId === sourceContext.manga.id}
+                  onClick={() => {
+                    const manga = sourceContext.manga;
+                    setSourceContext(null);
+                    void setMangaLibrary(manga, false);
+                  }}
+                >
+                  {t('Remove from library')}
+                </button>
+              </>
+            ) : appPreferences.quickAddToDefaultLibrary ? (
+              <button
+                className="context-menu-item"
+                type="button"
+                role="menuitem"
+                disabled={source.pendingLibraryId === sourceContext.manga.id}
+                onClick={() => {
+                  const manga = sourceContext.manga;
+                  setSourceContext(null);
+                  void setMangaLibrary(manga, true);
+                }}
+              >
+                {t('Add to library')}
+              </button>
+            ) : (
+              <button
+                className="context-menu-item"
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setCategoryManga(sourceContext.manga);
+                  setSourceContext(null);
+                }}
+              >
+                {t('Add to library and choose categories')}
+              </button>
+            )}
+          </>
+        ) : null}
+      </ContextMenu>
+
+      <FilterDrawer
+        open={categoryMangaCurrent !== null}
+        title={t('Add to library')}
+        description={categoryMangaCurrent?.title}
+        onClose={() => setCategoryManga(null)}
+        triggerRef={sourceContextTrigger}
+      >
+        {categoryMangaCurrent ? (
+          <MangaBookmarkChoices
+            context={context}
+            mangaId={categoryMangaCurrent.id}
+            inLibrary={categoryMangaCurrent.inLibrary}
+            onSetLibrary={(inLibrary) =>
+              setMangaLibrary(categoryMangaCurrent, inLibrary)
+            }
+          />
+        ) : null}
+      </FilterDrawer>
     </div>
   );
 }
@@ -570,18 +718,95 @@ function SourceMangaCard({
   origin,
   busy,
   onToggleLibrary,
+  onContextMenu,
 }: {
   readonly manga: SourceManga;
   readonly resources: ConnectedContext['resources'];
   readonly origin: NavigationOrigin;
   readonly busy: boolean;
   readonly onToggleLibrary: () => void;
+  readonly onContextMenu: (
+    position: { readonly x: number; readonly y: number },
+    trigger: HTMLElement,
+  ) => void;
 }) {
   const { t } = useI18n();
   const image = useImageResource(resources, manga.thumbnailUrl);
+  const longPressTimer = useRef<number | null>(null);
+  const longPressPoint = useRef<{ x: number; y: number } | null>(null);
+  const longPressTriggered = useRef(false);
+
+  const clearLongPress = () => {
+    if (longPressTimer.current !== null) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+
+    longPressPoint.current = null;
+  };
+
+  const openContextMenu = (
+    x: number,
+    y: number,
+    trigger: HTMLElement,
+  ) => {
+    clearLongPress();
+    onContextMenu({ x, y }, trigger);
+  };
+
+  const startLongPress = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.pointerType === 'mouse') {
+      return;
+    }
+
+    clearLongPress();
+    longPressTriggered.current = false;
+    longPressPoint.current = { x: event.clientX, y: event.clientY };
+    const trigger = event.currentTarget;
+    longPressTimer.current = window.setTimeout(() => {
+      longPressTimer.current = null;
+      longPressTriggered.current = true;
+      openContextMenu(event.clientX, event.clientY, trigger);
+      window.setTimeout(() => {
+        longPressTriggered.current = false;
+      }, 900);
+    }, 500);
+  };
+
+  const moveLongPress = (event: React.PointerEvent<HTMLElement>) => {
+    const origin = longPressPoint.current;
+
+    if (
+      !origin ||
+      Math.abs(event.clientX - origin.x) > 10 ||
+      Math.abs(event.clientY - origin.y) > 10
+    ) {
+      clearLongPress();
+    }
+  };
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    openContextMenu(event.clientX, event.clientY, event.currentTarget);
+  };
 
   return (
-    <article className="source-manga-card">
+    <article
+      className="source-manga-card"
+      onContextMenu={handleContextMenu}
+      onPointerDown={startLongPress}
+      onPointerMove={moveLongPress}
+      onPointerUp={clearLongPress}
+      onPointerCancel={clearLongPress}
+      onPointerLeave={clearLongPress}
+      onClickCapture={(event) => {
+        if (longPressTriggered.current) {
+          longPressTriggered.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
+    >
       <div className="source-manga-cover-wrap">
         <Link
           className="source-manga-cover"
