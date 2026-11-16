@@ -20,6 +20,7 @@ import {
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
 import { SearchIcon } from '../../shared/SearchIcon';
+import { IconCheck } from '../library/icons';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
 import { useI18n } from '../../shared/useI18n';
@@ -28,7 +29,6 @@ import { registerMessages } from '../../shared/i18n';
 registerMessages('id', {
   Source: 'Source',
   'Source manga catalog': 'Katalog manga source',
-  '{count} loaded': '{count} dimuat',
   'All sources': 'Semua source',
   More: 'Lainnya',
   'Source actions': 'Aksi source',
@@ -54,10 +54,8 @@ registerMessages('id', {
   'Clear search': 'Hapus pencarian',
   'Clear filters': 'Hapus filter',
   'No manga match these filters': 'Tidak ada manga yang cocok',
-  'Turn off a filter or load more catalog pages.':
-    'Matikan filter atau muat lebih banyak halaman katalog.',
-  'Load more': 'Muat lebih banyak',
-  'In library': 'Di perpustakaan',
+  'Turn off a filter or adjust the search.':
+    'Matikan filter atau sesuaikan pencarian.',
   'Add to library': 'Tambahkan ke perpustakaan',
   'Remove from library': 'Hapus dari perpustakaan',
   'Adding…': 'Menambahkan…',
@@ -135,6 +133,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const [filterCount, setFilterCount] = useState(0);
   const filtersButton = useRef<HTMLButtonElement>(null);
   const preferencesButton = useRef<HTMLElement>(null);
+  const loadMoreSentinel = useRef<HTMLDivElement>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
@@ -207,16 +206,40 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
     void controller.search(urlQuery);
   }, [controller, searchParamKey]);
 
+  useEffect(() => {
+    if (
+      typeof IntersectionObserver === 'undefined' ||
+      !source.hasNextPage ||
+      source.loadingMore ||
+      source.status !== 'ready'
+    ) {
+      return;
+    }
+
+    const node = loadMoreSentinel.current;
+
+    if (!node) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void controller.loadMore();
+        }
+      },
+      { rootMargin: '600px 0px' },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [controller, source.hasNextPage, source.loadingMore, source.status]);
+
   return (
     <div className="app-shell page-shell browse-shell">
       <PageHeader
         title={source.source?.displayName ?? t('Source')}
         subtitle={source.source?.name ?? t('Source manga catalog')}
-        count={
-          source.status === 'ready'
-            ? t('{count} loaded', { count: visibleMangas.length })
-            : undefined
-        }
         leading={<BackButton to="/browse" label={t('All sources')} />}
       >
         <ActionMenu
@@ -448,7 +471,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
       {source.status === 'ready' && source.mangas.length > 0 && visibleMangas.length === 0 ? (
         <div className="library-state">
           <h1>{t('No manga match these filters')}</h1>
-          <p>{t('Turn off a filter or load more catalog pages.')}</p>
+          <p>{t('Turn off a filter or adjust the search.')}</p>
           <div className="actions">
             <button
               className="button"
@@ -480,16 +503,16 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             ))}
           </div>
           {source.hasNextPage ? (
-            <div className="source-load-more">
-              <button
-                className="button button-secondary"
-                type="button"
-                disabled={source.loadingMore}
-                onClick={() => void controller.loadMore()}
-              >
-                {source.loadingMore ? t('Loading…') : t('Load more')}
-              </button>
-            </div>
+            <div
+              ref={loadMoreSentinel}
+              className="source-load-sentinel"
+              aria-hidden="true"
+            />
+          ) : null}
+          {source.loadingMore ? (
+            <p className="source-auto-loading" role="status">
+              {t('Loading…')}
+            </p>
           ) : null}
         </>
       ) : null}
@@ -515,35 +538,40 @@ function SourceMangaCard({
 
   return (
     <article className="source-manga-card">
-      <Link
-        className="source-manga-cover"
-        to={`/manga/${manga.id}`}
-        state={{ origin }}
-        aria-label={`${manga.title}, manga details`}
-      >
-        {image.objectUrl ? (
-          <img src={image.objectUrl} alt="" loading="lazy" decoding="async" />
-        ) : (
-          <span>{manga.title.trim().charAt(0).toUpperCase() || 'M'}</span>
-        )}
-      </Link>
+      <div className="source-manga-cover-wrap">
+        <Link
+          className="source-manga-cover"
+          to={`/manga/${manga.id}`}
+          state={{ origin }}
+          aria-label={`${manga.title}, manga details`}
+        >
+          {image.objectUrl ? (
+            <img src={image.objectUrl} alt="" loading="lazy" decoding="async" />
+          ) : (
+            <span>{manga.title.trim().charAt(0).toUpperCase() || 'M'}</span>
+          )}
+        </Link>
+        <button
+          className={`source-library-button${manga.inLibrary ? ' is-in-library' : ''}`}
+          type="button"
+          disabled={busy}
+          aria-pressed={manga.inLibrary}
+          aria-label={
+            manga.inLibrary ? t('Remove from library') : t('Add to library')
+          }
+          title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
+          onClick={onToggleLibrary}
+        >
+          {busy ? (
+            <span className="source-library-busy" aria-hidden="true">...</span>
+          ) : manga.inLibrary ? (
+            <IconCheck aria-hidden="true" />
+          ) : (
+            <span aria-hidden="true">+</span>
+          )}
+        </button>
+      </div>
       <h2 title={manga.title}>{manga.title}</h2>
-      <button
-        className={`source-library-button${manga.inLibrary ? ' is-in-library' : ''}`}
-        type="button"
-        disabled={busy}
-        aria-pressed={manga.inLibrary}
-        title={manga.inLibrary ? t('Remove from library') : t('Add to library')}
-        onClick={onToggleLibrary}
-      >
-        {busy
-          ? manga.inLibrary
-            ? t('Removing…')
-            : t('Adding…')
-          : manga.inLibrary
-            ? t('In library')
-            : t('Add to library')}
-      </button>
     </article>
   );
 }

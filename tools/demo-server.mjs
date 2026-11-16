@@ -234,6 +234,17 @@ function fixture(name, variables) {
       return { updateChapter: { chapter: { id: 101, isRead: false, isBookmarked: false, lastPageRead: 3 } } };
     case 'SourceCatalog':
       return { sources: { nodes: SOURCES.map((source) => ({ ...source, lang: 'en', isNsfw: false, contentWarning: 'SAFE', supportsLatest: true, iconUrl: `/api/v1/source/${source.id}/icon` })), totalCount: SOURCES.length } };
+    case 'SourceInfo':
+      return {
+        source: {
+          id: String(variables?.id || 'demo-aster'),
+          displayName: 'Aster Library',
+          name: 'Aster Library',
+          lang: 'en',
+          contentWarning: 'SAFE',
+          filters: [],
+        },
+      };
     case 'SourcePreferences':
       return { source: { id: variables?.sourceId, displayName: 'Aster Library', preferences: [] } };
     case 'GlobalSearch': {
@@ -244,11 +255,15 @@ function fixture(name, variables) {
     case 'FetchSourceManga': {
       const query = String(variables?.input?.query || '').toLowerCase();
       const matches = all.filter((item) => item.title.toLowerCase().includes(query));
-      const sourceId = String(variables?.input?.sourceId || 'demo-aster');
+      const page = Math.max(1, Number(variables?.input?.page) || 1);
+      const pageSize = 8;
+      const start = (page - 1) * pageSize;
+      const mangas = matches.slice(start, start + pageSize);
+      const sourceId = String(variables?.input?.source || variables?.input?.sourceId || 'demo-aster');
       return {
         fetchSourceManga: {
-          hasNextPage: false,
-          mangas: matches.map((item) => ({
+          hasNextPage: start + pageSize < matches.length,
+          mangas: mangas.map((item) => ({
             id: item.id,
             title: item.title,
             thumbnailUrl: item.thumbnailUrl,
