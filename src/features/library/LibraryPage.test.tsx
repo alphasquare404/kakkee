@@ -580,7 +580,7 @@ describe('LibraryPage categories', () => {
         return data({ __typename: 'Query', categories: categoryData() });
       }
 
-      if (variables?.filter?.categoryId?.equalTo === 0) {
+      if (variables?.filter?.categoryId?.isNull === true) {
         return libraryQuery(page([manga(2, 'Default manga')]));
       }
 
@@ -604,7 +604,7 @@ describe('LibraryPage categories', () => {
         expect.objectContaining({
           query: LibraryMangasDocument,
           variables: expect.objectContaining({
-            filter: { categoryId: { equalTo: 0 } },
+            filter: { categoryId: { isNull: true } },
           }),
         }),
       ),

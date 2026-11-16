@@ -787,7 +787,15 @@ describe('parity pages', () => {
       await screen.findByRole('heading', { name: 'Example Source' }),
     ).toBeTruthy();
     expect(await screen.findByText('Source Manga')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Add to library' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Add to library' })).toBeNull();
+
+    const card = screen
+      .getByText('Source Manga')
+      .closest('.source-manga-card') as HTMLElement;
+    fireEvent.contextMenu(card, { clientX: 20, clientY: 20 });
+    expect(
+      await screen.findByRole('menuitem', { name: 'Add to library' }),
+    ).toBeTruthy();
 
     const user = userEvent.setup();
     expect(screen.getByRole('button', { name: 'Search source' })).toBeTruthy();
