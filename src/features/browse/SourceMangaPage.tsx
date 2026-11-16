@@ -332,7 +332,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         }
       >
         <button
-          className={`library-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
+          className={`library-action source-header-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
           type="button"
           aria-label={searchOpen ? t('Close search') : t('Open source search')}
           aria-expanded={searchOpen}
@@ -350,7 +350,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         </button>
         <button
           ref={filtersButton}
-          className={`library-action${activeFilterCount > 0 ? ' is-active' : ''}`}
+          className={`library-action source-header-action${activeFilterCount > 0 ? ' is-active' : ''}`}
           type="button"
           aria-haspopup="dialog"
           aria-expanded={filtersOpen}
@@ -374,7 +374,7 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
           label={<MoreVerticalIcon />}
           ariaLabel={t('Source actions')}
           showChevron={false}
-          summaryClassName="library-action"
+          summaryClassName="library-action source-header-action"
           triggerRef={preferencesButton}
         >
           <button

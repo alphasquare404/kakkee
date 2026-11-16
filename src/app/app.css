@@ -13241,3 +13241,17 @@ body:has(.connection-shell) {
   font-size: var(--text-sm);
   text-align: center;
 }
+
+
+/* Source header actions stay borderless in every state, like Library. */
+.source-header-action,
+.source-header-action:hover,
+.source-header-action[aria-expanded="true"],
+.source-header-action.is-active {
+  border-color: transparent;
+  background: transparent;
+}
+
+.source-header-action.is-active {
+  color: var(--accent);
+}
