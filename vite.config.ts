@@ -48,6 +48,8 @@ export default defineConfig(({ mode }) => {
           'icons/icon-512-maskable.png',
           'icons/apple-touch-icon.png',
           'icons/favicon-32.png',
+          'icons/nsfw-mode-mask.png',
+          'icons/sfw-mode-mask.png',
         ],
         includeManifestIcons: false,
         manifest: createPwaManifest(frontendBasePath),
