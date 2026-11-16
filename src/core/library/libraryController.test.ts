@@ -398,7 +398,7 @@ describe('createLibraryController criteria changes', () => {
 
     expect(getPage).toHaveBeenLastCalledWith({
       first: 40,
-      filter: { categoryId: 0 },
+      filter: { uncategorized: true },
       sort: DEFAULT_LIBRARY_SORT,
     });
     expect(state(controller).categoryId).toBe(0);

@@ -17,7 +17,7 @@ Checking the category again, or pressing **Show all**, restores its manga everyw
 **All** and **Default** are different:
 
 - All is a synthetic aggregate view;
-- Default is a real category with server ID 0.
+- Default is a real category with server ID 0; its members are mangas whose `categoryId` is null, so Library reads it with `categoryId.isNull: true` rather than `equalTo: 0`.
 
 ## Data
 

@@ -104,11 +104,21 @@ function isInconsistent(page: LibraryPage): boolean {
   return page.pageInfo.hasNextPage && page.pageInfo.endCursor === null;
 }
 
+const DEFAULT_CATEGORY_ID = 0;
+
 function repositoryFilter(
   filter: LibraryFilterCriteria,
   categoryId: number | null,
 ): LibraryFilter {
-  return categoryId === null ? filter : { ...filter, categoryId };
+  if (categoryId === null) {
+    return filter;
+  }
+
+  if (categoryId === DEFAULT_CATEGORY_ID) {
+    return { ...filter, uncategorized: true };
+  }
+
+  return { ...filter, categoryId };
 }
 
 export function createLibraryController(

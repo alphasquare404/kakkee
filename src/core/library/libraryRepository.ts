@@ -54,6 +54,8 @@ export interface LibraryFilter {
   readonly sourceId?: string;
   /** Single category; multi-category remains a later extension. */
   readonly categoryId?: number;
+  /** Default category is represented by mangas without an explicit category. */
+  readonly uncategorized?: boolean;
 }
 
 export interface LibraryPageInput {
@@ -154,7 +156,9 @@ function filterInput(filter: LibraryFilter | undefined): MangaFilterInput | unde
     result.sourceId = { equalTo: sourceId };
   }
 
-  if (filter.categoryId !== undefined) {
+  if (filter.uncategorized) {
+    result.categoryId = { isNull: true };
+  } else if (filter.categoryId !== undefined) {
     if (!Number.isSafeInteger(filter.categoryId)) {
       throw new LibraryInputError('INVALID_CATEGORY_ID');
     }

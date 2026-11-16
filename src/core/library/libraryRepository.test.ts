@@ -200,6 +200,17 @@ describe('createLibraryRepository filtering', () => {
     });
   });
 
+  it('maps the Default category to the server uncategorized filter', async () => {
+    const { client, query } = fakeClient();
+    const repository = createLibraryRepository({ getClient: () => client });
+
+    await repository.getPage({ filter: { uncategorized: true } });
+
+    expect(queryOptions(query).variables?.filter).toEqual({
+      categoryId: { isNull: true },
+    });
+  });
+
   it('maps a status OR set to the server in-filter', async () => {
     const { client, query } = fakeClient();
     const repository = createLibraryRepository({ getClient: () => client });

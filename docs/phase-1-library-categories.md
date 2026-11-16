@@ -81,7 +81,7 @@ Alasan selection set minimum:
 - `id` untuk identity dan filter manga.
 - `name` untuk label; tidak ada hardcode nama server.
 - `order` untuk urutan user configuration.
-- `default`/`isDefaultCategory` tersedia tetapi tidak diambil untuk navigasi; tidak ada kebutuhan UI saat ini.
+- `default`/`isDefaultCategory` tersedia tetapi tidak dipakai untuk navigasi. Default category sekarang dibaca dari `CategoryCatalog`.
 - Tidak mengambil `mangas`, `totalCount`, `pageInfo`, atau meta; tidak ada category count/N+1.
 
 Category operation tidak memakai pagination. Kategori adalah navigation list kecil dan stable; pagination belum diperlukan. Ini dapat ditambahkan jika jumlah kategori nyata menunjukkan kebutuhan.
@@ -107,19 +107,35 @@ Stable v2.4.2366 pada test server kosong mengembalikan:
 - Backend memiliki **Default category dengan ID 0**, `default: true`, `isDefaultCategory: true`, `order: 0`.
 - `category(id: 1)` tidak ada pada server kosong; jangan menganggap ID 1 adalah default.
 - `Query.categories` tersedia dan mengembalikan category list.
-- Library query dengan `filter.categoryId.equalTo: 0` berhasil; library kosong mengembalikan `nodes: []`, `endCursor: null`, `hasNextPage: false`, `totalCount: 0`.
+- Library query dengan `filter.categoryId.equalTo: 0` dapat mengembalikan kosong walaupun Default berisi manga. Lihat koreksi runtime di bawah.
 
 ### Default vs uncategorized vs All
 
-- **Default** adalah backend category nyata (ID 0 pada runtime baseline). Name harus datang dari GraphQL; jangan hardcode label server.
-- **Uncategorized** tidak memiliki field/flag khusus yang terpisah di category contract. Jangan mengklaim Default == uncategorized untuk semua manga sampai diuji dengan library non-empty.
-- **All** tidak ada di backend. Ini synthetic frontend option.
-
-Synthetic All semantics:
+Runtime correction (2026-11-17): pada server dengan Default berisi 1 manga:
 
 ```text
-All       → categoryId = null → tidak mengirim category refinement
-Category  → categoryId = id   → filter.categoryId.equalTo = id
+categories[0].mangas.totalCount       = 1
+category(id: 0).mangas.nodes          = [manga dengan categories: []]
+manga.categories.nodes                = []
+mangas(filter categoryId.equalTo: 0)  = 0
+mangas(filter categoryId.isNull: true)= 1
+```
+
+Kesimpulan:
+
+- **Default** adalah backend category nyata dengan ID 0, tetapi keanggotaannya direpresentasikan sebagai manga tanpa kategori eksplisit.
+- `manga.categories` tidak mengembalikan Default.
+- `filter.categoryId.equalTo: 0` **tidak** boleh dipakai untuk membaca isi Default.
+- Frontend memetakan Default category ID 0 ke filter `categoryId.isNull: true`.
+- **Uncategorized** adalah representasi data untuk anggota Default; jangan menampilkan dua konsep terpisah kepada user.
+- **All** tidak ada di backend. Ini synthetic frontend option.
+
+Synthetic filter semantics:
+
+```text
+All       → categoryId = null       → tidak mengirim category refinement
+Default   → categoryId = 0          → filter.categoryId.isNull = true
+Category  → categoryId = id (id>0)  → filter.categoryId.equalTo = id
 ```
 
 Library invariant tetap:
