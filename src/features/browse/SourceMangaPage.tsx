@@ -19,8 +19,12 @@ import {
 } from '../../core/source/sourceRepository';
 import { useImageResource } from '../../shared/useImageResource';
 import { PageHeader } from '../../shared/PageHeader';
-import { SearchIcon } from '../../shared/SearchIcon';
-import { IconCheck } from '../library/icons';
+import {
+  IconCheck,
+  IconClose,
+  IconFilter,
+  IconSearch,
+} from '../library/icons';
 import { SourcePreferencesSection } from './SourcePreferencesSection';
 import { SourceFilterPanel, type SourceFilterData } from './SourceFilterPanel';
 import { useI18n } from '../../shared/useI18n';
@@ -30,7 +34,6 @@ registerMessages('id', {
   Source: 'Source',
   'Source manga catalog': 'Katalog manga source',
   'All sources': 'Semua source',
-  More: 'Lainnya',
   'Source actions': 'Aksi source',
   Popular: 'Populer',
   Latest: 'Terbaru',
@@ -133,7 +136,9 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
   const [filterCount, setFilterCount] = useState(0);
   const filtersButton = useRef<HTMLButtonElement>(null);
   const preferencesButton = useRef<HTMLElement>(null);
+  const sourceSearchInput = useRef<HTMLInputElement>(null);
   const loadMoreSentinel = useRef<HTMLDivElement>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [hideInLibrary, setHideInLibrary] = useState(false);
   const [duplicatesOnly, setDuplicatesOnly] = useState(false);
@@ -241,11 +246,134 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
         title={source.source?.displayName ?? t('Source')}
         subtitle={source.source?.name ?? t('Source manga catalog')}
         leading={<BackButton to="/browse" label={t('All sources')} />}
+        toolbar={
+          <form
+            id="source-search-form"
+            className={`library-search header-search-form${searchOpen ? ' is-open' : ''}`}
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              if (source.status !== 'loading') {
+                runSearch(search);
+              }
+            }}
+          >
+            <IconSearch className="library-search-icon" />
+            <span className="sr-only">{t('Search source')}</span>
+            <input
+              ref={sourceSearchInput}
+              type="search"
+              aria-label={t('Search source')}
+              placeholder={t('Search this source…')}
+              value={search}
+              enterKeyHint="search"
+              autoComplete="off"
+              onChange={(event) => setSearch(event.target.value)}
+              onFocus={() => setHistoryOpen(true)}
+              onClick={() => setHistoryOpen(true)}
+              onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
+            />
+            <button
+              className="library-search-submit"
+              type="submit"
+              aria-label={t('Search source')}
+              disabled={source.status === 'loading'}
+            >
+              <IconSearch />
+            </button>
+            {search ? (
+              <button
+                type="button"
+                className="library-search-clear"
+                aria-label={t('Clear search')}
+                onClick={() => {
+                  setSearch('');
+                  runSearch('');
+                  sourceSearchInput.current?.focus();
+                }}
+              >
+                <IconClose />
+              </button>
+            ) : null}
+            {historyOpen && searchHistory.length > 0 ? (
+              <div
+                className="source-search-history"
+                role="listbox"
+                aria-label="Recent source searches"
+              >
+                {searchHistory.map((term) => (
+                  <button
+                    key={term}
+                    type="button"
+                    role="option"
+                    aria-selected={false}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      setSearch(term);
+                      runSearch(term);
+                    }}
+                  >
+                    {term}
+                  </button>
+                ))}
+                <button
+                  className="source-search-history-clear"
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => clearSourceSearchHistory(sourceId)}
+                >
+                  {t('Clear history')}
+                </button>
+              </div>
+            ) : null}
+          </form>
+        }
       >
+        <button
+          className={`library-action library-search-toggle${searchOpen ? ' is-active' : ''}`}
+          type="button"
+          aria-label={searchOpen ? t('Close search') : t('Search source')}
+          aria-expanded={searchOpen}
+          aria-controls="source-search-form"
+          onClick={() => {
+            if (searchOpen) {
+              setSearchOpen(false);
+            } else {
+              setSearchOpen(true);
+              window.setTimeout(() => sourceSearchInput.current?.focus(), 0);
+            }
+          }}
+        >
+          <IconSearch />
+        </button>
+        <button
+          ref={filtersButton}
+          className={`library-action${activeFilterCount > 0 ? ' is-active' : ''}`}
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={filtersOpen}
+          aria-label={
+            activeFilterCount > 0
+              ? `${t('Filters')}, ${activeFilterCount} active`
+              : t('Filters')
+          }
+          title={t('Filters')}
+          onClick={() => setFiltersOpen(true)}
+        >
+          <IconFilter />
+          <span className="library-action-label">{t('Filters')}</span>
+          {activeFilterCount > 0 ? (
+            <span className="library-action-count" aria-hidden="true">
+              {activeFilterCount}
+            </span>
+          ) : null}
+        </button>
         <ActionMenu
-          label={t('More')}
+          label={<MoreVerticalIcon />}
           ariaLabel={t('Source actions')}
-          summaryClassName="button button-secondary"
+          showChevron={false}
+          summaryClassName="library-action"
           triggerRef={preferencesButton}
         >
           <button
@@ -276,91 +404,6 @@ function SourceMangaContent({ context }: { readonly context: ConnectedContext })
             {t('Latest')}
           </button>
         </div>
-        <div className="source-filter-toggles">
-          <button
-            ref={filtersButton}
-            className={`button button-secondary${activeFilterCount > 0 ? ' is-active' : ''}`}
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded={filtersOpen}
-            aria-label={
-              activeFilterCount > 0
-                ? `${t('Filters')}, ${activeFilterCount} active`
-                : t('Filters')
-            }
-            onClick={() => setFiltersOpen(true)}
-          >
-            {t('Filters')}
-            {activeFilterCount > 0 ? (
-              <span className="library-action-count" aria-hidden="true">
-                {activeFilterCount}
-              </span>
-            ) : null}
-            {activeFilterCount > 0 ? (
-              <span className="sr-only">, {activeFilterCount} active</span>
-            ) : null}
-          </button>
-        </div>
-        <form
-          className="source-search"
-          role="search"
-          onSubmit={(event) => {
-            event.preventDefault();
-
-            if (source.status !== 'loading') {
-              runSearch(search);
-            }
-          }}
-        >
-          <input
-            type="search"
-            aria-label="Search source"
-            placeholder="Search this source…"
-            value={search}
-            enterKeyHint="search"
-            autoComplete="off"
-            onChange={(event) => setSearch(event.target.value)}
-            onFocus={() => setHistoryOpen(true)}
-            onClick={() => setHistoryOpen(true)}
-            onBlur={() => window.setTimeout(() => setHistoryOpen(false), 120)}
-          />
-          <button
-            className="button search-submit-icon"
-            type="submit"
-            aria-label={t('Search source')}
-            title={t('Search source')}
-            disabled={source.status === 'loading'}
-          >
-            <SearchIcon />
-          </button>
-          {historyOpen && searchHistory.length > 0 ? (
-            <div className="source-search-history" role="listbox" aria-label="Recent source searches">
-              {searchHistory.map((term) => (
-                <button
-                  key={term}
-                  type="button"
-                  role="option"
-                  aria-selected={false}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => {
-                    setSearch(term);
-                    runSearch(term);
-                  }}
-                >
-                  {term}
-                </button>
-              ))}
-              <button
-                className="source-search-history-clear"
-                type="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => clearSourceSearchHistory(sourceId)}
-              >
-                {t('Clear history')}
-              </button>
-            </div>
-          ) : null}
-        </form>
       </div>
 
       <FilterDrawer
@@ -576,3 +619,14 @@ function SourceMangaCard({
   );
 }
 
+
+
+function MoreVerticalIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <circle cx="10" cy="4.5" r="1.45" />
+      <circle cx="10" cy="10" r="1.45" />
+      <circle cx="10" cy="15.5" r="1.45" />
+    </svg>
+  );
+}
