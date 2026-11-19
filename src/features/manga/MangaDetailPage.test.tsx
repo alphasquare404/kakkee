@@ -7,7 +7,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
 import type { MangaDetailQuery } from '../../core/graphql/generated/graphql';
-import { MangaDetailDocument } from '../../core/graphql/generated/graphql';
+import {
+  GlobalNsfwDefaultDocument,
+  MangaDetailDocument,
+} from '../../core/graphql/generated/graphql';
 import { clearChapterViewPreferences } from '../../core/preferences/chapterViewPreferences';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import {
@@ -100,11 +103,18 @@ function renderDetail(
   mutate: ReturnType<typeof vi.fn> = vi.fn(),
 ) {
   const connected = makeConnectedState();
+  const wrappedQuery = vi.fn(async (options: { query: unknown }) => {
+    if (options.query === GlobalNsfwDefaultDocument) {
+      return { data: { metas: { nodes: [] } } };
+    }
+
+    return (query as unknown as (value: unknown) => Promise<{ data: unknown }>)(options);
+  });
   const state = {
     ...connected,
     context: {
       ...connected.context,
-      graphQL: { query, mutate } as unknown as ApolloClient,
+      graphQL: { query: wrappedQuery, mutate } as unknown as ApolloClient,
       resources: fakeResources(),
     },
   };

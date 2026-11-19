@@ -13343,3 +13343,21 @@ body:has(.connection-shell) {
 .category-behavior-switch {
   flex: 0 0 auto;
 }
+
+
+.settings-toggle-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.settings-toggle-copy strong {
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.settings-toggle-copy small {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: 1.35;
+}

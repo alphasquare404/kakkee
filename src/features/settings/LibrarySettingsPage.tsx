@@ -1,5 +1,12 @@
+import { useMemo } from 'react';
 import { updateAppPreferences } from '../../core/preferences/appPreferences';
+import { useConnection } from '../../app/useConnection';
+import { createNsfwDefaultRepository } from '../../core/preferences/nsfwDefault';
 import { useAppPreferences } from '../../shared/useAppPreferences';
+import {
+  updateNsfwPreferences,
+  useNsfwPreferences,
+} from '../../core/preferences/nsfwPreferences';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -8,6 +15,10 @@ import { BackButton } from '../../shared/BackButton';
 registerMessages('id', {
   'Library settings': 'Pengaturan perpustakaan',
   'Grid density and card size': 'Kepadatan grid dan ukuran kartu',
+  'Content visibility': 'Visibilitas konten',
+  'NSFW mode by default': 'Mode NSFW secara default',
+  'Start Kakkee with NSFW content visible. Turn this off to start in SFW mode.':
+    'Mulai Kakkee dengan konten NSFW terlihat. Matikan untuk mulai dalam mode SFW.',
   'All settings': 'Semua pengaturan',
   'Grid density': 'Kepadatan grid',
   Compact: 'Ringkas',
@@ -31,7 +42,18 @@ registerMessages('id', {
 
 export function LibrarySettingsPage() {
   const preferences = useAppPreferences();
+  const nsfw = useNsfwPreferences();
+  const { state } = useConnection();
   const { t } = useI18n();
+  const nsfwDefaultRepository = useMemo(
+    () =>
+      state.status === 'connected'
+        ? createNsfwDefaultRepository({
+            getClient: () => state.context.graphQL,
+          })
+        : null,
+    [state],
+  );
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -90,6 +112,35 @@ export function LibrarySettingsPage() {
                     libraryBadges: event.target.checked,
                   })
                 }
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="settings-section" aria-labelledby="content-heading">
+          <div className="section-heading-row">
+            <h2 id="content-heading">{t('Content visibility')}</h2>
+          </div>
+          <div className="settings-toggle-list">
+            <label className="settings-toggle">
+              <span className="settings-toggle-copy">
+                <strong>{t('NSFW mode by default')}</strong>
+                <small>
+                  {t(
+                    'Start Kakkee with NSFW content visible. Turn this off to start in SFW mode.',
+                  )}
+                </small>
+              </span>
+              <input
+                type="checkbox"
+                checked={!nsfw.hideNsfw}
+                onChange={(event) => {
+                  const hideNsfw = !event.target.checked;
+                  updateNsfwPreferences({ hideNsfw });
+                  void nsfwDefaultRepository
+                    ?.setDefault(hideNsfw)
+                    .catch(() => undefined);
+                }}
               />
             </label>
           </div>

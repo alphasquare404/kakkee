@@ -4,6 +4,7 @@ import { ConnectionProvider } from './ConnectionProvider';
 import { getFrontendBasePath, getRouterBasename } from './deploymentSettings';
 import { AppRouter } from './AppRouter';
 import { PwaUpdatePrompt } from './PwaUpdatePrompt';
+import { NsfwDefaultSync } from './NsfwDefaultSync';
 import { useAppPreferences } from '../shared/useAppPreferences';
 
 function accentContrast(hex: string): string {
@@ -69,6 +70,7 @@ export function App({ createCoordinator, frontendBasePath }: AppProps = {}) {
       frontendBasePath={basePath}
       createCoordinator={createCoordinator}
     >
+      <NsfwDefaultSync />
       <AppRouter basename={getRouterBasename(basePath)} />
       <PwaUpdatePrompt />
     </ConnectionProvider>

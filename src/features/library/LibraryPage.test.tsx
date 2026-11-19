@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../app/App';
 import type { ResourceService } from '../../core/resources/resourceService';
 import {
+  GlobalNsfwDefaultDocument,
   LibraryCategoriesDocument,
   LibraryMangasDocument,
   type LibraryCategoriesQuery,
@@ -124,11 +125,18 @@ function renderLibrary(
     dispose: vi.fn(),
     isDisposed: () => false,
   } as unknown as ResourceService;
+  const wrappedQuery = vi.fn(async (options: QueryOptions) => {
+    if (options.query === GlobalNsfwDefaultDocument) {
+      return { data: { metas: { nodes: [] } } };
+    }
+
+    return query(options);
+  });
   const state = {
     ...connected,
     context: {
       ...connected.context,
-      graphQL: { query } as unknown as ApolloClient,
+      graphQL: { query: wrappedQuery } as unknown as ApolloClient,
       resources,
     },
   };

@@ -1,0 +1,17 @@
+query GlobalNsfwDefault {
+  metas(filter: { key: { equalTo: "kakkee.nsfw-default" } }) {
+    nodes {
+      key
+      value
+    }
+  }
+}
+
+mutation SetGlobalNsfwDefault($input: SetGlobalMetaInput!) {
+  setGlobalMeta(input: $input) {
+    meta {
+      key
+      value
+    }
+  }
+}
