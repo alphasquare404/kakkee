@@ -2,11 +2,15 @@ import { useEffect, useMemo } from 'react';
 import { useConnection } from './useConnection';
 import { createNsfwDefaultRepository } from '../core/preferences/nsfwDefault';
 import { updateNsfwPreferences } from '../core/preferences/nsfwPreferences';
+import {
+  getLibraryPreferences,
+  updateLibraryPreferences,
+} from '../core/preferences/libraryPreferences';
 
 /**
- * Applies the server-wide Default NSFW mode on every new connection. A new
- * browser/device therefore starts from the account's saved default instead of
- * an unset local preference.
+ * Applies server-wide visibility defaults on every connection. A new
+ * browser/device therefore starts from the server's saved NSFW mode and
+ * hidden-category list.
  */
 export function NsfwDefaultSync() {
   const { state } = useConnection();
@@ -26,19 +30,46 @@ export function NsfwDefaultSync() {
 
     let active = true;
 
-    void repository
-      .getDefault()
-      .then((hideNsfw) => {
-        if (active && hideNsfw !== null) {
-          updateNsfwPreferences({ hideNsfw });
+    const sync = async () => {
+      try {
+        const defaults = await repository.getVisibilityDefaults();
+
+        if (!active) {
+          return;
         }
-      })
-      .catch(() => {
-        // Keep the local preference when Global Meta is unavailable.
-      });
+
+        if (defaults.hideNsfw !== null) {
+          updateNsfwPreferences({ hideNsfw: defaults.hideNsfw });
+        }
+
+        if (defaults.hiddenCategoryIds !== null) {
+          updateLibraryPreferences({
+            ...getLibraryPreferences(),
+            hiddenCategoryIds: [...defaults.hiddenCategoryIds],
+          });
+        }
+      } catch {
+        // Keep local preferences when Global Meta is unavailable.
+      }
+    };
+
+    void sync();
+    const onFocus = () => void sync();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void sync();
+      }
+    };
+
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    const interval = window.setInterval(() => void sync(), 60_000);
 
     return () => {
       active = false;
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.clearInterval(interval);
     };
   }, [repository]);
 

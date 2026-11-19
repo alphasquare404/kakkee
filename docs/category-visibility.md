@@ -67,3 +67,12 @@ Show all      : 35 restored
 - History excludes chapters from hidden categories.
 
 Final suite: **436 passed, 7 skipped**.
+
+
+## Server-wide visibility (v0.1.14)
+
+- Hidden category IDs are synchronized through Global Meta key
+  kakkee.hidden-category-ids.
+- The NSFW mode is synchronized through kakkee.nsfw-default.
+- Both values are read on connection and rechecked when the app regains focus.
+- Manual NSFW labels and other device-specific preferences remain local.

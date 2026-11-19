@@ -30,6 +30,7 @@ import {
   type LibrarySortField,
 } from '../../core/library/libraryRepository';
 import { useConnection } from '../../app/useConnection';
+import { createNsfwDefaultRepository } from '../../core/preferences/nsfwDefault';
 import { getAutoConnect, getLastServerUrl } from '../../core/preferences/connectionPreferences';
 import { useAppPath } from '../../app/useAppPath';
 import { ActionMenu } from '../../shared/ActionMenu';
@@ -40,6 +41,7 @@ import { useSearchHistory } from '../../shared/useSearchHistory';
 import { addSearchHistory, clearSearchHistory } from '../../core/preferences/searchHistory';
 import {
   getLibraryPreferences,
+  subscribeLibraryPreferences,
   updateLibraryPreferences,
 } from '../../core/preferences/libraryPreferences';
 import { LibraryMenu, type LibraryMenuGroup } from './LibraryMenu';
@@ -270,6 +272,10 @@ export function LibraryPage() {
 
 function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const visibilityRepository = useMemo(
+    () => createNsfwDefaultRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
   const repository = useMemo(
     () => createLibraryRepository({ getClient: () => context.graphQL }),
     [context.graphQL],
@@ -573,6 +579,16 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       void controller.setCategory(null);
     }
   }, [controller, hiddenCategoryIds, library.categoryId]);
+
+  useEffect(() => {
+    const applyHiddenCategories = () => {
+      setHiddenCategoryIds(
+        new Set(getLibraryPreferences().hiddenCategoryIds),
+      );
+    };
+
+    return subscribeLibraryPreferences(applyHiddenCategories);
+  }, []);
 
   useEffect(() => {
     autoLabelNsfwSourceMangas(library.items);
@@ -992,6 +1008,9 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       ...getLibraryPreferences(),
       hiddenCategoryIds: [...next],
     });
+    void visibilityRepository
+      .setHiddenCategories([...next])
+      .catch(() => undefined);
 
     if (library.categoryId === categoryId) {
       handleCategory(null);
@@ -1029,6 +1048,7 @@ function ConnectedLibrary({ context }: { readonly context: ConnectedContext }) {
       hiddenCategoryIds: [],
       showAllCategory: true,
     });
+    void visibilityRepository.setHiddenCategories([]).catch(() => undefined);
   };
 
   const selectContextManga = () => {

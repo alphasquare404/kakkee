@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   updateNsfwPreferences,
   useNsfwPreferences,
@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { GhostIcon } from '../../shared/GhostIcon';
 import { setGhostMode, useGhostMode } from '../../core/preferences/ghostMode';
 import { useConnection } from '../../app/useConnection';
+import { createNsfwDefaultRepository } from '../../core/preferences/nsfwDefault';
 import { PageHeader } from '../../shared/PageHeader';
 import { useI18n } from '../../shared/useI18n';
 import { registerMessages } from '../../shared/i18n';
@@ -156,7 +157,15 @@ export function SettingsPage() {
 }
 
 function SettingsContent() {
+  const { state } = useConnection();
   const { t } = useI18n();
+  const nsfwDefaultRepository = useMemo(
+    () =>
+      state.status === 'connected'
+        ? createNsfwDefaultRepository({ getClient: () => state.context.graphQL })
+        : null,
+    [state],
+  );
   const base = import.meta.env.BASE_URL;
   const [activeGroup, setActiveGroup] = useState<string>(DIRECTORY[0].group);
   const nsfw = useNsfwPreferences();
@@ -174,6 +183,7 @@ function SettingsContent() {
   const toggleNsfwMode = () => {
     const next = !nsfw.hideNsfw;
     updateNsfwPreferences({ hideNsfw: next });
+    void nsfwDefaultRepository?.setDefault(next).catch(() => undefined);
     setSettingsNotice(
       next ? 'NSFW Mode Deactivated' : 'NSFW Mode Activated',
     );

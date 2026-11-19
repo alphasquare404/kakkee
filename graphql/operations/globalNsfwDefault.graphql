@@ -1,5 +1,14 @@
 query GlobalNsfwDefault {
-  metas(filter: { key: { equalTo: "kakkee.nsfw-default" } }) {
+  metas(
+    filter: {
+      key: {
+        in: [
+          "kakkee.nsfw-default"
+          "kakkee.hidden-category-ids"
+        ]
+      }
+    }
+  ) {
     nodes {
       key
       value
