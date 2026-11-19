@@ -5,7 +5,11 @@ import { useAppPath } from '../../app/useAppPath';
 import { useHiddenCategoryIds } from '../../shared/useHiddenCategories';
 import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
-import { hideHistoryManga } from '../../core/preferences/hiddenHistory';
+import {
+  getHiddenHistoryMangaIds,
+  hideHistoryManga,
+} from '../../core/preferences/hiddenHistory';
+import { createNsfwDefaultRepository } from '../../core/preferences/nsfwDefault';
 import { createSectionOrigin } from '../../app/navigationOrigin';
 import {
   autoLabelNsfwSourceMangas,
@@ -137,6 +141,10 @@ export function UpdatesPage() {
 
 function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
   const { t } = useI18n();
+  const visibilityRepository = useMemo(
+    () => createNsfwDefaultRepository({ getClient: () => context.graphQL }),
+    [context.graphQL],
+  );
   const hiddenCategoryIds = useHiddenCategoryIds();
   const hiddenHistoryIds = useHiddenHistory();
   const historyPreferences = useHistoryPreferences();
@@ -476,6 +484,9 @@ function UpdatesContent({ context }: { readonly context: ConnectedContext }) {
               role="menuitem"
               onClick={() => {
                 hideHistoryManga(continueMenu.entry.manga.id);
+                void visibilityRepository
+                  .setHiddenHistory([...getHiddenHistoryMangaIds()])
+                  .catch(() => undefined);
                 setContinueMenu(null);
               }}
             >

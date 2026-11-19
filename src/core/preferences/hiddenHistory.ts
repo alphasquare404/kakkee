@@ -53,6 +53,16 @@ export function hideHistoryManga(mangaId: number): void {
   notify();
 }
 
+export function replaceHiddenHistoryMangaIds(mangaIds: readonly number[]): void {
+  hidden = new Set(
+    mangaIds.filter(
+      (value): value is number => Number.isSafeInteger(value) && value > 0,
+    ),
+  );
+  persist();
+  notify();
+}
+
 export function clearHiddenHistory(): void {
   hidden = new Set();
   persist();

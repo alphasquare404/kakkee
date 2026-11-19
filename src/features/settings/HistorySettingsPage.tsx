@@ -1,5 +1,8 @@
 import { updateHistoryPreferences } from '../../core/preferences/historyPreferences';
 import { clearHiddenHistory } from '../../core/preferences/hiddenHistory';
+import { createNsfwDefaultRepository } from '../../core/preferences/nsfwDefault';
+import { useConnection } from '../../app/useConnection';
+import { useMemo } from 'react';
 import { setGhostMode, useGhostMode } from '../../core/preferences/ghostMode';
 import { useHiddenHistory } from '../../shared/useHiddenHistory';
 import { useHistoryPreferences } from '../../shared/useHistoryPreferences';
@@ -31,7 +34,15 @@ export function HistorySettingsPage() {
   const preferences = useHistoryPreferences();
   const hidden = useHiddenHistory();
   const ghostMode = useGhostMode();
+  const { state } = useConnection();
   const { t } = useI18n();
+  const visibilityRepository = useMemo(
+    () =>
+      state.status === 'connected'
+        ? createNsfwDefaultRepository({ getClient: () => state.context.graphQL })
+        : null,
+    [state],
+  );
 
   return (
     <div className="app-shell page-shell settings-shell">
@@ -103,7 +114,12 @@ export function HistorySettingsPage() {
               <button
                 className="button button-secondary"
                 type="button"
-                onClick={clearHiddenHistory}
+                onClick={() => {
+                  clearHiddenHistory();
+                  void visibilityRepository
+                    ?.setHiddenHistory([])
+                    .catch(() => undefined);
+                }}
               >
                 {t('Restore hidden history')}
               </button>

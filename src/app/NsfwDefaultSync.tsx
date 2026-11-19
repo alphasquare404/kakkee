@@ -6,6 +6,7 @@ import {
   getLibraryPreferences,
   updateLibraryPreferences,
 } from '../core/preferences/libraryPreferences';
+import { replaceHiddenHistoryMangaIds } from '../core/preferences/hiddenHistory';
 
 /**
  * Applies server-wide visibility defaults on every connection. A new
@@ -47,6 +48,10 @@ export function NsfwDefaultSync() {
             ...getLibraryPreferences(),
             hiddenCategoryIds: [...defaults.hiddenCategoryIds],
           });
+        }
+
+        if (defaults.hiddenHistoryMangaIds !== null) {
+          replaceHiddenHistoryMangaIds(defaults.hiddenHistoryMangaIds);
         }
       } catch {
         // Keep local preferences when Global Meta is unavailable.
